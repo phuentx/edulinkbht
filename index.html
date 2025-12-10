@@ -36,8 +36,7 @@
                         'float-delayed': 'float 8s ease-in-out 4s infinite',
                         'float-fast': 'float 6s ease-in-out infinite',
                         'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'scan': 'scan 4s linear infinite',
-                        'blink': 'blink 1s step-end infinite',
+                        'text-glow': 'textGlow 3s ease-in-out infinite alternate',
                         'cloud-pulse': 'cloudPulse 8s ease-in-out infinite',
                         'data-stream': 'dataStream 2s linear infinite',
                         'packet-flow': 'packetFlow 3s linear infinite',
@@ -47,13 +46,9 @@
                             '0%, 100%': { transform: 'translateY(0) scale(1)' },
                             '50%': { transform: 'translateY(-15px) scale(1.02)' },
                         },
-                        scan: {
-                            '0%': { top: '-100%' },
-                            '100%': { top: '200%' },
-                        },
-                        blink: {
-                            '0%, 100%': { opacity: '1' },
-                            '50%': { opacity: '0' },
+                        textGlow: {
+                            '0%': { textShadow: '0 0 10px rgba(168, 199, 250, 0.2), 0 0 20px rgba(168, 199, 250, 0.1)' },
+                            '100%': { textShadow: '0 0 30px rgba(168, 199, 250, 0.8), 0 0 60px rgba(168, 199, 250, 0.4)' },
                         },
                         cloudPulse: {
                             '0%, 100%': { opacity: '0.2', transform: 'scale(1)' },
@@ -261,12 +256,17 @@
             filter: drop-shadow(0 0 15px rgba(255,255,255,0.8)) drop-shadow(0 0 40px rgba(200, 220, 255, 0.4));
             pointer-events: none; text-align: center;
         }
+        
+        .super-glow-text {
+            background: linear-gradient(to right, #dbeafe, #A8C7FA, #fbcfe8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            /* POWERFUL GLOW */
+            filter: drop-shadow(0 0 15px rgba(168, 199, 250, 0.4)) drop-shadow(0 0 40px rgba(168, 199, 250, 0.2));
+            animation: textGlow 3s ease-in-out infinite alternate;
+        }
+
         .team-title-container { position: relative; z-index: 5; margin-bottom: 2rem; display: flex; justify-content: center; }
         .team-glow-text { font-size: 10vw; }
-        .text-gradient-gemini {
-            background: linear-gradient(to right, #dbeafe, #e9d5ff, #fbcfe8);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
 
         /* --- Footer --- */
         .moon-footer-container {
@@ -340,8 +340,8 @@
             </div>
 
             <h1 class="text-6xl md:text-9xl font-semibold tracking-tighter mb-8 leading-[1] reveal" style="transition-delay: 100ms;">
-                <span class="text-gradient-gemini">Intelligence,</span><br>
-                <span class="text-white">Reimagined.</span>
+                <span class="super-glow-text">Learning,</span><br>
+                <span class="text-white">Evolved.</span>
             </h1>
             
             <p class="text-lg md:text-2xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed mb-12 reveal" style="transition-delay: 200ms;">
@@ -627,21 +627,6 @@
                         </div>
                     </div>
 
-                    <div class="team-node-card group reveal" style="transition-delay: 400ms;">
-                        <div class="cloud-glow bg-yellow-600 animate-cloud-pulse" style="animation-delay: 1s;"></div>
-                        <div class="relative z-10 p-6 flex flex-col items-center text-center h-full">
-                            <div class="relative w-24 h-24 rounded-full border border-yellow-500/30 p-1 mb-4 group-hover:scale-110 transition-transform duration-500 bg-black/40">
-                                <img src="https://i.imghippo.com/files/WFP4901nE.png" alt="Jampel" class="w-full h-full rounded-full object-cover">
-                            </div>
-                            <h4 class="text-xl font-bold text-white mb-1">Jampel</h4>
-                            <div class="text-[10px] font-mono text-yellow-300 uppercase tracking-wider mb-6">Researcher</div>
-                             <div class="bg-black/50 border border-white/5 rounded-lg p-3 w-full text-left font-mono text-[10px] leading-relaxed text-gray-400">
-                                <span class="text-yellow-400">>_</span> Exploring educational datasets.<br>
-                                <span class="text-gray-500">Status:</span> Researching
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="team-node-card group reveal" style="transition-delay: 500ms;">
                         <div class="cloud-glow bg-purple-600 animate-cloud-pulse" style="animation-delay: 2s;"></div>
                         <div class="relative z-10 p-6 flex flex-col items-center text-center h-full">
@@ -653,6 +638,21 @@
                              <div class="bg-black/50 border border-white/5 rounded-lg p-3 w-full text-left font-mono text-[10px] leading-relaxed text-gray-400">
                                 <span class="text-purple-400">>_</span> Architecting distributed neural systems.<br>
                                 <span class="text-gray-500">Status:</span> Computing
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="team-node-card group reveal" style="transition-delay: 400ms;">
+                        <div class="cloud-glow bg-yellow-600 animate-cloud-pulse" style="animation-delay: 1s;"></div>
+                        <div class="relative z-10 p-6 flex flex-col items-center text-center h-full">
+                            <div class="relative w-24 h-24 rounded-full border border-yellow-500/30 p-1 mb-4 group-hover:scale-110 transition-transform duration-500 bg-black/40">
+                                <img src="https://i.imghippo.com/files/WFP4901nE.png" alt="Jampel" class="w-full h-full rounded-full object-cover">
+                            </div>
+                            <h4 class="text-xl font-bold text-white mb-1">Jampel</h4>
+                            <div class="text-[10px] font-mono text-yellow-300 uppercase tracking-wider mb-6">Researcher</div>
+                             <div class="bg-black/50 border border-white/5 rounded-lg p-3 w-full text-left font-mono text-[10px] leading-relaxed text-gray-400">
+                                <span class="text-yellow-400">>_</span> Exploring educational datasets.<br>
+                                <span class="text-gray-500">Status:</span> Researching
                             </div>
                         </div>
                     </div>

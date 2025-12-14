@@ -647,7 +647,14 @@ height: 100%; flex: 1; gap: 4px; color: #98a2b3; transition: all 0.2s; cursor: p
 </div>
 </div>
 <input type="file" id="edit-avatar-input" class="hidden" accept="image/*" onchange="handleEditAvatarSelect(event)">
-<span class="text-xs text-gray-500 mt-2">Tap to change</span>
+<div class="w-full mt-3 px-4">
+    <div class="flex items-center gap-2 mb-1">
+        <span class="h-[1px] bg-gray-200 flex-1"></span>
+        <span class="text-[10px] text-gray-400 font-bold uppercase">OR</span>
+        <span class="h-[1px] bg-gray-200 flex-1"></span>
+    </div>
+    <input type="text" id="edit-avatar-link" placeholder="Paste Image URL..." class="w-full text-center text-xs text-blue-600 border-none outline-none bg-blue-50 py-2 rounded-lg placeholder-blue-300">
+</div>
 </div>
 <div>
 <label class="text-xs font-bold text-gray-500 uppercase">Display Name</label>
@@ -1051,8 +1058,19 @@ onAuthStateChanged(auth, async (user) => {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
         
+        let isOfficial = false;
+        // Auto-Verify Edulink User
+        if(user.email === 'edulinkbht@gmail.com') {
+            isOfficial = true;
+        }
+
         if (userSnap.exists()) {
             currentUser = { id: user.uid, ...userSnap.data() };
+            // Ensure official status is synced if email matches
+            if(isOfficial && !currentUser.isOfficial) {
+                await updateDoc(userRef, { isOfficial: true });
+                currentUser.isOfficial = true;
+            }
         } else {
             // Create default user doc if missing (Crucial for Google Auth first time)
             currentUser = {
@@ -1064,7 +1082,8 @@ onAuthStateChanged(auth, async (user) => {
                 following: [],
                 followers: [],
                 friends: [],
-                saved: []
+                saved: [],
+                isOfficial: isOfficial
             };
             await setDoc(userRef, currentUser);
         }
@@ -1328,7 +1347,7 @@ function createPostElement(post) {
         const isVideo = post.media.startsWith('data:video') || post.media.includes('.mp4') || post.media.includes('.webm');
         mediaHTML = isVideo
         ? `<div class="mt-3 rounded-xl overflow-hidden"><video src="${post.media}" class="w-full max-h-[400px]" controls onclick="event.stopPropagation()"></video></div>`
-        : `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer" onclick="event.stopPropagation(); openLightbox('${post.media}')">
+        : `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer" onclick="event.stopPropagation(); openLightbox('${post.media}', 'image')">
         <img src="${post.media}" class="w-full max-h-[400px] object-cover bg-gray-50">
         </div>`;
     }
@@ -1490,7 +1509,7 @@ window.renderNotifications = function() {
     filtered.forEach(n => {
         const sender = users.find(u => u.id === n.senderId) || { name: 'Admin', avatar: '' };
         const div = document.createElement('div');
-        div.className = "w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100 bg-white shadow-sm mb-2";
+        div.className = "w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100 bg-white shadow-sm mb-2 group relative";
         let icon = "";
         if(n.type === 'like') icon = '<i data-lucide="heart" class="w-3 h-3 text-white"></i>';
         if(n.type === 'comment') icon = '<i data-lucide="message-circle" class="w-3 h-3 text-white"></i>';
@@ -1502,23 +1521,31 @@ window.renderNotifications = function() {
         if(n.type === 'reply') colorClass = 'bg-teal-500';
 
         div.innerHTML = `
-        <div class="relative">
+        <div class="relative cursor-pointer" onclick="showProfile('${sender.id}')">
         <img src="${sender.avatar}" class="w-10 h-10 rounded-full bg-gray-200">
         <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${colorClass} flex items-center justify-center border-2 border-white">
         ${icon}
         </div>
         </div>
-        <div class="flex-1">
+        <div class="flex-1 cursor-pointer">
         <div class="text-sm">
         <span class="font-bold text-gray-900">${sender.name}</span>
         <span class="text-gray-600">${n.content}</span>
         </div>
         <div class="text-xs text-gray-400 mt-0.5">${new Date(n.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
         </div>
+        <button onclick="deleteNotification('${n.id}')" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
         `;
         container.appendChild(div);
     });
     lucide.createIcons();
+}
+
+window.deleteNotification = async function(id) {
+    if(confirm("Delete notification?")) {
+        await deleteDoc(doc(db, "notifications", id));
+        // Realtime listener will handle UI
+    }
 }
 
 window.toggleNotifications = function() {
@@ -1601,12 +1628,16 @@ window.saveProfileChanges = async function() {
     const name = document.getElementById('edit-name').value;
     const bio = document.getElementById('edit-bio').value;
     const fileInput = document.getElementById('edit-avatar-input');
+    const linkInput = document.getElementById('edit-avatar-link');
     
     if(!name) return showToast("Name is required");
     
     let avatarUrl = currentUser.avatar;
     
-    if(fileInput.files.length > 0) {
+    // Priority: Link > File > Existing
+    if(linkInput.value.trim()) {
+        avatarUrl = linkInput.value.trim();
+    } else if(fileInput.files.length > 0) {
         try {
             const storageRef = ref(storage, `profile_images/${currentUser.id}`);
             await uploadBytes(storageRef, fileInput.files[0]);
@@ -2323,6 +2354,31 @@ window.showToast = function(message, isError = false) {
     if (isError) { toast.style.backgroundColor = '#d93025'; icon.setAttribute('data-lucide', 'alert-circle'); icon.classList.remove('text-[#c4eed0]'); icon.classList.add('text-white'); }
     else { toast.style.backgroundColor = '#303134'; icon.setAttribute('data-lucide', 'check-circle-2'); icon.classList.add('text-[#c4eed0]'); }
     lucide.createIcons(); toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3000);
+}
+
+window.openLightbox = function(src, type = 'image') {
+    const wrapper = document.getElementById('lightbox-wrapper');
+    const lightbox = document.getElementById('lightbox');
+    
+    if (type === 'video' || src.includes('.mp4') || src.includes('data:video') || src.includes('.webm')) {
+         wrapper.innerHTML = `<video src="${src}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`;
+    } else {
+         wrapper.innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`;
+    }
+    
+    lightbox.classList.add('active');
+    lightbox.classList.remove('pointer-events-none');
+    lightbox.classList.remove('opacity-0');
+}
+
+window.closeLightbox = function() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.remove('active');
+    lightbox.classList.add('pointer-events-none');
+    lightbox.classList.add('opacity-0');
+    // Stop video if playing
+    const video = lightbox.querySelector('video');
+    if(video) video.pause();
 }
 
 // AI FUNCTIONS (RESTORED)

@@ -10,17 +10,22 @@
 
 <style>
     :root {
-        /* Notion Palette & Variables */
+        /* Notion & Modern Palette */
         --bg-body: #FFFFFF;
-        --bg-secondary: #F7F7F5; 
-        --text-main: #37352F;    
-        --text-sub: #9B9A97;     
+        --bg-secondary: #F7F7F5; /* Notion default bg */
+        --bg-hover: #EFEFEF;
+        --text-main: #37352F;    /* Notion text */
+        --text-sub: #787774;     /* Notion gray text */
         --border: #E0E0E0;
-        --accent: #2383E2;
+        --border-hover: #D0D0D0;
+        --accent: #2383E2;       /* Google Blueish */
         --error: #EB5757;
         --success: #27AE60;       
-        --radius: 4px; /* Notion uses small radius */
-        --star-color: #F5A623; 
+        --radius: 6px; 
+        --shadow-sm: 0 1px 2px rgba(15, 15, 15, 0.1);
+        --shadow-md: 0 4px 12px rgba(15, 15, 15, 0.1);
+        --shadow-lg: 0 8px 30px rgba(15, 15, 15, 0.12);
+        --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,26 +36,28 @@
     }
 
     body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-family: var(--font-main);
         background-color: var(--bg-body);
         color: var(--text-main);
         overflow-x: hidden;
         overflow-y: scroll; 
         -ms-overflow-style: none; 
         line-height: 1.5;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        -webkit-font-smoothing: antialiased;
     }
 
     body::-webkit-scrollbar { display: none; }
 
-    /* --- NOTIFICATION CONTAINER --- */
+    /* --- TOAST NOTIFICATION (Temporary Popups) --- */
     #notification-container {
         position: fixed;
-        top: 20px;
-        right: 20px;
+        top: 24px;
+        right: 24px;
         z-index: 10000;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
         pointer-events: none;
     }
 
@@ -58,16 +65,16 @@
         background: rgba(255, 255, 255, 0.98);
         border: 1px solid var(--border);
         border-left: 3px solid var(--accent);
-        padding: 12px 16px;
-        border-radius: 3px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        padding: 14px 16px;
+        border-radius: 4px;
+        box-shadow: var(--shadow-md);
         display: flex;
         align-items: center;
         gap: 12px;
-        min-width: 300px;
+        min-width: 320px;
         max-width: 400px;
         pointer-events: auto;
-        animation: slideInRight 0.3s ease-out forwards;
+        animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         opacity: 0;
         transform: translateX(100%);
     }
@@ -76,19 +83,142 @@
     .custom-alert.success { border-left-color: var(--success); }
 
     .alert-avatar {
-        width: 28px; height: 28px;
-        border-radius: 3px; /* Square-ish for Notion */
-        background: #F0F0F0;
+        width: 32px; height: 32px;
+        border-radius: 4px;
+        background: var(--bg-secondary);
         object-fit: cover;
         flex-shrink: 0;
+        border: 1px solid rgba(0,0,0,0.05);
     }
 
     .alert-content { display: flex; flex-direction: column; }
     .alert-title { font-size: 13px; font-weight: 600; color: var(--text-main); }
-    .alert-msg { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+    .alert-msg { font-size: 13px; color: var(--text-sub); margin-top: 2px; }
 
     @keyframes slideInRight { to { opacity: 1; transform: translateX(0); } }
     @keyframes fadeOutRight { to { opacity: 0; transform: translateX(20px); } }
+
+    /* --- HEADER & NAVIGATION --- */
+    .app-header {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 64px;
+        padding: 0 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 50;
+        /* Glassmorphism for header */
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .brand-logo {
+        display: flex; align-items: center; gap: 10px;
+        cursor: pointer; opacity: 0.9; transition: opacity 0.2s;
+    }
+    .brand-logo:hover { opacity: 1; }
+    .brand-logo-img { width: 24px; height: 24px; object-fit: contain; }
+    .brand-logo-text { font-weight: 600; font-size: 15px; color: var(--text-main); letter-spacing: -0.01em; }
+
+    .header-actions { display: flex; align-items: center; gap: 16px; }
+
+    .icon-btn {
+        background: transparent;
+        border: none;
+        width: 36px; height: 36px;
+        border-radius: 6px;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-sub);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    .icon-btn:hover { background: var(--bg-secondary); color: var(--text-main); }
+    .icon-btn.active { background: var(--bg-hover); color: var(--text-main); }
+    .icon-btn svg { width: 20px; height: 20px; }
+
+    .notif-badge {
+        position: absolute; top: 8px; right: 8px;
+        width: 8px; height: 8px;
+        background: #EB5757;
+        border: 1.5px solid white;
+        border-radius: 50%;
+        display: none;
+    }
+    .notif-badge.visible { display: block; }
+
+    /* --- NOTIFICATION PANEL --- */
+    .notification-panel {
+        position: absolute;
+        top: 70px; right: 32px;
+        width: 360px;
+        background: #FFFFFF;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow-lg);
+        z-index: 1000;
+        display: none;
+        flex-direction: column;
+        animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: top right;
+        overflow: hidden;
+    }
+    .notification-panel.active { display: flex; }
+
+    @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .notif-header {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex; justify-content: space-between; align-items: center;
+        background: #FAFAFA;
+    }
+    .notif-header-title { font-size: 13px; font-weight: 600; color: var(--text-main); }
+    .mark-read-btn { font-size: 11px; color: var(--accent); cursor: pointer; border: none; background: none; font-weight: 500; }
+    .mark-read-btn:hover { text-decoration: underline; }
+
+    .notif-list {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 4px;
+    }
+
+    .notif-item {
+        display: flex; gap: 12px;
+        padding: 12px;
+        border-radius: 6px;
+        cursor: default;
+        transition: background 0.2s;
+        margin-bottom: 2px;
+        position: relative;
+    }
+    .notif-item:hover { background: var(--bg-secondary); }
+    .notif-item.unread::before {
+        content: ""; position: absolute; left: 6px; top: 50%; transform: translateY(-50%);
+        width: 4px; height: 4px; border-radius: 50%; background: var(--accent);
+    }
+    
+    .notif-icon-box {
+        width: 36px; height: 36px; border-radius: 8px;
+        background: var(--bg-secondary); border: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; color: var(--text-main);
+    }
+    .notif-icon-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+    
+    .notif-body { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .notif-title { font-size: 13px; font-weight: 600; color: var(--text-main); }
+    .notif-message { font-size: 12px; color: var(--text-sub); line-height: 1.4; }
+    .notif-time { font-size: 10px; color: #BBBBBB; margin-top: 4px; }
+
+    .empty-state { padding: 40px 20px; text-align: center; color: var(--text-sub); font-size: 13px; display: none; }
+    .notif-list:empty + .empty-state { display: block; }
+
 
     /* --- SCREEN ONE: SPLIT LAYOUT --- */
     .screen-one {
@@ -99,6 +229,7 @@
         border-bottom: 1px solid var(--border);
         background: white;
         z-index: 10;
+        padding-top: 64px; /* Space for Header */
     }
 
     /* LEFT SIDE */
@@ -111,113 +242,92 @@
         justify-content: center;
         align-items: center;
         border-right: 1px solid var(--border);
-        height: 100%;
+        height: calc(100vh - 64px); /* Full height minus header */
     }
 
     .left-panel::before {
         content: ""; position: absolute; inset: 0;
         background-image: radial-gradient(#d3d1cb 1px, transparent 1px);
-        background-size: 24px 24px; /* Tighter grid */
-        opacity: 0.6; pointer-events: none; z-index: 0;
+        background-size: 24px 24px;
+        opacity: 0.5; pointer-events: none; z-index: 0;
     }
 
-    /* Marquee Container */
+    /* Marquee */
     .marquee-container {
-        display: flex;
-        gap: 60px; 
-        height: 120vh;
-        transform: translateY(-5%);
-        position: relative;
-        z-index: 5;
+        display: flex; gap: 60px; height: 120vh;
+        transform: translateY(-5%); position: relative; z-index: 5;
     }
-
-    .marquee-col {
-        display: flex; flex-direction: column; gap: 24px;
-        width: 240px; z-index: 2; 
-    }
-
+    .marquee-col { display: flex; flex-direction: column; gap: 24px; width: 240px; z-index: 2; }
     .scroll-up { animation: scrollUp 80s linear infinite; }
     .scroll-down { animation: scrollDown 85s linear infinite; }
-
     @keyframes scrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
     @keyframes scrollDown { 0% { transform: translateY(-50%); } 100% { transform: translateY(0); } }
 
     .gallery-card {
-        border-radius: 4px; 
-        overflow: hidden;
+        border-radius: 6px; overflow: hidden;
         border: 1px solid rgba(0,0,0,0.06);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04); 
-        background: white; 
-        height: 300px; flex-shrink: 0;
-        position: relative;
+        box-shadow: var(--shadow-sm); 
+        background: white; height: 300px; flex-shrink: 0; position: relative;
     }
-    .gallery-card img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.8); }
+    .gallery-card img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.85); transition: 0.3s; }
+    .gallery-card:hover img { filter: saturate(1); transform: scale(1.02); }
 
     /* --- GLOWING AI BAR --- */
     .ai-floating-bar {
         position: absolute; bottom: 40px; width: 85%; max-width: 500px;
         background: #FFFFFF;
-        box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.05);
-        border-radius: 6px;
+        box-shadow: var(--shadow-md), 0 0 0 1px rgba(0,0,0,0.05);
+        border-radius: 10px;
         padding: 10px 10px 10px 16px;
         display: flex; align-items: center; justify-content: space-between;
         z-index: 20;
         border: 1px solid transparent;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         animation: slideUp 1s ease;
     }
-
+    .ai-floating-bar:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
     .ai-floating-bar.ai-active-response {
         border-color: var(--accent);
         box-shadow: 0 0 0 3px rgba(35, 131, 226, 0.15);
-        transform: translateY(-2px);
+        transform: translateY(-4px);
     }
     
     .ai-input-wrapper { display: flex; align-items: center; gap: 10px; width: 100%; }
     .sparkle-icon { color: #9D34DA; width: 18px; height: 18px; flex-shrink: 0; }
     .real-ai-input { border: none; background: transparent; outline: none; font-size: 14px; color: var(--text-main); width: 100%; }
-    
+    .real-ai-input::placeholder { color: var(--text-sub); }
     .real-ai-input.ai-answering { color: var(--accent); font-weight: 600; }
 
     .ai-send-btn { 
-        width: 28px; height: 28px; 
+        width: 30px; height: 30px; 
         background-color: var(--text-main); 
-        border-radius: 4px; 
+        border-radius: 6px; 
         display: flex; align-items: center; justify-content: center; 
         color: white; cursor: pointer; transition: all 0.2s;
     }
-    .ai-send-btn:hover { background-color: #000; }
-    .ai-send-btn svg { width: 14px; height: 14px; }
+    .ai-send-btn:hover { background-color: #000000; transform: scale(1.05); }
+    .ai-send-btn svg { width: 16px; height: 16px; }
 
     /* RIGHT SIDE */
     .right-panel {
         flex: 1; display: flex; justify-content: center; align-items: center;
-        background: white; padding: 40px; z-index: 30; height: 100%;
+        background: white; padding: 40px; z-index: 30; height: calc(100vh - 64px);
         position: relative;
     }
 
-    .brand-logo-overlay {
-        position: absolute;
-        top: 30px; left: 40px; z-index: 50; 
-        display: flex; align-items: center; gap: 8px;
-        cursor: pointer; opacity: 0.9; hover:opacity: 1;
-    }
-    .brand-logo-img { width: 20px; height: 20px; object-fit: contain; }
-    .brand-logo-text { font-weight: 600; font-size: 14px; color: var(--text-main); }
-
-    .content-stack { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 24px; }
+    .content-stack { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 32px; }
     .landing-card { text-align: center; animation: fadeIn 0.8s ease; width: 100%; }
 
     .avatar-frame {
         width: 80px; height: 80px; margin: 0 auto 16px;
-        border-radius: 8px; transform: rotate(-2deg);
+        border-radius: 10px; transform: rotate(-2deg);
         background: white; padding: 4px;
         border: 1px solid rgba(0,0,0,0.08);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
-        position: relative; cursor: pointer; transition: transform 0.3s ease;
+        box-shadow: var(--shadow-md); 
+        position: relative; cursor: pointer; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .avatar-frame:hover { transform: rotate(0deg) scale(1.02); }
-    .avatar-frame img { width: 100%; height: 100%; border-radius: 4px; object-fit: cover; }
+    .avatar-frame:hover { transform: rotate(0deg) scale(1.05); }
+    .avatar-frame img { width: 100%; height: 100%; border-radius: 6px; object-fit: cover; }
 
     .avatar-tooltip {
         position: absolute; bottom: 115%; left: 50%; transform: translateX(-50%) translateY(5px);
@@ -231,81 +341,86 @@
     }
     .avatar-frame:hover .avatar-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
-    .title-group { margin-bottom: 20px; }
-    h1 { font-size: 26px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; letter-spacing: -0.03em; }
-    .subtitle-main { font-size: 14px; color: var(--text-sub); line-height: 1.5; }
+    .title-group { margin-bottom: 24px; }
+    h1 { font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.03em; }
+    .subtitle-main { font-size: 15px; color: var(--text-sub); line-height: 1.5; }
 
-    /* --- FORM STYLES --- */
-    .auth-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; width: 100%; }
+    /* --- AUTH & FORM STYLES --- */
+    .auth-form { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; width: 100%; }
     .input-wrapper { position: relative; width: 100%; }
     
     .form-input {
-        width: 100%; padding: 8px 10px;
-        border: 1px solid #E0E0E0; border-radius: 4px;
-        font-size: 13px; color: var(--text-main); outline: none;
-        transition: border-color 0.2s, background 0.2s; background: #FFFFFF;
+        width: 100%; padding: 10px 12px;
+        border: 1px solid var(--border); border-radius: 6px;
+        font-size: 14px; color: var(--text-main); outline: none;
+        transition: all 0.2s; background: #FFFFFF;
+        box-shadow: var(--shadow-sm);
     }
-    .form-input:focus { border-color: #A0A0A0; background: #FAFAFA; }
+    .form-input:focus { border-color: #A0A0A0; box-shadow: 0 0 0 2px rgba(0,0,0,0.05); }
 
     .btn-primary {
-        width: 100%; padding: 8px 12px;
+        width: 100%; padding: 10px 12px;
         background: var(--text-main);
-        color: white; border: none; border-radius: 4px;
-        font-size: 13px; font-weight: 600;
-        cursor: pointer; transition: background 0.2s;
+        color: white; border: none; border-radius: 6px;
+        font-size: 14px; font-weight: 600;
+        cursor: pointer; transition: background 0.2s, transform 0.1s;
         display: flex; align-items: center; justify-content: center; gap: 6px;
     }
-    .btn-primary:hover { background: #000000; }
+    .btn-primary:hover { background: #000000; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
 
     .divider {
-        display: flex; align-items: center; gap: 10px; margin: 16px 0;
-        color: #C0C0C0; font-size: 11px; font-weight: 500; width: 100%;
+        display: flex; align-items: center; gap: 12px; margin: 20px 0;
+        color: #C0C0C0; font-size: 12px; font-weight: 500; width: 100%;
     }
     .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #E0E0E0; }
 
     .btn-google {
-        width: 100%; padding: 8px 12px; background: white; 
-        border: 1px solid #E0E0E0; border-radius: 4px;
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-        font-size: 13px; font-weight: 500; color: var(--text-main);
+        width: 100%; padding: 10px 12px; background: white; 
+        border: 1px solid var(--border); border-radius: 6px;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        font-size: 14px; font-weight: 500; color: var(--text-main);
         cursor: pointer; transition: background 0.1s ease;
+        box-shadow: var(--shadow-sm);
     }
-    .btn-google:hover { background: #F7F7F5; }
+    .btn-google:hover { background: var(--bg-secondary); }
 
-    .toggle-auth { font-size: 12px; margin-top: 14px; color: var(--text-sub); }
-    .toggle-link { color: var(--text-main); font-weight: 600; cursor: pointer; text-decoration: underline; }
+    .toggle-auth { font-size: 13px; margin-top: 16px; color: var(--text-sub); }
+    .toggle-link { color: var(--text-main); font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 
-    /* Hide elements based on state */
     .hidden { display: none !important; }
 
     .community-card {
-        background: white; border: 1px solid #E0E0E0; border-radius: 6px;
-        padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-        animation: slideUp 1s ease 0.2s backwards; min-height: 180px;
+        background: white; border: 1px solid var(--border); border-radius: 8px;
+        padding: 16px; box-shadow: var(--shadow-md);
+        animation: slideUp 1s ease 0.2s backwards; min-height: 200px;
     }
-    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid #F7F7F5; padding-bottom: 8px; }
-    .header-title { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-sub); display: flex; align-items: center; gap: 6px; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid #F7F7F5; padding-bottom: 8px; }
+    .header-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-sub); display: flex; align-items: center; gap: 6px; letter-spacing: 0.05em; }
     
-    .chat-list { display: flex; flex-direction: column; gap: 10px; }
+    .chat-list { display: flex; flex-direction: column; gap: 12px; }
     .chat-row, .badge-row { opacity: 0; transform: translateY(10px); animation: messagePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-    .chat-row { display: flex; gap: 8px; align-items: flex-start; }
+    .chat-row { display: flex; gap: 10px; align-items: flex-start; }
     
     @keyframes messagePop { to { opacity: 1; transform: translateY(0); } }
 
-    .chat-pfp { width: 24px; height: 24px; border-radius: 3px; background: #F7F7F5; border: 1px solid #E0E0E0; flex-shrink: 0; }
-    .chat-bubble { background: #F7F7F5; padding: 6px 10px; border-radius: 4px; font-size: 12px; color: var(--text-main); line-height: 1.4; max-width: 220px; }
-    .user-name { font-weight: 600; font-size: 10px; color: var(--text-main); display: block; margin-bottom: 2px; }
-    .badge-row { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
-    .icon-circle { width: 16px; height: 16px; border: 1px solid #E0E0E0; border-radius: 2px; display: flex; align-items: center; justify-content: center; color: var(--text-sub); }
-    .badge-text { font-size: 11px; color: var(--text-sub); }
+    .chat-pfp { width: 28px; height: 28px; border-radius: 4px; background: var(--bg-secondary); border: 1px solid var(--border); flex-shrink: 0; }
+    .chat-bubble { background: var(--bg-secondary); padding: 8px 12px; border-radius: 6px; font-size: 13px; color: var(--text-main); line-height: 1.4; max-width: 240px; }
+    .user-name { font-weight: 600; font-size: 11px; color: var(--text-main); display: block; margin-bottom: 2px; }
+    .badge-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+    .icon-circle { width: 20px; height: 20px; border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-sub); background: white; }
+    .badge-text { font-size: 12px; color: var(--text-sub); }
 
 
     /* --- SCREEN TWO: COMMUNITY PAGE --- */
     .screen-two {
         width: 100%; min-height: 100vh;
         background-color: white;
-        background-image: linear-gradient(#F7F7F5 1px, transparent 1px), linear-gradient(90deg, #F7F7F5 1px, transparent 1px);
-        background-size: 32px 32px;
+        /* Subtle Grid */
+        background-image: 
+            linear-gradient(var(--bg-secondary) 1px, transparent 1px), 
+            linear-gradient(90deg, var(--bg-secondary) 1px, transparent 1px);
+        background-size: 40px 40px;
         display: flex; flex-direction: column; align-items: center;
         position: relative; padding: 100px 20px 60px;
         overflow-y: auto; 
@@ -313,7 +428,7 @@
     
     .screen-two::after {
         content: ""; position: absolute; inset: 0;
-        background: radial-gradient(circle at center, rgba(255,255,255,0.8) 20%, rgba(255,255,255,0) 80%);
+        background: radial-gradient(circle at center, rgba(255,255,255,0.8) 20%, rgba(255,255,255,0) 90%);
         pointer-events: none; z-index: 0;
     }
 
@@ -327,49 +442,47 @@
         margin-bottom: 60px;
     }
 
-    .community-headline { font-size: 36px; font-weight: 700; letter-spacing: -0.04em; margin-bottom: 24px; text-align: center; color: var(--text-main); }
+    .community-headline { font-size: 42px; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 32px; text-align: center; color: var(--text-main); }
 
     .invitation-highlight-wrapper {
         display: flex; justify-content: center; margin-bottom: 10px;
         position: relative;
-        /* Subtle glow for notion feel */
         background: radial-gradient(closest-side, rgba(247, 247, 245, 1) 0%, rgba(255,255,255,0) 100%);
         padding: 40px; border-radius: 50%;
     }
 
     .avatar-pile { display: flex; justify-content: center; padding-left: 10px; }
-    .community-avatar-wrapper { position: relative; margin-left: -12px; transition: transform 0.2s ease; z-index: 1; }
-    .community-avatar-wrapper:hover { transform: translateY(-4px); z-index: 20; }
+    .community-avatar-wrapper { position: relative; margin-left: -14px; transition: transform 0.2s ease; z-index: 1; }
+    .community-avatar-wrapper:hover { transform: translateY(-6px); z-index: 20; }
 
     .crowd-avatar-circle {
-        width: 48px; height: 48px; border-radius: 50%; background: #fff;
-        border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: block;
+        width: 52px; height: 52px; border-radius: 50%; background: #fff;
+        border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: block;
     }
     .community-avatar-wrapper:hover .crowd-avatar-circle { border-color: var(--text-main); }
 
     .community-tooltip {
-        position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%) translateY(5px);
-        background: #2F2F2F; color: white; padding: 5px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;
+        position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%) translateY(5px);
+        background: #2F2F2F; color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 500;
         white-space: nowrap; opacity: 0; visibility: hidden; transition: all 0.2s ease;
         pointer-events: none;
     }
     .community-tooltip::after {
-        content: ""; position: absolute; top: 100%; left: 50%; margin-left: -3px;
-        border-width: 3px; border-style: solid; border-color: #2F2F2F transparent transparent transparent;
+        content: ""; position: absolute; top: 100%; left: 50%; margin-left: -4px;
+        border-width: 4px; border-style: solid; border-color: #2F2F2F transparent transparent transparent;
     }
     .community-avatar-wrapper:hover .community-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
     .central-image-container { width: 100%; position: relative; z-index: 5; margin-top: -10px; margin-bottom: 40px; }
-    .central-work-img { width: 100%; height: auto; display: block; mix-blend-mode: multiply; opacity: 0.9; filter: grayscale(10%); }
+    .central-work-img { width: 100%; height: auto; display: block; mix-blend-mode: multiply; opacity: 0.95; filter: contrast(1.05); }
 
-    /* REVIEWS (Moved Up) */
+    /* REVIEWS (1st Section) */
     .reviews-wrapper {
         width: 100%; max-width: 1200px; position: relative; overflow: hidden; 
-        padding: 20px 0; border-top: 1px solid #F0F0F0; border-bottom: 1px solid #F0F0F0;
-        background: rgba(255,255,255,0.6); backdrop-filter: blur(4px); z-index: 10; margin-bottom: 100px;
+        padding: 30px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+        background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); z-index: 10; margin-bottom: 100px;
     }
-
-    .reviews-wrapper::before, .reviews-wrapper::after { content: ""; position: absolute; top: 0; width: 120px; height: 100%; z-index: 20; pointer-events: none; }
+    .reviews-wrapper::before, .reviews-wrapper::after { content: ""; position: absolute; top: 0; width: 150px; height: 100%; z-index: 20; pointer-events: none; }
     .reviews-wrapper::before { left: 0; background: linear-gradient(to right, #FFFFFF, transparent); }
     .reviews-wrapper::after { right: 0; background: linear-gradient(to left, #FFFFFF, transparent); }
 
@@ -378,21 +491,21 @@
     @keyframes scrollHorizontal { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
     .review-card {
-        width: 260px; background: #FFFFFF; border: 1px solid #E0E0E0; border-radius: 4px;
-        padding: 16px; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.03); 
-        display: flex; flex-direction: column; gap: 10px; transition: transform 0.2s ease;
+        width: 280px; background: #FFFFFF; border: 1px solid var(--border); border-radius: 8px;
+        padding: 20px; flex-shrink: 0; box-shadow: var(--shadow-sm); 
+        display: flex; flex-direction: column; gap: 12px; transition: transform 0.2s ease;
     }
-    .review-card:hover { transform: translateY(-2px); border-color: #C0C0C0; }
+    .review-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--border-hover); }
 
-    .review-header { display: flex; align-items: center; gap: 10px; }
-    .review-pfp { width: 28px; height: 28px; border-radius: 3px; background: #F7F7F5; object-fit: cover; border: 1px solid rgba(0,0,0,0.05); }
+    .review-header { display: flex; align-items: center; gap: 12px; }
+    .review-pfp { width: 36px; height: 36px; border-radius: 6px; background: var(--bg-secondary); object-fit: cover; border: 1px solid rgba(0,0,0,0.05); }
     .review-info { display: flex; flex-direction: column; }
-    .review-name { font-size: 12px; font-weight: 600; color: var(--text-main); }
-    .review-role { font-size: 10px; color: var(--text-sub); }
-    .review-text { font-size: 12px; color: var(--text-main); line-height: 1.5; }
-    .stars { color: var(--star-color); font-size: 10px; letter-spacing: 1px; }
+    .review-name { font-size: 13px; font-weight: 700; color: var(--text-main); }
+    .review-role { font-size: 11px; color: var(--text-sub); }
+    .review-text { font-size: 13px; color: var(--text-main); line-height: 1.6; }
+    .stars { color: var(--star-color); font-size: 11px; letter-spacing: 1px; }
 
-    /* --- TEAM TIMELINE SECTION (NOTION STYLE) --- */
+    /* --- TEAM SECTION (2nd Section) --- */
     .team-timeline-section {
         width: 100%; max-width: 1000px;
         display: flex; flex-direction: column; align-items: center;
@@ -401,186 +514,171 @@
     }
     
     .team-headline { 
-        font-size: 24px; 
-        font-weight: 700; 
+        font-size: 26px; 
+        font-weight: 800; 
         color: var(--text-main); 
         margin-bottom: 60px; 
         letter-spacing: -0.02em;
         text-align: center;
-        border-bottom: 1px solid #E0E0E0;
-        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 24px;
         width: 100%;
-        max-width: 100px; /* Small underline style */
+        max-width: 120px; 
         white-space: nowrap;
     }
 
     .timeline-container {
-        display: flex; justify-content: center; gap: 40px; 
+        display: flex; justify-content: center; gap: 32px; 
         position: relative; width: 100%; padding: 0;
     }
 
     .team-node {
         position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;
-        width: 180px; transition: transform 0.3s ease;
+        width: 200px; transition: transform 0.3s ease;
     }
 
-    /* Notion-like Gallery Card: Image cover + Text below */
     .team-card-inner {
         background: #FFFFFF; 
-        border: 1px solid #E0E0E0; 
-        border-radius: 4px; 
+        border: 1px solid var(--border); 
+        border-radius: 8px; 
         width: 100%; 
         text-align: left;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.02); 
-        transition: all 0.2s ease;
+        box-shadow: var(--shadow-sm); 
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         cursor: pointer; 
         overflow: hidden; 
         display: flex; flex-direction: column;
     }
 
-    .team-node:hover { transform: translateY(-4px); }
+    .team-node:hover { transform: translateY(-6px); }
     .team-node:hover .team-card-inner { 
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+        box-shadow: var(--shadow-lg); border-color: var(--border-hover);
     }
 
-    /* Image acts as 'Cover' */
     .team-avatar {
-        width: 100%; height: 140px; border-radius: 0; 
-        object-fit: cover; border-bottom: 1px solid #F0F0F0;
-        background: #F7F7F5; transition: opacity 0.3s;
+        width: 100%; height: 160px; border-radius: 0; 
+        object-fit: cover; border-bottom: 1px solid var(--bg-secondary);
+        background: var(--bg-secondary); transition: opacity 0.3s;
     }
     
-    .team-info-box { padding: 12px; }
+    .team-info-box { padding: 16px; }
 
-    .team-name { font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 2px; }
-    .team-role { font-size: 11px; color: var(--text-sub); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .team-name { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+    .team-role { font-size: 11px; color: var(--text-sub); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 
     .team-quote-bubble {
         position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%) translateY(5px);
-        width: 200px; background: #2F2F2F; color: white; border: none;
-        padding: 8px 12px; border-radius: 4px; font-size: 11px; line-height: 1.4;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1); opacity: 0; visibility: hidden;
+        width: 220px; background: #2F2F2F; color: white; border: none;
+        padding: 10px 14px; border-radius: 6px; font-size: 12px; line-height: 1.5; font-weight: 500;
+        box-shadow: var(--shadow-md); opacity: 0; visibility: hidden;
         transition: all 0.2s ease; pointer-events: none; z-index: 10; text-align: center;
     }
-    
     .team-quote-bubble::after {
         content: ""; position: absolute; top: 100%; left: 50%; margin-left: -4px;
         border-width: 4px; border-style: solid; border-color: #2F2F2F transparent transparent transparent;
     }
-
     .team-node:hover .team-quote-bubble { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
-    /* --- PREMIUM CHAT SECTION (Modified) --- */
+    /* --- PREMIUM SECTION (3rd Section) --- */
     .premium-chat-section {
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 20px; /* Reduced gap between elements */
-        margin-bottom: 100px;
+        gap: 24px;
+        margin-bottom: 120px;
         position: relative;
         z-index: 10;
         padding: 20px;
         width: 100%;
-        max-width: 800px;
+        max-width: 900px;
     }
 
-    /* Container for Bubble + Avatar side-by-side */
     .premium-chat-group {
         display: flex;
         align-items: center;
-        gap: 12px;
-        animation: float 5s ease-in-out infinite;
+        gap: 16px;
+        animation: float 6s ease-in-out infinite;
     }
-    .premium-chat-group.right-side { animation-delay: 2.5s; flex-direction: row-reverse; } /* Flip for right side */
+    .premium-chat-group.right-side { animation-delay: 3s; flex-direction: row-reverse; }
 
     .chat-av-small {
-        width: 36px; height: 36px; border-radius: 50%; 
+        width: 40px; height: 40px; border-radius: 50%; 
         border: 2px solid white; 
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+        box-shadow: var(--shadow-sm); 
         background: #f0f0f0;
     }
 
     .chat-bubble-text {
-        background: white; border: 1px solid #E0E0E0; padding: 8px 14px; border-radius: 20px;
+        background: white; border: 1px solid var(--border); padding: 10px 16px; border-radius: 24px;
         font-size: 13px; font-weight: 500; color: var(--text-main);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03); position: relative;
+        box-shadow: var(--shadow-sm); position: relative;
     }
 
-    /* Bubbles point to the side (Avatar) */
-    /* Left Group: Bubble is on right of avatar (default), no we want Bubble Left of Avatar? 
-       Actually, standard chat: Avatar -> Bubble. 
-       "Make it in the side of the image".
-       Let's do: [Bubble] [Avatar] ... [Badge] ... [Avatar] [Bubble]
-    */
-
-    /* Let's configure for [Bubble] [Avatar] on left side */
     .premium-chat-group.left-side { flex-direction: row; }
     
-    /* Center CTA */
     .premium-badge {
-        background: #2F2F2F; /* Notion dark button */
+        background: #2F2F2F;
         color: white;
         border: none;
-        padding: 12px 24px;
-        border-radius: 4px; 
+        padding: 14px 28px;
+        border-radius: 8px; 
         display: flex;
         align-items: center;
         gap: 12px;
         cursor: pointer;
         transition: all 0.2s ease;
         text-decoration: none;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: var(--shadow-md);
         z-index: 5;
     }
-
     .premium-badge:hover {
         background: #000000;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
     }
 
-    .premium-mini-avatars { display: flex; align-items: center; margin-right: 4px; }
+    .premium-mini-avatars { display: flex; align-items: center; margin-right: 6px; }
     .mini-av {
-        width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #2F2F2F;
-        margin-left: -6px; background: #F7F7F5;
+        width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid #2F2F2F;
+        margin-left: -8px; background: var(--bg-secondary);
     }
     .mini-av:first-child { margin-left: 0; }
 
     .premium-text-cta {
-        font-weight: 600; font-size: 14px; color: white;
-        display: flex; align-items: center; gap: 6px;
+        font-weight: 600; font-size: 15px; color: white;
+        display: flex; align-items: center; gap: 8px;
     }
     
-    .arrow-icon { width: 14px; height: 14px; color: rgba(255,255,255,0.7); transition: transform 0.2s; }
+    .arrow-icon { width: 16px; height: 16px; color: rgba(255,255,255,0.8); transition: transform 0.2s; }
     .premium-badge:hover .arrow-icon { transform: translateX(3px); color: white; }
     
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
+
     /* --- FOOTER --- */
     .footer {
-        width: 100%; max-width: 1200px; border-top: 1px solid #F0F0F0; padding: 40px 0;
+        width: 100%; max-width: 1200px; border-top: 1px solid var(--border); padding: 40px 0;
         display: flex; justify-content: space-between; align-items: center;
-        font-size: 12px; color: var(--text-sub); position: relative; z-index: 10;
+        font-size: 13px; color: var(--text-sub); position: relative; z-index: 10;
     }
-    
-    .footer-links { display: flex; gap: 24px; }
+    .footer-links { display: flex; gap: 32px; }
     .footer-links a { color: var(--text-sub); text-decoration: none; transition: color 0.2s; }
     .footer-links a:hover { color: var(--text-main); text-decoration: underline; }
 
     /* --- OVERLAYS --- */
     .overlay-backdrop {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(255,255,255,0.6); backdrop-filter: blur(8px); /* Lighter backdrop for Notion feel */
+        background: rgba(255,255,255,0.7); backdrop-filter: blur(12px);
         display: none; justify-content: center; align-items: center;
         z-index: 9999; opacity: 0; transition: opacity 0.3s ease;
     }
 
     .overlay-modal {
         background: #FFFFFF; width: 90%; max-width: 400px;
-        border-radius: 6px; padding: 32px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05);
+        border-radius: 12px; padding: 32px;
+        box-shadow: var(--shadow-lg), 0 0 0 1px rgba(0,0,0,0.02);
         text-align: center; position: relative;
-        transform: translateY(10px); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        transform: translateY(15px); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
     
     .overlay-backdrop.active { display: flex; opacity: 1; }
@@ -588,42 +686,43 @@
 
     .overlay-image-container {
         width: 100%; height: 160px; margin-bottom: 24px;
-        border-radius: 4px; overflow: hidden; position: relative;
-        background: #F7F7F5;
+        border-radius: 8px; overflow: hidden; position: relative;
+        background: var(--bg-secondary);
     }
-    
     .overlay-main-img { width: 100%; height: 100%; object-fit: cover; }
 
-    .overlay-title { font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
-    .overlay-desc { font-size: 14px; color: var(--text-sub); line-height: 1.5; margin-bottom: 24px; }
+    .overlay-title { font-size: 22px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.02em; }
+    .overlay-desc { font-size: 14px; color: var(--text-sub); line-height: 1.6; margin-bottom: 28px; }
     .overlay-desc a { color: var(--text-main); text-decoration: underline; font-weight: 500; }
     
     .btn-primary-modal {
-        background: var(--text-main); color: white; width: 100%; padding: 10px;
-        border-radius: 4px; border: none; font-weight: 600; cursor: pointer;
+        background: var(--text-main); color: white; width: 100%; padding: 12px;
+        border-radius: 6px; border: none; font-weight: 600; cursor: pointer;
         transition: all 0.2s;
     }
-    .btn-primary-modal:hover { background: #000; }
+    .btn-primary-modal:hover { background: #000; transform: translateY(-1px); }
 
     .btn-group { display: flex; gap: 12px; margin-top: 10px; }
-    .btn-confirm { background: var(--text-main); color: white; flex: 1; padding: 10px; border-radius: 4px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-confirm { background: var(--text-main); color: white; flex: 1; padding: 12px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-confirm:hover { background: #000; }
-    .btn-reject { background: white; color: var(--text-sub); flex: 1; padding: 10px; border-radius: 4px; border: 1px solid #E0E0E0; font-weight: 500; cursor: pointer; transition: 0.2s; }
-    .btn-reject:hover { background: #F7F7F5; color: var(--text-main); }
-
+    .btn-reject { background: white; color: var(--text-sub); flex: 1; padding: 12px; border-radius: 6px; border: 1px solid var(--border); font-weight: 500; cursor: pointer; transition: 0.2s; }
+    .btn-reject:hover { background: var(--bg-secondary); color: var(--text-main); }
 
     @media (max-width: 900px) {
         .left-panel { display: none; }
-        .screen-one { height: auto; min-height: 100vh; }
+        .screen-one { height: auto; min-height: 100vh; padding-top: 64px; }
+        .right-panel { height: auto; min-height: calc(100vh - 64px); }
         .community-headline { font-size: 32px; }
         .timeline-container { flex-direction: column; gap: 20px; align-items: center; }
-        .team-node { width: 100%; max-width: 280px; }
-        .team-avatar { height: 180px; }
-        .team-quote-bubble { position: relative; top: 0; transform: none; margin-top: 10px; opacity: 1; visibility: visible; width: 100%; border: none; box-shadow: none; color: var(--text-sub); background: transparent; padding: 0; font-style: italic; text-align: left; }
+        .team-node { width: 100%; max-width: 300px; }
+        .team-avatar { height: 200px; }
+        .team-quote-bubble { position: relative; top: 0; transform: none; margin-top: 12px; opacity: 1; visibility: visible; width: 100%; border: none; box-shadow: none; color: var(--text-sub); background: transparent; padding: 0; font-style: italic; text-align: left; }
         .team-quote-bubble::after { display: none; }
-        .footer { flex-direction: column; gap: 16px; text-align: center; }
-        .premium-chat-section { flex-direction: column; gap: 20px; }
-        .premium-chat-group.right-side { flex-direction: row; } /* Reset flip on mobile */
+        .footer { flex-direction: column; gap: 20px; text-align: center; }
+        .premium-chat-section { flex-direction: column; gap: 24px; }
+        .premium-chat-group.right-side { flex-direction: row; }
+        .app-header { padding: 0 20px; }
+        .notification-panel { right: 10px; left: 10px; width: auto; max-width: none; top: 60px; }
     }
     
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -642,16 +741,41 @@
 </head>
 <body>
 
-<!-- Notification Container -->
+<!-- Notification Container (Toasts) -->
 <div id="notification-container"></div>
+
+<!-- HEADER (New) -->
+<div class="app-header">
+    <div class="brand-logo" onclick="window.scrollTo(0,0)">
+        <img src="https://i.imghippo.com/files/vgr8207c.png" class="brand-logo-img" alt="Logo">
+        <span class="brand-logo-text">EduLink</span>
+    </div>
+    <div class="header-actions">
+        <button id="notif-btn" class="icon-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <div id="notif-badge" class="notif-badge"></div>
+        </button>
+        <!-- Notification Panel -->
+        <div id="notif-panel" class="notification-panel">
+            <div class="notif-header">
+                <span class="notif-header-title">Notifications</span>
+                <button id="mark-read" class="mark-read-btn">Mark all as read</button>
+            </div>
+            <div id="notif-list" class="notif-list">
+                <!-- Javascript will populate this -->
+            </div>
+            <div id="empty-notif" class="empty-state">No new notifications</div>
+        </div>
+    </div>
+</div>
 
 <!-- Welcome Overlay -->
 <div class="overlay-backdrop" id="welcomeOverlay">
     <div class="overlay-modal">
         <div class="overlay-image-container">
             <img src="https://i.imghippo.com/files/wUb7431UjA.png" class="overlay-main-img" alt="Community">
-            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Welcome1&backgroundColor=e0ffff" class="decorative-avatar dec-av-1" alt="">
-            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Welcome2&backgroundColor=ffefd5" class="decorative-avatar dec-av-2" alt="">
+            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Welcome1&backgroundColor=e0ffff" class="decorative-avatar dec-av-1" style="top:10px; right:10px; position:absolute; width:30px; height:30px; border-radius:50%; border:2px solid white;">
+            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Welcome2&backgroundColor=ffefd5" class="decorative-avatar dec-av-2" style="bottom:10px; left:10px; position:absolute; width:30px; height:30px; border-radius:50%; border:2px solid white;">
         </div>
         <h2 class="overlay-title">Welcome to EduLink!</h2>
         <p class="overlay-desc">Connect, collaborate, and grow with our community. We're excited to have you join our journey.</p>
@@ -682,12 +806,11 @@
 
             <!-- SIGN UP ONLY FIELDS -->
             <div id="signup-fields" class="hidden">
-                <div class="file-input-wrapper">
-                    <span class="file-label-text">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                <div class="file-input-wrapper" style="border: 1px dashed #E0E0E0; padding: 12px; text-align: center; border-radius: 6px; cursor: pointer;">
+                    <span class="file-label-text" style="font-size: 13px; color: var(--text-sub);">
                         Upload Profile Picture
                     </span>
-                    <input type="file" id="profile-pic-input" accept="image/*">
+                    <input type="file" id="profile-pic-input" accept="image/*" style="opacity: 0; position: absolute; inset: 0; cursor: pointer;">
                 </div>
             </div>
 
@@ -715,8 +838,8 @@
     <div class="overlay-modal">
         <div class="overlay-image-container">
             <img src="https://i.imghippo.com/files/wUb7431UjA.png" class="overlay-main-img" alt="Policy">
-            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Policy1&backgroundColor=f0fff0" class="decorative-avatar dec-av-1" alt="">
-            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Policy2&backgroundColor=fff0f5" class="decorative-avatar dec-av-2" alt="">
+            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Policy1&backgroundColor=f0fff0" class="decorative-avatar dec-av-1" style="top:10px; right:10px; position:absolute; width:30px; height:30px; border-radius:50%; border:2px solid white;">
+            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Policy2&backgroundColor=fff0f5" class="decorative-avatar dec-av-2" style="bottom:10px; left:10px; position:absolute; width:30px; height:30px; border-radius:50%; border:2px solid white;">
         </div>
         <h2 class="overlay-title">Terms & Privacy</h2>
         <p class="overlay-desc">By creating an account, you agree to our <a href="p.html" target="_blank">Policy</a>. Please confirm to proceed.</p>
@@ -760,13 +883,7 @@
     </div>
 
     <div class="right-panel">
-        <div class="brand-logo-overlay">
-            <img src="https://i.imghippo.com/files/vgr8207c.png" class="brand-logo-img" alt="Logo">
-            <span class="brand-logo-text">EduLink</span>
-        </div>
-
         <div class="content-stack">
-            <!-- Modified Landing Card (No inputs, just button) -->
             <div class="landing-card">
                 <div class="avatar-frame">
                     <img id="main-avatar-img" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=transparent&flip=true" alt="Avatar">
@@ -778,7 +895,7 @@
                     <div class="subtitle-main">Collaborate, manage projects, and use AI tools.</div>
                 </div>
 
-                <button id="trigger-auth-btn" class="btn-primary" style="padding: 14px; margin-top: 10px; background-color: var(--accent); border-color: var(--accent);">
+                <button id="trigger-auth-btn" class="btn-primary" style="padding: 14px 20px; width: 100%; margin-top: 10px; background-color: var(--text-main); color:white; justify-content:center;">
                     Log In / Sign Up
                 </button>
             </div>
@@ -786,7 +903,7 @@
             <div class="community-card">
                 <div class="card-header">
                     <span class="header-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg> Updates</span>
-                    <span style="font-size: 11px; color: #32D74B; font-weight: 600;">● Online</span>
+                    <span style="font-size: 11px; color: #27AE60; font-weight: 600;">● Online</span>
                 </div>
                 <div class="chat-list" id="chat-list-container">
                     </div>
@@ -816,7 +933,7 @@
         </div>
     </div>
 
-    <!-- MOVED UP: REVIEWS -->
+    <!-- REVIEWS -->
     <div class="reviews-wrapper reveal-on-scroll">
         <div class="reviews-track">
             
@@ -876,7 +993,7 @@
         </div>
     </div>
 
-    <!-- MOVED MIDDLE: TEAM SECTION -->
+    <!-- TEAM SECTION -->
     <div class="team-timeline-section reveal-on-scroll">
         <div class="team-headline">Meet the Team</div>
         
@@ -933,9 +1050,9 @@
         </div>
     </div>
 
-    <!-- NEW REDESIGNED PREMIUM SECTION -->
+    <!-- PREMIUM CHAT SECTION -->
     <div class="premium-chat-section reveal-on-scroll">
-        <!-- Left Group: Bubble left of Avatar -->
+        <!-- Left Group -->
         <div class="premium-chat-group left-side">
             <div class="chat-bubble-text">Unlock unlimited AI? 🤖</div>
             <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Chat1" class="chat-av-small">
@@ -954,7 +1071,7 @@
             </span>
         </a>
 
-        <!-- Right Group: Bubble right of Avatar (flex-reverse in css) -->
+        <!-- Right Group -->
         <div class="premium-chat-group right-side">
             <div class="chat-bubble-text">Yes! The workspace is amazing 🚀</div>
             <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Chat2" class="chat-av-small">
@@ -1030,11 +1147,84 @@
     const termsOverlay = document.getElementById('termsOverlay');
     const termsConfirm = document.getElementById('termsConfirm');
     const termsReject = document.getElementById('termsReject');
+    
+    // Notifications Elements
+    const notifBtn = document.getElementById('notif-btn');
+    const notifPanel = document.getElementById('notif-panel');
+    const notifBadge = document.getElementById('notif-badge');
+    const notifListEl = document.getElementById('notif-list');
+    const markReadBtn = document.getElementById('mark-read');
+    const emptyNotif = document.getElementById('empty-notif');
 
     // State
     let isSignUp = false;
-    let pendingAction = null; // 'google' or 'signup'
-    let pendingSignUpData = null; // { email, password, file }
+    let pendingAction = null; 
+    let pendingSignUpData = null; 
+    let notificationHistory = [
+        { title: "Welcome to EduLink!", message: "Thanks for joining. Start by exploring the community.", type: "system", time: "2m ago", read: false },
+        { title: "Version 2.0 Live", message: "New AI tools are now available in your workspace.", type: "update", time: "1h ago", read: false }
+    ];
+
+    // --- NOTIFICATION LOGIC ---
+    function renderNotifications() {
+        notifListEl.innerHTML = "";
+        if (notificationHistory.length === 0) {
+            emptyNotif.style.display = "block";
+            return;
+        } else {
+            emptyNotif.style.display = "none";
+        }
+
+        notificationHistory.forEach(n => {
+            const item = document.createElement('div');
+            item.className = `notif-item ${n.read ? '' : 'unread'}`;
+            
+            // Icon based on type
+            let iconSrc = "https://api.dicebear.com/9.x/shapes/svg?seed=System";
+            if (n.type === 'update') iconSrc = "https://api.dicebear.com/9.x/shapes/svg?seed=Update";
+            if (n.type === 'alert') iconSrc = "https://api.dicebear.com/9.x/shapes/svg?seed=Alert";
+
+            item.innerHTML = `
+                <div class="notif-icon-box"><img src="${iconSrc}"></div>
+                <div class="notif-body">
+                    <div class="notif-title">${n.title}</div>
+                    <div class="notif-message">${n.message}</div>
+                    <div class="notif-time">${n.time}</div>
+                </div>
+            `;
+            notifListEl.appendChild(item);
+        });
+
+        // Badge update
+        const unreadCount = notificationHistory.filter(n => !n.read).length;
+        if (unreadCount > 0) notifBadge.classList.add('visible');
+        else notifBadge.classList.remove('visible');
+    }
+
+    // Toggle Panel
+    notifBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        notifPanel.classList.toggle('active');
+        notifBtn.classList.toggle('active');
+    });
+
+    // Close panel on click outside
+    document.addEventListener('click', (e) => {
+        if (!notifPanel.contains(e.target) && !notifBtn.contains(e.target)) {
+            notifPanel.classList.remove('active');
+            notifBtn.classList.remove('active');
+        }
+    });
+
+    // Mark Read
+    markReadBtn.addEventListener('click', () => {
+        notificationHistory.forEach(n => n.read = true);
+        renderNotifications();
+    });
+
+    // Initial Render
+    renderNotifications();
+
 
     // --- OVERLAY TRIGGERS ---
     triggerAuthBtn.addEventListener('click', () => {
@@ -1046,20 +1236,17 @@
         authOverlay.classList.remove('active');
     });
 
-    // Close on click outside
     authOverlay.addEventListener('click', (e) => {
-        if (e.target === authOverlay) {
-            authOverlay.classList.remove('active');
-        }
+        if (e.target === authOverlay) authOverlay.classList.remove('active');
     });
 
-    // --- CUSTOM NOTIFICATION SYSTEM ---
+    // --- CUSTOM NOTIFICATION SYSTEM (TOAST + HISTORY) ---
     function showNotification(message, type = "info", avatarUrl = null) {
+        // 1. Show Toast
         const container = document.getElementById('notification-container');
         const alertBox = document.createElement('div');
         alertBox.className = `custom-alert ${type}`;
 
-        // Determine avatar
         let finalAvatar = avatarUrl;
         if (!finalAvatar) {
             if (type === 'error') finalAvatar = "https://api.dicebear.com/9.x/shapes/svg?seed=Error";
@@ -1076,12 +1263,20 @@
         `;
 
         container.appendChild(alertBox);
-
-        // Remove after 5 seconds
         setTimeout(() => {
             alertBox.style.animation = "fadeOutRight 0.4s forwards";
             setTimeout(() => alertBox.remove(), 400);
         }, 5000);
+
+        // 2. Add to History
+        notificationHistory.unshift({
+            title: type === 'error' ? 'Error' : 'Notification',
+            message: message,
+            type: type === 'error' ? 'alert' : 'system',
+            time: 'Just now',
+            read: false
+        });
+        renderNotifications();
     }
 
 
@@ -1089,7 +1284,6 @@
     toggleLink.addEventListener('click', () => {
         isSignUp = !isSignUp;
         if (isSignUp) {
-            // Switch to Sign Up UI
             titleEl.textContent = "Create Account";
             subtitleEl.textContent = "Join the community today.";
             signupFields.classList.remove('hidden');
@@ -1097,7 +1291,6 @@
             toggleText.textContent = "Already have an account?";
             toggleLink.textContent = "Sign in";
         } else {
-            // Switch to Login UI
             titleEl.textContent = "Welcome Back";
             subtitleEl.textContent = "Sign in to access your workspace.";
             signupFields.classList.add('hidden');
@@ -1107,23 +1300,18 @@
         }
     });
 
-    // --- AVATAR PREVIEW & FILE NAME UI ---
+    // --- AVATAR PREVIEW ---
     const fileLabelText = document.querySelector('.file-label-text');
-    let defaultFileLabel = "";
-    if (fileLabelText) defaultFileLabel = fileLabelText.innerHTML;
-
     if (fileInput) {
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                // Update Label to show filename
                 fileLabelText.innerHTML = `<span style="color: var(--text-main); font-weight: 500;">${file.name}</span>`;
-                fileLabelText.style.color = "var(--text-main)";
             }
         });
     }
 
-    // --- EMAIL / PASSWORD AUTH LOGIC ---
+    // --- AUTH LOGIC ---
     emailBtn.addEventListener('click', async () => {
         const email = emailInput.value;
         const password = passInput.value;
@@ -1134,21 +1322,16 @@
         }
 
         if (isSignUp) {
-            // Validation for Sign Up
             if (password.length < 6) {
                 showNotification("Password must be at least 6 characters.", "error");
                 return;
             }
-
-            // Instead of creating user immediately, show Terms Overlay
             pendingAction = 'signup';
             pendingSignUpData = { email, password, file: fileInput ? fileInput.files[0] : null };
-            // Close Auth Overlay first, then show Terms
             authOverlay.classList.remove('active');
             setTimeout(() => termsOverlay.classList.add('active'), 200);
 
         } else {
-            // Login directly
             emailBtn.textContent = "Signing In...";
             emailBtn.disabled = true;
             try {
@@ -1167,21 +1350,15 @@
         }
     });
 
-    // --- GOOGLE AUTH LOGIC ---
     googleBtn.addEventListener('click', () => {
         pendingAction = 'google';
         authOverlay.classList.remove('active');
         setTimeout(() => termsOverlay.classList.add('active'), 200);
     });
 
-    // --- TERMS OVERLAY HANDLERS ---
     termsReject.addEventListener('click', () => {
         termsOverlay.classList.remove('active');
-        
-        // If user cancelled, reopen auth overlay? or just stay closed. 
-        // Let's reopen Auth Overlay for convenience.
         setTimeout(() => authOverlay.classList.add('active'), 200);
-
         pendingAction = null;
         pendingSignUpData = null;
     });
@@ -1193,10 +1370,8 @@
         
         try {
             if (pendingAction === 'google') {
-                // Manual handling of Google Sign-in to ensure user interaction
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
-                
                 showNotification("Successfully signed in!", "success", user.photoURL);
                 setTimeout(() => { window.location.href = "home.html"; }, 1500);
                 
@@ -1206,11 +1381,9 @@
         } catch (error) {
             console.error(error);
             handleAuthError(error);
-            // Reopen auth overlay if failed
             termsOverlay.classList.remove('active');
             setTimeout(() => authOverlay.classList.add('active'), 200);
         } finally {
-            // Reset UI state
             termsConfirm.innerText = originalText;
             termsConfirm.style.pointerEvents = "auto";
             termsOverlay.classList.remove('active');
@@ -1218,12 +1391,9 @@
     });
 
     async function performSignUp(data) {
-        // 1. Create User
         const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
         const user = userCredential.user;
-
-        // 2. Handle Image Upload
-        let photoURL = "https://api.dicebear.com/9.x/lorelei/svg?seed=" + user.uid; // Default
+        let photoURL = "https://api.dicebear.com/9.x/lorelei/svg?seed=" + user.uid; 
 
         if (data.file) {
             try {
@@ -1236,12 +1406,7 @@
             }
         }
 
-        // 3. Update Profile
-        await updateProfile(user, {
-            displayName: data.email.split('@')[0], 
-            photoURL: photoURL
-        });
-
+        await updateProfile(user, { displayName: data.email.split('@')[0], photoURL: photoURL });
         showNotification("Account created successfully!", "success", photoURL);
         setTimeout(() => window.location.href = "home.html", 1500);
     }
@@ -1254,11 +1419,8 @@
         showNotification(msg, "error");
     }
 
-    // --- VISUAL EFFECTS & ANIMATIONS ---
-
-    // Live Chat Simulation Logic
+    // --- CHAT SIMULATION ---
     const chatContainer = document.getElementById('chat-list-container');
-    
     const chatSequence = [
         { type: 'badge', html: `<div class="badge-row"><div class="icon-circle"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg></div><span class="badge-text">Alex J. joined the workspace</span></div>`, delay: 800 },
         { type: 'message', html: `<div class="chat-row"><img class="chat-pfp" src="https://api.dicebear.com/9.x/notionists/svg?seed=Maria" alt=""><div class="chat-bubble"><span class="user-name">Maria</span>Summary for Week 4?</div></div>`, delay: 2000 },
@@ -1287,17 +1449,15 @@
         });
     }
 
-    // SCROLL REVEAL OBSERVER
-    const observerOptions = { threshold: 0.15 };
+    // --- SCROLL ANIMATION ---
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) entry.target.classList.add('visible');
         });
-    }, observerOptions);
-
+    }, { threshold: 0.15 });
     document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
 
-    // --- AI INTERACTION LOGIC (Fun Effect) ---
+    // --- AI INTERACTION ---
     const aiInput = document.querySelector('.real-ai-input');
     const aiSend = document.querySelector('.ai-send-btn');
     const aiContainer = document.querySelector('.ai-floating-bar');
@@ -1305,22 +1465,15 @@
     const handleAiInteraction = () => {
         const userText = aiInput.value.trim();
         if (!userText) return;
-
-        // Visual feedback sequence
         aiInput.value = "Thinking...";
         aiInput.disabled = true; 
         
         setTimeout(() => {
-            // The "Answer"
             aiInput.value = "Login to discover 🔒";
             aiInput.classList.add('ai-answering');
             aiContainer.classList.add('ai-active-response');
-            
             setTimeout(() => {
-                // Open auth overlay instead of scrolling
                 authOverlay.classList.add('active');
-                
-                // Reset UI slightly later
                 setTimeout(() => {
                     aiInput.value = "";
                     aiInput.placeholder = "Ask EduLink AI...";
@@ -1335,35 +1488,26 @@
     aiInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleAiInteraction();
     });
-
     aiSend.addEventListener('click', () => handleAiInteraction());
 
-    // Start Chat
     runChatSimulation();
 
-    // TEAM AVATAR HOVER LOGIC
+    // TEAM HOVER
     document.querySelectorAll('.team-node').forEach(node => {
         const img = node.querySelector('.team-avatar');
         const originalSrc = img.src;
         const hoverSrc = img.getAttribute('data-hover');
-
         if (hoverSrc) {
             node.addEventListener('mouseenter', () => img.src = hoverSrc);
             node.addEventListener('mouseleave', () => img.src = originalSrc);
         }
     });
 
-    // --- WELCOME OVERLAY LOGIC (First Visit Only) ---
+    // WELCOME OVERLAY
     const welcomeOverlay = document.getElementById('welcomeOverlay');
     const closeWelcomeBtn = document.getElementById('closeOverlayBtn');
     const hasSeenWelcome = localStorage.getItem('eduLinkWelcomeSeen');
-
-    if (!hasSeenWelcome) {
-        setTimeout(() => {
-            welcomeOverlay.classList.add('active');
-        }, 500);
-    }
-
+    if (!hasSeenWelcome) setTimeout(() => welcomeOverlay.classList.add('active'), 500);
     closeWelcomeBtn.addEventListener('click', () => {
         welcomeOverlay.style.opacity = '0';
         setTimeout(() => {

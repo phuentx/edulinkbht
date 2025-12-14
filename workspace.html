@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduLink - Workspace</title>
+    <link rel="icon" type="image/png" href="https://i.imghippo.com/files/vgr8207c.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Inter', 'sans-serif'] },
+            colors: {
+              notion: {
+                bg: '#FFFFFF',
+                sidebar: '#F7F7F5',
+                hover: '#EFEFEF',
+                border: '#E9E9E7',
+                text: '#37352F',
+                textLight: '#9B9A97',
+                blue: '#2383E2'
+              }
+            },
+            boxShadow: {
+                'modal': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                'popover': '0 4px 12px -2px rgba(0, 0, 0, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.08)'
+            },
+            keyframes: {
+                slideIn: {
+                    '0%': { transform: 'translateX(100%)', opacity: '0' },
+                    '100%': { transform: 'translateX(0)', opacity: '1' }
+                }
+            },
+            animation: {
+                slideIn: 'slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        body { background-color: #FFFFFF; color: #37352F; height: 100vh; overflow: hidden; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.1); border-radius: 20px; }
+        .custom-scroll:hover::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.2); }
+        
+        .tab-active { border-bottom: 2px solid #37352F; color: #37352F; font-weight: 600; }
+        .tab-inactive { color: #9B9A97; }
+        .tab-inactive:hover { color: #37352F; }
+
+        .ai-shimmer {
+            background: linear-gradient(90deg, #2383E2, #9D34DA, #2383E2);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shimmer 3s linear infinite;
+        }
+        @keyframes shimmer { to { background-position: 200% center; } }
+        
+        /* Link styling in chats */
+        .chat-content a { color: #2383E2; text-decoration: underline; }
+    </style>
+</head>
+<body class="flex text-[14px]">
+
+    <!-- NOTIFICATION TOAST CONTAINER (Top Right) -->
+    <div id="notification-toast-container" class="fixed top-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none w-80"></div>
+
+    <!-- SIDEBAR -->
+    <div class="w-[240px] bg-notion-sidebar border-r border-notion-border flex flex-col h-full flex-shrink-0 transition-all duration-300">
+        <!-- User Profile Dropdown -->
+        <div class="h-12 flex items-center px-3 hover:bg-notion-hover cursor-pointer m-2 rounded-md transition-colors group">
+            <img id="user-avatar" src="" class="w-5 h-5 rounded-sm bg-gray-200 object-cover mr-2">
+            <span id="user-name" class="font-medium truncate flex-1 text-notion-text">Loading...</span>
+            <button id="btn-logout" class="opacity-0 group-hover:opacity-100 text-xs text-notion-textLight hover:text-red-500" title="Sign Out">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+            </button>
+        </div>
+
+        <!-- Section Header -->
+        <div class="px-4 py-2 text-xs font-semibold text-notion-textLight flex justify-between items-center group">
+            <span>WORKSPACE</span>
+            <button id="trigger-create-project" class="hover:bg-gray-200 rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <svg class="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+            </button>
+        </div>
+
+        <!-- Project List -->
+        <div id="project-list" class="flex-1 overflow-y-auto px-2 space-y-0.5 custom-scroll pb-4">
+            <!-- Projects injected via JS -->
+        </div>
+
+        <div class="p-3 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">
+            EduLink v1.1
+        </div>
+    </div>
+
+    <!-- MAIN AREA -->
+    <div class="flex-1 flex flex-col h-full bg-white relative">
+        
+        <!-- Empty State -->
+        <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-10">
+            <div class="w-16 h-16 bg-gray-50 rounded-xl flex items-center justify-center mb-4 text-4xl">👋</div>
+            <h2 class="text-lg font-medium text-notion-text">Welcome to EduLink</h2>
+            <p class="text-notion-textLight mt-1 text-sm">Select a project to start collaborating.</p>
+            <button id="btn-create-empty" class="mt-4 px-4 py-2 bg-notion-blue text-white rounded shadow-sm hover:bg-blue-600 transition text-sm font-medium">Create New Project</button>
+        </div>
+
+        <!-- Workspace -->
+        <div id="workspace-container" class="flex flex-col h-full hidden w-full">
+            
+            <!-- Navbar (Increased Z-Index to 40 to stay above Right Panel) -->
+            <div class="h-11 border-b border-notion-border flex items-center justify-between px-4 bg-white sticky top-0 z-40">
+                <!-- Title Area -->
+                <div class="flex items-center gap-2 flex-1 min-w-0 mr-4">
+                    <span class="text-lg cursor-default" id="doc-icon">📄</span>
+                    <input id="doc-title" type="text" class="text-sm font-medium text-notion-text outline-none hover:bg-notion-sidebar px-2 py-1 rounded w-full max-w-md transition-colors bg-transparent placeholder-gray-400" placeholder="Untitled">
+                    <div id="save-indicator" class="text-xs text-notion-textLight hidden whitespace-nowrap">Saving...</div>
+                </div>
+
+                <!-- Right Tools -->
+                <div class="flex items-center gap-3 relative">
+                    <!-- Members -->
+                    <div class="flex -space-x-1.5 overflow-hidden cursor-pointer hover:opacity-80 transition" id="member-avatars" onclick="document.getElementById('share-modal').classList.remove('hidden')" title="Manage Members"></div>
+
+                    <span class="h-4 w-[1px] bg-gray-200 mx-1"></span>
+                    
+                    <!-- Notification Bell -->
+                    <div class="relative">
+                        <button id="btn-notifications" class="text-notion-textLight hover:text-notion-text p-1.5 rounded-md hover:bg-gray-100 relative transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                            <span id="notif-badge" class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 border border-white rounded-full hidden"></span>
+                        </button>
+                        
+                        <!-- Notification Popover -->
+                        <div id="notification-popover" class="hidden absolute top-9 right-0 w-80 bg-white border border-gray-200 shadow-popover rounded-lg z-50 flex flex-col max-h-96 animate-slideIn origin-top-right">
+                            <div class="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-lg">
+                                <span class="font-semibold text-xs text-gray-500 tracking-wide">NOTIFICATIONS</span>
+                            </div>
+                            <div id="notification-list" class="overflow-y-auto custom-scroll flex-1 p-0 min-h-[100px]">
+                                <div class="p-6 text-center text-gray-400 text-xs italic">No new notifications</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Share Button -->
+                    <button id="btn-open-share" class="text-sm text-notion-text hover:bg-notion-sidebar px-3 py-1 rounded transition-colors border border-transparent hover:border-gray-200">
+                        Share
+                    </button>
+
+                    <!-- Sidebar Toggle -->
+                    <button id="btn-toggle-sidebar" class="text-notion-textLight hover:text-notion-text p-1 rounded hover:bg-gray-100" title="Toggle Sidebar">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex flex-1 overflow-hidden">
+                <!-- DOCUMENT EDITOR -->
+                <div class="flex-1 overflow-y-auto bg-white cursor-text relative custom-scroll flex justify-center" onclick="focusEditor()">
+                    <div class="w-full max-w-[800px] py-8 px-12 min-h-full flex flex-col">
+                        
+                        <!-- Toolbar -->
+                        <div id="editor-toolbar" class="sticky top-0 bg-white/95 backdrop-blur z-10 flex gap-2 py-2 mb-4 border-b border-transparent hover:border-gray-100 transition-colors opacity-0 hover:opacity-100">
+                            <button onclick="insertMarkdown('**', '**')" class="p-1 hover:bg-gray-100 rounded text-gray-500 font-bold w-6 h-6 flex items-center justify-center" title="Bold">B</button>
+                            <button onclick="insertMarkdown('*', '*')" class="p-1 hover:bg-gray-100 rounded text-gray-500 italic w-6 h-6 flex items-center justify-center" title="Italic">I</button>
+                            <button onclick="insertMarkdown('[', '](url)')" class="p-1 hover:bg-gray-100 rounded text-gray-500 flex items-center gap-1 text-xs px-2" title="Link">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Link
+                            </button>
+                        </div>
+
+                        <!-- AI Helper Pill -->
+                        <div id="ai-indicator" class="hidden fixed bottom-8 left-1/2 -translate-x-1/2 bg-white border border-gray-200 shadow-xl rounded-full px-4 py-2 flex items-center gap-2 z-50 animate-bounce">
+                             <span class="ai-shimmer font-semibold text-sm">✨ AI is writing...</span>
+                        </div>
+                        
+                        <!-- Permission Lock Warning -->
+                        <div id="read-only-banner" class="hidden mb-4 p-3 bg-gray-50 border border-gray-200 rounded text-xs text-gray-500 flex items-center gap-2">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            View Only Mode
+                        </div>
+
+                        <textarea id="doc-content" class="w-full h-full min-h-[70vh] resize-none outline-none text-[#37352F] leading-7 text-[16px] font-sans placeholder-gray-300" placeholder="Type '/' for AI commands..."></textarea>
+                    </div>
+                </div>
+
+                <!-- RIGHT PANEL -->
+                <div id="right-panel" class="w-[340px] border-l border-notion-border bg-white flex flex-col shadow-sm relative z-30 transition-all duration-300">
+                    
+                    <!-- Tabs -->
+                    <div class="flex border-b border-notion-border h-11 items-center px-1">
+                        <button class="flex-1 h-full text-[13px] tab-active transition-colors flex items-center justify-center gap-1" data-tab="chat" title="Chat">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                        </button>
+                        <button class="flex-1 h-full text-[13px] tab-inactive transition-colors flex items-center justify-center gap-1" data-tab="comments" title="Comments">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
+                        </button>
+                        <button class="flex-1 h-full text-[13px] tab-inactive transition-colors flex items-center justify-center gap-1" data-tab="calendar" title="Calendar">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </button>
+                        <button class="flex-1 h-full text-[13px] tab-inactive transition-colors flex items-center justify-center gap-1" data-tab="ai" title="AI">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- TAB: CHAT -->
+                    <div id="tab-chat" class="flex-1 flex flex-col h-full overflow-hidden">
+                        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scroll bg-[#FBFAFA]"></div>
+                        <div class="p-3 border-t border-notion-border bg-white">
+                            <form id="chat-form" class="relative">
+                                <input id="chat-input" type="text" class="w-full text-sm p-2 pr-8 bg-gray-50 border border-gray-200 rounded outline-none focus:bg-white focus:border-gray-300 transition-all placeholder-gray-400" placeholder="Message team...">
+                                <button type="submit" class="absolute right-2 top-2 text-gray-400 hover:text-notion-blue"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg></button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- TAB: COMMENTS -->
+                    <div id="tab-comments" class="flex-1 flex flex-col h-full hidden overflow-hidden">
+                        <div class="p-3 bg-yellow-50 text-[11px] text-yellow-800 border-b border-yellow-100 flex justify-between items-center">
+                            <span>Discussion & Feedback</span>
+                        </div>
+                        <div id="comments-list" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scroll bg-white">
+                            <!-- Comments injected here -->
+                        </div>
+                        <div class="p-3 border-t border-notion-border bg-white">
+                            <form id="comments-form" class="relative">
+                                <textarea id="comment-input" rows="2" class="w-full text-sm p-2 border border-gray-200 rounded outline-none focus:border-notion-blue resize-none" placeholder="Add a comment..."></textarea>
+                                <button type="submit" class="mt-2 w-full py-1 bg-gray-100 text-xs font-medium text-gray-600 rounded hover:bg-gray-200">Post Comment</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- TAB: CALENDAR / REMINDERS -->
+                    <div id="tab-calendar" class="flex-1 flex flex-col h-full hidden overflow-hidden bg-white">
+                        <div class="p-4 border-b border-gray-100">
+                            <h3 class="font-semibold text-sm mb-3">Add Reminder</h3>
+                            <form id="reminder-form" class="space-y-2">
+                                <input id="rem-title" type="text" placeholder="Event or Task..." class="w-full p-2 text-xs border border-gray-200 rounded outline-none focus:border-notion-blue" required>
+                                <div class="flex gap-2">
+                                    <input id="rem-date" type="date" class="flex-1 p-2 text-xs border border-gray-200 rounded outline-none" required>
+                                    <input id="rem-time" type="time" class="flex-1 p-2 text-xs border border-gray-200 rounded outline-none" required>
+                                </div>
+                                <button type="submit" class="w-full py-1.5 bg-notion-blue text-white text-xs rounded hover:bg-blue-600">Add to Calendar</button>
+                            </form>
+                        </div>
+                        <div class="flex-1 overflow-y-auto custom-scroll p-4">
+                            <h4 class="text-[11px] font-bold text-gray-400 uppercase mb-2">Upcoming</h4>
+                            <div id="reminder-list" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: AI -->
+                    <div id="tab-ai" class="flex-1 flex flex-col h-full hidden overflow-hidden">
+                        <div class="p-3 bg-blue-50 text-[11px] text-blue-800 border-b border-blue-100">
+                            🤖 Chat contextually with AI about this doc.
+                        </div>
+                        <div id="ai-messages" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scroll bg-white"></div>
+                        <div class="p-3 border-t border-notion-border bg-white">
+                            <form id="ai-form" class="relative">
+                                <input id="ai-input" type="text" class="w-full text-sm p-2 pr-8 bg-gray-50 border border-gray-200 rounded outline-none focus:border-purple-300 focus:bg-white transition-all placeholder-gray-400" placeholder="Ask AI something...">
+                                <button type="submit" class="absolute right-2 top-2 text-purple-500 hover:text-purple-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CREATE PROJECT -->
+    <div id="create-modal" class="fixed inset-0 bg-black/40 z-[80] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
+        <div class="bg-white rounded-lg shadow-modal w-[400px] p-6 scale-95 transition-transform duration-200 transform">
+            <h3 class="text-base font-semibold text-notion-text mb-4">Create New Project</h3>
+            <div class="space-y-4">
+                <div><label class="block text-xs font-medium text-notion-textLight mb-1 uppercase">Title</label><input id="new-proj-title" type="text" class="w-full p-2 border border-gray-200 rounded text-sm outline-none focus:border-notion-blue" placeholder="e.g. Marketing Plan Q4"></div>
+                <div><label class="block text-xs font-medium text-notion-textLight mb-1 uppercase">Initial Privacy</label><div class="flex items-center gap-2 p-2 border border-gray-200 rounded bg-gray-50"><input type="checkbox" id="new-proj-private" class="rounded text-notion-blue focus:ring-0"><span class="text-sm text-gray-600">Private (Invite only)</span></div></div>
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button id="btn-cancel-create" class="px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100 rounded">Cancel</button>
+                <button id="btn-confirm-create" class="px-3 py-1.5 text-sm bg-notion-blue text-white rounded hover:bg-blue-600 shadow-sm">Create Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SHARE & PERMISSIONS -->
+    <div id="share-modal" class="fixed inset-0 bg-black/30 z-[90] hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-modal w-[480px] overflow-hidden">
+            <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-[#FBFBFA]">
+                <h3 class="font-medium text-sm">Share Project</h3>
+                <button class="text-gray-400 hover:text-gray-600" onclick="document.getElementById('share-modal').classList.add('hidden')"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+            <div class="p-4 space-y-4">
+                <div class="flex gap-2">
+                    <input id="invite-email" type="email" placeholder="Add emails..." class="flex-1 p-2 text-sm border border-gray-200 rounded outline-none focus:border-notion-blue transition-colors">
+                    <select id="invite-role" class="text-xs bg-gray-50 border border-gray-200 rounded px-2 outline-none text-gray-600">
+                        <option value="editor">Editor</option>
+                        <option value="commenter">Commenter</option>
+                        <option value="viewer">Viewer</option>
+                    </select>
+                    <button id="btn-send-invite" class="px-3 py-1.5 bg-notion-blue text-white text-xs font-medium rounded hover:bg-blue-600">Invite</button>
+                </div>
+                <div class="text-xs text-gray-400 px-1">People invited will be emailed a link.</div>
+                <div class="mt-4"><div class="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-2">Who has access</div><div id="members-list" class="flex flex-col gap-1 max-h-[200px] overflow-y-auto custom-scroll"></div></div>
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc, arrayUnion, orderBy, serverTimestamp, getDoc, setDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
+        authDomain: "edulinki.firebaseapp.com",
+        projectId: "edulinki",
+        storageBucket: "edulinki.firebasestorage.app",
+        messagingSenderId: "248886466474",
+        appId: "1:248886466474:web:160043201a6b28bafbbdd3",
+        measurementId: "G-MQBH12VL7N"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let currentProjectId = null;
+    let currentRole = 'editor'; 
+    let unsubscribeDoc, unsubscribeChat, unsubscribeReminders, unsubscribeComments, unsubscribeNotifs;
+    let initialLoad = true;
+    let debounceTimer;
+
+    // --- HELPERS ---
+    const showModal = (id) => { const m = document.getElementById(id); m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); m.children[0].classList.remove('scale-95'); }, 10); }
+    const hideModal = (id) => { const m = document.getElementById(id); m.classList.add('opacity-0'); m.children[0].classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 200); }
+    
+    // Auto-Linkify text
+    function linkify(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return text.replace(urlRegex, (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+    }
+
+    // --- TOAST NOTIFICATIONS (Real-time ephemeral) ---
+    function notify(msg, type='info') {
+        const container = document.getElementById('notification-toast-container');
+        const el = document.createElement('div');
+        let icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+        if(type==='invite') icon = `<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
+
+        el.className = "bg-white border border-gray-200 text-notion-text text-sm p-3 rounded-lg shadow-xl animate-slideIn pointer-events-auto flex items-start gap-3 w-full";
+        el.innerHTML = `<div class="text-notion-blue mt-0.5 flex-shrink-0">${icon}</div><div class="flex-1"><div class="font-medium">${type === 'invite' ? 'New Invitation' : 'Notification'}</div><div class="text-xs text-notion-textLight mt-1 leading-relaxed">${msg}</div></div>`;
+        container.appendChild(el);
+        setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(100%)'; setTimeout(() => el.remove(), 300); }, 5000);
+    }
+
+    // --- AUTH ---
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) { window.location.href = 'index.html'; } 
+        else {
+            currentUser = user;
+            document.getElementById('user-name').textContent = user.displayName || user.email;
+            document.getElementById('user-avatar').src = user.photoURL || `https://api.dicebear.com/9.x/initials/svg?seed=${user.email}`;
+            
+            // Sync User so we can find them later by email
+            await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName||"", photoURL: user.photoURL||"", lastLogin: serverTimestamp() }, { merge: true });
+            
+            loadProjects();
+            loadUserNotifications();
+        }
+    });
+    document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+
+    // --- NOTIFICATION HISTORY (Popover) ---
+    document.getElementById('btn-notifications').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('notification-popover').classList.toggle('hidden');
+        document.getElementById('notif-badge').classList.add('hidden'); 
+    });
+    document.addEventListener('click', (e) => {
+        if(!document.getElementById('btn-notifications').contains(e.target) && !document.getElementById('notification-popover').contains(e.target)) {
+            document.getElementById('notification-popover').classList.add('hidden');
+        }
+    });
+
+    function loadUserNotifications() {
+        const q = query(collection(db, `users/${currentUser.uid}/notifications`), orderBy('timestamp', 'desc'));
+        unsubscribeNotifs = onSnapshot(q, (snap) => {
+            const list = document.getElementById('notification-list');
+            if(snap.empty) { list.innerHTML = '<div class="p-6 text-center text-gray-400 text-xs italic">No new notifications</div>'; return; }
+            list.innerHTML = '';
+            let hasUnread = false;
+            
+            snap.forEach(d => {
+                const n = d.data();
+                const item = document.createElement('div');
+                item.className = "p-3 border-b border-gray-50 hover:bg-gray-50 text-xs flex gap-3 relative group transition-colors";
+                // Delete button
+                const delBtn = document.createElement('button');
+                delBtn.className = "absolute top-2 right-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity";
+                delBtn.innerHTML = "&times;";
+                delBtn.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id)); };
+                
+                let icon = '<div class="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0"></div>';
+                if(n.read) icon = '<div class="w-2 h-2 rounded-full bg-transparent mt-1.5 flex-shrink-0"></div>';
+                else hasUnread = true;
+
+                item.innerHTML = `${icon}<div class="flex-1 pr-4"><div class="font-medium text-notion-text leading-tight">${n.title || "Notification"}</div><div class="text-gray-500 mt-1 leading-relaxed">${n.text}</div><div class="text-[10px] text-gray-300 mt-1.5">${n.timestamp?.toDate().toLocaleDateString() || ""}</div></div>`;
+                item.appendChild(delBtn);
+                list.appendChild(item);
+                
+                // Mark as read on render (simplification for this UX)
+                if(!n.read) { updateDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id), { read: true }); }
+            });
+            if(hasUnread) document.getElementById('notif-badge').classList.remove('hidden');
+        });
+    }
+
+    // --- PROJECTS ---
+    function loadProjects() {
+        const q = query(collection(db, "projects"), where("memberEmails", "array-contains", currentUser.email));
+        onSnapshot(q, (snap) => {
+            const list = document.getElementById('project-list');
+            snap.docChanges().forEach((change) => {
+                if (change.type === "added") {
+                    const data = change.doc.data();
+                    const div = document.createElement('div');
+                    div.id = `proj-${change.doc.id}`;
+                    div.className = `px-3 py-1.5 rounded-sm cursor-pointer text-sm flex items-center gap-2 transition-colors text-notion-textLight hover:bg-[#EFEFEF] hover:text-notion-text`;
+                    div.innerHTML = `<span class="opacity-80">${data.icon || "📄"}</span> <span class="truncate">${data.title}</span>`;
+                    div.onclick = () => selectProject(change.doc.id);
+                    list.appendChild(div);
+
+                    // Toast only (History handled by Sender now)
+                    if (!initialLoad && data.ownerId !== currentUser.uid) {
+                        notify(`Invited to project: ${data.title}`, 'invite');
+                    }
+                }
+                if (change.type === "modified") {
+                     const div = document.getElementById(`proj-${change.doc.id}`);
+                     if(div) div.innerHTML = `<span class="opacity-80">${change.doc.data().icon || "📄"}</span> <span class="truncate">${change.doc.data().title}</span>`;
+                }
+                if (change.type === "removed") { document.getElementById(`proj-${change.doc.id}`)?.remove(); }
+            });
+            if (currentProjectId) document.getElementById(`proj-${currentProjectId}`)?.classList.add('bg-[#EFEFEF]', 'text-notion-text', 'font-medium');
+            initialLoad = false;
+        });
+    }
+
+    // --- MAIN LOGIC ---
+    async function selectProject(id) {
+        if(currentProjectId === id) return;
+        document.querySelectorAll('#project-list > div').forEach(d => d.className = "px-3 py-1.5 rounded-sm cursor-pointer text-sm flex items-center gap-2 transition-colors text-notion-textLight hover:bg-[#EFEFEF] hover:text-notion-text");
+        document.getElementById(`proj-${id}`)?.classList.add('bg-[#EFEFEF]', 'text-notion-text', 'font-medium');
+
+        currentProjectId = id;
+        document.getElementById('empty-state').classList.add('hidden');
+        document.getElementById('workspace-container').classList.remove('hidden');
+
+        if(unsubscribeDoc) unsubscribeDoc();
+        if(unsubscribeChat) unsubscribeChat();
+        if(unsubscribeReminders) unsubscribeReminders();
+        if(unsubscribeComments) unsubscribeComments();
+
+        // 1. Project Doc
+        unsubscribeDoc = onSnapshot(doc(db, "projects", id), (snap) => {
+            if(!snap.exists()) return;
+            const data = snap.data();
+            const myAccess = data.access.find(a => a.email === currentUser.email);
+            currentRole = myAccess ? myAccess.role : 'viewer';
+
+            document.getElementById('doc-title').value = data.title;
+            document.getElementById('doc-icon').textContent = data.icon || "📄";
+            
+            const editor = document.getElementById('doc-content');
+            if(document.activeElement !== editor) editor.value = data.content || "";
+            
+            if(currentRole === 'viewer') {
+                editor.setAttribute('readonly', true);
+                document.getElementById('read-only-banner').classList.remove('hidden');
+            } else {
+                editor.removeAttribute('readonly');
+                document.getElementById('read-only-banner').classList.add('hidden');
+            }
+
+            const ac = document.getElementById('member-avatars'); ac.innerHTML = '';
+            data.access.slice(0, 5).forEach(m => {
+                const img = document.createElement('img');
+                img.src = `https://api.dicebear.com/9.x/initials/svg?seed=${m.email}`;
+                img.className = "w-6 h-6 rounded-full border-2 border-white bg-gray-100";
+                img.title = `${m.email} (${m.role})`;
+                ac.appendChild(img);
+            });
+            renderMembersList(data.access);
+        });
+
+        // 2. Collections
+        loadChat(id);
+        loadComments(id);
+        loadReminders(id);
+    }
+
+    // --- EDITOR ---
+    window.insertMarkdown = (start, end) => {
+        const ta = document.getElementById('doc-content');
+        const s = ta.selectionStart; const e = ta.selectionEnd;
+        const val = ta.value;
+        ta.value = val.substring(0, s) + start + val.substring(s, e) + end + val.substring(e);
+        ta.focus();
+        const event = new Event('input'); ta.dispatchEvent(event);
+    }
+
+    const titleInput = document.getElementById('doc-title');
+    const contentInput = document.getElementById('doc-content');
+    function save() {
+        if(!currentProjectId || currentRole === 'viewer') return;
+        document.getElementById('save-indicator').classList.remove('hidden');
+        updateDoc(doc(db, "projects", currentProjectId), {
+            title: titleInput.value,
+            content: contentInput.value,
+            lastModified: serverTimestamp()
+        }).then(() => setTimeout(() => document.getElementById('save-indicator').classList.add('hidden'), 500));
+    }
+    [titleInput, contentInput].forEach(el => el.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(save, 800); }));
+
+    // --- TABS & SIDEBAR ---
+    const tabs = document.querySelectorAll('[data-tab]');
+    const tabContents = {
+        'chat': document.getElementById('tab-chat'),
+        'comments': document.getElementById('tab-comments'),
+        'calendar': document.getElementById('tab-calendar'),
+        'ai': document.getElementById('tab-ai')
+    };
+    tabs.forEach(t => t.addEventListener('click', () => {
+        tabs.forEach(x => { x.classList.remove('tab-active'); x.classList.add('tab-inactive'); });
+        t.classList.add('tab-active'); t.classList.remove('tab-inactive');
+        Object.values(tabContents).forEach(c => c.classList.add('hidden'));
+        tabContents[t.dataset.tab].classList.remove('hidden');
+    }));
+
+    document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
+        const p = document.getElementById('right-panel');
+        p.style.width = p.style.width === '0px' ? '340px' : '0px';
+    });
+
+    // --- CHAT ---
+    function loadChat(pid) {
+        unsubscribeChat = onSnapshot(query(collection(db, `projects/${pid}/messages`), orderBy("timestamp", "asc")), (snap) => {
+            const div = document.getElementById('chat-messages'); div.innerHTML = '';
+            snap.forEach(d => {
+                const m = d.data();
+                const isMe = m.senderId === currentUser.uid;
+                const wrap = document.createElement('div');
+                wrap.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'}`;
+                const bubbleClass = isMe ? 'bg-[#EBF5FE] text-notion-text' : 'bg-white border border-gray-200 text-notion-text';
+                wrap.innerHTML = `<div class="text-[10px] text-gray-400 ml-1 mb-0.5">${m.senderName}</div><div class="px-3 py-2 rounded-lg text-xs max-w-[90%] ${bubbleClass} shadow-sm leading-relaxed chat-content">${linkify(m.text)}</div>`;
+                div.appendChild(wrap);
+            });
+            div.scrollTop = div.scrollHeight;
+        });
+    }
+    document.getElementById('chat-form').addEventListener('submit', async(e) => {
+        e.preventDefault();
+        const inp = document.getElementById('chat-input');
+        if(!inp.value.trim()) return;
+        addDoc(collection(db, `projects/${currentProjectId}/messages`), { text: inp.value.trim(), senderId: currentUser.uid, senderName: currentUser.displayName||"User", timestamp: serverTimestamp() });
+        inp.value = '';
+    });
+
+    // --- COMMENTS ---
+    function loadComments(pid) {
+        unsubscribeComments = onSnapshot(query(collection(db, `projects/${pid}/comments`), orderBy("timestamp", "asc")), (snap) => {
+            const div = document.getElementById('comments-list'); div.innerHTML = '';
+            snap.forEach(d => {
+                const c = d.data();
+                const item = document.createElement('div');
+                item.className = "flex gap-2 items-start p-2 bg-gray-50 rounded border border-gray-100";
+                item.innerHTML = `<img src="https://api.dicebear.com/9.x/initials/svg?seed=${c.senderEmail}" class="w-5 h-5 rounded-full mt-0.5"><div class="flex-1"><div class="flex justify-between items-center"><span class="text-[11px] font-semibold">${c.senderName}</span><span class="text-[9px] text-gray-400">${c.timestamp?.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) || ''}</span></div><div class="text-xs text-notion-text mt-0.5 chat-content">${linkify(c.text)}</div></div>`;
+                div.appendChild(item);
+            });
+            div.scrollTop = div.scrollHeight;
+        });
+    }
+    document.getElementById('comments-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const inp = document.getElementById('comment-input');
+        if(!inp.value.trim()) return;
+        addDoc(collection(db, `projects/${currentProjectId}/comments`), { text: inp.value.trim(), senderId: currentUser.uid, senderEmail: currentUser.email, senderName: currentUser.displayName||"User", timestamp: serverTimestamp() });
+        inp.value = '';
+    });
+
+    // --- REMINDERS / CALENDAR ---
+    function loadReminders(pid) {
+        unsubscribeReminders = onSnapshot(query(collection(db, `projects/${pid}/reminders`), orderBy("due", "asc")), (snap) => {
+            const div = document.getElementById('reminder-list'); div.innerHTML = '';
+            if(snap.empty) div.innerHTML = '<div class="text-center text-xs text-gray-400 py-4">No upcoming events</div>';
+            snap.forEach(d => {
+                const r = d.data();
+                const item = document.createElement('div');
+                const dateObj = r.due ? r.due.toDate() : new Date();
+                item.className = "flex items-center p-2 bg-blue-50/50 border border-blue-100 rounded hover:bg-blue-50 transition relative group";
+                
+                // Delete button for reminders
+                const del = document.createElement('button');
+                del.className="absolute top-1 right-1 text-red-300 hover:text-red-500 opacity-0 group-hover:opacity-100";
+                del.innerHTML = "&times;";
+                del.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `projects/${pid}/reminders`, d.id)); }
+
+                item.innerHTML = `
+                    <div class="w-10 text-center leading-tight mr-3">
+                        <div class="text-[9px] text-blue-500 uppercase font-bold">${dateObj.toLocaleString('default', {month:'short'})}</div>
+                        <div class="text-lg font-bold text-gray-700">${dateObj.getDate()}</div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium text-notion-text">${r.title}</div>
+                        <div class="text-[11px] text-gray-500">${dateObj.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} • ${r.addedBy}</div>
+                    </div>
+                `;
+                item.appendChild(del);
+                div.appendChild(item);
+            });
+        });
+    }
+    document.getElementById('reminder-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('rem-title').value;
+        const date = document.getElementById('rem-date').value;
+        const time = document.getElementById('rem-time').value;
+        if(!title || !date || !time) return;
+        
+        const due = new Date(`${date}T${time}`);
+        await addDoc(collection(db, `projects/${currentProjectId}/reminders`), {
+            title, due, addedBy: currentUser.displayName || "User", timestamp: serverTimestamp()
+        });
+        document.getElementById('reminder-form').reset();
+    });
+
+    // --- AI ---
+    async function fetchAI(prompt, context) {
+        try {
+            const clean = encodeURIComponent(`Context: ${context.substring(0,500)}...\nQ: ${prompt}`);
+            const res = await fetch(`https://text.pollinations.ai/${clean}`);
+            if(!res.ok) throw new Error();
+            return await res.text();
+        } catch(e) { return "AI Unavailable"; }
+    }
+    document.getElementById('ai-form').addEventListener('submit', async(e)=>{
+        e.preventDefault();
+        const inp = document.getElementById('ai-input');
+        const txt = inp.value.trim();
+        if(!txt) return;
+        const div = document.getElementById('ai-messages');
+        div.innerHTML += `<div class="flex flex-col items-end"><div class="bg-gray-100 text-xs px-3 py-2 rounded-lg max-w-[90%] mb-2 text-notion-text">${txt}</div></div>`;
+        inp.value = ''; div.scrollTop = div.scrollHeight;
+        const resp = await fetchAI(txt, document.getElementById('doc-content').value);
+        div.innerHTML += `<div class="flex flex-col items-start"><div class="bg-purple-50 border border-purple-100 text-xs px-3 py-2 rounded-lg max-w-[90%] mb-2 text-notion-text leading-relaxed">${resp}</div></div>`;
+        div.scrollTop = div.scrollHeight;
+    });
+
+    // --- CREATE & SHARE ---
+    [document.getElementById('trigger-create-project'), document.getElementById('btn-create-empty')].forEach(b => b.addEventListener('click', ()=>showModal('create-modal')));
+    document.getElementById('btn-cancel-create').addEventListener('click', ()=>hideModal('create-modal'));
+    document.getElementById('btn-confirm-create').addEventListener('click', async()=>{
+        const title = document.getElementById('new-proj-title').value || "Untitled";
+        const isPrivate = document.getElementById('new-proj-private').checked;
+        const docRef = await addDoc(collection(db, "projects"), { title, icon: "📄", content: "", ownerId: currentUser.uid, memberEmails: [currentUser.email], access: [{email:currentUser.email, role:'owner'}], createdAt: serverTimestamp(), isPrivate });
+        hideModal('create-modal'); selectProject(docRef.id);
+    });
+    
+    document.getElementById('btn-open-share').addEventListener('click', ()=>showModal('share-modal'));
+    function renderMembersList(access) {
+        const d = document.getElementById('members-list'); d.innerHTML = '';
+        access.forEach(m => { d.innerHTML += `<div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-600">${m.email[0].toUpperCase()}</div><div class="flex flex-col"><span class="text-xs font-medium text-notion-text">${m.email}</span><span class="text-[10px] text-gray-400 capitalize">${m.role}</span></div></div>${m.role==='owner'?'':`<button class="text-[10px] text-red-400 hover:text-red-600" onclick="window.removeMember('${m.email}')">Remove</button>`}</div>`; });
+    }
+    
+    document.getElementById('btn-send-invite').addEventListener('click', async()=>{
+        const email = document.getElementById('invite-email').value;
+        const role = document.getElementById('invite-role').value;
+        if(!email) return;
+        const ref = doc(db, "projects", currentProjectId);
+        const snap = await getDoc(ref);
+        
+        if(snap.exists() && !snap.data().access.find(a=>a.email===email)) {
+            // 1. Update Project
+            await updateDoc(ref, { memberEmails: arrayUnion(email), access: arrayUnion({email, role}) });
+            notify(`Invited ${email}`, 'success'); 
+            
+            // 2. Notify User in History (Server-side simulation)
+            const usersQ = query(collection(db, "users"), where("email", "==", email));
+            const userSnap = await getDocs(usersQ);
+            if(!userSnap.empty) {
+                userSnap.forEach(async (u) => {
+                    await addDoc(collection(db, `users/${u.id}/notifications`), {
+                        title: "Project Invite",
+                        text: `Invited to join ${snap.data().title || "a project"} as ${role}.`,
+                        timestamp: serverTimestamp(),
+                        read: false
+                    });
+                });
+            }
+            
+            document.getElementById('invite-email').value = '';
+        } else { notify("User exists or error", "error"); }
+    });
+    
+    window.removeMember = async (email) => {
+        if(!confirm(`Remove ${email}?`)) return;
+        const ref = doc(db, "projects", currentProjectId);
+        const snap = await getDoc(ref);
+        const access = snap.data().access.filter(a=>a.email!==email);
+        const emails = snap.data().memberEmails.filter(e=>e!==email);
+        await updateDoc(ref, {access, memberEmails: emails});
+        notify("Member removed");
+    }
+
+    window.focusEditor = () => { if(currentRole!=='viewer') document.getElementById('doc-content').focus(); }
+
+</script>
+</body>
+</html>

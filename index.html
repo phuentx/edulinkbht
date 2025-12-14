@@ -4,29 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduLink - Workspace</title>
+    
     <link rel="icon" type="image/png" href="https://i.imghippo.com/files/vgr8207c.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
         :root {
             /* Notion Palette */
             --bg-body: #FFFFFF;
-            --bg-secondary: #F7F7F5;
-            --text-main: #37352F;
-            --text-sub: #9B9A97;
+            --bg-secondary: #F7F7F5; 
+            --text-main: #37352F;    
+            --text-sub: #9B9A97;     
             --border: #E0E0E0;
-            --accent: #2383E2;
+            --accent: #2383E2;       
+            --radius: 6px; 
+            --star-color: #F5A623; 
             --error: #EB5757;
             --success: #27AE60;
-            --radius: 6px;
-            --star-color: #F5A623;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         html {
             scroll-behavior: smooth;
-            scrollbar-width: none;
+            scrollbar-width: none; 
         }
 
         body {
@@ -34,58 +36,11 @@
             background-color: var(--bg-body);
             color: var(--text-main);
             overflow-x: hidden;
-            overflow-y: scroll;
-            -ms-overflow-style: none;
+            overflow-y: scroll; 
+            -ms-overflow-style: none; 
         }
+
         body::-webkit-scrollbar { display: none; }
-
-        /* --- NOTIFICATION CONTAINER --- */
-        #notification-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-        }
-
-        .custom-alert {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--accent);
-            padding: 12px 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 300px;
-            max-width: 400px;
-            pointer-events: auto;
-            animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            opacity: 0;
-            transform: translateX(100%);
-        }
-        .custom-alert.error { border-left-color: var(--error); }
-        .custom-alert.success { border-left-color: var(--success); }
-        
-        .alert-avatar {
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            background: #F0F0F0;
-            object-fit: cover;
-            border: 1px solid rgba(0,0,0,0.1);
-            flex-shrink: 0;
-        }
-        .alert-content { display: flex; flex-direction: column; }
-        .alert-title { font-size: 13px; font-weight: 700; color: var(--text-main); }
-        .alert-msg { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
-
-        @keyframes slideInRight { to { opacity: 1; transform: translateX(0); } }
-        @keyframes fadeOutRight { to { opacity: 0; transform: translateX(20px); } }
 
         /* --- SCREEN ONE: SPLIT LAYOUT --- */
         .screen-one {
@@ -100,7 +55,7 @@
 
         /* LEFT SIDE */
         .left-panel {
-            flex: 1.4;
+            flex: 1.4; 
             background-color: var(--bg-secondary);
             position: relative;
             overflow: hidden;
@@ -110,6 +65,7 @@
             border-right: 1px solid var(--border);
             height: 100%;
         }
+
         .left-panel::before {
             content: ""; position: absolute; inset: 0;
             background-image: radial-gradient(#d3d1cb 1px, transparent 1px);
@@ -120,29 +76,38 @@
         /* Marquee Container */
         .marquee-container {
             display: flex;
-            gap: 80px;
+            gap: 80px; 
             height: 120vh;
             transform: translateY(-5%);
             position: relative;
             z-index: 5;
         }
+
         .marquee-col {
             display: flex; flex-direction: column; gap: 32px;
-            width: 260px; z-index: 2;
+            width: 260px; z-index: 2; 
         }
+
         .scroll-up { animation: scrollUp 80s linear infinite; }
         .scroll-down { animation: scrollDown 85s linear infinite; }
+
         @keyframes scrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
         @keyframes scrollDown { 0% { transform: translateY(-50%); } 100% { transform: translateY(0); } }
 
         .gallery-card {
-            border-radius: var(--radius);
+            border-radius: var(--radius); 
             overflow: hidden;
             border: 1px solid rgba(0,0,0,0.08);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); 
+            background: white; 
             height: 320px; flex-shrink: 0;
             position: relative;
+        }
+        .gallery-card::after {
+            content: ""; position: absolute; inset: 0;
+            border-radius: var(--radius);
+            border: 1px solid rgba(0,0,0,0.05);
+            pointer-events: none;
         }
         .gallery-card img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.9); }
 
@@ -159,26 +124,36 @@
             transition: all 0.3s ease;
             animation: slideUp 1s ease, aiGlowPulse 3s infinite alternate;
         }
+
         .ai-floating-bar.ai-active-response {
             border-color: var(--accent);
             box-shadow: 0 0 0 4px rgba(35, 131, 226, 0.2), 0 15px 40px rgba(35, 131, 226, 0.15);
             transform: translateY(-5px);
         }
-        @keyframes aiGlowPulse {
-            0% { box-shadow: 0 0 0 1px rgba(35, 131, 226, 0.2), 0 8px 30px rgba(35, 131, 226, 0.15); border-color: rgba(35, 131, 226, 0.3); }
-            100% { box-shadow: 0 0 0 4px rgba(35, 131, 226, 0.15), 0 15px 40px rgba(35, 131, 226, 0.25); border-color: var(--accent); transform: translateY(-2px); }
-        }
 
+        @keyframes aiGlowPulse {
+            0% {
+                box-shadow: 0 0 0 1px rgba(35, 131, 226, 0.2), 0 8px 30px rgba(35, 131, 226, 0.15);
+                border-color: rgba(35, 131, 226, 0.3);
+            }
+            100% {
+                box-shadow: 0 0 0 4px rgba(35, 131, 226, 0.15), 0 15px 40px rgba(35, 131, 226, 0.25);
+                border-color: var(--accent);
+                transform: translateY(-2px);
+            }
+        }
+        
         .ai-input-wrapper { display: flex; align-items: center; gap: 12px; width: 100%; }
         .sparkle-icon { color: #9D34DA; width: 20px; height: 20px; flex-shrink: 0; animation: spinSlow 10s linear infinite; }
         @keyframes spinSlow { to { transform: rotate(360deg); } }
         .real-ai-input { border: none; background: transparent; outline: none; font-size: 15px; color: var(--text-main); width: 100%; transition: color 0.3s ease; }
         .real-ai-input.ai-answering { color: var(--accent); font-weight: 600; }
-        .ai-send-btn {
-            width: 32px; height: 32px;
-            background-color: var(--text-main);
-            border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
+
+        .ai-send-btn { 
+            width: 32px; height: 32px; 
+            background-color: var(--text-main); 
+            border-radius: 6px; 
+            display: flex; align-items: center; justify-content: center; 
             color: white; cursor: pointer; transition: all 0.2s;
         }
         .ai-send-btn:hover { background-color: var(--accent); }
@@ -189,90 +164,41 @@
             flex: 1; display: flex; justify-content: center; align-items: center;
             background: white; padding: 40px; z-index: 30; height: 100%;
             position: relative;
-            flex-direction: column;
         }
 
         .brand-logo-overlay {
             position: absolute;
-            top: 30px; left: 40px; z-index: 50;
+            top: 30px; left: 40px; z-index: 50; 
             display: flex; align-items: center; gap: 10px;
             background: white; padding: 8px 14px; border-radius: 8px;
-            border: 1px solid rgba(0,0,0,0.0);
+            border: 1px solid rgba(0,0,0,0.0); 
             transition: transform 0.2s ease; cursor: pointer;
         }
         .brand-logo-overlay:hover { transform: scale(1.02); background: #F7F7F5; }
         .brand-logo-img { width: 24px; height: 24px; object-fit: contain; }
         .brand-logo-text { font-weight: 700; font-size: 15px; color: var(--text-main); letter-spacing: -0.3px; }
 
-        .landing-content {
-            width: 100%; max-width: 420px;
-            display: flex; flex-direction: column; 
-            gap: 24px; text-align: left;
-            animation: fadeIn 0.8s ease;
-        }
+        .content-stack { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 32px; }
         
-        .landing-headline {
-            font-size: 42px; font-weight: 800; letter-spacing: -1.5px;
-            line-height: 1.1; color: var(--text-main);
-        }
+        /* AUTH FORM STYLES - MAIN CARD */
+        .login-card { text-align: center; animation: fadeIn 0.8s ease; display: flex; flex-direction: column; gap: 20px; }
         
-        .landing-sub {
-            font-size: 18px; color: var(--text-sub); font-weight: 400; line-height: 1.5;
-        }
-
-        /* Restyled hero button to match Google button aesthetic */
-        .hero-btn {
-            padding: 14px 24px;
-            background-color: white; 
-            color: var(--text-main);
-            border: 1px solid #D4D4D4;
-            font-weight: 600;
-            font-size: 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.1s ease;
-            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            width: fit-content;
-        }
-        .hero-btn:hover {
-            background-color: #F7F7F5;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transform: translateY(-1px);
-        }
-
-        /* --- AUTH OVERLAY STYLES --- */
-        .auth-card-inner {
-            width: 100%;
-            text-align: center;
-        }
-
-        .close-auth-btn {
-            position: absolute;
-            top: 16px; right: 16px;
-            background: none; border: none;
-            color: var(--text-sub);
-            cursor: pointer; padding: 5px;
-            border-radius: 50%;
-            transition: 0.2s;
-        }
-        .close-auth-btn:hover { background: #F7F7F5; color: var(--text-main); }
-
-        /* Avatar Frame - Now outside modal */
         .avatar-frame {
-            width: 80px; height: 80px; 
-            margin: 0 0 10px 0; 
-            border-radius: 12px; transform: rotate(-3deg);
-            background: white; padding: 4px;
+            width: 100px; height: 100px; margin: 0 auto;
+            border-radius: 12px; 
+            transform: rotate(-3deg);
+            background: white; padding: 5px;
             border: 1px solid rgba(0,0,0,0.08);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            position: relative; cursor: pointer; transition: transform 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+            position: relative; cursor: pointer; 
+            transition: transform 0.3s ease;
         }
         .avatar-frame:hover { transform: rotate(0deg) scale(1.05); z-index: 50; }
-        .avatar-frame img { width: 100%; height: 100%; border-radius: 8px; object-fit: cover; transition: all 0.3s ease; }
-        
+        .avatar-frame img { width: 100%; height: 100%; border-radius: 8px; object-fit: cover; }
+
         .avatar-tooltip {
             position: absolute; bottom: 115%; left: 50%; transform: translateX(-50%) translateY(10px);
-            background: #232323; color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px;
+            background: #232323; color: white; padding: 8px 12px; border-radius: 6px; font-size: 13px;
             white-space: nowrap; opacity: 0; visibility: hidden; transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             pointer-events: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
@@ -282,86 +208,76 @@
         }
         .avatar-frame:hover .avatar-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
-        .title-group { margin-bottom: 24px; }
-        h2.auth-title { font-size: 24px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; letter-spacing: -0.5px; }
-        .subtitle-main { font-size: 14px; color: #9B9A97; font-weight: 500; }
+        .title-group { margin-bottom: 12px; }
+        h1 { font-size: 32px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; letter-spacing: -0.5px; }
+        .subtitle-main { font-size: 16px; color: #37352F; font-weight: 500; margin-bottom: 6px; }
 
-        /* --- FORM STYLES --- */
-        .auth-form {
-            display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; width: 100%;
+        .btn-email-trigger {
+            width: 100%; padding: 12px 14px; background: var(--text-main);
+            color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 14px;
+            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .input-wrapper { position: relative; width: 100%; }
-        .form-input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #E0E0E0;
-            border-radius: 4px;
-            font-size: 14px;
-            font-family: inherit;
-            color: var(--text-main);
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            background: #FAFAFA;
+        .btn-email-trigger:hover { background: #000; transform: translateY(-1px); }
+        .btn-email-trigger svg { width: 18px; height: 18px; }
+
+        /* --- AUTH OVERLAY --- */
+        .auth-overlay-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center;
+            z-index: 10000; opacity: 0; transition: opacity 0.3s ease;
         }
-        .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(35, 131, 226, 0.1); background: white; }
-        
-        .file-input-wrapper {
-            position: relative;
-            border: 1px dashed #D0D0D0;
-            border-radius: 4px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
+        .auth-overlay-backdrop.active { display: flex; opacity: 1; }
+
+        .auth-modal {
+            background: white; width: 90%; max-width: 400px;
+            border-radius: 16px; padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            position: relative; transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex; flex-direction: column; gap: 16px;
+        }
+        .auth-overlay-backdrop.active .auth-modal { transform: translateY(0); }
+
+        .auth-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .auth-title { font-size: 20px; font-weight: 700; color: var(--text-main); }
+        .close-auth { cursor: pointer; padding: 4px; border-radius: 4px; transition: background 0.2s; }
+        .close-auth:hover { background: #F7F7F5; }
+
+        .auth-avatar-preview {
+            width: 70px; height: 70px; border-radius: 50%; background: #F7F7F5;
+            margin: 0 auto 10px; border: 1px solid var(--border); object-fit: cover;
+        }
+
+        .input-group { width: 100%; }
+        .auth-input {
+            width: 100%; padding: 10px 14px; border: 1px solid #E0E0E0; border-radius: 8px;
+            font-size: 14px; outline: none; transition: border-color 0.2s; background: #FAFAFA;
+        }
+        .auth-input:focus { border-color: var(--accent); background: white; }
+
+        .btn-submit-auth {
+            width: 100%; padding: 12px; background: var(--accent);
+            color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
             transition: all 0.2s;
-            background: #FAFAFA;
         }
-        .file-input-wrapper:hover { background: #F0F0F0; border-color: var(--text-sub); }
-        .file-input-wrapper input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-        .file-label-text { font-size: 13px; color: var(--text-sub); pointer-events: none; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-submit-auth:hover { background: #1a73c9; }
 
-        .btn-primary {
-            width: 100%; padding: 10px 14px;
-            background: var(--text-main);
-            color: white; border: none; border-radius: 4px;
-            font-size: 14px; font-weight: 600;
-            cursor: pointer; transition: all 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn-primary:hover { background: #000000; transform: translateY(-1px); }
-        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+        .auth-toggle-text { font-size: 13px; color: var(--text-sub); text-align: center; margin-top: 10px; cursor: pointer; }
+        .auth-toggle-text span { color: var(--accent); font-weight: 600; }
+        .auth-toggle-text span:hover { text-decoration: underline; }
 
-        .divider {
-            display: flex; align-items: center; gap: 10px; margin: 16px 0;
-            color: #C0C0C0; font-size: 12px; font-weight: 500; width: 100%;
-        }
-        .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #E0E0E0; }
+        .hidden { display: none; }
 
-        .btn-google {
-            width: 100%; padding: 10px 14px; background: white;
-            border: 1px solid #D4D4D4; border-radius: 4px;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            font-size: 14px; font-weight: 500; color: var(--text-main);
-            cursor: pointer; transition: all 0.1s ease;
-        }
-        .btn-google:hover { background: #F7F7F5; }
-
-        .toggle-auth {
-            font-size: 13px; margin-top: 16px; color: var(--text-sub);
-        }
-        .toggle-link { color: var(--accent); font-weight: 600; cursor: pointer; text-decoration: none; }
-        .toggle-link:hover { text-decoration: underline; }
-
-        .hidden { display: none !important; }
-
-        /* --- COMMUNITY CARD (Bottom Right) --- */
+        /* --- COMMUNITY & OTHER STYLES --- */
         .community-card {
             background: white; border: 1px solid var(--border); border-radius: 8px;
             padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             animation: slideUp 1s ease 0.2s backwards; min-height: 200px;
-            width: 100%; max-width: 420px;
         }
         .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid #F0F0F0; padding-bottom: 8px; }
         .header-title { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-sub); display: flex; align-items: center; gap: 6px; }
+        
         .chat-list { display: flex; flex-direction: column; gap: 12px; }
         .chat-row, .badge-row { opacity: 0; transform: translateY(10px); animation: messagePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .chat-row { display: flex; gap: 10px; align-items: flex-start; }
@@ -373,7 +289,7 @@
         .icon-circle { width: 20px; height: 20px; border: 1px solid var(--border); border-radius: 3px; display: flex; align-items: center; justify-content: center; color: var(--accent); }
         .badge-text { font-size: 12px; color: var(--text-sub); }
 
-        /* --- SCREEN TWO: COMMUNITY PAGE --- */
+        /* --- SCREEN TWO --- */
         .screen-two {
             width: 100%; min-height: 100vh;
             background-color: white;
@@ -381,73 +297,31 @@
             background-size: 40px 40px;
             display: flex; flex-direction: column; align-items: center;
             position: relative; padding: 80px 20px 40px;
-            overflow-y: auto;
+            overflow-y: auto; 
         }
         .screen-two::after {
             content: ""; position: absolute; inset: 0;
             background: radial-gradient(circle at center, rgba(255,255,255,1) 30%, rgba(255,255,255,0) 80%);
             pointer-events: none; z-index: 0;
         }
-        
         .reveal-on-scroll { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); }
         .reveal-on-scroll.visible { opacity: 1; transform: translateY(0); }
-        
-        .community-group-container {
-            display: flex; flex-direction: column; align-items: center;
-            width: 100%; max-width: 900px;
-            position: relative; z-index: 1;
-        }
-        .community-headline { font-size: 40px; font-weight: 700; letter-spacing: -1px; margin-bottom: 16px; text-align: center; color: var(--text-main); }
-        
-        .invitation-highlight-wrapper {
-            display: flex; justify-content: center; margin-bottom: 10px;
-            position: relative;
-            background: radial-gradient(closest-side, rgba(35, 131, 226, 0.08) 0%, rgba(255,255,255,0) 100%);
-            padding: 30px; border-radius: 50%;
-            animation: pulseGlow 4s ease-in-out infinite;
-        }
-        @keyframes pulseGlow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-        
-        .avatar-pile { display: flex; justify-content: center; padding-left: 10px; }
-        .community-avatar-wrapper { position: relative; margin-left: -15px; transition: transform 0.2s ease; z-index: 1; }
-        .community-avatar-wrapper:hover { transform: translateY(-5px); z-index: 20; }
-        .crowd-avatar-circle {
-            width: 50px; height: 50px; border-radius: 50%; background: #fff;
-            border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: block;
-        }
-        .community-avatar-wrapper:hover .crowd-avatar-circle { border-color: var(--accent); }
-        .community-tooltip {
-            position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%) translateY(10px);
-            background: #232323; color: white; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 500;
-            white-space: nowrap; opacity: 0; visibility: hidden; transition: all 0.2s ease;
-            pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .community-tooltip::after {
-            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -4px;
-            border-width: 4px; border-style: solid; border-color: #232323 transparent transparent transparent;
-        }
-        .community-avatar-wrapper:hover .community-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
-        .central-image-container { width: 100%; position: relative; z-index: 5; margin-top: -10px; margin-bottom: 40px; }
-        .central-work-img { width: 100%; height: auto; display: block; mix-blend-mode: multiply; opacity: 0.95; }
-
-        /* REVIEWS */
+        /* --- REVIEWS --- */
         .reviews-wrapper {
-            width: 100%; max-width: 1200px; position: relative; overflow: hidden;
+            width: 100%; max-width: 1200px; position: relative; overflow: hidden; 
             padding: 10px 0; border-top: 1px solid #F0F0F0; border-bottom: 1px solid #F0F0F0;
             background: rgba(255,255,255,0.8); backdrop-filter: blur(5px); z-index: 10; margin-bottom: 60px;
         }
         .reviews-wrapper::before, .reviews-wrapper::after { content: ""; position: absolute; top: 0; width: 100px; height: 100%; z-index: 20; pointer-events: none; }
         .reviews-wrapper::before { left: 0; background: linear-gradient(to right, #FFFFFF, transparent); }
         .reviews-wrapper::after { right: 0; background: linear-gradient(to left, #FFFFFF, transparent); }
-
         .reviews-track { display: flex; gap: 20px; width: max-content; animation: scrollHorizontal 80s linear infinite; }
         .reviews-track:hover { animation-play-state: paused; }
         @keyframes scrollHorizontal { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
         .review-card {
             width: 280px; background: #FFFFFF; border: 1px solid var(--border); border-radius: 6px;
-            padding: 16px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            padding: 16px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); 
             display: flex; flex-direction: column; gap: 10px; transition: transform 0.2s ease;
         }
         .review-card:hover { transform: translateY(-2px); border-color: #C0C0C0; }
@@ -459,45 +333,29 @@
         .review-text { font-size: 13px; color: #37352F; line-height: 1.5; }
         .stars { color: var(--star-color); font-size: 12px; letter-spacing: 1px; }
 
-        /* --- TEAM TIMELINE SECTION --- */
+        /* --- TEAM TIMELINE --- */
         .team-timeline-section {
-            width: 100%; max-width: 1200px;
-            display: flex; flex-direction: column; align-items: center;
+            width: 100%; max-width: 1200px; display: flex; flex-direction: column; align-items: center;
             margin-bottom: 80px; z-index: 10; position: relative;
         }
         .team-headline { font-size: 32px; font-weight: 700; color: var(--text-main); margin-bottom: 70px; letter-spacing: -0.5px; }
-
-        .timeline-container {
-            display: flex; justify-content: center; gap: 50px;
-            position: relative; width: 100%; padding: 30px 0;
-        }
-        .timeline-container::before {
-            content: ""; position: absolute; top: 50%; left: 5%; right: 5%; height: 2px;
-            background: #E0E0E0; z-index: 0; border-radius: 2px;
-        }
-
-        .team-node {
-            position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;
-            width: 220px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        .timeline-container { display: flex; justify-content: center; gap: 50px; position: relative; width: 100%; padding: 30px 0; }
+        .timeline-container::before { content: ""; position: absolute; top: 50%; left: 5%; right: 5%; height: 2px; background: #E0E0E0; z-index: 0; border-radius: 2px; }
+        .team-node { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; width: 220px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .team-card-inner {
-            background: #FFFFFF; border: 1px solid var(--border); border-radius: 16px;
+            background: #FFFFFF; border: 1px solid var(--border); border-radius: 16px; 
             padding: 30px 15px; width: 100%; text-align: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.3s ease;
-            cursor: default; position: relative; overflow: visible;
+            cursor: default; position: relative; overflow: visible; 
         }
         .team-node:hover { transform: translateY(-10px); }
         .team-node:hover .team-card-inner { box-shadow: 0 15px 40px rgba(0,0,0,0.08); border-color: var(--accent); }
-
         .team-avatar {
-            width: 90px; height: 90px; border-radius: 50%;
-            object-fit: cover; margin-bottom: 16px;
-            border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-            background: #F7F7F5; transition: content 0.3s;
+            width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 16px;
+            border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.06); background: #F7F7F5; transition: content 0.3s;
         }
         .team-name { font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
         .team-role { font-size: 13px; color: var(--text-sub); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-        
         .team-quote-bubble {
             position: absolute; top: 110%; left: 50%; transform: translateX(-50%) translateY(-10px);
             width: 220px; background: #FFFFFF; border: 1px solid var(--accent); color: var(--accent);
@@ -505,32 +363,8 @@
             box-shadow: 0 4px 15px rgba(35, 131, 226, 0.15); opacity: 0; visibility: hidden;
             transition: all 0.3s ease; pointer-events: none; z-index: 10;
         }
-        .team-quote-bubble::before {
-            content: ""; position: absolute; bottom: 100%; left: 50%; margin-left: -6px;
-            border-width: 6px; border-style: solid; border-color: transparent transparent var(--accent) transparent;
-        }
+        .team-quote-bubble::before { content: ""; position: absolute; bottom: 100%; left: 50%; margin-left: -6px; border-width: 6px; border-style: solid; border-color: transparent transparent var(--accent) transparent; }
         .team-node:hover .team-quote-bubble { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(5px); }
-
-        /* Premium CTA Section */
-        .premium-cta-wrapper {
-            margin-top: 40px; margin-bottom: 10px; display: flex; justify-content: center; z-index: 10;
-        }
-        .premium-badge {
-            background: white; border: 1px solid var(--border); padding: 8px 20px 8px 12px; border-radius: 30px;
-            display: flex; align-items: center; gap: 12px; cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); text-decoration: none;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        .premium-badge:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(35, 131, 226, 0.25);
-            border-color: var(--accent);
-        }
-        .premium-mini-avatars { display: flex; align-items: center; margin-right: 4px; }
-        .mini-av { width: 28px; height: 28px; border-radius: 50%; border: 2px solid white; margin-left: -10px; background: #F7F7F5; }
-        .mini-av:first-child { margin-left: 0; }
-        .premium-text-cta { font-weight: 600; font-size: 14px; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
-        .arrow-icon { width: 16px; height: 16px; color: var(--accent); }
 
         /* --- FOOTER --- */
         .footer {
@@ -542,7 +376,7 @@
         .footer-links a { color: var(--text-sub); text-decoration: none; transition: color 0.2s; }
         .footer-links a:hover { color: var(--text-main); text-decoration: underline; }
 
-        /* --- OVERLAYS (SHARED STYLES) --- */
+        /* --- WELCOME OVERLAY (SHARED STYLES) --- */
         .overlay-backdrop {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
@@ -556,14 +390,12 @@
             text-align: center; position: relative;
             transform: translateY(20px); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-
         .overlay-image-container {
             width: 100%; height: 180px; margin-bottom: 24px;
             border-radius: 12px; overflow: hidden; position: relative;
             background: #F7F7F5;
         }
         .overlay-main-img { width: 100%; height: 100%; object-fit: cover; }
-        
         .decorative-avatar {
             position: absolute; width: 40px; height: 40px; border-radius: 50%;
             border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -571,55 +403,66 @@
         }
         .dec-av-1 { top: 10px; right: 10px; }
         .dec-av-2 { bottom: 10px; left: 10px; }
-
         .overlay-title { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
         .overlay-desc { font-size: 14px; color: var(--text-sub); line-height: 1.5; margin-bottom: 24px; }
-        .overlay-desc a { color: var(--accent); text-decoration: none; font-weight: 500; }
-        .overlay-desc a:hover { text-decoration: underline; }
-
         .btn-primary-modal {
             background: var(--text-main); color: white; width: 100%; padding: 12px;
-            border-radius: 8px; border: none; font-weight: 600; cursor: pointer;
-            transition: all 0.2s;
+            border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s;
         }
         .btn-primary-modal:hover { background: #000; transform: translateY(-2px); }
-
-        /* Two buttons for Terms Overlay */
-        .btn-group { display: flex; gap: 12px; margin-top: 10px; }
-        .btn-confirm { background: var(--accent); color: white; flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-confirm:hover { background: #1a73c9; }
-        .btn-reject { background: #F0F0F0; color: var(--text-sub); flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-reject:hover { background: #E0E0E0; color: var(--text-main); }
-
-        /* Classes for Active State */
         .overlay-backdrop.active { display: flex; opacity: 1; }
         .overlay-backdrop.active .overlay-modal { transform: translateY(0); }
 
-        @media (max-width: 900px) {
-            .left-panel { display: none; }
-            .screen-one { height: auto; min-height: 100vh; }
-            .community-headline { font-size: 32px; }
-            .timeline-container { flex-direction: column; gap: 30px; align-items: center; }
-            .timeline-container::before { width: 2px; height: 80%; left: 50%; top: 10%; }
-            .team-quote-bubble { position: relative; top: 0; transform: none; margin-top: 10px; opacity: 1; visibility: visible; width: 100%; border: none; box-shadow: none; color: var(--text-sub); background: transparent; padding: 0; font-style: italic; }
-            .team-quote-bubble::before { display: none; }
-            .footer { flex-direction: column; gap: 16px; text-align: center; }
-            .landing-headline { font-size: 32px; }
+        /* --- CUSTOM ALERT CONTAINER --- */
+        .custom-alert-container {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            display: flex; align-items: center; gap: 12px;
+            background: #FFFFFF; padding: 12px 20px; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05);
+            z-index: 10000; opacity: 0; pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            min-width: 300px; max-width: 90%;
         }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { to { opacity: 1; } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .spinner { display: none; width: 18px; height: 18px; border: 2px solid #ccc; border-top-color: #333; border-radius: 50%; animation: spin 0.8s linear infinite; }
-
+        .custom-alert-container.active { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .alert-avatar { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #eee; flex-shrink: 0; }
+        .alert-content { display: flex; flex-direction: column; }
+        .alert-title { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
+        .alert-msg { font-size: 12px; color: var(--text-sub); }
+        .alert-close { margin-left: auto; cursor: pointer; color: #ccc; }
+        .alert-close:hover { color: #333; }
+        
+        /* OTHER UTILS */
+        .community-avatar-wrapper { position: relative; margin-left: -15px; transition: transform 0.2s ease; z-index: 1; }
+        .community-avatar-wrapper:hover { transform: translateY(-5px); z-index: 20; }
+        .crowd-avatar-circle { width: 50px; height: 50px; border-radius: 50%; background: #fff; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: block; }
+        .community-avatar-wrapper:hover .crowd-avatar-circle { border-color: var(--accent); }
+        .community-group-container { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 900px; position: relative; z-index: 1; }
+        .invitation-highlight-wrapper {
+            display: flex; justify-content: center; margin-bottom: 10px; position: relative;
+            background: radial-gradient(closest-side, rgba(35, 131, 226, 0.08) 0%, rgba(255,255,255,0) 100%);
+            padding: 30px; border-radius: 50%; animation: pulseGlow 4s ease-in-out infinite;
+        }
+        @keyframes pulseGlow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+        .avatar-pile { display: flex; justify-content: center; padding-left: 10px; }
+        .central-image-container { width: 100%; position: relative; z-index: 5; margin-top: -10px; margin-bottom: 40px; }
+        .central-work-img { width: 100%; height: auto; display: block; mix-blend-mode: multiply; opacity: 0.95; }
+        .community-headline { font-size: 40px; font-weight: 700; letter-spacing: -1px; margin-bottom: 16px; text-align: center; color: var(--text-main); }
+        .community-tooltip { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%) translateY(10px); background: #232323; color: white; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; white-space: nowrap; opacity: 0; visibility: hidden; transition: all 0.2s ease; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .community-tooltip::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -4px; border-width: 4px; border-style: solid; border-color: #232323 transparent transparent transparent; }
+        .community-avatar-wrapper:hover .community-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
 
-    <!-- Notification Container -->
-    <div id="notification-container"></div>
+    <div class="custom-alert-container" id="customAlert">
+        <img src="https://api.dicebear.com/9.x/bottts-neutral/svg?seed=System" class="alert-avatar" alt="Alert">
+        <div class="alert-content">
+            <span class="alert-title" id="alertTitle">Notification</span>
+            <span class="alert-msg" id="alertMsg">Something happened.</span>
+        </div>
+        <div class="alert-close" onclick="closeCustomAlert()">✕</div>
+    </div>
 
-    <!-- Welcome Overlay -->
     <div class="overlay-backdrop" id="welcomeOverlay">
         <div class="overlay-modal">
             <div class="overlay-image-container">
@@ -633,79 +476,41 @@
         </div>
     </div>
 
-    <!-- MAIN AUTH OVERLAY (Login/Signup Form) -->
-    <div class="overlay-backdrop" id="authOverlay">
-        <div class="overlay-modal">
-            <button class="close-auth-btn" id="closeAuthBtn">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-            <div class="auth-card-inner">
-                
-                <div class="title-group">
-                    <h2 id="auth-title" class="auth-title">Welcome Back</h2>
-                    <div class="subtitle-main" id="auth-subtitle">Access your workspace and AI tools.</div>
+    <div class="auth-overlay-backdrop" id="authOverlay">
+        <div class="auth-modal">
+            <div class="auth-header">
+                <span class="auth-title" id="overlayAuthTitle">Log In</span>
+                <div class="close-auth" id="closeAuthBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </div>
+            </div>
+            
+            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=User" class="auth-avatar-preview" id="overlayAvatarPreview" alt="">
 
-                <!-- EMAIL FORM -->
-                <div class="auth-form">
-                    <div class="input-wrapper">
-                        <input type="email" id="email-input" class="form-input" placeholder="Email address" required>
-                    </div>
-                    
-                    <div class="input-wrapper">
-                        <input type="password" id="password-input" class="form-input" placeholder="Password" required>
-                    </div>
+            <div class="input-group hidden" id="overlayNameGroup">
+                <input type="text" id="overlayNameInput" class="auth-input" placeholder="Display Name">
+            </div>
 
-                    <!-- SIGN UP ONLY FIELDS -->
-                    <div id="signup-fields" class="hidden">
-                        <div class="file-input-wrapper">
-                            <span class="file-label-text">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                Upload Profile Picture
-                            </span>
-                            <input type="file" id="profile-pic-input" accept="image/*">
-                        </div>
-                    </div>
+            <div class="input-group hidden" id="overlayUrlGroup">
+                <input type="text" id="overlayUrlInput" class="auth-input" placeholder="Profile Picture URL (Optional)">
+            </div>
+            
+            <div class="input-group">
+                <input type="email" id="overlayEmailInput" class="auth-input" placeholder="Email Address">
+            </div>
+            
+            <div class="input-group">
+                <input type="password" id="overlayPassInput" class="auth-input" placeholder="Password">
+            </div>
 
-                    <button id="email-auth-btn" class="btn-primary">
-                        Sign In
-                    </button>
-                </div>
+            <button id="overlaySubmitBtn" class="btn-submit-auth">Log In</button>
 
-                <div class="divider">OR</div>
-
-                <button id="google-btn" class="btn-google">
-                    <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"></path><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.715H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"></path><path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"></path><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"></path></svg>
-                    <span id="btn-text">Continue with Google</span>
-                    <div id="loading" class="spinner"></div>
-                </button>
-
-                <div class="toggle-auth">
-                    <span id="toggle-text">Don't have an account?</span>
-                    <span id="toggle-link" class="toggle-link">Sign up</span>
-                </div>
+            <div class="auth-toggle-text" id="overlayToggleAuth">
+                Don't have an account? <span>Create one</span>
             </div>
         </div>
     </div>
 
-    <!-- Terms Overlay (Acts as confirmation) -->
-    <div class="overlay-backdrop" id="termsOverlay">
-        <div class="overlay-modal">
-            <div class="overlay-image-container">
-                <img src="https://i.imghippo.com/files/wUb7431UjA.png" class="overlay-main-img" alt="Policy">
-                <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Policy1&backgroundColor=f0fff0" class="decorative-avatar dec-av-1" alt="">
-                <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Policy2&backgroundColor=fff0f5" class="decorative-avatar dec-av-2" alt="">
-            </div>
-            <h2 class="overlay-title">Terms & Privacy</h2>
-            <p class="overlay-desc">By creating an account, you agree to our <a href="p.html" target="_blank">Policy</a>. Please confirm to proceed.</p>
-            <div class="btn-group">
-                <button class="btn-reject" id="termsReject">Cancel</button>
-                <button class="btn-confirm" id="termsConfirm">Agree & Continue</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- --- MAIN LAYOUT --- -->
     <div class="screen-one">
         <div class="left-panel">
             <div class="marquee-container">
@@ -743,20 +548,22 @@
                 <img src="https://i.imghippo.com/files/vgr8207c.png" class="brand-logo-img" alt="Logo">
                 <span class="brand-logo-text">EduLink</span>
             </div>
-            
+
             <div class="content-stack">
-                <div class="landing-content">
-                    
+                <div class="login-card">
                     <div class="avatar-frame">
-                        <img id="main-avatar-img" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=transparent&flip=true" alt="Avatar">
-                        <div class="avatar-tooltip" id="avatar-tooltip"><span style="font-weight: 600;">Ngawang:</span> You are invited!</div>
+                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=User&backgroundColor=transparent" alt="Avatar">
+                        <div class="avatar-tooltip"><span style="font-weight: 600;">Ngawang:</span> You are invited!</div>
+                    </div>
+                    
+                    <div class="title-group">
+                        <h1>Welcome Back</h1>
+                        <div class="subtitle-main">Access your workspace and AI tools.</div>
                     </div>
 
-                    <h1 class="landing-headline">Your all-in-one workspace</h1>
-                    <p class="landing-sub">Collaborate, manage projects, and reach new productivity peaks. Free for everyone.</p>
-                    <button id="open-auth-btn" class="hero-btn">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                        Log In / Sign Up
+                    <button id="emailAuthTrigger" class="btn-email-trigger">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        Continue with Email
                     </button>
                 </div>
 
@@ -766,26 +573,25 @@
                         <span style="font-size: 11px; color: #32D74B; font-weight: 600;">● Online</span>
                     </div>
                     <div class="chat-list" id="chat-list-container">
-                        <!-- Chat injected by JS -->
-                    </div>
+                        </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Screen Two: Community -->
     <div class="screen-two">
+        
         <div class="community-group-container reveal-on-scroll">
             <h2 class="community-headline">Join our small community</h2>
-            
+
             <div class="invitation-highlight-wrapper">
                 <div class="avatar-pile">
-                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Annie&backgroundColor=f0f0f0" alt=""><div class="community-tooltip">Personalized Tutor</div></div>
-                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Bob&backgroundColor=e6e6fa" alt=""><div class="community-tooltip">Healthy Environment</div></div>
-                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Cathy&backgroundColor=ffefd5" alt=""><div class="community-tooltip">AI Workspace</div></div>
-                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=David&backgroundColor=e0ffff" alt=""><div class="community-tooltip">Accurate Research</div></div>
-                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Eva&backgroundColor=fff0f5" alt=""><div class="community-tooltip">Plan and Grow Together</div></div>
-                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Felix&backgroundColor=f0fff0" alt=""><div class="community-tooltip">Learn and Mentor</div></div>
+                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=e3f2fd" alt=""><div class="community-tooltip">Personalized Tutor</div></div>
+                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=f3e5f5" alt=""><div class="community-tooltip">Healthy Environment</div></div>
+                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=e0f7fa" alt=""><div class="community-tooltip">AI Workspace</div></div>
+                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=e8f5e9" alt=""><div class="community-tooltip">Accurate Research</div></div>
+                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=fff3e0" alt=""><div class="community-tooltip">Plan and Grow Together</div></div>
+                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=ffebee" alt=""><div class="community-tooltip">Learn and Mentor</div></div>
                 </div>
             </div>
 
@@ -797,57 +603,39 @@
         <div class="reviews-wrapper reveal-on-scroll">
             <div class="reviews-track">
                 <div class="review-card">
-                    <div class="review-header">
-                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase" class="review-pfp" alt="">
-                        <div class="review-info"><div class="review-name">Ngawang Tshogyal Phuentshok</div><div class="review-role">Founder</div></div>
-                    </div>
+                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Ngawang Tshogyal Phuentshok</div><div class="review-role">Founder</div></div></div>
                     <div class="stars">★★★★★</div>
                     <div class="review-text">Building EduLink has been a journey of connecting minds. It's the workspace I always wanted.</div>
                 </div>
-
                 <div class="review-card">
-                    <div class="review-header">
-                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Andrea" class="review-pfp" alt="">
-                        <div class="review-info"><div class="review-name">Sonam Rigsel</div><div class="review-role">Co-founder</div></div>
-                    </div>
+                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Andrea" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Sonam Rigsel</div><div class="review-role">Co-founder</div></div></div>
                     <div class="stars">★★★★★</div>
                     <div class="review-text">Collaboration shouldn't be hard. We designed this to be intuitive and powerful.</div>
                 </div>
-
                 <div class="review-card">
-                    <div class="review-header">
-                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Andrea" class="review-pfp" alt="">
-                        <div class="review-info"><div class="review-name">Jigdral</div><div class="review-role">Researcher</div></div>
-                    </div>
+                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Andrea" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Jigdral</div><div class="review-role">Researcher</div></div></div>
                     <div class="stars">★★★★☆</div>
                     <div class="review-text">The ability to organize complex data while staying in sync with the team is a game changer.</div>
                 </div>
-
                 <div class="review-card">
-                    <div class="review-header">
-                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Andrea" class="review-pfp" alt="">
-                        <div class="review-info"><div class="review-name">Jampel</div><div class="review-role">Researcher</div></div>
-                    </div>
+                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Andrea" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Jampel</div><div class="review-role">Researcher</div></div></div>
                     <div class="stars">★★★★★</div>
                     <div class="review-text">Fast, clean, and distraction-free. Perfect for deep dive research sessions.</div>
                 </div>
-                
                 <div class="review-card">
-                    <div class="review-header">
-                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Vivian" class="review-pfp" alt="">
-                        <div class="review-info"><div class="review-name">Yoesul Yangdon</div><div class="review-role">Student</div></div>
-                    </div>
+                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Vivian" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Yoesul Yangdon</div><div class="review-role">Student</div></div></div>
                     <div class="stars">★★★★★</div>
                     <div class="review-text">I use this for all my group projects now. It keeps everyone on the same page.</div>
                 </div>
-
-                <div class="review-card">
-                    <div class="review-header">
-                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Vivian" class="review-pfp" alt="">
-                        <div class="review-info"><div class="review-name">Ritisha Thara</div><div class="review-role">Student</div></div>
-                    </div>
+                 <div class="review-card">
+                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Vivian" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Ritisha Thara</div><div class="review-role">Student</div></div></div>
                     <div class="stars">★★★★★</div>
                     <div class="review-text">Finally, a tool that looks good and actually works for studying. Love the updates feed!</div>
+                </div>
+                 <div class="review-card">
+                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Ngawang Tshogyal Phuentshok</div><div class="review-role">Founder</div></div></div>
+                    <div class="stars">★★★★★</div>
+                    <div class="review-text">Building EduLink has been a journey of connecting minds. It's the workspace I always wanted.</div>
                 </div>
             </div>
         </div>
@@ -855,98 +643,25 @@
         <div class="team-timeline-section reveal-on-scroll">
             <div class="team-headline">Meet the Team</div>
             <div class="timeline-container">
-                <div class="team-node">
-                    <div class="team-card-inner">
-                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Joshua" 
-                             data-hover="https://i.imghippo.com/files/fxd9122lfA.png" 
-                             class="team-avatar" alt="Jigdral">
-                        <div class="team-name">Jigdral</div>
-                        <div class="team-role">Researcher</div>
-                    </div>
-                    <div class="team-quote-bubble">"Education is the only thing that can help you get out of struggles"</div>
-                </div>
-
-                <div class="team-node">
-                    <div class="team-card-inner">
-                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Sarah" 
-                             data-hover="https://i.imghippo.com/files/ysU7129TyE.jpg"
-                             class="team-avatar" alt="Ngawang">
-                        <div class="team-name">Ngawang</div>
-                        <div class="team-role">Founder</div>
-                    </div>
-                    <div class="team-quote-bubble">"Future of education is in your hand"</div>
-                </div>
-
-                <div class="team-node">
-                    <div class="team-card-inner">
-                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Sadie" 
-                             data-hover="https://i.imghippo.com/files/Nt9657Idk.jpeg"
-                             class="team-avatar" alt="Sonam">
-                        <div class="team-name">Sonam</div>
-                        <div class="team-role">Co-Founder</div>
-                    </div>
-                    <div class="team-quote-bubble">"All it takes is one person"</div>
-                </div>
-
-                <div class="team-node">
-                    <div class="team-card-inner">
-                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Robert" 
-                             data-hover="https://i.imghippo.com/files/WFP4901nE.png"
-                             class="team-avatar" alt="Jampel">
-                        <div class="team-name">Jampel</div>
-                        <div class="team-role">Researcher</div>
-                    </div>
-                    <div class="team-quote-bubble">"One ideology"</div>
-                </div>
-            </div>
-
-            <div class="premium-cta-wrapper reveal-on-scroll">
-                <a href="premium.html" class="premium-badge">
-                    <div class="premium-mini-avatars">
-                        <img src="https://api.dicebear.com/9.x/notionists/svg?seed=P1" class="mini-av">
-                        <img src="https://api.dicebear.com/9.x/notionists/svg?seed=P2" class="mini-av">
-                        <img src="https://api.dicebear.com/9.x/notionists/svg?seed=P3" class="mini-av">
-                    </div>
-                    <span class="premium-text-cta">
-                        Purchase Premium
-                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </span>
-                </a>
-            </div>
-
-            <div class="central-image-container reveal-on-scroll" style="margin-top: 40px; margin-bottom: 0; max-width: 700px; margin-left: auto; margin-right: auto;">
-                <img src="https://i.imghippo.com/files/Cq2498QQ.png" alt="Community Growth" class="central-work-img">
+                <div class="team-node"><div class="team-card-inner"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Joshua" data-hover="https://i.imghippo.com/files/fxd9122lfA.png" class="team-avatar" alt="Jigdral"><div class="team-name">Jigdral</div><div class="team-role">Researcher</div></div><div class="team-quote-bubble">"Education is the only thing that can help you get out of struggles"</div></div>
+                <div class="team-node"><div class="team-card-inner"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Sarah" data-hover="https://i.imghippo.com/files/ysU7129TyE.jpg" class="team-avatar" alt="Ngawang"><div class="team-name">Ngawang</div><div class="team-role">Founder</div></div><div class="team-quote-bubble">"Future of education is in your hand"</div></div>
+                <div class="team-node"><div class="team-card-inner"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Sadie" data-hover="https://i.imghippo.com/files/Nt9657Idk.jpeg" class="team-avatar" alt="Sonam"><div class="team-name">Sonam</div><div class="team-role">Co-Founder</div></div><div class="team-quote-bubble">"All it takes is one person"</div></div>
+                <div class="team-node"><div class="team-card-inner"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Robert" data-hover="https://i.imghippo.com/files/WFP4901nE.png" class="team-avatar" alt="Jampel"><div class="team-name">Jampel</div><div class="team-role">Researcher</div></div><div class="team-quote-bubble">"One ideology"</div></div>
             </div>
         </div>
 
         <footer class="footer reveal-on-scroll">
             <div>© 2024 EduLink. All rights reserved.</div>
-            <div class="footer-links">
-                <a href="#">Blog</a>
-                <a href="#">Policy</a>
-            </div>
+            <div class="footer-links"><a href="#">Blog</a><a href="#">Policy</a></div>
         </footer>
+
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import {
-            getAuth,
-            GoogleAuthProvider,
-            signInWithPopup,
-            onAuthStateChanged,
-            createUserWithEmailAndPassword,
-            signInWithEmailAndPassword,
-            updateProfile
-        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import {
-            getStorage,
-            ref,
-            uploadBytes,
-            getDownloadURL
-        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-        // --- FIREBASE CONFIG ---
+        // --- NEW CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
             authDomain: "edulinki.firebaseapp.com",
@@ -959,248 +674,169 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const storage = getStorage(app);
         const provider = new GoogleAuthProvider();
 
-        // --- DOM ELEMENTS ---
-        const openAuthBtn = document.getElementById('open-auth-btn');
+        // MAIN BUTTON
+        const emailAuthTrigger = document.getElementById('emailAuthTrigger');
+
+        // AUTH OVERLAY ELEMENTS
         const authOverlay = document.getElementById('authOverlay');
         const closeAuthBtn = document.getElementById('closeAuthBtn');
+        const overlayAuthTitle = document.getElementById('overlayAuthTitle');
+        const overlayAvatarPreview = document.getElementById('overlayAvatarPreview');
+        const overlayNameGroup = document.getElementById('overlayNameGroup');
+        const overlayNameInput = document.getElementById('overlayNameInput');
+        const overlayUrlGroup = document.getElementById('overlayUrlGroup');
+        const overlayUrlInput = document.getElementById('overlayUrlInput');
+        const overlayEmailInput = document.getElementById('overlayEmailInput');
+        const overlayPassInput = document.getElementById('overlayPassInput');
+        const overlaySubmitBtn = document.getElementById('overlaySubmitBtn');
+        const overlayToggleAuth = document.getElementById('overlayToggleAuth');
 
-        const googleBtn = document.getElementById('google-btn');
-        const emailBtn = document.getElementById('email-auth-btn');
-        const toggleLink = document.getElementById('toggle-link');
-        const toggleText = document.getElementById('toggle-text');
-        const titleEl = document.getElementById('auth-title');
-        const subtitleEl = document.getElementById('auth-subtitle');
-        const signupFields = document.getElementById('signup-fields');
-        const emailInput = document.getElementById('email-input');
-        const passInput = document.getElementById('password-input');
-        const fileInput = document.getElementById('profile-pic-input');
+        // CUSTOM ALERT ELEMENTS
+        const customAlert = document.getElementById('customAlert');
+        const alertTitle = document.getElementById('alertTitle');
+        const alertMsg = document.getElementById('alertMsg');
 
-        // Terms Overlay Elements
-        const termsOverlay = document.getElementById('termsOverlay');
-        const termsConfirm = document.getElementById('termsConfirm');
-        const termsReject = document.getElementById('termsReject');
+        // STATE
+        let isSignupMode = false;
 
-        // State
-        let isSignUp = false;
-        let pendingAction = null; // 'google' or 'signup'
-        let pendingSignUpData = null; // { email, password, file }
+        // --- FUNCTIONS ---
 
-        // --- AUTH OVERLAY LOGIC ---
-        openAuthBtn.addEventListener('click', () => {
+        // Custom Alert Function
+        window.closeCustomAlert = () => { customAlert.classList.remove('active'); };
+        const showCustomAlert = (title, msg) => {
+            alertTitle.textContent = title;
+            alertMsg.textContent = msg;
+            customAlert.classList.add('active');
+            setTimeout(() => closeCustomAlert(), 4000);
+        };
+
+        // OPEN AUTH OVERLAY
+        emailAuthTrigger.addEventListener('click', () => {
             authOverlay.classList.add('active');
+            // Reset to default (Login mode)
+            isSignupMode = false;
+            updateAuthModalUI();
         });
 
+        // CLOSE AUTH OVERLAY
         closeAuthBtn.addEventListener('click', () => {
             authOverlay.classList.remove('active');
         });
 
-        // Close when clicking background
-        authOverlay.addEventListener('click', (e) => {
-            if(e.target === authOverlay) {
-                authOverlay.classList.remove('active');
-            }
+        // TOGGLE LOGIN / SIGNUP
+        overlayToggleAuth.addEventListener('click', () => {
+            isSignupMode = !isSignupMode;
+            updateAuthModalUI();
         });
 
-        // --- AUTH STATE MONITORING ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                console.log("User is authenticated:", user.email);
+        function updateAuthModalUI() {
+            if (isSignupMode) {
+                // Switch to Signup
+                overlayAuthTitle.textContent = "Create Account";
+                overlayNameGroup.classList.remove('hidden');
+                overlayUrlGroup.classList.remove('hidden');
+                overlaySubmitBtn.textContent = "Sign Up";
+                overlayToggleAuth.innerHTML = `Already have an account? <span>Log In</span>`;
+                overlayAvatarPreview.src = "https://api.dicebear.com/9.x/lorelei/svg?seed=NewUser&backgroundColor=transparent";
+            } else {
+                // Switch to Login
+                overlayAuthTitle.textContent = "Log In";
+                overlayNameGroup.classList.add('hidden');
+                overlayUrlGroup.classList.add('hidden');
+                overlaySubmitBtn.textContent = "Log In";
+                overlayToggleAuth.innerHTML = `Don't have an account? <span>Create one</span>`;
+                overlayAvatarPreview.src = "https://api.dicebear.com/9.x/lorelei/svg?seed=User&backgroundColor=transparent";
             }
-        });
-
-        // --- CUSTOM NOTIFICATION SYSTEM ---
-        function showNotification(message, type = "info", avatarUrl = null) {
-            const container = document.getElementById('notification-container');
-            const alertBox = document.createElement('div');
-            alertBox.className = `custom-alert ${type}`;
-            
-            // Determine avatar
-            let finalAvatar = avatarUrl;
-            if (!finalAvatar) {
-                if (type === 'error') finalAvatar = "https://api.dicebear.com/9.x/shapes/svg?seed=Error";
-                else if (type === 'success') finalAvatar = "https://api.dicebear.com/9.x/shapes/svg?seed=Success";
-                else finalAvatar = "https://api.dicebear.com/9.x/micah/svg?seed=Maso";
-            }
-            
-            alertBox.innerHTML = `
-                <img src="${finalAvatar}" class="alert-avatar" alt="">
-                <div class="alert-content">
-                    <div class="alert-title">${type === 'error' ? 'Something went wrong' : 'Notification'}</div>
-                    <div class="alert-msg">${message}</div>
-                </div>
-            `;
-            container.appendChild(alertBox);
-
-            setTimeout(() => {
-                alertBox.style.animation = "fadeOutRight 0.4s forwards";
-                setTimeout(() => alertBox.remove(), 400);
-            }, 5000);
         }
 
-        // --- TOGGLE LOGIN / SIGNUP MODE ---
-        toggleLink.addEventListener('click', () => {
-            isSignUp = !isSignUp;
-            if (isSignUp) {
-                // Switch to Sign Up UI
-                titleEl.textContent = "Create Account";
-                subtitleEl.textContent = "Join the community today.";
-                signupFields.classList.remove('hidden');
-                emailBtn.textContent = "Sign Up";
-                toggleText.textContent = "Already have an account?";
-                toggleLink.textContent = "Sign in";
-            } else {
-                // Switch to Login UI
-                titleEl.textContent = "Welcome Back";
-                subtitleEl.textContent = "Access your workspace and AI tools.";
-                signupFields.classList.add('hidden');
-                emailBtn.textContent = "Sign In";
-                toggleText.textContent = "Don't have an account?";
-                toggleLink.textContent = "Sign up";
+        // PREVIEW LOGIC
+        // 1. URL Input Change
+        overlayUrlInput.addEventListener('input', (e) => {
+            if (isSignupMode && e.target.value.length > 5) {
+                overlayAvatarPreview.src = e.target.value;
+            } else if (isSignupMode && overlayNameInput.value) {
+                // Fallback to name if URL cleared
+                overlayAvatarPreview.src = `https://api.dicebear.com/9.x/lorelei/svg?seed=${overlayNameInput.value}&backgroundColor=transparent`;
             }
         });
 
-        // --- AVATAR PREVIEW ---
-        const fileLabelText = document.querySelector('.file-label-text');
-        const defaultFileLabel = fileLabelText.innerHTML;
-        
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                fileLabelText.innerHTML = `<span style="color: var(--text-main); font-weight: 500;">${file.name}</span>`;
-                fileLabelText.style.color = "var(--text-main)";
-                
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    document.getElementById('main-avatar-img').src = ev.target.result;
-                    document.getElementById('avatar-tooltip').innerHTML = '<span style="font-weight: 600;">You:</span> Looking good!';
-                }
-                reader.readAsDataURL(file);
+        // 2. Name Input Change (if no URL)
+        overlayNameInput.addEventListener('input', (e) => {
+            if (isSignupMode && !overlayUrlInput.value && e.target.value.length > 1) {
+                overlayAvatarPreview.src = `https://api.dicebear.com/9.x/lorelei/svg?seed=${e.target.value}&backgroundColor=transparent`;
             }
         });
 
-        // --- EMAIL / PASSWORD AUTH LOGIC ---
-        emailBtn.addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = passInput.value;
+        // --- AUTH LOGIC ---
 
-            if (!email || !password) {
-                showNotification("Please fill in email and password.", "error");
+        // Auto Redirect
+        onAuthStateChanged(auth, (user) => {
+            if (user) window.location.href = "home.html";
+        });
+
+        // SUBMIT CLICK
+        overlaySubmitBtn.addEventListener('click', async () => {
+            const email = overlayEmailInput.value;
+            const pass = overlayPassInput.value;
+            
+            if (!email || !pass) {
+                showCustomAlert("Error", "Please enter email and password.");
                 return;
             }
 
-            if (isSignUp) {
-                if (password.length < 6) {
-                    showNotification("Password must be at least 6 characters.", "error");
-                    return;
-                }
-                // Show Terms for Signup
-                pendingAction = 'signup';
-                pendingSignUpData = { email, password, file: fileInput.files[0] };
-                authOverlay.classList.remove('active'); // Hide Auth temporarily
-                termsOverlay.classList.add('active');
-            } else {
-                // Login directly
-                emailBtn.textContent = "Signing In...";
-                emailBtn.disabled = true;
-                try {
-                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                    const user = userCredential.user;
-                    showNotification("Signed in successfully!", "success", user.photoURL);
-                    setTimeout(() => window.location.href = "home.html", 1500);
-                } catch (error) {
-                    handleAuthError(error);
-                    emailBtn.textContent = "Sign In";
-                    emailBtn.disabled = false;
-                }
-            }
-        });
-
-        // --- GOOGLE AUTH LOGIC ---
-        googleBtn.addEventListener('click', () => {
-            pendingAction = 'google';
-            authOverlay.classList.remove('active');
-            termsOverlay.classList.add('active');
-        });
-
-        // --- TERMS OVERLAY HANDLERS ---
-        termsReject.addEventListener('click', () => {
-            termsOverlay.classList.remove('active');
-            authOverlay.classList.add('active'); // Go back to auth
-            
-            if (pendingAction === 'signup') {
-                document.getElementById('main-avatar-img').src = "https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=transparent&flip=true";
-                fileInput.value = "";
-                fileLabelText.innerHTML = defaultFileLabel;
-            }
-            pendingAction = null;
-            pendingSignUpData = null;
-        });
-
-        termsConfirm.addEventListener('click', async () => {
-            const originalText = termsConfirm.innerText;
-            termsConfirm.innerText = "Processing...";
-            termsConfirm.style.pointerEvents = "none";
+            overlaySubmitBtn.textContent = "Processing...";
+            overlaySubmitBtn.style.opacity = "0.7";
 
             try {
-                if (pendingAction === 'google') {
-                    const result = await signInWithPopup(auth, provider);
-                    const user = result.user;
-                    showNotification("Successfully signed in!", "success", user.photoURL);
-                    setTimeout(() => { window.location.href = "home.html"; }, 1500);
-                } else if (pendingAction === 'signup') {
-                    await performSignUp(pendingSignUpData);
+                if (isSignupMode) {
+                    // SIGN UP LOGIC
+                    const name = overlayNameInput.value;
+                    const url = overlayUrlInput.value;
+
+                    if (!name) {
+                        showCustomAlert("Missing Info", "Please enter your name.");
+                        overlaySubmitBtn.textContent = "Sign Up"; 
+                        overlaySubmitBtn.style.opacity = "1";
+                        return;
+                    }
+                    
+                    // 1. Create User
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                    const user = userCredential.user;
+
+                    // 2. Determine Photo URL (User Input or DiceBear)
+                    const finalPhotoURL = url && url.length > 5 ? url : `https://api.dicebear.com/9.x/lorelei/svg?seed=${name}&backgroundColor=transparent`;
+                    
+                    await updateProfile(user, {
+                        displayName: name,
+                        photoURL: finalPhotoURL
+                    });
+                    
+                    showCustomAlert("Success!", "Account created. Redirecting...");
+                    window.location.href = "home.html";
+
+                } else {
+                    // LOG IN LOGIC
+                    await signInWithEmailAndPassword(auth, email, pass);
+                    showCustomAlert("Welcome Back", "Redirecting...");
+                    window.location.href = "home.html";
                 }
             } catch (error) {
                 console.error(error);
-                handleAuthError(error);
-                // On error, show auth modal again
-                termsOverlay.classList.remove('active');
-                authOverlay.classList.add('active');
-            } finally {
-                termsConfirm.innerText = originalText;
-                termsConfirm.style.pointerEvents = "auto";
-                termsOverlay.classList.remove('active');
+                let msg = error.message;
+                if (msg.includes("email-already-in-use")) msg = "Email already in use.";
+                if (msg.includes("invalid-credential")) msg = "Incorrect email or password.";
+                if (msg.includes("weak-password")) msg = "Password should be at least 6 chars.";
+                
+                showCustomAlert("Auth Error", msg);
+                overlaySubmitBtn.textContent = isSignupMode ? "Sign Up" : "Log In";
+                overlaySubmitBtn.style.opacity = "1";
             }
         });
 
-        async function performSignUp(data) {
-            const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-            const user = userCredential.user;
-            
-            let photoURL = "https://api.dicebear.com/9.x/lorelei/svg?seed=" + user.uid;
-            
-            if (data.file) {
-                try {
-                    const storageRef = ref(storage, `profile_images/${user.uid}`);
-                    await uploadBytes(storageRef, data.file);
-                    photoURL = await getDownloadURL(storageRef);
-                } catch (uploadError) {
-                    console.error("Image upload failed", uploadError);
-                }
-            }
-
-            await updateProfile(user, {
-                displayName: data.email.split('@')[0],
-                photoURL: photoURL
-            });
-            
-            showNotification("Account created successfully!", "success", photoURL);
-            setTimeout(() => window.location.href = "home.html", 1500);
-        }
-
-        function handleAuthError(error) {
-            let msg = error.message;
-            if(msg.includes("auth/email-already-in-use")) msg = "Email already in use.";
-            if(msg.includes("auth/weak-password")) msg = "Password should be at least 6 characters.";
-            if(msg.includes("auth/invalid-credential")) msg = "Invalid email or password.";
-            showNotification(msg, "error");
-        }
-
-        // --- VISUAL EFFECTS ---
-        // Live Chat Simulation
+        // Live Chat Simulation Logic
         const chatContainer = document.getElementById('chat-list-container');
         const chatSequence = [
             { type: 'badge', html: `<div class="badge-row"><div class="icon-circle"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg></div><span class="badge-text">Alex J. joined the workspace</span></div>`, delay: 800 },
@@ -1215,7 +851,7 @@
                     if (item.type === 'update') {
                         const el = document.getElementById(item.targetId);
                         if (el) {
-                            el.style.opacity = '0.7';
+                            el.style.opacity = '0.7'; 
                             setTimeout(() => {
                                 el.innerHTML = item.content;
                                 el.style.opacity = '1';
@@ -1230,16 +866,17 @@
             });
         }
 
-        // Scroll Reveal
+        // SCROLL REVEAL OBSERVER
         const observerOptions = { threshold: 0.15 };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) entry.target.classList.add('visible');
             });
         }, observerOptions);
+
         document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
 
-        // AI Interaction
+        // AI Logic
         const aiInput = document.querySelector('.real-ai-input');
         const aiSend = document.querySelector('.ai-send-btn');
         const aiContainer = document.querySelector('.ai-floating-bar');
@@ -1247,9 +884,9 @@
         const handleAiInteraction = () => {
             const userText = aiInput.value.trim();
             if (!userText) return;
-            
+
             aiInput.value = "Thinking...";
-            aiInput.disabled = true;
+            aiInput.disabled = true; 
             
             setTimeout(() => {
                 aiInput.value = "Login to discover 🔒";
@@ -1257,7 +894,8 @@
                 aiContainer.classList.add('ai-active-response');
                 
                 setTimeout(() => {
-                    authOverlay.classList.add('active'); // Open Modal
+                    emailAuthTrigger.click(); // Trigger Email Auth Overlay
+                    showCustomAlert("AI Assistant", "Please log in to continue.");
                     
                     setTimeout(() => {
                         aiInput.value = "";
@@ -1270,33 +908,31 @@
             }, 600);
         };
 
-        aiInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleAiInteraction();
-        });
+        aiInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAiInteraction(); });
         aiSend.addEventListener('click', () => handleAiInteraction());
 
+        // Start Chat
         runChatSimulation();
 
-        // Team Avatar Hover
+        // Team Hover Logic
         document.querySelectorAll('.team-node').forEach(node => {
             const img = node.querySelector('.team-avatar');
             const originalSrc = img.src;
             const hoverSrc = img.getAttribute('data-hover');
             if (hoverSrc) {
-                node.addEventListener('mouseenter', () => img.src = hoverSrc);
-                node.addEventListener('mouseleave', () => img.src = originalSrc);
+                const preloader = new Image(); preloader.src = hoverSrc;
+                node.addEventListener('mouseenter', () => { img.src = hoverSrc; });
+                node.addEventListener('mouseleave', () => { img.src = originalSrc; });
             }
         });
 
-        // Welcome Overlay
+        // Welcome Overlay Logic
         const welcomeOverlay = document.getElementById('welcomeOverlay');
         const closeWelcomeBtn = document.getElementById('closeOverlayBtn');
         const hasSeenWelcome = localStorage.getItem('eduLinkWelcomeSeen');
 
         if (!hasSeenWelcome) {
-            setTimeout(() => {
-                welcomeOverlay.classList.add('active');
-            }, 500);
+            setTimeout(() => { welcomeOverlay.classList.add('active'); }, 500);
         }
 
         closeWelcomeBtn.addEventListener('click', () => {
@@ -1304,9 +940,10 @@
             setTimeout(() => {
                 welcomeOverlay.classList.remove('active');
                 welcomeOverlay.style.display = 'none';
-            }, 400);
+            }, 400); 
             localStorage.setItem('eduLinkWelcomeSeen', 'true');
         });
+
     </script>
 </body>
 </html>

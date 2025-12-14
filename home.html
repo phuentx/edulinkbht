@@ -490,7 +490,7 @@ transition: background 0.1s; font-size: 14px; font-weight: 500;
 .chat-bubble-me {
     background: #0b57d0;
     color: white;
-    padding: 8px 14px;
+    padding: 10px 16px;
     border-radius: 18px 18px 4px 18px;
     font-size: 15px;
     max-width: 75%;
@@ -502,7 +502,7 @@ transition: background 0.1s; font-size: 14px; font-weight: 500;
 .chat-bubble-them {
     background: #f0f2f5;
     color: #050505;
-    padding: 8px 14px;
+    padding: 10px 16px;
     border-radius: 18px 18px 18px 4px;
     font-size: 15px;
     max-width: 75%;
@@ -518,67 +518,40 @@ transition: background 0.1s; font-size: 14px; font-weight: 500;
     display: flex;
     width: 100%;
     margin-bottom: 6px;
-    align-items: center;
 }
 .chat-row.me { justify-content: flex-end; }
 .chat-row.them { justify-content: flex-start; }
 
-.chat-options-btn {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    color: #9ca3af;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s, background-color 0.2s;
-    flex-shrink: 0;
-}
-.chat-options-btn:hover { background-color: #f3f4f6; color: #374151; }
-.chat-row:hover .chat-options-btn { opacity: 1; }
-.chat-row.me .chat-options-btn { margin-right: 8px; order: -1; }
-.chat-row.them .chat-options-btn { margin-left: 8px; order: 1; }
-
-.chat-context-menu {
+.chat-actions-menu {
     position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     background: white;
     border: 1px solid #eaecf0;
-    border-radius: 12px;
-    padding: 6px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    z-index: 100;
-    width: 180px;
-    display: none;
-    flex-direction: column;
-}
-.chat-context-menu.active { display: flex; }
-
-.chat-menu-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 12px;
-    font-size: 13px; font-weight: 500; color: #374151;
-    border-radius: 8px; cursor: pointer; transition: background 0.1s;
-}
-.chat-menu-item:hover { background: #f9fafb; color: #1f1f1f; }
-.chat-menu-item.danger { color: #d92d20; }
-.chat-menu-item.danger:hover { background: #fef2f2; }
-
-.reaction-row {
-    display: flex; justify-content: space-around;
-    padding: 6px 4px;
-    border-bottom: 1px solid #f0f0f0;
-    margin-bottom: 4px;
-}
-.reaction-btn {
-    font-size: 18px;
-    cursor: pointer;
-    transition: transform 0.1s;
+    border-radius: 20px;
     padding: 4px;
-    border-radius: 4px;
+    display: none; /* Hidden by default */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 10;
+    gap: 4px;
 }
-.reaction-btn:hover { transform: scale(1.2); background: #f3f4f6; }
+
+/* Hover logic: Show menu when hovering the ROW */
+.chat-row:hover .chat-actions-menu { display: flex; }
+
+.chat-row.me .chat-actions-menu { right: 100%; margin-right: 12px; }
+.chat-row.them .chat-actions-menu { left: 100%; margin-left: 12px; }
+
+.chat-action-btn {
+    padding: 6px;
+    border-radius: 50%;
+    color: #667085;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+}
+.chat-action-btn:hover { background: #f3f4f6; color: #1f1f1f; }
+.chat-action-btn.delete:hover { background: #fef2f2; color: #ef4444; }
 
 .reply-preview-bar {
     background: #f9fafb;
@@ -633,18 +606,13 @@ height: 100%; flex: 1; gap: 4px; color: #98a2b3; transition: all 0.2s; cursor: p
 
 </style>
 </head>
-<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="closeMenus()">
+<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
 
 <!-- LOADING OVERLAY -->
 <div id="app-loader"><div class="loader-spinner"></div></div>
 
 <!-- Post Options Global Menu -->
 <div id="global-post-menu" class="post-options-menu"></div>
-
-<!-- Chat Message Menu -->
-<div id="chat-msg-menu" class="chat-context-menu" onclick="event.stopPropagation()">
-    <!-- Populated by JS -->
-</div>
 
 <!-- Post View Overlay -->
 <div id="post-view-overlay" class="fixed inset-0 z-[60] hidden flex justify-center items-end md:items-center">
@@ -1138,7 +1106,6 @@ let activeChatUserId = null;
 let activeNotifTab = 'friends';
 window.replyingToCommentId = null; 
 window.replyingToMessageId = null;
-window.activeMessageMenuId = null;
 
 // Global Vars for App Logic
 window.currentContext = "";
@@ -1165,12 +1132,6 @@ function refreshIcons() {
     }
 }
 
-// NUCLEAR OPTION: MutationObserver to ensure icons NEVER disappear
-const observer = new MutationObserver(() => {
-    if(window.lucide) window.lucide.createIcons();
-});
-observer.observe(document.body, { childList: true, subtree: true });
-
 // Helper: Date Formatter
 function formatDate(timestamp) {
     if (!timestamp) return '';
@@ -1196,15 +1157,6 @@ function formatDate(timestamp) {
     
     return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 }
-
-// Timeout Fallback for Loader
-setTimeout(() => {
-    const loader = document.getElementById('app-loader');
-    if(loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => loader.remove(), 500);
-    }
-}, 3000); // Force remove loader after 3 seconds if Auth hangs
 
 // Auth Listener
 onAuthStateChanged(auth, async (user) => {
@@ -1276,6 +1228,12 @@ function initRealtimeListeners() {
         users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const netView = document.getElementById('view-network');
         if(netView && !netView.classList.contains('hidden')) renderNetwork();
+        
+        const profileView = document.getElementById('view-profile');
+        // Refresh profile if looking at self or if generic update needed
+        if(profileView && !profileView.classList.contains('hidden')) {
+             // We can check if we need to redraw specific profile but simple re-render of icons helps
+        }
         refreshIcons();
     });
 
@@ -1900,11 +1858,15 @@ function renderMessages(msgs) {
         }
 
         const linkifiedText = linkify(m.text);
+        
         const bubbleClass = isMe ? 'chat-bubble-me' : 'chat-bubble-them';
         
         div.innerHTML = `
-            <div class="chat-options-btn" onclick="openMessageMenu(event, '${m.id}', ${isMe}, '${m.text}')">
-                <i data-lucide="more-vertical" class="w-4 h-4"></i>
+            <div class="chat-actions-menu">
+                <div class="chat-action-btn" onclick="setReply('${m.id}', '${m.text}')" title="Reply"><i data-lucide="reply" class="w-3 h-3"></i></div>
+                <div class="chat-action-btn" onclick="reactToMessage('${m.id}', '❤️')" title="Love"><i data-lucide="heart" class="w-3 h-3"></i></div>
+                <div class="chat-action-btn" onclick="reactToMessage('${m.id}', '👍')" title="Like"><i data-lucide="thumbs-up" class="w-3 h-3"></i></div>
+                ${isMe ? `<div class="chat-action-btn delete" onclick="deleteMessage('${m.id}')" title="Delete"><i data-lucide="trash-2" class="w-3 h-3"></i></div>` : ''}
             </div>
             <div class="${bubbleClass}">
                 ${replyHTML}
@@ -1919,54 +1881,11 @@ function renderMessages(msgs) {
     refreshIcons();
 }
 
-window.openMessageMenu = function(e, msgId, isMe, text) {
-    e.stopPropagation();
-    window.activeMessageMenuId = msgId;
-    const menu = document.getElementById('chat-msg-menu');
-    const btn = e.currentTarget;
-    const rect = btn.getBoundingClientRect();
-    
-    // Position Menu near button
-    menu.style.top = (rect.bottom + window.scrollY) + 'px';
-    if(isMe) {
-        menu.style.left = 'auto';
-        menu.style.right = (window.innerWidth - rect.right) + 'px';
-    } else {
-        menu.style.left = (rect.left) + 'px';
-        menu.style.right = 'auto';
-    }
-
-    let html = `
-        <div class="reaction-row">
-            <div class="reaction-btn" onclick="reactToMessage('${msgId}', '❤️')">❤️</div>
-            <div class="reaction-btn" onclick="reactToMessage('${msgId}', '😂')">😂</div>
-            <div class="reaction-btn" onclick="reactToMessage('${msgId}', '👍')">👍</div>
-            <div class="reaction-btn" onclick="reactToMessage('${msgId}', '😮')">😮</div>
-            <div class="reaction-btn" onclick="reactToMessage('${msgId}', '😢')">😢</div>
-        </div>
-        <div class="chat-menu-item" onclick="setReply('${msgId}', '${text.replace(/'/g, "\\'")}')"><i data-lucide="reply" class="w-4 h-4"></i> Reply</div>
-    `;
-
-    if(isMe) {
-        html += `<div class="chat-menu-item danger" onclick="deleteMessage('${msgId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>`;
-    }
-
-    menu.innerHTML = html;
-    menu.classList.add('active');
-    refreshIcons();
-}
-
-window.closeMenus = function() {
-    document.getElementById('chat-msg-menu').classList.remove('active');
-    document.getElementById('global-post-menu').classList.remove('active');
-}
-
 window.setReply = function(msgId, text) {
     window.replyingToMessageId = msgId;
     document.getElementById('reply-preview').classList.remove('hidden');
     document.getElementById('reply-to-text').innerText = `Replying to: "${text.substring(0, 20)}..."`;
     document.getElementById('message-input').focus();
-    closeMenus();
 }
 
 window.cancelReply = function() {
@@ -1977,14 +1896,12 @@ window.cancelReply = function() {
 window.reactToMessage = async function(msgId, emoji) {
     const msgRef = doc(db, "messages", msgId);
     await updateDoc(msgRef, { reaction: emoji });
-    closeMenus();
 }
 
 window.deleteMessage = async function(msgId) {
     if(confirm("Unsend this message?")) {
         await deleteDoc(doc(db, "messages", msgId));
     }
-    closeMenus();
 }
 
 window.sendChatMessage = async function(e) {

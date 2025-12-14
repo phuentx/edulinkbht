@@ -718,22 +718,10 @@
                 <div>
                     <div id="compose-name" class="text-[15px] font-bold text-[#1f1f1f]">User</div>
                     <div class="relative mt-1" onclick="event.stopPropagation()">
-                        <button onclick="togglePrivacyMenu()" class="flex items-center gap-1.5 text-xs bg-gray-100 rounded-md py-1.5 px-3 text-gray-700 font-medium hover:bg-gray-200 transition-colors">
-                            <i id="privacy-icon-display" data-lucide="globe" class="w-3.5 h-3.5"></i>
-                            <span id="privacy-text-display">Public</span>
-                            <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400"></i>
+                        <button class="flex items-center gap-1.5 text-xs bg-gray-100 rounded-md py-1.5 px-3 text-gray-700 font-medium">
+                            <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+                            <span>Public</span>
                         </button>
-                        <input type="hidden" id="post-privacy" value="public">
-                        <div id="privacy-menu" class="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-xl hidden z-50 p-1 transform origin-top-left transition-all">
-                            <div onclick="selectPrivacy('public')" class="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 rounded-lg cursor-pointer text-sm text-gray-700 transition-colors">
-                                <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><i data-lucide="globe" class="w-4 h-4"></i></div>
-                                <div class="flex flex-col"><span class="font-semibold text-xs">Public</span><span class="text-[10px] text-gray-400">Anyone can see</span></div>
-                            </div>
-                            <div onclick="selectPrivacy('private')" class="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 rounded-lg cursor-pointer text-sm text-gray-700 transition-colors">
-                                <div class="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-600"><i data-lucide="lock" class="w-4 h-4"></i></div>
-                                <div class="flex flex-col"><span class="font-semibold text-xs">Private</span><span class="text-[10px] text-gray-400">Only you</span></div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -827,7 +815,7 @@
                 </div>
                 <div class="flex-1 max-w-[600px] relative group hidden md:block">
                     <i data-lucide="search" class="absolute left-5 top-3.5 w-5 h-5 text-[#667085] group-focus-within:text-[#0b57d0] transition-colors"></i>
-                    <input type="text" placeholder="Search EduLink" id="global-search" onkeyup="handleSearch(this.value)" class="w-full bg-[#f3f4f6] rounded-full py-3.5 pl-14 pr-6 outline-none focus:bg-[#ffffff] focus:shadow-sm focus:ring-1 focus:ring-gray-200 transition-all text-[#1f1f1f] text-[15px]">
+                    <input type="text" placeholder="Search EduLink" id="global-search" oninput="handleSearch(this.value)" class="w-full bg-[#f3f4f6] rounded-full py-3.5 pl-14 pr-6 outline-none focus:bg-[#ffffff] focus:shadow-sm focus:ring-1 focus:ring-gray-200 transition-all text-[#1f1f1f] text-[15px]">
                 </div>
                 <div class="flex items-center gap-3 pl-4">
                     <button class="icon-btn relative" onclick="toggleNotifications()">
@@ -860,11 +848,6 @@
             <!-- NOTIFICATIONS VIEW (Moved from Overlay) -->
             <div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
                 <h2 class="text-2xl font-bold mb-6 px-4 md:px-0">Notifications</h2>
-                <div class="tab-group mb-6 mx-4 md:mx-0">
-                    <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active">Friends</button>
-                    <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn">Others</button>
-                    <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn">Official</button>
-                </div>
                 <div id="notification-list" class="space-y-2 px-4 md:px-0 w-full"></div>
             </div>
 
@@ -872,7 +855,10 @@
             <div id="view-chat" class="flex-1 h-full hidden flex flex-col bg-white">
                 <div class="flex h-full">
                     <div class="w-1/4 min-w-[260px] border-r border-gray-100 flex flex-col bg-[#fbfbfa]">
-                        <div class="p-4 border-b border-gray-100 font-medium text-xs text-gray-500 uppercase tracking-wide">Direct Messages</div>
+                        <div class="flex items-center justify-between p-4 border-b border-gray-100">
+                            <span class="font-medium text-xs text-gray-500 uppercase tracking-wide">Direct Messages</span>
+                            <button onclick="switchChatTab()" id="chat-tab-toggle" class="text-xs font-bold text-blue-600 hover:underline">Requests</button>
+                        </div>
                         <div id="chat-list" class="flex-1 overflow-y-auto pt-2"></div>
                     </div>
                     <div class="flex-1 flex flex-col relative bg-white">
@@ -1055,6 +1041,8 @@
         window.currentMediaType = null;
         window.editingPostId = null;
         window.activeChatUserId = null;
+        window.activeChatIsRequest = false; // Chat logic state
+        window.showRequestsTab = false;
         window.activeModel = 'standard';
         window.currentContext = "";
         window.isWebSearchActive = false;
@@ -1062,35 +1050,13 @@
         window.isPlusMenuOpen = false;
         window.isModelMenuOpen = false;
         window.conversationHistory = [];
-        const MAX_HISTORY = 10;
+        window.currentViewingPostId = null;
         let classifier;
 
         // --- CONSTANTS ---
         const models = {
-            standard: {
-                name: "Newton",
-                avatar: "https://i.imghippo.com/files/XEEq5247S.png",
-                system: "You are Newton, an AI tutor and study companion.",
-                greeting: "Hello! I'm Newton. What are you working on today?"
-            },
-            friendly: {
-                name: "Tutor Chase",
-                avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=Chase",
-                system: "You are Tutor Chase, a super friendly study buddy!",
-                greeting: "Hi there! 👋 I'm Tutor Chase! Let's learn! 🚀"
-            },
-            logical: {
-                name: "Tutor Adrian",
-                avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=Adrian",
-                system: "You are Tutor Adrian. Logical and direct.",
-                greeting: "Greetings. I am Tutor Adrian. State your query."
-            },
-            arun: {
-                name: "Arun",
-                avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=Destiny",
-                system: "You are Arun, a leader concerned with mastery.",
-                greeting: "Hey. I'm Arun. Let's master this."
-            }
+            standard: { name: "Newton", avatar: "https://i.imghippo.com/files/XEEq5247S.png", system: "You are Newton.", greeting: "Hello! I'm Newton. How can I help?" },
+            friendly: { name: "Tutor Chase", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=Chase", system: "You are Chase.", greeting: "Hi! I'm Chase!" }
         };
 
         // --- AUTH & INIT ---
@@ -1113,7 +1079,7 @@
                     });
                 }
                 
-                // Get fresh data
+                // Get fresh data listener
                 onSnapshot(userRef, (doc) => {
                     window.currentUser = { id: doc.id, ...doc.data() };
                     updateUserInterface();
@@ -1125,7 +1091,6 @@
                 setupClassifier();
                 lucide.createIcons();
                 
-                // Switch to default view
                 document.getElementById('nav-feed').classList.add('active');
             } else {
                 window.location.href = "index.html";
@@ -1136,6 +1101,8 @@
         function listenToUsers() {
             onSnapshot(collection(db, "users"), (snapshot) => {
                 window.users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Update search / chat lists if they depend on user data
+                if(document.getElementById('view-chat').classList.contains('hidden') === false) renderChatList();
             });
         }
 
@@ -1151,22 +1118,20 @@
                     };
                 });
                 renderFeed();
-                // If viewing a post, re-render comments
+                // If viewing a post, re-render to show new comments/likes
                 if(window.currentViewingPostId) renderCommentsInModal(window.currentViewingPostId);
             });
         }
 
         function listenToNotifications() {
-            // Listen for notifications where receiverId is current user
             const q = query(collection(db, "notifications"), where("receiverId", "==", auth.currentUser.uid), orderBy("timestamp", "desc"));
             onSnapshot(q, (snapshot) => {
                 window.notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // Show badge if there are unread notifications (simple check: if count > 0)
                 const badge = document.getElementById('notif-badge');
+                // Simple logic: if any unread (we won't fully implement read status toggling here for brevity, just show badge if count > 0)
                 if(window.notifications.length > 0 && badge) badge.classList.remove('hidden');
                 
-                // If notification view is active, re-render
-                if(document.getElementById('view-notifications') && !document.getElementById('view-notifications').classList.contains('hidden')) {
+                if(!document.getElementById('view-notifications').classList.contains('hidden')) {
                     renderNotifications();
                 }
             });
@@ -1179,83 +1144,91 @@
         function updateUserInterface() {
             if(!window.currentUser) return;
             const u = window.currentUser;
-            const els = {
-                'sidebar-name': u.name,
-                'compose-name': u.name
-            };
-            const imgs = {
-                'sidebar-avatar': u.avatar,
-                'mobile-avatar': u.avatar,
-                'header-avatar': u.avatar,
-                'compose-avatar': u.avatar,
-                'comment-input-avatar': u.avatar,
-                'comment-input-avatar-mobile': u.avatar,
-                'edit-avatar-preview': u.avatar
-            };
+            const textEls = ['sidebar-name', 'compose-name'];
+            const imgEls = ['sidebar-avatar', 'mobile-avatar', 'header-avatar', 'compose-avatar', 'comment-input-avatar', 'comment-input-avatar-mobile', 'edit-avatar-preview'];
             
-            for(let k in els) { const el = document.getElementById(k); if(el) el.innerText = els[k]; }
-            for(let k in imgs) { const el = document.getElementById(k); if(el) el.src = imgs[k]; }
+            textEls.forEach(id => { const el = document.getElementById(id); if(el) el.innerText = u.name; });
+            imgEls.forEach(id => { const el = document.getElementById(id); if(el) el.src = u.avatar; });
             
-            const editName = document.getElementById('edit-name'); if(editName) editName.value = u.name;
-            const editBio = document.getElementById('edit-bio'); if(editBio) editBio.value = u.bio;
+            const en = document.getElementById('edit-name'); if(en) en.value = u.name;
+            const eb = document.getElementById('edit-bio'); if(eb) eb.value = u.bio;
         }
 
-        // --- UI LOGIC ---
-
-        window.switchView = function(viewName) {
-            const views = ['feed', 'events', 'saved', 'profile', 'chat', 'search-results', 'notifications'];
-            views.forEach(v => {
-                const el = document.getElementById(`view-${v}`);
-                if(el) el.classList.add('hidden');
-            });
-
-            // Mobile specific
-            const aiPanel = document.getElementById('ai-panel');
-            const mainPanel = document.getElementById('main-panel');
+        // --- SEARCH ---
+        window.handleSearch = function(val) {
+            if(!val) { switchView('feed'); return; }
+            switchView('search-results');
+            const container = document.getElementById('view-search-results');
+            const term = val.toLowerCase();
             
-            if (window.innerWidth < 768) {
-                if (viewName === 'ai') {
-                    mainPanel.classList.add('hidden');
-                    aiPanel.classList.remove('hidden');
-                    aiPanel.classList.add('flex');
-                } else {
-                    mainPanel.classList.remove('hidden');
-                    aiPanel.classList.add('hidden');
-                    aiPanel.classList.remove('flex');
-                }
-            } else {
-                if(viewName === 'chat') {
-                    aiPanel.classList.add('hidden');
-                    aiPanel.classList.remove('xl:flex');
-                } else {
-                    aiPanel.classList.remove('hidden');
-                    aiPanel.classList.add('xl:flex');
-                }
+            const foundUsers = window.users.filter(u => u.name.toLowerCase().includes(term));
+            const foundPosts = window.posts.filter(p => p.content.toLowerCase().includes(term) && p.privacy !== 'private');
+
+            let html = `<div class="p-4 space-y-6">`;
+            
+            // Users
+            if(foundUsers.length > 0) {
+                html += `<div><h3 class="font-bold text-gray-900 mb-2">People</h3><div class="space-y-2">`;
+                foundUsers.forEach(u => {
+                    html += `<div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 cursor-pointer" onclick="showProfile('${u.id}')">
+                        <img src="${u.avatar}" class="w-10 h-10 rounded-full">
+                        <div><div class="font-bold text-sm">${u.name}</div><div class="text-xs text-gray-500">${u.bio}</div></div>
+                    </div>`;
+                });
+                html += `</div></div>`;
             }
 
-            if(viewName !== 'ai') {
-                 document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            // Posts
+            if(foundPosts.length > 0) {
+                html += `<div><h3 class="font-bold text-gray-900 mb-2">Posts</h3><div id="search-posts-list" class="space-y-4"></div></div>`;
+            } else if (foundUsers.length === 0) {
+                html += `<div class="text-gray-500 text-center mt-10">No results found</div>`;
             }
-
-            // Nav Active State
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.mobile-nav-item').forEach(el => el.classList.remove('active'));
-
-            if(viewName === 'feed') document.getElementById('nav-feed').classList.add('active');
-            if(viewName === 'chat') document.getElementById('nav-chat').classList.add('active');
-            if(viewName === 'saved') { document.getElementById('nav-saved').classList.add('active'); renderSaved(); }
-            if(viewName === 'notifications') renderNotifications();
+            html += `</div>`;
             
-            if(viewName === 'feed') renderFeed();
+            container.innerHTML = html;
+            
+            const postsList = document.getElementById('search-posts-list');
+            if(postsList) {
+                foundPosts.forEach(p => {
+                    postsList.appendChild(createPostElement(p));
+                });
+            }
             lucide.createIcons();
         }
 
+        // --- UI NAVIGATION ---
+        window.switchView = function(viewName) {
+            const views = ['feed', 'events', 'saved', 'profile', 'chat', 'search-results', 'notifications'];
+            views.forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
+
+            // Desktop/Mobile AI Panel logic
+            const aiPanel = document.getElementById('ai-panel');
+            const mainPanel = document.getElementById('main-panel');
+            if(window.innerWidth < 768) {
+                if(viewName === 'ai') { mainPanel.classList.add('hidden'); aiPanel.classList.remove('hidden', 'xl:flex'); aiPanel.classList.add('flex'); }
+                else { mainPanel.classList.remove('hidden'); aiPanel.classList.add('hidden'); aiPanel.classList.remove('flex'); }
+            } else {
+                if(viewName === 'chat') { aiPanel.classList.add('hidden'); aiPanel.classList.remove('xl:flex'); }
+                else { aiPanel.classList.remove('hidden'); aiPanel.classList.add('xl:flex'); }
+            }
+
+            if(viewName !== 'ai') document.getElementById(`view-${viewName}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(el => el.classList.remove('active'));
+            if(viewName === 'feed') document.getElementById('nav-feed').classList.add('active');
+            if(viewName === 'chat') document.getElementById('nav-chat').classList.add('active');
+            if(viewName === 'notifications') renderNotifications(); 
+            if(viewName === 'feed') renderFeed();
+            
+            lucide.createIcons();
+        }
+
+        // --- POSTS ---
         window.renderFeed = function() {
             const container = document.getElementById('feed-container');
             container.innerHTML = "";
-            window.posts.forEach(post => {
-                 container.appendChild(createPostElement(post));
-            });
+            window.posts.forEach(post => container.appendChild(createPostElement(post)));
             lucide.createIcons();
         }
 
@@ -1270,12 +1243,10 @@
 
             let mediaHTML = "";
             if (post.media) {
-                const isVideo = post.mediaType === 'video' || post.media.includes('video');
+                const isVideo = (post.mediaType === 'video') || post.media.includes('video');
                 mediaHTML = isVideo 
                 ? `<div class="mt-3 rounded-xl overflow-hidden"><video src="${post.media}" class="w-full max-h-[400px]" controls onclick="event.stopPropagation()"></video></div>`
-                : `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer" onclick="event.stopPropagation(); openLightbox('${post.media}')">
-                    <img src="${post.media}" class="w-full max-h-[400px] object-cover bg-gray-50">
-                </div>`;
+                : `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer" onclick="event.stopPropagation(); openLightbox('${post.media}')"><img src="${post.media}" class="w-full max-h-[400px] object-cover bg-gray-50"></div>`;
             }
 
             div.innerHTML = `
@@ -1288,10 +1259,10 @@
                                     <span class="post-author-name" onclick="event.stopPropagation(); showProfile('${author.id}')">${author.name}</span>
                                     ${author.isOfficial ? '<i data-lucide="badge-check" class="w-4 h-4 text-blue-500 ml-1"></i>' : ''}
                                 </div>
-                                <div class="post-meta flex items-center">${dateStr} • ${post.privacy === 'private' ? '<i data-lucide="lock" class="w-3 h-3 ml-1"></i>' : '<i data-lucide="globe" class="w-3 h-3 ml-1"></i>'}</div>
+                                <div class="post-meta flex items-center">${dateStr}</div>
                             </div>
                         </div>
-                        <button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event, '${post.id}', '${author.name}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
+                        ${author.id === window.currentUser.id ? `<button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event, '${post.id}', '${author.name}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>` : ''}
                     </div>
                     <div class="post-body">${marked.parse(post.content)}</div>
                     ${mediaHTML}
@@ -1300,9 +1271,6 @@
                              <button class="action-btn like" onclick="event.stopPropagation(); toggleLike('${post.id}')"><i data-lucide="thumbs-up" class="w-5 h-5 ${isLiked ? 'fill-blue-600 text-blue-600' : ''}"></i> <span class="text-xs font-medium">${post.likes ? post.likes.length : 0}</span></button>
                              <button class="action-btn comment" onclick="event.stopPropagation(); openPostView('${post.id}')"><i data-lucide="message-square" class="w-5 h-5"></i> <span class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span></button>
                         </div>
-                         <div class="flex items-center gap-1">
-                             <button class="action-btn ai-pin" onclick="event.stopPropagation(); pinPost('${post.id}', '${author.name}')" title="Analyze with Newton"><i data-lucide="sparkles" class="w-5 h-5"></i></button>
-                         </div>
                     </div>
                 </div>
             `;
@@ -1313,16 +1281,56 @@
         window.toggleLike = async function(postId) {
             const postRef = doc(db, "posts", postId);
             const post = window.posts.find(p => p.id === postId);
-            
             if(post.likes.includes(window.currentUser.id)) {
                 await updateDoc(postRef, { likes: arrayRemove(window.currentUser.id) });
             } else {
                 await updateDoc(postRef, { likes: arrayUnion(window.currentUser.id) });
-                // Send notification
-                if(post.authorId !== window.currentUser.id) {
-                    sendNotification(post.authorId, 'like', 'liked your post', postId);
-                }
+                if(post.authorId !== window.currentUser.id) sendNotification(post.authorId, 'like', 'liked your post', postId);
             }
+        }
+
+        window.openPostView = function(pid) {
+            window.currentViewingPostId = pid;
+            const post = window.posts.find(p => p.id === pid);
+            if(!post) return;
+            const author = window.users.find(u => u.id === post.authorId);
+            
+            document.getElementById('injected-post').innerHTML = `
+                <div class="flex gap-4 items-center mb-6">
+                    <img src="${author.avatar}" class="w-12 h-12 rounded-full border border-gray-200">
+                    <div>
+                        <h3 class="font-bold text-[#1f1f1f] text-[16px]">${author.name}</h3>
+                        <div class="text-xs text-[#667085] font-medium">Post Details</div>
+                    </div>
+                </div>
+                <div class="text-[#1f1f1f] text-[16px] leading-relaxed mb-4">${marked.parse(post.content)}</div>
+                ${post.media ? `<img src="${post.media}" class="w-full rounded-xl mb-4">` : ''}
+            `;
+            
+            renderCommentsInModal(pid);
+            document.getElementById('post-view-overlay').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        window.renderCommentsInModal = function(pid) {
+            const post = window.posts.find(p => p.id === pid);
+            if(!post) return;
+            const comments = post.comments || [];
+            
+            const html = comments.map(c => {
+                const author = window.users.find(u => u.id === c.authorId) || {name:'Unknown', avatar:''};
+                return `
+                <div class="flex gap-3 p-4 border-b border-gray-50">
+                    <img src="${author.avatar}" class="w-8 h-8 rounded-full bg-gray-200 shrink-0">
+                    <div>
+                        <div class="flex items-center gap-2"><span class="font-bold text-sm text-gray-900">${author.name}</span><span class="text-xs text-gray-400">${new Date(c.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span></div>
+                        <div class="text-sm text-gray-800 mt-1">${c.content}</div>
+                    </div>
+                </div>`;
+            }).join('');
+            
+            document.getElementById('comments-list-desktop').innerHTML = html || '<div class="p-8 text-center text-gray-400">No comments yet. Be the first!</div>';
+            document.getElementById('comments-list-mobile').innerHTML = html || '<div class="p-4 text-center text-gray-400 text-sm">No comments yet.</div>';
         }
 
         window.submitCommentDesktop = async function() {
@@ -1331,42 +1339,151 @@
             
             const postRef = doc(db, "posts", window.currentViewingPostId);
             const post = window.posts.find(p => p.id === window.currentViewingPostId);
-            
-            const newComment = {
-                id: "c" + Date.now(),
-                authorId: window.currentUser.id,
-                content: txt,
-                timestamp: Date.now()
-            };
+            const newComment = { id: "c"+Date.now(), authorId: window.currentUser.id, content: txt, timestamp: Date.now() };
 
-            await updateDoc(postRef, {
-                comments: arrayUnion(newComment)
-            });
-            
-            if(post && post.authorId !== window.currentUser.id) {
-                sendNotification(post.authorId, 'comment', 'commented on your post', window.currentViewingPostId);
-            }
+            await updateDoc(postRef, { comments: arrayUnion(newComment) });
+            if(post.authorId !== window.currentUser.id) sendNotification(post.authorId, 'comment', 'commented on your post', window.currentViewingPostId);
             
             document.getElementById('comment-input-desktop').value = "";
         }
 
+        // --- NOTIFICATIONS ---
+        async function sendNotification(receiverId, type, content, linkId = null) {
+            await addDoc(collection(db, "notifications"), {
+                receiverId, senderId: window.currentUser.id, senderName: window.currentUser.name, 
+                senderAvatar: window.currentUser.avatar, type, content, linkId, timestamp: serverTimestamp(), read: false
+            });
+        }
+
+        window.renderNotifications = function() {
+            const container = document.getElementById('notification-list');
+            container.innerHTML = "";
+            if(window.notifications.length === 0) { container.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">No notifications</div>`; return; }
+
+            window.notifications.forEach(n => {
+                const div = document.createElement('div');
+                div.className = "w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100 bg-white shadow-sm mb-2";
+                let icon = n.type === 'like' ? '<i data-lucide="heart" class="w-3 h-3 text-white"></i>' : '<i data-lucide="message-circle" class="w-3 h-3 text-white"></i>';
+                let color = n.type === 'like' ? 'bg-red-500' : 'bg-blue-600';
+                div.innerHTML = `
+                    <div class="relative"><img src="${n.senderAvatar}" class="w-10 h-10 rounded-full bg-gray-200"><div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${color} flex items-center justify-center border-2 border-white">${icon}</div></div>
+                    <div class="flex-1"><div class="text-sm"><span class="font-bold text-gray-900">${n.senderName}</span> <span class="text-gray-600">${n.content}</span></div></div>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        // --- CHAT SYSTEM ---
+        window.switchChatTab = function() {
+            window.showRequestsTab = !window.showRequestsTab;
+            document.getElementById('chat-tab-toggle').innerText = window.showRequestsTab ? "Messages" : "Requests";
+            renderChatList();
+        }
+
+        window.renderChatList = function() {
+            const list = document.getElementById('chat-list');
+            list.innerHTML = "";
+            
+            // Logic: 
+            // 1. Get all unique users we've chatted with from a hypothetical `userChats` or by scanning `chats` collection (hard in client-side only efficiently).
+            // Simplified: We will show people we follow (Friends) in "Messages"
+            // And people who follow us BUT we don't follow back in "Requests" (mock logic for "Request")
+            
+            let usersToShow = [];
+            if (window.showRequestsTab) {
+                // Requests: People who follow me, but I don't follow them
+                usersToShow = window.users.filter(u => u.following.includes(window.currentUser.id) && !window.currentUser.following.includes(u.id));
+            } else {
+                // Messages: People I follow (treating follow as "connect" for simplicity in this demo architecture)
+                usersToShow = window.users.filter(u => window.currentUser.following.includes(u.id));
+            }
+
+            if(usersToShow.length === 0) list.innerHTML = `<div class="p-4 text-xs text-gray-400 text-center">No ${window.showRequestsTab ? 'requests' : 'chats'}</div>`;
+
+            usersToShow.forEach(u => {
+                const div = document.createElement('div');
+                div.className = "chat-sidebar-item";
+                if(u.id === window.activeChatUserId) div.classList.add('active');
+                div.onclick = () => startChat(u.id);
+                div.innerHTML = `<img src="${u.avatar}" class="w-6 h-6 rounded-full"><span>${u.name}</span>`;
+                list.appendChild(div);
+            });
+        }
+
+        window.startChat = function(userId) {
+            window.activeChatUserId = userId;
+            // Check if this is a request state
+            const targetUser = window.users.find(u => u.id === userId);
+            const isFollowingMe = targetUser.following.includes(window.currentUser.id);
+            const isMeFollowing = window.currentUser.following.includes(userId);
+            
+            // If they follow me but I don't follow them, it's a request I can accept
+            window.activeChatIsRequest = isFollowingMe && !isMeFollowing;
+
+            switchView('chat');
+            
+            let headerHTML = `<div class="flex items-center gap-3"><img src="${targetUser.avatar}" class="w-8 h-8 rounded-full border border-gray-200"><span class="font-semibold text-gray-800">${targetUser.name}</span></div>`;
+            if(window.activeChatIsRequest) {
+                headerHTML += `<button onclick="acceptChatRequest('${userId}')" class="bg-blue-600 text-white text-xs px-3 py-1 rounded-full">Accept</button>`;
+            }
+            
+            document.getElementById('chat-header').innerHTML = headerHTML;
+            document.getElementById('chat-input-area').classList.remove('hidden');
+            
+            const chatId = [window.currentUser.id, userId].sort().join("_");
+            const q = query(collection(db, "chats", chatId, "messages"), orderBy("timestamp", "asc"));
+            onSnapshot(q, (snapshot) => {
+                window.chats[userId] = snapshot.docs.map(d => d.data());
+                renderMessages();
+            });
+            renderChatList();
+        }
+
+        window.acceptChatRequest = async function(userId) {
+            // "Accept" means following them back in this simplified model
+            await toggleFollow(userId);
+            window.showRequestsTab = false; // Switch back to main inbox
+            window.switchChatTab(); // Update UI
+            startChat(userId); // Restart chat view
+        }
+
+        window.renderMessages = function() {
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = "";
+            const msgs = window.chats[window.activeChatUserId] || [];
+            if(msgs.length === 0) container.innerHTML = `<div class="text-center text-xs text-gray-400 mt-10">Start the conversation...</div>`;
+            
+            msgs.forEach(m => {
+                const div = document.createElement('div');
+                div.className = m.senderId === window.currentUser.id ? 'chat-bubble-me' : 'chat-bubble-them';
+                div.innerText = m.text;
+                container.appendChild(div);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        window.sendChatMessage = async function(e) {
+            e.preventDefault();
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+            if(!text || !window.activeChatUserId) return;
+            
+            const chatId = [window.currentUser.id, window.activeChatUserId].sort().join("_");
+            await addDoc(collection(db, "chats", chatId, "messages"), {
+                senderId: window.currentUser.id, text, timestamp: serverTimestamp()
+            });
+            input.value = "";
+        }
+
+        // --- PUBLISH POST (Storage & Data) ---
         window.publishPost = async function() {
             try {
                 const textRaw = document.getElementById('compose-text').value; 
                 const btn = document.getElementById('btn-publish');
-                const privacy = document.getElementById('post-privacy').value;
                 const fileInput = document.getElementById('media-input');
                 
-                if (!textRaw.trim() && !window.currentMedia && !fileInput.files[0]) { 
-                    showToast("Empty post!", true); return; 
-                }
-
-                // Edit Logic
-                if(window.editingPostId) {
-                     const postRef = doc(db, "posts", window.editingPostId);
-                     await updateDoc(postRef, { content: textRaw, privacy: privacy });
-                     closeCompose(); showToast("Post Updated!"); return;
-                }
+                if (!textRaw.trim() && !window.currentMedia && !fileInput.files[0]) { showToast("Empty post!", true); return; }
 
                 const originalHtml = btn.innerHTML; 
                 btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`; 
@@ -1384,82 +1501,20 @@
                 }
 
                 await addDoc(collection(db, "posts"), {
-                    authorId: window.currentUser.id,
-                    content: textRaw,
-                    media: mediaUrl,
-                    mediaType: mediaType,
-                    timestamp: serverTimestamp(),
-                    likes: [],
-                    comments: [],
-                    privacy: privacy
+                    authorId: window.currentUser.id, content: textRaw, media: mediaUrl, mediaType: mediaType,
+                    timestamp: serverTimestamp(), likes: [], comments: [], privacy: 'public' // Force public as requested
                 });
                 
                 document.getElementById('compose-text').value = ""; 
                 removeMedia(); 
-                btn.innerHTML = originalHtml; 
-                btn.disabled = false; 
-                closeCompose(); 
-                showToast("Posted!"); 
+                btn.innerHTML = originalHtml; btn.disabled = false; 
+                closeCompose(); showToast("Posted!"); 
 
             } catch (error) {
                 console.error(error);
-                showToast("Error publishing post", true);
+                showToast("Error", true);
                 document.getElementById('btn-publish').disabled = false;
             }
-        }
-
-        // --- NOTIFICATIONS ---
-        async function sendNotification(receiverId, type, content, linkId = null) {
-            await addDoc(collection(db, "notifications"), {
-                receiverId: receiverId,
-                senderId: window.currentUser.id,
-                senderName: window.currentUser.name,
-                senderAvatar: window.currentUser.avatar,
-                type: type,
-                content: content,
-                linkId: linkId,
-                timestamp: serverTimestamp(),
-                read: false
-            });
-        }
-
-        window.renderNotifications = function() {
-            const container = document.getElementById('notification-list');
-            container.innerHTML = "";
-            
-            // Just show all for now, simplified
-            if (window.notifications.length === 0) {
-                container.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">No notifications yet</div>`;
-                return;
-            }
-
-            window.notifications.forEach(n => {
-                const div = document.createElement('div');
-                div.className = "w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100 bg-white shadow-sm mb-2";
-                
-                let icon = "";
-                if(n.type === 'like') icon = '<i data-lucide="heart" class="w-3 h-3 text-white"></i>';
-                if(n.type === 'comment') icon = '<i data-lucide="message-circle" class="w-3 h-3 text-white"></i>';
-                
-                let colorClass = n.type === 'like' ? 'bg-red-500' : 'bg-blue-600';
-
-                div.innerHTML = `
-                    <div class="relative">
-                        <img src="${n.senderAvatar}" class="w-10 h-10 rounded-full bg-gray-200">
-                        <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${colorClass} flex items-center justify-center border-2 border-white">
-                            ${icon}
-                        </div>
-                    </div>
-                    <div class="flex-1">
-                        <div class="text-sm">
-                            <span class="font-bold text-gray-900">${n.senderName}</span>
-                            <span class="text-gray-600">${n.content}</span>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-            lucide.createIcons();
         }
 
         // --- PROFILE ---
@@ -1467,8 +1522,8 @@
             const name = document.getElementById('edit-name').value;
             const bio = document.getElementById('edit-bio').value;
             const fileInput = document.getElementById('edit-avatar-input');
-            
             let avatarUrl = window.currentUser.avatar;
+            
             if (fileInput.files[0]) {
                 const file = fileInput.files[0];
                 const storageRef = ref(storage, `profile_images/${auth.currentUser.uid}`);
@@ -1479,48 +1534,6 @@
             await updateDoc(doc(db, "users", auth.currentUser.uid), { name, bio, avatar: avatarUrl });
             closeEditProfile();
             showToast("Profile Updated");
-        }
-
-        window.showProfile = function(userId) {
-            const user = window.users.find(u => u.id === userId);
-            const container = document.getElementById('view-profile');
-            const isMe = userId === window.currentUser.id;
-            const isFollowing = window.currentUser.following.includes(userId);
-            
-            let actionBtn = isMe 
-                ? `<button onclick="openEditProfile()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200">Edit Profile</button>`
-                : `<button onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-700' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">${isFollowing ? 'Following' : 'Follow'}</button>`;
-            
-            if(!isMe) actionBtn += ` <button onclick="startChat('${userId}')" class="ml-2 border border-gray-200 px-3 py-2 rounded-lg"><i data-lucide="message-circle" class="w-5 h-5"></i></button>`;
-
-            const userPosts = window.posts.filter(p => p.authorId === userId);
-
-            container.innerHTML = `
-                <div class="h-32 bg-gradient-to-r from-blue-600 to-indigo-600 relative"></div>
-                <div class="px-6 relative">
-                    <div class="flex justify-between items-end -mt-10 mb-4">
-                        <img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white">
-                        <div class="flex">${actionBtn}</div>
-                    </div>
-                    <div class="mb-6">
-                        <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${user.name}</h1>
-                        <p class="text-gray-600 mt-1">${user.bio}</p>
-                        <div class="flex gap-4 mt-3 text-sm text-gray-500">
-                            <span><strong>${user.following.length}</strong> Following</span>
-                            <span><strong>${user.followers.length}</strong> Followers</span>
-                        </div>
-                    </div>
-                    <div class="border-t border-gray-100 pt-6">
-                        <div id="profile-posts-container"></div>
-                    </div>
-                </div>
-            `;
-            
-            switchView('profile');
-            const pc = document.getElementById('profile-posts-container');
-            if(userPosts.length > 0) userPosts.forEach(p => pc.appendChild(createPostElement(p)));
-            else pc.innerHTML = '<div class="text-center py-10 text-gray-400">No posts yet</div>';
-            lucide.createIcons();
         }
 
         window.toggleFollow = async function(userId) {
@@ -1540,157 +1553,33 @@
             showProfile(userId);
         }
 
-        // --- CHAT ---
-        window.startChat = function(userId) {
-            window.activeChatUserId = userId;
-            switchView('chat');
-            const user = window.users.find(u => u.id === userId);
-            document.getElementById('chat-header').innerHTML = `<div class="flex items-center gap-3"><img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200"><span class="font-semibold text-gray-800">${user.name}</span></div>`;
-            document.getElementById('chat-input-area').classList.remove('hidden');
+        // --- HELPER EXPORTS ---
+        window.showProfile = (id) => { 
+            const user = window.users.find(u => u.id === id);
+            if(!user) return;
+            // Basic profile rendering logic here... matches previous code...
+            const container = document.getElementById('view-profile');
+            const isMe = id === window.currentUser.id;
+            const isFollowing = window.currentUser.following.includes(id);
+            let actionBtn = isMe ? `<button onclick="openEditProfile()" class="bg-gray-100 px-4 py-2 rounded-lg font-bold">Edit</button>` : `<button onclick="toggleFollow('${id}')" class="${isFollowing ? 'bg-gray-100' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold">${isFollowing ? 'Following' : 'Follow'}</button>`;
+            if(!isMe) actionBtn += ` <button onclick="startChat('${id}')" class="ml-2 border border-gray-200 px-3 py-2 rounded-lg"><i data-lucide="message-circle" class="w-5 h-5"></i></button>`;
             
-            const chatId = [window.currentUser.id, userId].sort().join("_");
-            const q = query(collection(db, "chats", chatId, "messages"), orderBy("timestamp", "asc"));
-            
-            // Real-time listener for messages
-            onSnapshot(q, (snapshot) => {
-                const messages = snapshot.docs.map(d => d.data());
-                // Group by chat ID or just store in window.chats
-                window.chats[userId] = messages;
-                renderMessages();
-            });
-            renderChatList();
-        }
-
-        window.renderChatList = function() {
-            const list = document.getElementById('chat-list');
-            list.innerHTML = "";
-            // Simplified: show people followed
-            const friends = window.users.filter(u => window.currentUser.following.includes(u.id));
-            if(friends.length === 0) list.innerHTML = `<div class="p-4 text-xs text-gray-400">Follow people to chat</div>`;
-            
-            friends.forEach(f => {
-                const div = document.createElement('div');
-                div.className = "chat-sidebar-item";
-                if(f.id === window.activeChatUserId) div.classList.add('active');
-                div.onclick = () => startChat(f.id);
-                div.innerHTML = `<img src="${f.avatar}" class="w-6 h-6 rounded-full"><span>${f.name}</span>`;
-                list.appendChild(div);
-            });
-        }
-
-        window.renderMessages = function() {
-            const container = document.getElementById('chat-messages');
-            container.innerHTML = "";
-            const msgs = window.chats[window.activeChatUserId] || [];
-            msgs.forEach(m => {
-                const div = document.createElement('div');
-                div.className = m.senderId === window.currentUser.id ? 'chat-bubble-me' : 'chat-bubble-them';
-                div.innerText = m.text;
-                container.appendChild(div);
-            });
-            container.scrollTop = container.scrollHeight;
-        }
-
-        window.sendChatMessage = async function(e) {
-            e.preventDefault();
-            const input = document.getElementById('message-input');
-            const text = input.value.trim();
-            if(!text || !window.activeChatUserId) return;
-            const chatId = [window.currentUser.id, window.activeChatUserId].sort().join("_");
-            await addDoc(collection(db, "chats", chatId, "messages"), {
-                senderId: window.currentUser.id,
-                text: text,
-                timestamp: serverTimestamp()
-            });
-            input.value = "";
-        }
-
-        // --- AI LOGIC (Pollinations Mock as Fallback per instructions) ---
-        window.sendMessageAction = async function() {
-            const inp = document.getElementById('ai-input'); const txt = inp.value.trim(); if(!txt) return;
-            addMessage(txt, true); inp.value = ""; handleInput(inp);
-            
-            const model = models[window.activeModel];
-            const thinkingId = 'thinking-'+Date.now();
-            const h = document.getElementById('chat-history');
-            h.insertAdjacentHTML('beforeend', `<div id="${thinkingId}" class="flex flex-col mb-6 fade-in"><div class="flex gap-4"><img src="${model.avatar}" class="w-6 h-6 animate-pulse"><span class="text-sm font-medium animate-pulse">Thinking...</span></div></div>`);
-            
-            try {
-                const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(model.system + " " + txt)}?model=openai`);
-                const ans = await res.text();
-                document.getElementById(thinkingId).remove();
-                addMessage(ans, false);
-            } catch(e) {
-                document.getElementById(thinkingId).remove();
-                addMessage("I'm having trouble connecting right now.", false);
-            }
-        }
-
-        window.addMessage = function(text, isUser) {
-            const h = document.getElementById('chat-history');
-            const d = document.createElement('div');
-            d.className = isUser ? 'chat-wrapper flex justify-end fade-in mb-6' : 'chat-wrapper flex flex-col fade-in w-full mb-6';
-            if(isUser) {
-                d.innerHTML = `<div class="chat-msg-user bg-blue-100 p-3 rounded-2xl text-sm">${text}</div>`;
-            } else {
-                const model = models[window.activeModel];
-                d.innerHTML = `<div class="flex items-center gap-4 mb-2"><img src="${model.avatar}" class="w-6 h-6"></div><div class="chat-msg-ai text-sm leading-relaxed">${marked.parse(text)}</div>`;
-            }
-            h.appendChild(d);
-            h.scrollTop = h.scrollHeight;
+            container.innerHTML = `<div class="h-32 bg-gradient-to-r from-blue-600 to-indigo-600"></div><div class="px-6 -mt-10"><div class="flex justify-between items-end mb-4"><img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white"><div class="flex items-center mb-2">${actionBtn}</div></div><h1 class="text-2xl font-bold">${user.name}</h1><p class="text-gray-600">${user.bio}</p><div class="flex gap-4 mt-3 text-sm"><span><strong>${user.following.length}</strong> Following</span><span><strong>${user.followers.length}</strong> Followers</span></div><div class="mt-6 border-t pt-4" id="profile-posts"></div></div>`;
+            const pc = document.getElementById('profile-posts');
+            window.posts.filter(p => p.authorId === id).forEach(p => pc.appendChild(createPostElement(p)));
+            switchView('profile');
             lucide.createIcons();
         }
 
-        // --- EVENT HELPERS ---
+        // Standard Helpers
         window.openEventComposer = () => { document.getElementById('event-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('event-modal-box').classList.remove('scale-95'); };
         window.closeEventComposer = () => { document.getElementById('event-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('event-modal-box').classList.add('scale-95'); };
-        window.publishEvent = () => { showToast("Events coming soon!"); closeEventComposer(); };
-
-        // --- OTHER HELPERS ---
-        window.handleFileSelect = (e) => { 
-            const f = e.target.files[0]; 
-            if(f) { 
-                const reader = new FileReader(); 
-                reader.onload = (ev) => { 
-                    window.currentMedia = ev.target.result; 
-                    document.getElementById('media-preview-img').src = ev.target.result; 
-                    document.getElementById('media-preview-container').classList.remove('hidden'); 
-                }; 
-                reader.readAsDataURL(f); 
-            } 
-        };
+        window.handleFileSelect = (e) => { const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = (ev) => { window.currentMedia = ev.target.result; document.getElementById('media-preview-img').src = ev.target.result; document.getElementById('media-preview-container').classList.remove('hidden'); }; r.readAsDataURL(f); } };
         window.removeMedia = () => { window.currentMedia = null; document.getElementById('media-preview-container').classList.add('hidden'); document.getElementById('media-input').value = ""; };
         window.openCompose = () => { document.getElementById('compose-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('compose-modal').classList.remove('scale-95'); };
         window.closeCompose = () => { document.getElementById('compose-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('compose-modal').classList.add('scale-95'); };
-        window.openPostView = (pid) => { window.currentViewingPostId = pid; document.getElementById('post-view-overlay').classList.remove('hidden'); renderCommentsInModal(pid); };
-        window.closePostView = () => { document.getElementById('post-view-overlay').classList.add('hidden'); };
-        window.renderCommentsInModal = (pid) => {
-            const post = window.posts.find(p => p.id === pid);
-            const html = (post.comments || []).map(c => {
-                const author = window.users.find(u => u.id === c.authorId);
-                return `<div class="flex gap-3 p-4 border-b border-gray-50">
-                    <img src="${author ? author.avatar : ''}" class="w-8 h-8 rounded-full bg-gray-200">
-                    <div>
-                        <div class="font-bold text-sm text-gray-900">${author ? author.name : 'Unknown'}</div>
-                        <div class="text-sm text-gray-700">${c.content}</div>
-                    </div>
-                </div>`;
-            }).join('');
-            document.getElementById('comments-list-desktop').innerHTML = html || '<div class="p-4 text-gray-400">No comments</div>';
-            document.getElementById('comments-list-mobile').innerHTML = html || '<div class="p-4 text-gray-400">No comments</div>';
-        }
-        window.showToast = (msg, err) => {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
-        window.toggleNewtonExpand = () => { 
-            document.body.classList.toggle('mode-focus');
-            const layout = document.getElementById('workspace-layout');
-            layout.classList.toggle('swapped');
-        }
-        window.handleInput = (el) => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
+        window.closePostView = () => { document.getElementById('post-view-overlay').classList.add('hidden'); window.currentViewingPostId = null; };
+        window.showToast = (msg, err) => { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
         window.toggleNotifications = () => switchView('notifications');
         window.switchNotifTab = (t) => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById('ntab-'+t).classList.add('active'); };
         window.openCreateMenu = () => { document.getElementById('create-menu-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('create-menu-modal').classList.remove('scale-95'); };
@@ -1700,32 +1589,26 @@
         window.closeEditProfile = () => { document.getElementById('edit-profile-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('edit-profile-modal').classList.add('scale-95'); };
         window.openMentorship = () => { document.getElementById('mentorship-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('mentorship-modal-box').classList.remove('scale-95'); };
         window.closeMentorship = () => { document.getElementById('mentorship-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('mentorship-modal-box').classList.add('scale-95'); };
-        window.togglePrivacyMenu = () => document.getElementById('privacy-menu').classList.toggle('hidden');
-        window.selectPrivacy = (v) => { document.getElementById('post-privacy').value = v; document.getElementById('privacy-text-display').innerText = v; document.getElementById('privacy-menu').classList.add('hidden'); };
-        window.showPostOptions = (e, pid, name) => { 
-            e.stopPropagation(); 
-            const m = document.getElementById('global-post-menu'); 
-            const rect = e.currentTarget.getBoundingClientRect();
-            m.style.top = (rect.bottom + window.scrollY) + 'px'; 
-            m.style.left = (rect.right - 160) + 'px';
-            m.classList.add('active'); 
-            m.innerHTML = `<div class="post-option-item danger" onclick="deletePost('${pid}')">Delete</div>`;
-        };
+        window.showPostOptions = (e, pid, name) => { e.stopPropagation(); const m = document.getElementById('global-post-menu'); const rect = e.currentTarget.getBoundingClientRect(); m.style.top = (rect.bottom + window.scrollY) + 'px'; m.style.left = (rect.right - 160) + 'px'; m.classList.add('active'); m.innerHTML = `<div class="post-option-item danger" onclick="deletePost('${pid}')">Delete</div>`; };
         window.hidePostMenu = () => document.getElementById('global-post-menu').classList.remove('active');
         window.deletePost = async (pid) => { if(confirm("Delete?")) { await deleteDoc(doc(db, "posts", pid)); showToast("Deleted"); } };
-        window.switchModel = (m) => { window.activeModel = m; resetChat(); document.getElementById('model-menu').classList.remove('active'); };
-        window.toggleModelMenu = () => document.getElementById('model-menu').classList.toggle('active');
-        window.resetChat = () => { document.getElementById('chat-history').innerHTML = ""; };
-        window.togglePlusMenu = () => document.getElementById('plus-menu').classList.toggle('active');
-        window.toggleWebSearch = () => { window.isWebSearchActive = !window.isWebSearchActive; document.getElementById('web-search-btn').classList.toggle('active'); };
-        window.toggleIdeaMode = () => { window.isIdeaMode = !window.isIdeaMode; document.getElementById('menu-idea-validator').classList.toggle('active'); };
-        window.handleSearch = (v) => { if(!v) switchView('feed'); else { switchView('search-results'); document.getElementById('view-search-results').innerHTML = `<div class="p-4">Searching for ${v}...</div>`; } };
-        window.insertCodeSnippetAI = () => { document.getElementById('ai-input').value += " ```js\n\n``` "; };
-        window.copyText = (t) => navigator.clipboard.writeText(decodeURIComponent(t));
-        window.clearContext = () => { document.getElementById('ai-context-chip').classList.add('hidden'); };
-        window.pinPost = (pid) => { document.getElementById('ai-context-chip').classList.remove('hidden'); document.getElementById('ai-context-text').innerText = "Post Context Active"; if(window.innerWidth < 768) switchView('ai'); };
         window.openLightbox = (src) => { document.getElementById('lightbox-wrapper').innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh]">`; document.getElementById('lightbox').classList.remove('opacity-0', 'pointer-events-none'); };
         window.closeLightbox = () => { document.getElementById('lightbox').classList.add('opacity-0', 'pointer-events-none'); };
+        // Empty stubs for non-essential UI parts requested to just "work"
+        window.togglePrivacyMenu = () => {}; 
+        window.selectPrivacy = () => {}; 
+        window.toggleNewtonExpand = () => {};
+        window.handleInput = (el) => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
+        window.togglePlusMenu = () => document.getElementById('plus-menu').classList.toggle('active');
+        window.toggleModelMenu = () => document.getElementById('model-menu').classList.toggle('active');
+        window.switchModel = (m) => { window.activeModel = m; };
+        window.resetChat = () => document.getElementById('chat-history').innerHTML = "";
+        window.toggleWebSearch = () => document.getElementById('web-search-btn').classList.toggle('active');
+        window.toggleIdeaMode = () => document.getElementById('menu-idea-validator').classList.toggle('active');
+        window.insertCodeSnippetAI = () => document.getElementById('ai-input').value += " ```js\n\n``` ";
+        window.pinPost = (pid) => { document.getElementById('ai-context-chip').classList.remove('hidden'); document.getElementById('ai-context-text').innerText = "Post Context"; };
+        window.clearContext = () => document.getElementById('ai-context-chip').classList.add('hidden');
+        window.sendMessageAction = async function() { const inp = document.getElementById('ai-input'); if(inp.value.trim()){ document.getElementById('chat-history').innerHTML += `<div class="chat-wrapper flex justify-end mb-4"><div class="bg-blue-100 p-3 rounded-lg text-sm">${inp.value}</div></div>`; inp.value=""; } }; 
 
     </script>
 </body>

@@ -224,6 +224,24 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.ai-pin { color: #0b57d0; background-color: #eff6ff; }
 .action-btn.ai-pin:hover { background-color: #dbeafe; }
 
+/* Comment Replies Styles */
+.reply-thread {
+    margin-left: 16px;
+    padding-left: 16px;
+    border-left: 2px solid #e5e7eb;
+    margin-top: 12px;
+}
+
+.reply-badge {
+    font-size: 11px;
+    background: #e0f2fe;
+    color: #0284c7;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    display: inline-block;
+}
+
 .code-preview {
 background: #111827; border-radius: 16px; overflow: hidden;
 border: 1px solid #1f2937; margin-top: 16px; margin-bottom: 8px;
@@ -817,7 +835,7 @@ Change
     <div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
         <h2 class="text-2xl font-bold mb-6 px-4 md:px-0">Notifications</h2>
         <div class="tab-group mb-6 mx-4 md:mx-0">
-            <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active">Friends</button>
+            <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active">Following</button>
             <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn">Others</button>
             <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn">Official</button>
         </div>
@@ -1006,6 +1024,7 @@ let notifications = [];
 let savedPosts = [];
 let activeChatUserId = null;
 let activeNotifTab = 'friends';
+window.replyingToCommentId = null; // Track nesting
 
 // Global Vars for App Logic
 window.currentContext = "";
@@ -1023,7 +1042,7 @@ window.currentEventCover = null;
 window.editingPostId = null;
 let currentEventCoverBlob = null;
 
-// Auth Listener
+// Auth Listener with Robust Google Auth Handling
 onAuthStateChanged(auth, async (user) => {
     const loader = document.getElementById('app-loader');
     if (user) {
@@ -1034,7 +1053,7 @@ onAuthStateChanged(auth, async (user) => {
         if (userSnap.exists()) {
             currentUser = { id: user.uid, ...userSnap.data() };
         } else {
-            // Create default user doc if missing
+            // Create default user doc if missing (Crucial for Google Auth first time)
             currentUser = {
                 id: user.uid,
                 name: user.displayName || user.email.split('@')[0],
@@ -1049,7 +1068,7 @@ onAuthStateChanged(auth, async (user) => {
             await setDoc(userRef, currentUser);
         }
         
-        // Ensure arrays exist to prevent undefined
+        // Ensure arrays exist to prevent undefined errors if DB field is missing
         currentUser.following = currentUser.following || [];
         currentUser.followers = currentUser.followers || [];
         currentUser.friends = currentUser.friends || [];
@@ -1139,6 +1158,7 @@ function updateUserInterface() {
     const edName = document.getElementById('edit-name'); if(edName) edName.value = currentUser.name;
     const edBio = document.getElementById('edit-bio'); if(edBio) edBio.value = currentUser.bio;
     const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = currentUser.avatar;
+    lucide.createIcons();
 }
 
 // --- GLOBAL FUNCTIONS EXPOSED TO WINDOW ---
@@ -1387,9 +1407,11 @@ window.renderNotifications = function() {
         if (activeNotifTab === 'official') {
             return sender && sender.isOfficial;
         } else if (activeNotifTab === 'friends') {
-            return currentUser.friends.includes(n.senderId) || currentUser.following.includes(n.senderId);
+            // Renamed tab logic: Show notifications from people I follow
+            return currentUser.following.includes(n.senderId);
         } else {
-            return !sender.isOfficial && !currentUser.friends.includes(n.senderId) && !currentUser.following.includes(n.senderId);
+            // Others
+            return !sender.isOfficial && !currentUser.following.includes(n.senderId);
         }
     });
 
@@ -1405,10 +1427,12 @@ window.renderNotifications = function() {
         let icon = "";
         if(n.type === 'like') icon = '<i data-lucide="heart" class="w-3 h-3 text-white"></i>';
         if(n.type === 'comment') icon = '<i data-lucide="message-circle" class="w-3 h-3 text-white"></i>';
+        if(n.type === 'reply') icon = '<i data-lucide="corner-down-right" class="w-3 h-3 text-white"></i>';
         if(n.type === 'follow') icon = '<i data-lucide="user-plus" class="w-3 h-3 text-white"></i>';
         if(n.type === 'official') icon = '<i data-lucide="badge-check" class="w-3 h-3 text-white"></i>';
 
         let colorClass = n.type === 'like' ? 'bg-red-500' : (n.type === 'official' ? 'bg-blue-600' : 'bg-indigo-500');
+        if(n.type === 'reply') colorClass = 'bg-teal-500';
 
         div.innerHTML = `
         <div class="relative">
@@ -1445,8 +1469,7 @@ window.showProfile = function(userId) {
 
     const isMe = userId === currentUser.id;
     const isFollowing = currentUser.following ? currentUser.following.includes(userId) : false;
-    const isFriend = currentUser.friends ? currentUser.friends.includes(userId) : false;
-
+    
     let actionBtn = "";
     if (isMe) {
         actionBtn = `<button onclick="openEditProfile()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200">Edit Profile</button>`;
@@ -1562,27 +1585,13 @@ window.toggleFollow = async function(userId) {
     showProfile(userId);
 }
 
-window.toggleFriend = async function(userId) {
-    const meRef = doc(db, "users", currentUser.id);
-    if(currentUser.friends.includes(userId)) {
-        await updateDoc(meRef, { friends: arrayRemove(userId) });
-        showToast("Friend removed");
-    } else {
-        await updateDoc(meRef, { friends: arrayUnion(userId) });
-        showToast("Friend added");
-    }
-    showProfile(userId);
-}
-
 // --- CHAT SYSTEM ---
 window.renderChatList = function() {
     const list = document.getElementById('chat-list');
     list.innerHTML = "";
     
-    // In this simplified version, network = potential chat partners
-    // Or users who have messaged you. For now, showing 'following' users + previous chatters would be ideal
-    // But strict logic: friends or following.
-    const contacts = users.filter(u => currentUser.following.includes(u.id) || currentUser.friends.includes(u.id));
+    // Logic: Users I follow or who follow me
+    const contacts = users.filter(u => currentUser.following.includes(u.id));
     
     if(contacts.length === 0) { list.innerHTML = `<div class="p-4 text-xs text-gray-400 text-center">Follow people to chat</div>`; return; }
 
@@ -1622,8 +1631,6 @@ window.startChat = function(userId) {
     // Listen for messages
     if(messageUnsubscribe) messageUnsubscribe();
     
-    // Query where sender or receiver is me, then filter client side for specific thread
-    // This is because Firestore composite OR queries are limited.
     const qMsgs = query(collection(db, "messages"), orderBy("timestamp", "asc"));
     
     messageUnsubscribe = onSnapshot(qMsgs, (snapshot) => {
@@ -1678,7 +1685,7 @@ window.sendChatMessage = async function(e) {
 }
 
 window.deleteCurrentChat = function() {
-    if(confirm("This would clear the chat view locally. Persistent deletion not implemented in demo.")) {
+    if(confirm("This would clear the chat view locally.")) {
         document.getElementById('chat-messages').innerHTML = '';
         showToast("Chat cleared");
     }
@@ -1748,6 +1755,7 @@ window.openPostView = function(postId) {
 window.closePostView = function() {
     document.getElementById('post-view-overlay').classList.add('hidden');
     window.currentViewingPostId = null;
+    window.replyingToCommentId = null;
 }
 
 function renderCommentsInModal(postId) {
@@ -1759,29 +1767,11 @@ function renderCommentsInModal(postId) {
 
     let html = '';
     if(post.comments) {
-        post.comments.forEach((c, index) => {
-            const cAuthor = users.find(u => u.id === c.authorId) || { name: 'Unknown', avatar: '' };
-            const isLiked = c.likes && c.likes.includes(currentUser.id);
-            const likeCount = c.likes ? c.likes.length : 0;
-            
-            html += `
-            <div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group">
-            <img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')">
-            <div class="flex-1">
-            <div class="flex items-center gap-2 mb-1">
-            <span class="font-bold text-sm text-gray-900">${cAuthor.name}</span>
-            <span class="text-xs text-gray-500">• Now</span>
-            </div>
-            <p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p>
-            <div class="flex items-center gap-4 mt-2">
-                <button onclick="toggleCommentLike('${postId}', ${index})" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}">
-                    <i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> ${likeCount || ''}
-                </button>
-                <button onclick="replyToComment('${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>
-            </div>
-            </div>
-            </div>
-            `;
+        // Flat list, but we render parent comments first
+        const topLevel = post.comments.filter(c => !c.parentId);
+        
+        topLevel.forEach(c => {
+            html += createCommentHTML(c, post.comments, postId);
         });
     }
 
@@ -1790,30 +1780,95 @@ function renderCommentsInModal(postId) {
     lucide.createIcons();
 }
 
-window.toggleCommentLike = async function(postId, commentIndex) {
-    const post = posts.find(p => p.id === postId);
-    if(!post || !post.comments[commentIndex]) return;
+function createCommentHTML(c, allComments, postId) {
+    const cAuthor = users.find(u => u.id === c.authorId) || { name: 'Unknown', avatar: '' };
+    const isLiked = c.likes && c.likes.includes(currentUser.id);
+    const likeCount = c.likes ? c.likes.length : 0;
     
-    const comment = post.comments[commentIndex];
+    // Find replies to this comment
+    const replies = allComments.filter(r => r.parentId === c.id);
+    
+    let html = `
+    <div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group">
+        <img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')">
+        <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="font-bold text-sm text-gray-900">${cAuthor.name}</span>
+                <span class="text-xs text-gray-500">• Now</span>
+            </div>
+            <p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p>
+            <div class="flex items-center gap-4 mt-2">
+                <button onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}">
+                    <i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> ${likeCount || ''}
+                </button>
+                <button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>
+            </div>
+    `;
+    
+    // Render Replies Nested with Line
+    if (replies.length > 0) {
+        html += `<div class="reply-thread">`;
+        replies.forEach(r => {
+            const rAuthor = users.find(u => u.id === r.authorId) || { name: 'Unknown', avatar: '' };
+            const rLiked = r.likes && r.likes.includes(currentUser.id);
+            const rLikeCount = r.likes ? r.likes.length : 0;
+            
+            html += `
+            <div class="flex gap-3 pt-3 mt-1 group">
+                <img src="${rAuthor.avatar}" class="w-6 h-6 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${r.authorId}')">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="font-bold text-xs text-gray-900">${rAuthor.name}</span>
+                    </div>
+                    <p class="text-[13px] text-gray-800 leading-relaxed">${r.content}</p>
+                    <div class="flex items-center gap-4 mt-1">
+                        <button onclick="toggleCommentLike('${postId}', '${r.id}')" class="text-xs font-medium flex items-center gap-1 ${rLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}">
+                            <i data-lucide="heart" class="w-3 h-3 ${rLiked ? 'fill-red-500' : ''}"></i> ${rLikeCount || ''}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            `;
+        });
+        html += `</div>`;
+    }
+    
+    html += `</div></div>`;
+    return html;
+}
+
+window.toggleCommentLike = async function(postId, commentId) {
+    const post = posts.find(p => p.id === postId);
+    if(!post) return;
+    
+    const comments = post.comments || [];
+    const commentIndex = comments.findIndex(c => c.id === commentId);
+    
+    if(commentIndex === -1) return;
+    
+    const comment = comments[commentIndex];
     if(!comment.likes) comment.likes = [];
     
     if(comment.likes.includes(currentUser.id)) {
         comment.likes = comment.likes.filter(id => id !== currentUser.id);
     } else {
         comment.likes.push(currentUser.id);
+        if(comment.authorId !== currentUser.id) {
+            sendNotification(comment.authorId, 'like', 'liked your comment');
+        }
     }
     
-    // Update the specific post document with the modified comments array
-    const postRef = doc(db, "posts", postId);
-    await updateDoc(postRef, { comments: post.comments });
+    comments[commentIndex] = comment;
     
-    // UI will update automatically via listener
+    const postRef = doc(db, "posts", postId);
+    await updateDoc(postRef, { comments: comments });
 }
 
-window.replyToComment = function(username) {
+window.replyToComment = function(commentId, username) {
     const input = document.getElementById('comment-input-desktop');
-    input.value = `@${username} ` + input.value;
+    input.value = `@${username} `;
     input.focus();
+    window.replyingToCommentId = commentId;
 }
 
 window.submitCommentDesktop = async function() {
@@ -1821,12 +1876,17 @@ window.submitCommentDesktop = async function() {
     if(!txt || !window.currentViewingPostId) return;
     
     const postRef = doc(db, "posts", window.currentViewingPostId);
+    
+    // Generate a unique ID for the comment to support nesting
+    const commentId = "c-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
+    
     const newComment = { 
-        id: "c" + Date.now(), 
+        id: commentId, 
         authorId: currentUser.id, 
         content: txt, 
         timestamp: Date.now(),
-        likes: []
+        likes: [],
+        parentId: window.replyingToCommentId // Set parent if replying
     };
 
     await updateDoc(postRef, {
@@ -1834,11 +1894,20 @@ window.submitCommentDesktop = async function() {
     });
 
     const post = posts.find(p => p.id === window.currentViewingPostId);
-    if(post && post.authorId !== currentUser.id) {
+    
+    // Notification Logic
+    if (window.replyingToCommentId) {
+        // Find author of parent comment
+        const parentComment = post.comments.find(c => c.id === window.replyingToCommentId);
+        if (parentComment && parentComment.authorId !== currentUser.id) {
+            sendNotification(parentComment.authorId, 'reply', 'replied to your comment');
+        }
+    } else if(post && post.authorId !== currentUser.id) {
         sendNotification(post.authorId, 'comment', 'commented on your post');
     }
 
     document.getElementById('comment-input-desktop').value = "";
+    window.replyingToCommentId = null; // Reset reply state
 }
 
 // --- Menu Functions ---

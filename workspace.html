@@ -68,9 +68,9 @@
         }
         @keyframes shimmer { to { background-position: 200% center; } }
         
-        /* Enhanced Link styling in chats */
-        .chat-content a { 
-            color: #0066CC; 
+        /* Enhanced Link styling */
+        .chat-content a, #doc-content a { 
+            color: #2383E2; 
             text-decoration: underline; 
             text-decoration-thickness: 1px;
             text-underline-offset: 2px;
@@ -78,13 +78,43 @@
             transition: all 0.2s ease;
             padding: 0 2px;
             border-radius: 2px;
+            cursor: pointer;
         }
-        .chat-content a:hover {
-            color: #004499;
+        .chat-content a:hover, #doc-content a:hover {
+            color: #1a6cb8;
             background-color: rgba(35, 131, 226, 0.1);
-            text-decoration-thickness: 2px;
         }
         
+        /* Editor Styles */
+        #doc-content:empty:before {
+            content: attr(placeholder);
+            color: #9ca3af;
+            pointer-events: none;
+        }
+        
+        /* Remote Cursors */
+        .remote-cursor {
+            position: absolute;
+            width: 2px;
+            height: 1.2em;
+            background-color: var(--cursor-color, #2383E2);
+            pointer-events: none;
+            transition: all 0.1s ease;
+            z-index: 20;
+        }
+        .remote-cursor-label {
+            position: absolute;
+            top: -1.4em;
+            left: -2px;
+            background-color: var(--cursor-color, #2383E2);
+            color: white;
+            font-size: 10px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
         /* Dropdown transition */
         select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.4rem center; background-size: 1em; padding-right: 2rem; }
     </style>
@@ -126,7 +156,7 @@
         </div>
 
         <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">
-            EduLink v1.4
+            EduLink v1.5
         </div>
     </div>
 
@@ -158,17 +188,24 @@
 
                 <!-- Right Tools -->
                 <div class="flex items-center gap-3 relative">
+                    
                     <!-- Broadcast Button (Owner Only) -->
-                    <button id="btn-broadcast-create" class="hidden text-sm font-medium text-white bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 mr-2 shadow-sm animate-slideIn">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
-                        Broadcast
+                    <button id="btn-broadcast-create" class="hidden text-sm font-medium text-notion-text hover:bg-notion-sidebar px-3 py-2 rounded-lg transition-colors border border-gray-200 hover:border-gray-300 flex items-center gap-2 animate-slideIn" title="Send Announcement">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+                        <span>Broadcast</span>
                     </button>
+
+                    <!-- Share Button -->
+                    <button id="btn-open-share" class="text-sm font-medium text-notion-text hover:bg-notion-sidebar px-4 py-2 rounded-lg transition-colors border border-gray-200 hover:border-gray-300 flex items-center gap-2">
+                        <span>Share</span>
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                    </button>
+
+                    <span class="h-6 w-[1px] bg-gray-200 mx-1"></span>
 
                     <!-- Members -->
                     <div class="flex -space-x-3 overflow-hidden cursor-pointer hover:opacity-100 opacity-90 transition py-1 px-1" id="member-avatars" onclick="document.getElementById('share-modal').classList.remove('hidden')" title="Manage Members"></div>
 
-                    <span class="h-6 w-[1px] bg-gray-200 mx-2"></span>
-                    
                     <!-- Notification Bell -->
                     <div class="relative">
                         <button id="btn-notifications" class="text-notion-textLight hover:text-notion-text p-2 rounded-lg hover:bg-gray-100 relative transition-colors">
@@ -187,12 +224,6 @@
                         </div>
                     </div>
 
-                    <!-- Share Button -->
-                    <button id="btn-open-share" class="text-sm font-medium text-notion-text hover:bg-notion-sidebar px-4 py-2 rounded-lg transition-colors border border-gray-200 hover:border-gray-300 flex items-center gap-2">
-                        <span>Share</span>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-                    </button>
-
                     <!-- Sidebar Toggle -->
                     <button id="btn-toggle-sidebar" class="text-notion-textLight hover:text-notion-text p-2 rounded-lg hover:bg-gray-100" title="Toggle Sidebar">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"/></svg>
@@ -203,13 +234,13 @@
             <!-- Content Area -->
             <div class="flex flex-1 overflow-hidden">
                 <!-- DOCUMENT EDITOR -->
-                <div class="flex-1 overflow-y-auto bg-white cursor-text relative custom-scroll flex justify-center" onclick="focusEditor()">
-                    <div class="w-full max-w-[850px] py-12 px-14 min-h-full flex flex-col">
+                <div class="flex-1 overflow-y-auto bg-white cursor-text relative custom-scroll flex justify-center" id="editor-container" onclick="focusEditor(event)">
+                    <div class="w-full max-w-[850px] py-12 px-14 min-h-full flex flex-col relative">
                         
                         <!-- Toolbar -->
-                        <div id="editor-toolbar" class="sticky top-0 bg-white/95 backdrop-blur z-10 flex gap-2 py-2 mb-6 border-b border-transparent hover:border-gray-100 transition-colors opacity-0 hover:opacity-100 items-center">
-                            <button onclick="insertMarkdown('**', '**')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 font-bold w-8 h-8 flex items-center justify-center text-sm border border-transparent hover:border-gray-200" title="Bold">B</button>
-                            <button onclick="insertMarkdown('*', '*')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 italic w-8 h-8 flex items-center justify-center text-sm border border-transparent hover:border-gray-200" title="Italic">I</button>
+                        <div id="editor-toolbar" class="sticky top-0 bg-white/95 backdrop-blur z-30 flex gap-2 py-2 mb-6 border-b border-transparent hover:border-gray-100 transition-colors opacity-0 hover:opacity-100 items-center">
+                            <button onclick="formatDoc('bold')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 font-bold w-8 h-8 flex items-center justify-center text-sm border border-transparent hover:border-gray-200" title="Bold">B</button>
+                            <button onclick="formatDoc('italic')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 italic w-8 h-8 flex items-center justify-center text-sm border border-transparent hover:border-gray-200" title="Italic">I</button>
                             <div class="w-[1px] h-4 bg-gray-200 mx-1"></div>
                             <button onclick="window.openLinkModal()" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 flex items-center gap-1.5 text-sm px-3 border border-transparent hover:border-gray-200" title="Link">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Link
@@ -227,7 +258,11 @@
                             <span class="font-medium">View Only</span> <span>— You don't have permission to edit this file.</span>
                         </div>
 
-                        <textarea id="doc-content" class="w-full h-full min-h-[75vh] resize-none outline-none text-[#37352F] leading-8 text-[17px] font-sans placeholder-gray-300" placeholder="Type '/' for AI commands..."></textarea>
+                        <!-- Remote Cursors Layer -->
+                        <div id="remote-cursors-layer" class="absolute inset-0 pointer-events-none z-10 overflow-hidden"></div>
+
+                        <!-- ContentEditable Div -->
+                        <div id="doc-content" contenteditable="true" class="w-full h-full min-h-[75vh] outline-none text-[#37352F] leading-8 text-[17px] font-sans placeholder-gray-300 relative z-20" placeholder="Type '/' for AI commands..."></div>
                     </div>
                 </div>
 
@@ -266,9 +301,7 @@
                         <div class="p-4 bg-yellow-50 text-xs text-yellow-800 border-b border-yellow-100 flex justify-between items-center font-medium">
                             <span>Discussion & Feedback</span>
                         </div>
-                        <div id="comments-list" class="flex-1 overflow-y-auto p-5 space-y-3 custom-scroll bg-white">
-                            <!-- Comments injected here -->
-                        </div>
+                        <div id="comments-list" class="flex-1 overflow-y-auto p-5 space-y-3 custom-scroll bg-white"></div>
                         <div class="p-4 border-t border-notion-border bg-white">
                             <form id="comments-form" class="relative">
                                 <textarea id="comment-input" rows="2" class="w-full text-[15px] p-3 border border-gray-200 rounded-lg outline-none focus:border-notion-blue resize-none bg-gray-50 focus:bg-white transition-colors" placeholder="Add a comment..."></textarea>
@@ -342,15 +375,15 @@
     <!-- MODAL: BROADCAST COMPOSE (Owner Only) -->
     <div id="broadcast-compose-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
         <div class="bg-white rounded-xl shadow-modal w-[480px] p-6 scale-95 transition-transform duration-200 transform">
-            <div class="flex items-center gap-2 mb-4 text-red-500">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+            <div class="flex items-center gap-2 mb-4 text-notion-text">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
                 <h3 class="text-lg font-bold">Live Broadcast</h3>
             </div>
             <p class="text-sm text-gray-500 mb-4">Send an announcement to everyone currently viewing this project. It will appear as a popup on their screen.</p>
-            <textarea id="broadcast-input" rows="4" class="w-full p-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-red-400 bg-red-50 focus:bg-white transition-colors resize-none" placeholder="Type your announcement..."></textarea>
+            <textarea id="broadcast-input" rows="4" class="w-full p-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue bg-gray-50 focus:bg-white transition-colors resize-none" placeholder="Type your announcement..."></textarea>
             <div class="flex justify-end gap-3 mt-6">
                 <button onclick="document.getElementById('broadcast-compose-modal').classList.add('hidden')" class="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors">Cancel</button>
-                <button id="btn-send-broadcast" class="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm font-medium transition-colors">Send Broadcast</button>
+                <button id="btn-send-broadcast" class="px-4 py-2 text-sm bg-notion-text text-white rounded-lg hover:bg-black shadow-sm font-medium transition-colors">Send Broadcast</button>
             </div>
         </div>
     </div>
@@ -358,11 +391,11 @@
     <!-- OVERLAY: BROADCAST RECEIVE (For Everyone) -->
     <div id="broadcast-receive-overlay" class="fixed inset-0 bg-black/60 z-[200] hidden flex items-center justify-center backdrop-blur-md animate-slideIn">
         <div class="bg-white rounded-2xl shadow-2xl w-[500px] p-8 text-center relative animate-popIn">
-            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-notion-blue">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
             </div>
             <h2 class="text-2xl font-bold text-gray-800 mb-2">Announcement</h2>
-            <div class="w-12 h-1 bg-red-500 rounded-full mx-auto mb-6"></div>
+            <div class="w-12 h-1 bg-notion-blue rounded-full mx-auto mb-6"></div>
             <p id="broadcast-message-text" class="text-lg text-gray-600 leading-relaxed mb-8">...</p>
             <button onclick="document.getElementById('broadcast-receive-overlay').classList.add('hidden')" class="px-8 py-3 bg-gray-900 text-white rounded-xl font-medium hover:bg-black transition-colors shadow-lg">Got it</button>
         </div>
@@ -464,18 +497,19 @@
     let currentUser = null;
     let currentProjectId = null;
     let currentRole = 'editor'; 
-    let unsubscribeDoc, unsubscribeChat, unsubscribeReminders, unsubscribeComments, unsubscribeNotifs, unsubscribeBroadcasts;
+    let unsubscribeDoc, unsubscribeChat, unsubscribeReminders, unsubscribeComments, unsubscribeNotifs, unsubscribeBroadcasts, unsubscribePresence;
     let initialLoad = true;
     let debounceTimer;
     let activeReminders = [];
     let notifiedReminders = new Set();
-    let sessionStartTime = new Date(); // To filter old broadcasts
+    let sessionStartTime = new Date();
+    let userColors = ['#F5A623', '#2383E2', '#27AE60', '#EB5757', '#9D34DA', '#FF0080'];
+    let myColor = userColors[Math.floor(Math.random() * userColors.length)];
 
     // --- HELPERS ---
     const showModal = (id) => { const m = document.getElementById(id); m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); m.children[0].classList.remove('scale-95'); }, 10); }
     const hideModal = (id) => { const m = document.getElementById(id); m.classList.add('opacity-0'); m.children[0].classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 200); }
     
-    // Improved Auto-Linkify
     function linkify(text) {
         const urlRegex = /((https?:\/\/|www\.)[^\s]+)/g;
         return text.replace(urlRegex, (url) => {
@@ -485,7 +519,6 @@
         });
     }
 
-    // --- TOAST NOTIFICATIONS (Real-time ephemeral) ---
     function notify(msg, type='info') {
         const container = document.getElementById('notification-toast-container');
         const el = document.createElement('div');
@@ -498,13 +531,47 @@
         el.innerHTML = `<div class="mt-0.5 flex-shrink-0 text-notion-blue">${icon}</div><div class="flex-1"><div class="font-semibold text-gray-800">${type === 'invite' ? 'New Invitation' : (type === 'success' ? 'Success' : (type === 'reminder' ? 'Reminder' : 'Notification'))}</div><div class="text-xs text-gray-500 mt-1 leading-relaxed">${msg}</div></div>`;
         container.appendChild(el);
         setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(100%)'; setTimeout(() => el.remove(), 300); }, 6000);
+        if(type === 'reminder') { const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'); audio.volume = 0.5; audio.play().catch(e=>{}); }
+    }
+
+    // --- CURSOR PRESERVATION HELPER ---
+    // Attempts to keep the cursor relatively in place when content updates remotely
+    function saveCursor(el) {
+        const sel = window.getSelection();
+        if(!sel.rangeCount) return null;
+        const range = sel.getRangeAt(0);
+        if(!el.contains(range.startContainer)) return null;
+        const preCaretRange = range.cloneRange();
+        preCaretRange.selectNodeContents(el);
+        preCaretRange.setEnd(range.startContainer, range.startOffset);
+        return preCaretRange.toString().length;
+    }
+
+    function restoreCursor(el, pos) {
+        if(pos === null) return;
+        const range = document.createRange();
+        range.setStart(el, 0);
+        range.collapse(true);
+        let stack = [el], node, foundStart = false, stop = false, charIndex = 0;
         
-        // Play sound for reminders
-        if(type === 'reminder') {
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'); 
-            audio.volume = 0.5;
-            audio.play().catch(e => console.log('Audio blocked', e));
+        while (!stop && (node = stack.pop())) {
+            if (node.nodeType === 3) {
+                const nextCharIndex = charIndex + node.length;
+                if (!foundStart && pos >= charIndex && pos <= nextCharIndex) {
+                    range.setStart(node, pos - charIndex);
+                    range.collapse(true);
+                    foundStart = true;
+                    stop = true;
+                }
+                charIndex = nextCharIndex;
+            } else {
+                let i = node.childNodes.length;
+                while (i--) stack.push(node.childNodes[i]);
+            }
         }
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
     }
 
     // --- AUTH ---
@@ -513,19 +580,12 @@
         else {
             currentUser = user;
             updateUserUI();
-            
-            // Sync User
             await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName||"", photoURL: user.photoURL||"", lastLogin: serverTimestamp() }, { merge: true });
-            
-            // Check for project ID in URL
             const urlParams = new URLSearchParams(window.location.search);
             const pid = urlParams.get('project');
-            
             loadProjects(pid);
             loadUserNotifications();
-            
-            // Start Reminder Check Loop
-            setInterval(checkReminders, 10000); // Check every 10s
+            setInterval(checkReminders, 10000);
         }
     });
 
@@ -535,65 +595,7 @@
         document.getElementById('user-avatar').src = avatarUrl;
         document.getElementById('edit-profile-preview').src = avatarUrl;
     }
-
     document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
-
-    // --- PROFILE EDITING ---
-    const btnSettings = document.getElementById('btn-settings');
-    btnSettings.addEventListener('click', (e) => {
-        e.stopPropagation();
-        document.getElementById('edit-display-name').value = currentUser.displayName || "";
-        showModal('profile-modal');
-    });
-    document.getElementById('btn-cancel-profile').addEventListener('click', () => hideModal('profile-modal'));
-    document.getElementById('btn-save-profile').addEventListener('click', async () => {
-        const newName = document.getElementById('edit-display-name').value.trim();
-        if(!newName) return;
-        try {
-            await updateProfile(currentUser, { displayName: newName });
-            await updateDoc(doc(db, "users", currentUser.uid), { displayName: newName });
-            updateUserUI();
-            notify("Profile updated successfully", "success");
-            hideModal('profile-modal');
-        } catch(e) { notify("Failed to update profile", "error"); console.error(e); }
-    });
-
-    // --- NOTIFICATIONS ---
-    document.getElementById('btn-notifications').addEventListener('click', (e) => {
-        e.stopPropagation();
-        document.getElementById('notification-popover').classList.toggle('hidden');
-        document.getElementById('notif-badge').classList.add('hidden'); 
-    });
-    document.addEventListener('click', (e) => {
-        if(!document.getElementById('btn-notifications').contains(e.target) && !document.getElementById('notification-popover').contains(e.target)) {
-            document.getElementById('notification-popover').classList.add('hidden');
-        }
-    });
-    function loadUserNotifications() {
-        const q = query(collection(db, `users/${currentUser.uid}/notifications`), orderBy('timestamp', 'desc'));
-        unsubscribeNotifs = onSnapshot(q, (snap) => {
-            const list = document.getElementById('notification-list');
-            if(snap.empty) { list.innerHTML = '<div class="p-8 text-center text-gray-400 text-sm italic">No new notifications</div>'; return; }
-            list.innerHTML = '';
-            let hasUnread = false;
-            snap.forEach(d => {
-                const n = d.data();
-                const item = document.createElement('div');
-                item.className = "p-4 border-b border-gray-50 hover:bg-gray-50 text-sm flex gap-3 relative group transition-colors";
-                const delBtn = document.createElement('button');
-                delBtn.className = "absolute top-2 right-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1";
-                delBtn.innerHTML = "&times;";
-                delBtn.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id)); };
-                let icon = n.read ? '<div class="w-2.5 h-2.5 rounded-full bg-transparent mt-1.5 flex-shrink-0"></div>' : '<div class="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0 shadow-sm border border-white"></div>';
-                if(!n.read) hasUnread = true;
-                item.innerHTML = `${icon}<div class="flex-1 pr-4"><div class="font-semibold text-notion-text leading-tight text-[14px]">${n.title || "Notification"}</div><div class="text-gray-500 mt-1 leading-relaxed text-[13px]">${n.text}</div><div class="text-[11px] text-gray-400 mt-2 font-medium">${n.timestamp?.toDate().toLocaleDateString() || ""}</div></div>`;
-                item.appendChild(delBtn);
-                list.appendChild(item);
-                if(!n.read) { updateDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id), { read: true }); }
-            });
-            if(hasUnread) document.getElementById('notif-badge').classList.remove('hidden');
-        });
-    }
 
     // --- PROJECTS ---
     function loadProjects(preselectId) {
@@ -623,7 +625,6 @@
         });
     }
 
-    // --- MAIN LOGIC ---
     async function selectProject(id) {
         if(currentProjectId === id) return;
         document.querySelectorAll('#project-list > div').forEach(d => d.className = "px-3 py-2 rounded-md cursor-pointer text-[14px] flex items-center gap-2.5 transition-colors text-notion-textLight hover:bg-[#EFEFEF] hover:text-notion-text");
@@ -640,24 +641,43 @@
         if(unsubscribeReminders) unsubscribeReminders();
         if(unsubscribeComments) unsubscribeComments();
         if(unsubscribeBroadcasts) unsubscribeBroadcasts();
+        if(unsubscribePresence) unsubscribePresence();
 
-        // 1. Project Doc
+        // 1. Project Doc (Realtime Sync with Cursor Preservation)
         unsubscribeDoc = onSnapshot(doc(db, "projects", id), (snap) => {
             if(!snap.exists()) return;
             const data = snap.data();
             const myAccess = data.access.find(a => a.email === currentUser.email);
             currentRole = myAccess ? myAccess.role : 'viewer';
+
             document.getElementById('doc-title').value = data.title;
             document.getElementById('doc-icon').textContent = data.icon || "📄";
+            
             const editor = document.getElementById('doc-content');
-            if(document.activeElement !== editor) editor.value = data.content || "";
+            
+            // Sync Logic: Only update if content is different
+            // To prevent cursor jumping for user typing, we compare content.
+            // However, with contentEditable, simple string compare on innerHTML is safest.
+            const incomingContent = data.content || "";
+            if (editor.innerHTML !== incomingContent) {
+                 // If the user is currently focused on the editor, attempt to preserve cursor
+                 if(document.activeElement === editor) {
+                     const cursorPos = saveCursor(editor);
+                     editor.innerHTML = incomingContent;
+                     restoreCursor(editor, cursorPos);
+                 } else {
+                     editor.innerHTML = incomingContent;
+                 }
+            }
+            
             if(currentRole === 'viewer') {
-                editor.setAttribute('readonly', true);
+                editor.setAttribute('contenteditable', 'false');
                 document.getElementById('read-only-banner').classList.remove('hidden');
             } else {
-                editor.removeAttribute('readonly');
+                editor.setAttribute('contenteditable', 'true');
                 document.getElementById('read-only-banner').classList.add('hidden');
             }
+
             const ac = document.getElementById('member-avatars'); ac.innerHTML = '';
             data.access.slice(0, 5).forEach(m => {
                 const img = document.createElement('img');
@@ -668,7 +688,6 @@
             });
             renderMembersList(data.access, data.ownerId === currentUser.uid);
             
-            // Show/Hide Broadcast Button
             if(data.ownerId === currentUser.uid) document.getElementById('btn-broadcast-create').classList.remove('hidden');
             else document.getElementById('btn-broadcast-create').classList.add('hidden');
         });
@@ -677,36 +696,129 @@
         loadComments(id);
         loadReminders(id);
         listenForBroadcasts(id);
+        setupPresence(id);
     }
 
-    // --- LINK INSERTION ---
+    // --- EDITOR ---
+    window.formatDoc = (cmd) => {
+        document.execCommand(cmd, false, null);
+        document.getElementById('doc-content').focus();
+    };
+
     window.openLinkModal = () => {
-        const ta = document.getElementById('doc-content');
-        const start = ta.selectionStart;
-        const end = ta.selectionEnd;
-        const selectedText = ta.value.substring(start, end);
-        document.getElementById('link-text-input').value = selectedText;
+        const sel = window.getSelection().toString();
+        document.getElementById('link-text-input').value = sel || "Link";
         document.getElementById('link-url-input').value = "";
         showModal('link-modal');
     };
     
     document.getElementById('btn-confirm-link').addEventListener('click', () => {
-        const text = document.getElementById('link-text-input').value || "link";
-        const url = document.getElementById('link-url-input').value || "#";
-        // Create markdown link [text](url)
-        // We use the same insertMarkdown logic but custom text
-        const ta = document.getElementById('doc-content');
-        const start = ta.selectionStart;
-        const end = ta.selectionEnd;
-        const val = ta.value;
-        const markdown = `[${text}](${url})`;
-        ta.value = val.substring(0, start) + markdown + val.substring(end);
-        ta.focus();
-        const event = new Event('input'); ta.dispatchEvent(event);
+        const text = document.getElementById('link-text-input').value;
+        const url = document.getElementById('link-url-input').value;
+        if(text && url) {
+            // Restore selection if possible or just insert
+            // For simplicity in this demo, we assume user selected text or we insert new
+            document.getElementById('doc-content').focus();
+            document.execCommand('insertHTML', false, `<a href="${url}" target="_blank">${text}</a>`);
+        }
         hideModal('link-modal');
     });
 
-    // --- BROADCAST FEATURE ---
+    const titleInput = document.getElementById('doc-title');
+    const contentInput = document.getElementById('doc-content');
+    function save() {
+        if(!currentProjectId || currentRole === 'viewer') return;
+        document.getElementById('save-indicator').classList.remove('hidden');
+        updateDoc(doc(db, "projects", currentProjectId), {
+            title: titleInput.value,
+            content: contentInput.innerHTML, // Save HTML
+            lastModified: serverTimestamp()
+        }).then(() => setTimeout(() => document.getElementById('save-indicator').classList.add('hidden'), 500));
+    }
+    // Debounce save for editing
+    contentInput.addEventListener('input', () => { 
+        clearTimeout(debounceTimer); 
+        debounceTimer = setTimeout(save, 500); 
+        updateMyPresence();
+    });
+    titleInput.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(save, 800); });
+    
+    // --- PRESENCE SYSTEM (Realtime Cursors) ---
+    function setupPresence(pid) {
+        // Track mouse/key events to update my location
+        const container = document.getElementById('editor-container');
+        container.addEventListener('mousemove', throttle((e) => {
+           // Simpler "I am here" tracking - tracking exact text caret X/Y is complex cross-browser
+           // We will track mouse position relative to editor content for "viewing"
+           // Or update on keyup for "typing"
+        }, 200));
+
+        contentInput.addEventListener('keyup', updateMyPresence);
+        contentInput.addEventListener('click', updateMyPresence);
+
+        // Listen for others
+        const presenceRef = collection(db, `projects/${pid}/presence`);
+        unsubscribePresence = onSnapshot(presenceRef, (snap) => {
+            const layer = document.getElementById('remote-cursors-layer');
+            layer.innerHTML = '';
+            snap.forEach(d => {
+                if(d.id === currentUser.uid) return;
+                const p = d.data();
+                if(Date.now() - p.timestamp > 30000) return; // Ignore stale
+
+                const cursor = document.createElement('div');
+                cursor.className = 'remote-cursor';
+                cursor.style.left = p.x + 'px';
+                cursor.style.top = p.y + 'px';
+                cursor.style.setProperty('--cursor-color', p.color);
+                
+                const label = document.createElement('div');
+                label.className = 'remote-cursor-label';
+                label.innerText = p.name;
+                cursor.appendChild(label);
+                
+                layer.appendChild(cursor);
+            });
+        });
+    }
+
+    function updateMyPresence() {
+        if(!currentProjectId) return;
+        // Calculate rough caret position
+        const sel = window.getSelection();
+        if(sel.rangeCount > 0) {
+            const range = sel.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            const containerRect = document.getElementById('editor-container').getBoundingClientRect();
+            
+            // Relative coords
+            const x = rect.left - containerRect.left + document.getElementById('editor-container').scrollLeft;
+            const y = rect.top - containerRect.top + document.getElementById('editor-container').scrollTop;
+            
+            setDoc(doc(db, `projects/${currentProjectId}/presence`, currentUser.uid), {
+                name: currentUser.displayName || "User",
+                color: myColor,
+                x: x,
+                y: y,
+                timestamp: Date.now()
+            });
+        }
+    }
+    
+    function throttle(func, limit) {
+        let inThrottle;
+        return function() {
+            const args = arguments;
+            const context = this;
+            if (!inThrottle) {
+                func.apply(context, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        }
+    }
+
+    // --- BROADCAST & OTHER ---
     document.getElementById('btn-broadcast-create').addEventListener('click', () => {
         document.getElementById('broadcast-input').value = "";
         showModal('broadcast-compose-modal');
@@ -716,25 +828,21 @@
         const text = document.getElementById('broadcast-input').value.trim();
         if(!text) return;
         await addDoc(collection(db, `projects/${currentProjectId}/broadcasts`), {
-            text,
-            senderId: currentUser.uid,
-            timestamp: serverTimestamp()
+            text, senderId: currentUser.uid, timestamp: serverTimestamp()
         });
         hideModal('broadcast-compose-modal');
-        notify("Broadcast sent to all active users.", "success");
+        notify("Broadcast sent.", "success");
     });
-
+    
     function listenForBroadcasts(pid) {
-        // Listen for broadcasts added AFTER session start
         const q = query(collection(db, `projects/${pid}/broadcasts`), orderBy('timestamp', 'desc'), where('timestamp', '>', sessionStartTime));
         unsubscribeBroadcasts = onSnapshot(collection(db, `projects/${pid}/broadcasts`), (snap) => {
              snap.docChanges().forEach(change => {
                  if(change.type === 'added') {
                      const d = change.doc.data();
-                     // Only show if it's recent (last 30 seconds) to avoid showing old ones on reload if query filter fails slightly or sync issues
                      const now = new Date();
                      const msgTime = d.timestamp ? d.timestamp.toDate() : now;
-                     if (now - msgTime < 60000) { // 1 min window
+                     if (now - msgTime < 60000) { 
                          document.getElementById('broadcast-message-text').textContent = d.text;
                          document.getElementById('broadcast-receive-overlay').classList.remove('hidden');
                      }
@@ -742,34 +850,6 @@
              });
         });
     }
-
-    // --- EDITOR ---
-    window.insertMarkdown = (startTag, endTag) => {
-        const ta = document.getElementById('doc-content');
-        const s = ta.selectionStart;
-        const e = ta.selectionEnd;
-        const val = ta.value;
-        const selected = val.substring(s, e);
-        // Correct logic: Wrap the selected text
-        ta.value = val.substring(0, s) + startTag + selected + endTag + val.substring(e);
-        ta.selectionStart = s + startTag.length;
-        ta.selectionEnd = e + startTag.length;
-        ta.focus();
-        const event = new Event('input'); ta.dispatchEvent(event);
-    }
-
-    const titleInput = document.getElementById('doc-title');
-    const contentInput = document.getElementById('doc-content');
-    function save() {
-        if(!currentProjectId || currentRole === 'viewer') return;
-        document.getElementById('save-indicator').classList.remove('hidden');
-        updateDoc(doc(db, "projects", currentProjectId), {
-            title: titleInput.value,
-            content: contentInput.value,
-            lastModified: serverTimestamp()
-        }).then(() => setTimeout(() => document.getElementById('save-indicator').classList.add('hidden'), 500));
-    }
-    [titleInput, contentInput].forEach(el => el.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(save, 800); }));
 
     // --- TABS & SIDEBAR ---
     const tabs = document.querySelectorAll('[data-tab]');
@@ -790,8 +870,14 @@
         const p = document.getElementById('right-panel');
         p.style.width = p.style.width === '0px' ? '360px' : '0px';
     });
+    
+    window.focusEditor = (e) => { 
+        if(currentRole!=='viewer' && e.target.id === 'editor-container') {
+             document.getElementById('doc-content').focus(); 
+        }
+    }
 
-    // --- COLLECTIONS LOADERS (Chat, Comments, Reminders) ---
+    // --- COLLECTIONS (Chat, Comments, Reminders) ---
     function loadChat(pid) {
         unsubscribeChat = onSnapshot(query(collection(db, `projects/${pid}/messages`), orderBy("timestamp", "asc")), (snap) => {
             const div = document.getElementById('chat-messages'); div.innerHTML = '';
@@ -896,10 +982,45 @@
         const div = document.getElementById('ai-messages');
         div.innerHTML += `<div class="flex flex-col items-end"><div class="bg-gray-100 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text shadow-sm">${txt}</div></div>`;
         inp.value = ''; div.scrollTop = div.scrollHeight;
-        const resp = await fetchAI(txt, document.getElementById('doc-content').value);
+        const resp = await fetchAI(txt, document.getElementById('doc-content').innerText);
         div.innerHTML += `<div class="flex flex-col items-start"><div class="bg-purple-50 border border-purple-100 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text leading-relaxed shadow-sm">${resp}</div></div>`;
         div.scrollTop = div.scrollHeight;
     });
+
+    // --- PROFILE ---
+    const btnSettings = document.getElementById('btn-settings');
+    btnSettings.addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('edit-display-name').value = currentUser.displayName || ""; showModal('profile-modal'); });
+    document.getElementById('btn-cancel-profile').addEventListener('click', () => hideModal('profile-modal'));
+    document.getElementById('btn-save-profile').addEventListener('click', async () => {
+        const newName = document.getElementById('edit-display-name').value.trim();
+        if(!newName) return;
+        try { await updateProfile(currentUser, { displayName: newName }); await updateDoc(doc(db, "users", currentUser.uid), { displayName: newName }); updateUserUI(); notify("Profile updated successfully", "success"); hideModal('profile-modal'); } catch(e) { notify("Failed to update profile", "error"); }
+    });
+    // --- NOTIFICATIONS ---
+    document.getElementById('btn-notifications').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('notification-popover').classList.toggle('hidden'); document.getElementById('notif-badge').classList.add('hidden'); });
+    document.addEventListener('click', (e) => { if(!document.getElementById('btn-notifications').contains(e.target) && !document.getElementById('notification-popover').contains(e.target)) { document.getElementById('notification-popover').classList.add('hidden'); } });
+    function loadUserNotifications() {
+        const q = query(collection(db, `users/${currentUser.uid}/notifications`), orderBy('timestamp', 'desc'));
+        unsubscribeNotifs = onSnapshot(q, (snap) => {
+            const list = document.getElementById('notification-list');
+            if(snap.empty) { list.innerHTML = '<div class="p-8 text-center text-gray-400 text-sm italic">No new notifications</div>'; return; }
+            list.innerHTML = '';
+            let hasUnread = false;
+            snap.forEach(d => {
+                const n = d.data();
+                const item = document.createElement('div');
+                item.className = "p-4 border-b border-gray-50 hover:bg-gray-50 text-sm flex gap-3 relative group transition-colors";
+                const delBtn = document.createElement('button'); delBtn.className = "absolute top-2 right-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"; delBtn.innerHTML = "&times;";
+                delBtn.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id)); };
+                let icon = n.read ? '<div class="w-2.5 h-2.5 rounded-full bg-transparent mt-1.5 flex-shrink-0"></div>' : '<div class="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0 shadow-sm border border-white"></div>';
+                if(!n.read) hasUnread = true;
+                item.innerHTML = `${icon}<div class="flex-1 pr-4"><div class="font-semibold text-notion-text leading-tight text-[14px]">${n.title || "Notification"}</div><div class="text-gray-500 mt-1 leading-relaxed text-[13px]">${n.text}</div><div class="text-[11px] text-gray-400 mt-2 font-medium">${n.timestamp?.toDate().toLocaleDateString() || ""}</div></div>`;
+                item.appendChild(delBtn); list.appendChild(item);
+                if(!n.read) { updateDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id), { read: true }); }
+            });
+            if(hasUnread) document.getElementById('notif-badge').classList.remove('hidden');
+        });
+    }
 
     // --- CREATE & SHARE ---
     [document.getElementById('trigger-create-project'), document.getElementById('btn-create-empty')].forEach(b => b.addEventListener('click', ()=>showModal('create-modal')));
@@ -952,7 +1073,6 @@
         const access = snap.data().access.filter(a=>a.email!==email); const emails = snap.data().memberEmails.filter(e=>e!==email);
         await updateDoc(ref, {access, memberEmails: emails}); notify("Member removed");
     }
-    window.focusEditor = () => { if(currentRole!=='viewer') document.getElementById('doc-content').focus(); }
 
 </script>
 </body>

@@ -54,11 +54,10 @@
     </script>
     <style>
         body { background-color: #FFFFFF; color: #37352F; height: 100vh; overflow: hidden; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.1); border-radius: 20px; }
-        .custom-scroll:hover::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.2); }
+        
+        /* Hidden Scrollbars but Scrollable */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         .tab-active { border-bottom: 2px solid #37352F; color: #37352F; font-weight: 600; }
         .tab-inactive { color: #9B9A97; }
@@ -102,6 +101,7 @@
             font-weight: 600;
             padding: 0 4px;
             border-radius: 4px;
+            cursor: pointer;
         }
         
         .remote-cursor {
@@ -165,7 +165,7 @@
                 <button id="trigger-create-project" class="hover:bg-gray-200 rounded p-1" title="New Project"><svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg></button>
             </div>
         </div>
-        <div id="project-list" class="flex-shrink-0 overflow-y-auto px-2 space-y-1 custom-scroll max-h-[40vh]"></div>
+        <div id="project-list" class="flex-shrink-0 overflow-y-auto px-2 space-y-1 no-scrollbar max-h-[40vh]"></div>
 
         <div class="px-4 py-3 text-xs font-semibold text-notion-textLight flex justify-between items-center group tracking-wide mt-4 border-t border-gray-200/50 pt-4">
             <span>TEAMS</span>
@@ -173,9 +173,9 @@
                 <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
             </button>
         </div>
-        <div id="team-list" class="flex-1 overflow-y-auto px-2 space-y-1 custom-scroll pb-4"></div>
+        <div id="team-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar pb-4"></div>
 
-        <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.1</div>
+        <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.2</div>
     </div>
 
     <!-- MAIN AREA -->
@@ -223,7 +223,7 @@
                             <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/80 backdrop-blur-sm">
                                 <span class="font-semibold text-xs text-gray-500 tracking-wide">NOTIFICATIONS</span>
                             </div>
-                            <div id="notification-list" class="overflow-y-auto custom-scroll flex-1 p-0 min-h-[120px]"></div>
+                            <div id="notification-list" class="overflow-y-auto no-scrollbar flex-1 p-0 min-h-[120px]"></div>
                         </div>
                     </div>
                     <button id="btn-toggle-sidebar" class="text-notion-textLight hover:text-notion-text p-2 rounded-lg hover:bg-gray-100" title="Toggle Sidebar"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"/></svg></button>
@@ -232,7 +232,7 @@
 
             <!-- Editor -->
             <div class="flex flex-1 overflow-hidden">
-                <div class="flex-1 overflow-y-auto bg-white cursor-text relative custom-scroll flex justify-center" id="editor-container" onclick="focusEditor(event)">
+                <div class="flex-1 overflow-y-auto bg-white cursor-text relative no-scrollbar flex justify-center" id="editor-container" onclick="focusEditor(event)">
                     <div class="w-full max-w-[850px] py-12 px-14 min-h-full flex flex-col relative">
                         <div id="editor-toolbar" class="sticky top-0 bg-white/95 backdrop-blur z-30 flex gap-2 py-2 mb-6 border-b border-transparent hover:border-gray-100 transition-colors opacity-0 hover:opacity-100 items-center">
                             <button onclick="formatDoc('bold')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 font-bold w-8 h-8 flex items-center justify-center text-sm border border-transparent hover:border-gray-200">B</button>
@@ -256,9 +256,9 @@
                     </div>
 
                     <div id="tab-chat" class="flex-1 flex flex-col h-full overflow-hidden relative">
-                        <div id="chat-messages" class="flex-1 overflow-y-auto p-5 space-y-4 custom-scroll bg-[#FBFAFA]"></div>
+                        <div id="chat-messages" class="flex-1 overflow-y-auto p-5 space-y-4 no-scrollbar bg-[#FBFAFA]"></div>
                         <!-- Mention Popover -->
-                        <div id="mention-suggestions" class="absolute bottom-16 left-4 bg-white border border-gray-200 shadow-xl rounded-lg hidden z-50 w-48 max-h-40 overflow-y-auto custom-scroll"></div>
+                        <div id="mention-suggestions" class="absolute bottom-16 left-4 bg-white border border-gray-200 shadow-xl rounded-lg hidden z-50 w-48 max-h-40 overflow-y-auto no-scrollbar"></div>
                         
                         <div class="p-4 border-t border-notion-border bg-white flex flex-col gap-2 relative">
                             <select id="chat-recipient" class="text-xs p-1.5 bg-gray-50 border border-gray-200 rounded outline-none text-gray-600 mb-1 w-fit">
@@ -272,16 +272,16 @@
                     </div>
                     <div id="tab-comments" class="flex-1 flex flex-col h-full hidden overflow-hidden">
                         <div class="p-4 bg-yellow-50 text-xs text-yellow-800 border-b border-yellow-100 flex justify-between items-center font-medium"><span>Discussion & Feedback</span></div>
-                        <div id="comments-list" class="flex-1 overflow-y-auto p-5 space-y-3 custom-scroll bg-white"></div>
+                        <div id="comments-list" class="flex-1 overflow-y-auto p-5 space-y-3 no-scrollbar bg-white"></div>
                         <div class="p-4 border-t border-notion-border bg-white"><form id="comments-form" class="relative"><textarea id="comment-input" rows="2" class="w-full text-[15px] p-3 border border-gray-200 rounded-lg outline-none focus:border-notion-blue resize-none bg-gray-50 focus:bg-white transition-colors" placeholder="Add a comment..."></textarea><button type="submit" class="mt-2 w-full py-2 bg-gray-100 text-xs font-semibold text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">Post Comment</button></form></div>
                     </div>
                     <div id="tab-calendar" class="flex-1 flex flex-col h-full hidden overflow-hidden bg-white">
                         <div class="p-5 border-b border-gray-100"><h3 class="font-semibold text-sm mb-4 text-gray-700 flex items-center gap-2"><svg class="w-4 h-4 text-notion-blue" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Add Reminder</h3><form id="reminder-form" class="space-y-3"><input id="rem-title" type="text" placeholder="Event or Task..." class="w-full p-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-notion-blue bg-gray-50 focus:bg-white transition-colors" required><div class="flex gap-2"><input id="rem-date" type="date" class="flex-1 p-2.5 text-sm border border-gray-200 rounded-lg outline-none bg-gray-50 focus:bg-white transition-colors text-gray-500" required><input id="rem-time" type="time" class="flex-1 p-2.5 text-sm border border-gray-200 rounded-lg outline-none bg-gray-50 focus:bg-white transition-colors text-gray-500" required></div><button type="submit" class="w-full py-2 bg-notion-blue text-white text-sm font-medium rounded-lg hover:bg-blue-600 shadow-sm transition-transform active:scale-[0.98]">Set Reminder</button></form></div>
-                        <div class="flex-1 overflow-y-auto custom-scroll p-5"><h4 class="text-[11px] font-bold text-gray-400 uppercase mb-3 tracking-wider flex justify-between">Upcoming Events</h4><div id="reminder-list" class="space-y-3"></div></div>
+                        <div class="flex-1 overflow-y-auto no-scrollbar p-5"><h4 class="text-[11px] font-bold text-gray-400 uppercase mb-3 tracking-wider flex justify-between">Upcoming Events</h4><div id="reminder-list" class="space-y-3"></div></div>
                     </div>
                     <div id="tab-ai" class="flex-1 flex flex-col h-full hidden overflow-hidden">
                         <div class="p-4 bg-blue-50 text-xs text-blue-800 border-b border-blue-100 leading-relaxed flex gap-2"><span class="text-xl">🤖</span> <span><strong>AI Assistant:</strong> Ask questions about the document, summarize content, or generate ideas.</span></div>
-                        <div id="ai-messages" class="flex-1 overflow-y-auto p-5 space-y-4 custom-scroll bg-white"></div>
+                        <div id="ai-messages" class="flex-1 overflow-y-auto p-5 space-y-4 no-scrollbar bg-white"></div>
                         <div class="p-4 border-t border-notion-border bg-white"><form id="ai-form" class="relative"><input id="ai-input" type="text" class="w-full text-[15px] p-3 pr-10 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-purple-300 focus:bg-white transition-all placeholder-gray-400" placeholder="Ask AI something..."><button type="submit" class="absolute right-3 top-3 text-purple-500 hover:text-purple-700"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></form></div>
                     </div>
                 </div>
@@ -290,9 +290,15 @@
     </div>
 
     <!-- MODALS -->
-    <div id="msg-context-menu" class="fixed hidden bg-white border border-gray-200 shadow-xl rounded-lg py-1 z-[160] w-36 text-sm">
-        <button id="btn-delete-me" class="w-full text-left px-3 py-2 hover:bg-gray-100 text-gray-700">Delete for me</button>
-        <button id="btn-delete-all" class="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600 hidden">Delete for all</button>
+    <div id="msg-context-menu" class="fixed hidden bg-white border border-gray-200 shadow-popover rounded-lg py-1 z-[160] w-40 text-sm overflow-hidden">
+        <button id="btn-delete-me" class="w-full text-left px-4 py-2 hover:bg-gray-50 text-gray-700 flex items-center gap-2">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+            Hide for me
+        </button>
+        <button id="btn-delete-all" class="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 hidden flex items-center gap-2 border-t border-gray-100">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            Delete for all
+        </button>
     </div>
 
     <div id="link-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
@@ -303,6 +309,23 @@
                 <div><label class="block text-xs font-semibold text-notion-textLight mb-1.5 uppercase tracking-wide">URL</label><input id="link-url-input" type="text" class="w-full p-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue" placeholder="https://example.com"></div>
             </div>
             <div class="flex justify-end gap-3 mt-8"><button onclick="document.getElementById('link-modal').classList.add('hidden')" class="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors">Cancel</button><button id="btn-confirm-link" class="px-4 py-2 text-sm bg-notion-blue text-white rounded-lg hover:bg-blue-600 shadow-sm font-medium transition-colors">Insert Link</button></div>
+        </div>
+    </div>
+    
+    <div id="share-folder-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
+        <div class="bg-white rounded-xl shadow-modal w-[420px] p-6 scale-95 transition-transform duration-200 transform">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="p-2 bg-blue-50 rounded-lg text-notion-blue"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg></div>
+                <h3 class="text-lg font-bold text-notion-text">Share Folder</h3>
+            </div>
+            <p class="text-sm text-gray-500 mb-5 leading-relaxed">Inviting a user here will add them to <strong>every project</strong> currently inside this folder.</p>
+            
+            <div class="mb-2">
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">User Email</label>
+                <input id="folder-share-email" type="email" class="w-full p-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue transition-all" placeholder="colleague@example.com">
+            </div>
+
+            <div class="flex justify-end gap-3 mt-8"><button onclick="window.hideModal('share-folder-modal')" class="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors">Cancel</button><button id="btn-confirm-folder-share" class="px-4 py-2 text-sm bg-notion-blue text-white rounded-lg hover:bg-blue-600 shadow-sm font-medium transition-colors">Share All</button></div>
         </div>
     </div>
 
@@ -320,7 +343,7 @@
                     <label class="flex items-center gap-2 text-sm cursor-pointer"><input type="radio" name="bc-recipient" value="all" checked class="text-notion-blue" onchange="toggleBcList(false)"> All Members</label>
                     <label class="flex items-center gap-2 text-sm cursor-pointer"><input type="radio" name="bc-recipient" value="specific" class="text-notion-blue" onchange="toggleBcList(true)"> Specific Users</label>
                 </div>
-                <div id="bc-user-list" class="mt-2 hidden p-2 border border-gray-200 rounded max-h-32 overflow-y-auto bg-gray-50"></div>
+                <div id="bc-user-list" class="mt-2 hidden p-2 border border-gray-200 rounded max-h-32 overflow-y-auto bg-gray-50 no-scrollbar"></div>
             </div>
 
             <textarea id="broadcast-input" rows="3" class="w-full p-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue bg-gray-50 focus:bg-white transition-colors resize-none" placeholder="Type your announcement..."></textarea>
@@ -410,7 +433,7 @@
 
             <div>
                 <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-3">Members</div>
-                <div id="team-members-list" class="flex flex-col gap-2 max-h-[150px] overflow-y-auto custom-scroll bg-gray-50 rounded-lg p-2 min-h-[80px]"></div>
+                <div id="team-members-list" class="flex flex-col gap-2 max-h-[150px] overflow-y-auto no-scrollbar bg-gray-50 rounded-lg p-2 min-h-[80px]"></div>
             </div>
         </div>
     </div>
@@ -449,7 +472,7 @@
                     <div class="flex items-center gap-2"><div class="p-2 bg-gray-100 rounded-full text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg></div><div class="text-xs text-gray-500">Anyone with the link can view if public</div></div>
                     <button id="btn-copy-link" class="text-xs font-semibold text-notion-blue hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>Copy Link</button>
                 </div>
-                <div class="mt-4"><div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-3">Who has access</div><div id="members-list" class="flex flex-col gap-2 max-h-[240px] overflow-y-auto custom-scroll"></div></div>
+                <div class="mt-4"><div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-3">Who has access</div><div id="members-list" class="flex flex-col gap-2 max-h-[240px] overflow-y-auto no-scrollbar"></div></div>
             </div>
         </div>
     </div>
@@ -488,7 +511,7 @@
     let myColor = userColors[Math.floor(Math.random() * userColors.length)];
     let myTeams = []; 
     let myFolders = [];
-    let currentProjectMembers = [];
+    let mentionableUsers = new Set(); // Stores known emails for mentions
 
     // --- GLOBAL HELPERS (Attached to window for HTML events) ---
     window.showModal = (id) => { const m = document.getElementById(id); m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); m.children[0].classList.remove('scale-95'); }, 10); }
@@ -614,6 +637,7 @@
             snap.forEach(d => {
                 const t = d.data();
                 myTeams.push({id: d.id, ...t});
+                t.members.forEach(m => mentionableUsers.add(m)); // Add team members to mentions
                 const div = document.createElement('div');
                 div.className = "px-3 py-2 rounded-md cursor-pointer text-[14px] flex items-center gap-2.5 transition-colors text-notion-textLight hover:bg-[#EFEFEF] hover:text-notion-text";
                 const img = t.logo ? `<img src="${t.logo}" class="w-4 h-4 rounded-full object-cover">` : `<span class="text-base">🛡️</span>`;
@@ -716,6 +740,7 @@
 
             snap.forEach((doc) => {
                 const p = { id: doc.id, ...doc.data() };
+                p.memberEmails.forEach(e => mentionableUsers.add(e)); // Add all project peers to mentions
                 if (p.folderId && organized[p.folderId]) {
                     organized[p.folderId].projects.push(p);
                 } else {
@@ -795,8 +820,49 @@
         menu.style.left = e.pageX + 'px';
         menu.style.top = e.pageY + 'px';
         menu.classList.remove('hidden');
-        menu.innerHTML = `<button onclick="window.deleteFolder('${fid}')" class="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600">Delete Folder</button>`;
+        menu.innerHTML = `
+            <button onclick="window.shareFolder('${fid}')" class="w-full text-left px-3 py-2 hover:bg-gray-100 text-notion-blue font-medium">Share Folder</button>
+            <div class="border-t border-gray-100 my-1"></div>
+            <button onclick="window.deleteFolder('${fid}')" class="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600">Delete Folder</button>
+        `;
     };
+
+    let sharingFolderId = null;
+    window.shareFolder = (fid) => {
+        sharingFolderId = fid;
+        document.getElementById('folder-share-email').value = '';
+        window.showModal('share-folder-modal');
+    };
+
+    document.getElementById('btn-confirm-folder-share').addEventListener('click', async () => {
+        const email = document.getElementById('folder-share-email').value.trim();
+        if(!email || !sharingFolderId) return;
+
+        // Query all projects in folder
+        const q = query(collection(db, "projects"), where("folderId", "==", sharingFolderId));
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+            notify("Folder is empty.", "info");
+        } else {
+            let count = 0;
+            const updates = [];
+            snap.forEach(d => {
+                const data = d.data();
+                if(!data.memberEmails.includes(email)) {
+                    updates.push(updateDoc(doc(db, "projects", d.id), {
+                        memberEmails: arrayUnion(email),
+                        access: arrayUnion({ email, role: 'editor' })
+                    }));
+                    count++;
+                }
+            });
+            await Promise.all(updates);
+            if(count > 0) notify(`Shared ${count} projects with ${email}`, 'success');
+            else notify(`${email} already has access to all projects`, 'info');
+        }
+        window.hideModal('share-folder-modal');
+    });
 
     document.addEventListener('click', () => document.getElementById('sidebar-context-menu').classList.add('hidden'));
 
@@ -856,10 +922,8 @@
             recipientSelect.innerHTML = '<option value="all">Everyone</option>';
             const bcList = document.getElementById('bc-user-list'); bcList.innerHTML = '';
             
-            currentProjectMembers = []; // Reset for Mentions
-
             data.access.forEach(m => {
-                currentProjectMembers.push(m.email);
+                mentionableUsers.add(m.email); // Ensure project members are in mentions
                 if (data.access.indexOf(m) < 5) {
                     const img = document.createElement('img');
                     img.src = `https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}`;
@@ -996,7 +1060,8 @@
         const lastWord = val.split(' ').pop();
         if(lastWord.startsWith('@') && lastWord.length > 1) {
             const query = lastWord.substring(1).toLowerCase();
-            const matches = currentProjectMembers.filter(m => m.toLowerCase().includes(query));
+            // Filter all known users, not just current project members
+            const matches = Array.from(mentionableUsers).filter(m => m.toLowerCase().includes(query));
             if(matches.length > 0) {
                 mentionBox.innerHTML = matches.map(m => `<div class="p-2 hover:bg-gray-100 cursor-pointer text-xs" onclick="window.insertMention('${m}')">${m}</div>`).join('');
                 mentionBox.classList.remove('hidden');
@@ -1022,8 +1087,8 @@
         e.stopPropagation();
         selectedMsgId = mid;
         const menu = document.getElementById('msg-context-menu');
-        menu.style.left = (e.clientX - 100) + 'px';
-        menu.style.top = e.clientY + 'px';
+        menu.style.left = (e.clientX - 140) + 'px'; // Adjusted offset
+        menu.style.top = (e.clientY + 5) + 'px';
         menu.classList.remove('hidden');
         document.getElementById('btn-delete-all').classList.toggle('hidden', !isSender);
     };

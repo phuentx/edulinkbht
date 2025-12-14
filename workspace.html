@@ -32,10 +32,15 @@
                 slideIn: {
                     '0%': { transform: 'translateX(100%)', opacity: '0' },
                     '100%': { transform: 'translateX(0)', opacity: '1' }
+                },
+                popIn: {
+                    '0%': { transform: 'scale(0.95)', opacity: '0' },
+                    '100%': { transform: 'scale(1)', opacity: '1' }
                 }
             },
             animation: {
-                slideIn: 'slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+                slideIn: 'slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                popIn: 'popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
             }
           }
         }
@@ -121,7 +126,7 @@
         </div>
 
         <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">
-            EduLink v1.3
+            EduLink v1.4
         </div>
     </div>
 
@@ -153,6 +158,12 @@
 
                 <!-- Right Tools -->
                 <div class="flex items-center gap-3 relative">
+                    <!-- Broadcast Button (Owner Only) -->
+                    <button id="btn-broadcast-create" class="hidden text-sm font-medium text-white bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 mr-2 shadow-sm animate-slideIn">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+                        Broadcast
+                    </button>
+
                     <!-- Members -->
                     <div class="flex -space-x-3 overflow-hidden cursor-pointer hover:opacity-100 opacity-90 transition py-1 px-1" id="member-avatars" onclick="document.getElementById('share-modal').classList.remove('hidden')" title="Manage Members"></div>
 
@@ -200,7 +211,7 @@
                             <button onclick="insertMarkdown('**', '**')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 font-bold w-8 h-8 flex items-center justify-center text-sm border border-transparent hover:border-gray-200" title="Bold">B</button>
                             <button onclick="insertMarkdown('*', '*')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 italic w-8 h-8 flex items-center justify-center text-sm border border-transparent hover:border-gray-200" title="Italic">I</button>
                             <div class="w-[1px] h-4 bg-gray-200 mx-1"></div>
-                            <button onclick="insertMarkdown('[', '](url)')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 flex items-center gap-1.5 text-sm px-3 border border-transparent hover:border-gray-200" title="Link">
+                            <button onclick="window.openLinkModal()" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 flex items-center gap-1.5 text-sm px-3 border border-transparent hover:border-gray-200" title="Link">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Link
                             </button>
                         </div>
@@ -307,6 +318,56 @@
         </div>
     </div>
 
+    <!-- MODAL: LINK INSERTION -->
+    <div id="link-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
+        <div class="bg-white rounded-xl shadow-modal w-[380px] p-6 scale-95 transition-transform duration-200 transform">
+            <h3 class="text-lg font-semibold text-notion-text mb-5">Insert Link</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-notion-textLight mb-1.5 uppercase tracking-wide">Text</label>
+                    <input id="link-text-input" type="text" class="w-full p-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue" placeholder="Display text">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-notion-textLight mb-1.5 uppercase tracking-wide">URL</label>
+                    <input id="link-url-input" type="text" class="w-full p-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue" placeholder="https://example.com">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-8">
+                <button onclick="document.getElementById('link-modal').classList.add('hidden')" class="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors">Cancel</button>
+                <button id="btn-confirm-link" class="px-4 py-2 text-sm bg-notion-blue text-white rounded-lg hover:bg-blue-600 shadow-sm font-medium transition-colors">Insert Link</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: BROADCAST COMPOSE (Owner Only) -->
+    <div id="broadcast-compose-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
+        <div class="bg-white rounded-xl shadow-modal w-[480px] p-6 scale-95 transition-transform duration-200 transform">
+            <div class="flex items-center gap-2 mb-4 text-red-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+                <h3 class="text-lg font-bold">Live Broadcast</h3>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">Send an announcement to everyone currently viewing this project. It will appear as a popup on their screen.</p>
+            <textarea id="broadcast-input" rows="4" class="w-full p-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-red-400 bg-red-50 focus:bg-white transition-colors resize-none" placeholder="Type your announcement..."></textarea>
+            <div class="flex justify-end gap-3 mt-6">
+                <button onclick="document.getElementById('broadcast-compose-modal').classList.add('hidden')" class="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors">Cancel</button>
+                <button id="btn-send-broadcast" class="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm font-medium transition-colors">Send Broadcast</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAY: BROADCAST RECEIVE (For Everyone) -->
+    <div id="broadcast-receive-overlay" class="fixed inset-0 bg-black/60 z-[200] hidden flex items-center justify-center backdrop-blur-md animate-slideIn">
+        <div class="bg-white rounded-2xl shadow-2xl w-[500px] p-8 text-center relative animate-popIn">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Announcement</h2>
+            <div class="w-12 h-1 bg-red-500 rounded-full mx-auto mb-6"></div>
+            <p id="broadcast-message-text" class="text-lg text-gray-600 leading-relaxed mb-8">...</p>
+            <button onclick="document.getElementById('broadcast-receive-overlay').classList.add('hidden')" class="px-8 py-3 bg-gray-900 text-white rounded-xl font-medium hover:bg-black transition-colors shadow-lg">Got it</button>
+        </div>
+    </div>
+
     <!-- MODAL: CREATE PROJECT -->
     <div id="create-modal" class="fixed inset-0 bg-black/40 z-[80] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
         <div class="bg-white rounded-xl shadow-modal w-[420px] p-6 scale-95 transition-transform duration-200 transform">
@@ -403,11 +464,12 @@
     let currentUser = null;
     let currentProjectId = null;
     let currentRole = 'editor'; 
-    let unsubscribeDoc, unsubscribeChat, unsubscribeReminders, unsubscribeComments, unsubscribeNotifs;
+    let unsubscribeDoc, unsubscribeChat, unsubscribeReminders, unsubscribeComments, unsubscribeNotifs, unsubscribeBroadcasts;
     let initialLoad = true;
     let debounceTimer;
     let activeReminders = [];
-    let notifiedReminders = new Set(); // To track session notifications
+    let notifiedReminders = new Set();
+    let sessionStartTime = new Date(); // To filter old broadcasts
 
     // --- HELPERS ---
     const showModal = (id) => { const m = document.getElementById(id); m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); m.children[0].classList.remove('scale-95'); }, 10); }
@@ -469,7 +531,6 @@
 
     function updateUserUI() {
         document.getElementById('user-name').textContent = currentUser.displayName || currentUser.email;
-        // Use Lorelei avatar style
         const avatarUrl = currentUser.photoURL && !currentUser.photoURL.includes('dicebear') ? currentUser.photoURL : `https://api.dicebear.com/9.x/lorelei/svg?seed=${currentUser.email}`;
         document.getElementById('user-avatar').src = avatarUrl;
         document.getElementById('edit-profile-preview').src = avatarUrl;
@@ -479,20 +540,15 @@
 
     // --- PROFILE EDITING ---
     const btnSettings = document.getElementById('btn-settings');
-    const profileModal = document.getElementById('profile-modal');
-    
     btnSettings.addEventListener('click', (e) => {
         e.stopPropagation();
         document.getElementById('edit-display-name').value = currentUser.displayName || "";
         showModal('profile-modal');
     });
-
     document.getElementById('btn-cancel-profile').addEventListener('click', () => hideModal('profile-modal'));
-    
     document.getElementById('btn-save-profile').addEventListener('click', async () => {
         const newName = document.getElementById('edit-display-name').value.trim();
         if(!newName) return;
-        
         try {
             await updateProfile(currentUser, { displayName: newName });
             await updateDoc(doc(db, "users", currentUser.uid), { displayName: newName });
@@ -502,7 +558,7 @@
         } catch(e) { notify("Failed to update profile", "error"); console.error(e); }
     });
 
-    // --- NOTIFICATION HISTORY (Popover) ---
+    // --- NOTIFICATIONS ---
     document.getElementById('btn-notifications').addEventListener('click', (e) => {
         e.stopPropagation();
         document.getElementById('notification-popover').classList.toggle('hidden');
@@ -513,7 +569,6 @@
             document.getElementById('notification-popover').classList.add('hidden');
         }
     });
-
     function loadUserNotifications() {
         const q = query(collection(db, `users/${currentUser.uid}/notifications`), orderBy('timestamp', 'desc'));
         unsubscribeNotifs = onSnapshot(q, (snap) => {
@@ -521,25 +576,19 @@
             if(snap.empty) { list.innerHTML = '<div class="p-8 text-center text-gray-400 text-sm italic">No new notifications</div>'; return; }
             list.innerHTML = '';
             let hasUnread = false;
-            
             snap.forEach(d => {
                 const n = d.data();
                 const item = document.createElement('div');
                 item.className = "p-4 border-b border-gray-50 hover:bg-gray-50 text-sm flex gap-3 relative group transition-colors";
-                // Delete button
                 const delBtn = document.createElement('button');
                 delBtn.className = "absolute top-2 right-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1";
                 delBtn.innerHTML = "&times;";
                 delBtn.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id)); };
-                
-                let icon = '<div class="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0 shadow-sm border border-white"></div>';
-                if(n.read) icon = '<div class="w-2.5 h-2.5 rounded-full bg-transparent mt-1.5 flex-shrink-0"></div>';
-                else hasUnread = true;
-
+                let icon = n.read ? '<div class="w-2.5 h-2.5 rounded-full bg-transparent mt-1.5 flex-shrink-0"></div>' : '<div class="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0 shadow-sm border border-white"></div>';
+                if(!n.read) hasUnread = true;
                 item.innerHTML = `${icon}<div class="flex-1 pr-4"><div class="font-semibold text-notion-text leading-tight text-[14px]">${n.title || "Notification"}</div><div class="text-gray-500 mt-1 leading-relaxed text-[13px]">${n.text}</div><div class="text-[11px] text-gray-400 mt-2 font-medium">${n.timestamp?.toDate().toLocaleDateString() || ""}</div></div>`;
                 item.appendChild(delBtn);
                 list.appendChild(item);
-                
                 if(!n.read) { updateDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id), { read: true }); }
             });
             if(hasUnread) document.getElementById('notif-badge').classList.remove('hidden');
@@ -551,7 +600,6 @@
         const q = query(collection(db, "projects"), where("memberEmails", "array-contains", currentUser.email));
         onSnapshot(q, (snap) => {
             const list = document.getElementById('project-list');
-            
             snap.docChanges().forEach((change) => {
                 if (change.type === "added") {
                     const data = change.doc.data();
@@ -561,10 +609,7 @@
                     div.innerHTML = `<span class="opacity-80 text-base">${data.icon || "📄"}</span> <span class="truncate font-medium">${data.title}</span>`;
                     div.onclick = () => selectProject(change.doc.id);
                     list.appendChild(div);
-
-                    if (!initialLoad && data.ownerId !== currentUser.uid) {
-                        notify(`Invited to project: ${data.title}`, 'invite');
-                    }
+                    if (!initialLoad && data.ownerId !== currentUser.uid) { notify(`Invited to project: ${data.title}`, 'invite'); }
                 }
                 if (change.type === "modified") {
                      const div = document.getElementById(`proj-${change.doc.id}`);
@@ -572,12 +617,8 @@
                 }
                 if (change.type === "removed") { document.getElementById(`proj-${change.doc.id}`)?.remove(); }
             });
-            
-            if (preselectId && document.getElementById(`proj-${preselectId}`)) {
-                selectProject(preselectId);
-            } else if (currentProjectId) {
-                document.getElementById(`proj-${currentProjectId}`)?.classList.add('bg-[#EFEFEF]', 'text-notion-text');
-            }
+            if (preselectId && document.getElementById(`proj-${preselectId}`)) selectProject(preselectId);
+            else if (currentProjectId) document.getElementById(`proj-${currentProjectId}`)?.classList.add('bg-[#EFEFEF]', 'text-notion-text');
             initialLoad = false;
         });
     }
@@ -587,12 +628,10 @@
         if(currentProjectId === id) return;
         document.querySelectorAll('#project-list > div').forEach(d => d.className = "px-3 py-2 rounded-md cursor-pointer text-[14px] flex items-center gap-2.5 transition-colors text-notion-textLight hover:bg-[#EFEFEF] hover:text-notion-text");
         document.getElementById(`proj-${id}`)?.classList.add('bg-[#EFEFEF]', 'text-notion-text');
-
         currentProjectId = id;
         document.getElementById('empty-state').classList.add('hidden');
         document.getElementById('workspace-container').classList.remove('hidden');
         
-        // Update URL without reload
         const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?project=' + id;
         window.history.pushState({path:newUrl},'',newUrl);
 
@@ -600,6 +639,7 @@
         if(unsubscribeChat) unsubscribeChat();
         if(unsubscribeReminders) unsubscribeReminders();
         if(unsubscribeComments) unsubscribeComments();
+        if(unsubscribeBroadcasts) unsubscribeBroadcasts();
 
         // 1. Project Doc
         unsubscribeDoc = onSnapshot(doc(db, "projects", id), (snap) => {
@@ -607,13 +647,10 @@
             const data = snap.data();
             const myAccess = data.access.find(a => a.email === currentUser.email);
             currentRole = myAccess ? myAccess.role : 'viewer';
-
             document.getElementById('doc-title').value = data.title;
             document.getElementById('doc-icon').textContent = data.icon || "📄";
-            
             const editor = document.getElementById('doc-content');
             if(document.activeElement !== editor) editor.value = data.content || "";
-            
             if(currentRole === 'viewer') {
                 editor.setAttribute('readonly', true);
                 document.getElementById('read-only-banner').classList.remove('hidden');
@@ -621,7 +658,6 @@
                 editor.removeAttribute('readonly');
                 document.getElementById('read-only-banner').classList.add('hidden');
             }
-
             const ac = document.getElementById('member-avatars'); ac.innerHTML = '';
             data.access.slice(0, 5).forEach(m => {
                 const img = document.createElement('img');
@@ -631,20 +667,93 @@
                 ac.appendChild(img);
             });
             renderMembersList(data.access, data.ownerId === currentUser.uid);
+            
+            // Show/Hide Broadcast Button
+            if(data.ownerId === currentUser.uid) document.getElementById('btn-broadcast-create').classList.remove('hidden');
+            else document.getElementById('btn-broadcast-create').classList.add('hidden');
         });
 
-        // 2. Collections
         loadChat(id);
         loadComments(id);
         loadReminders(id);
+        listenForBroadcasts(id);
+    }
+
+    // --- LINK INSERTION ---
+    window.openLinkModal = () => {
+        const ta = document.getElementById('doc-content');
+        const start = ta.selectionStart;
+        const end = ta.selectionEnd;
+        const selectedText = ta.value.substring(start, end);
+        document.getElementById('link-text-input').value = selectedText;
+        document.getElementById('link-url-input').value = "";
+        showModal('link-modal');
+    };
+    
+    document.getElementById('btn-confirm-link').addEventListener('click', () => {
+        const text = document.getElementById('link-text-input').value || "link";
+        const url = document.getElementById('link-url-input').value || "#";
+        // Create markdown link [text](url)
+        // We use the same insertMarkdown logic but custom text
+        const ta = document.getElementById('doc-content');
+        const start = ta.selectionStart;
+        const end = ta.selectionEnd;
+        const val = ta.value;
+        const markdown = `[${text}](${url})`;
+        ta.value = val.substring(0, start) + markdown + val.substring(end);
+        ta.focus();
+        const event = new Event('input'); ta.dispatchEvent(event);
+        hideModal('link-modal');
+    });
+
+    // --- BROADCAST FEATURE ---
+    document.getElementById('btn-broadcast-create').addEventListener('click', () => {
+        document.getElementById('broadcast-input').value = "";
+        showModal('broadcast-compose-modal');
+    });
+
+    document.getElementById('btn-send-broadcast').addEventListener('click', async () => {
+        const text = document.getElementById('broadcast-input').value.trim();
+        if(!text) return;
+        await addDoc(collection(db, `projects/${currentProjectId}/broadcasts`), {
+            text,
+            senderId: currentUser.uid,
+            timestamp: serverTimestamp()
+        });
+        hideModal('broadcast-compose-modal');
+        notify("Broadcast sent to all active users.", "success");
+    });
+
+    function listenForBroadcasts(pid) {
+        // Listen for broadcasts added AFTER session start
+        const q = query(collection(db, `projects/${pid}/broadcasts`), orderBy('timestamp', 'desc'), where('timestamp', '>', sessionStartTime));
+        unsubscribeBroadcasts = onSnapshot(collection(db, `projects/${pid}/broadcasts`), (snap) => {
+             snap.docChanges().forEach(change => {
+                 if(change.type === 'added') {
+                     const d = change.doc.data();
+                     // Only show if it's recent (last 30 seconds) to avoid showing old ones on reload if query filter fails slightly or sync issues
+                     const now = new Date();
+                     const msgTime = d.timestamp ? d.timestamp.toDate() : now;
+                     if (now - msgTime < 60000) { // 1 min window
+                         document.getElementById('broadcast-message-text').textContent = d.text;
+                         document.getElementById('broadcast-receive-overlay').classList.remove('hidden');
+                     }
+                 }
+             });
+        });
     }
 
     // --- EDITOR ---
-    window.insertMarkdown = (start, end) => {
+    window.insertMarkdown = (startTag, endTag) => {
         const ta = document.getElementById('doc-content');
-        const s = ta.selectionStart; const e = ta.selectionEnd;
+        const s = ta.selectionStart;
+        const e = ta.selectionEnd;
         const val = ta.value;
-        ta.value = val.substring(0, s) + start + val.substring(s, e) + end + val.substring(e);
+        const selected = val.substring(s, e);
+        // Correct logic: Wrap the selected text
+        ta.value = val.substring(0, s) + startTag + selected + endTag + val.substring(e);
+        ta.selectionStart = s + startTag.length;
+        ta.selectionEnd = e + startTag.length;
         ta.focus();
         const event = new Event('input'); ta.dispatchEvent(event);
     }
@@ -682,7 +791,7 @@
         p.style.width = p.style.width === '0px' ? '360px' : '0px';
     });
 
-    // --- CHAT ---
+    // --- COLLECTIONS LOADERS (Chat, Comments, Reminders) ---
     function loadChat(pid) {
         unsubscribeChat = onSnapshot(query(collection(db, `projects/${pid}/messages`), orderBy("timestamp", "asc")), (snap) => {
             const div = document.getElementById('chat-messages'); div.innerHTML = '';
@@ -699,14 +808,10 @@
         });
     }
     document.getElementById('chat-form').addEventListener('submit', async(e) => {
-        e.preventDefault();
-        const inp = document.getElementById('chat-input');
-        if(!inp.value.trim()) return;
+        e.preventDefault(); const inp = document.getElementById('chat-input'); if(!inp.value.trim()) return;
         addDoc(collection(db, `projects/${currentProjectId}/messages`), { text: inp.value.trim(), senderId: currentUser.uid, senderName: currentUser.displayName||"User", timestamp: serverTimestamp() });
         inp.value = '';
     });
-
-    // --- COMMENTS ---
     function loadComments(pid) {
         unsubscribeComments = onSnapshot(query(collection(db, `projects/${pid}/comments`), orderBy("timestamp", "asc")), (snap) => {
             const div = document.getElementById('comments-list'); div.innerHTML = '';
@@ -721,37 +826,25 @@
         });
     }
     document.getElementById('comments-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const inp = document.getElementById('comment-input');
-        if(!inp.value.trim()) return;
+        e.preventDefault(); const inp = document.getElementById('comment-input'); if(!inp.value.trim()) return;
         addDoc(collection(db, `projects/${currentProjectId}/comments`), { text: inp.value.trim(), senderId: currentUser.uid, senderEmail: currentUser.email, senderName: currentUser.displayName||"User", timestamp: serverTimestamp() });
         inp.value = '';
     });
-
-    // --- REMINDERS / CALENDAR ---
     function loadReminders(pid) {
         unsubscribeReminders = onSnapshot(query(collection(db, `projects/${pid}/reminders`), orderBy("due", "asc")), (snap) => {
             const div = document.getElementById('reminder-list'); div.innerHTML = '';
-            activeReminders = []; // Reset active list for checker
-            
+            activeReminders = []; 
             if(snap.empty) div.innerHTML = '<div class="text-center text-xs text-gray-400 py-6">No upcoming events</div>';
-            
             snap.forEach(d => {
                 const r = d.data();
                 const dateObj = r.due ? r.due.toDate() : new Date();
-                
-                // Add to active list for checker
                 activeReminders.push({ id: d.id, title: r.title, date: dateObj });
-
                 const item = document.createElement('div');
                 item.className = "flex items-center p-3 bg-blue-50/30 border border-blue-100 rounded-lg hover:bg-blue-50/60 transition relative group";
-                
-                // Delete button for reminders
                 const del = document.createElement('button');
                 del.className="absolute top-1.5 right-1.5 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1";
                 del.innerHTML = "&times;";
                 del.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `projects/${pid}/reminders`, d.id)); }
-
                 item.innerHTML = `
                     <div class="w-12 text-center leading-tight mr-4 border-r border-blue-100 pr-4">
                         <div class="text-[10px] text-blue-600 uppercase font-bold tracking-wide">${dateObj.toLocaleString('default', {month:'short'})}</div>
@@ -767,13 +860,10 @@
             });
         });
     }
-
-    // Reminder Checker
     function checkReminders() {
         const now = new Date();
         activeReminders.forEach(r => {
             if(r.date <= now && !notifiedReminders.has(r.id)) {
-                // Check if it's within last 5 minutes (don't notify for ancient past events on load)
                 const diff = now - r.date;
                 if(diff < 5 * 60 * 1000) { 
                     notify(`Reminder: ${r.title}`, 'reminder');
@@ -782,18 +872,14 @@
             }
         });
     }
-
     document.getElementById('reminder-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const title = document.getElementById('rem-title').value;
         const date = document.getElementById('rem-date').value;
         const time = document.getElementById('rem-time').value;
         if(!title || !date || !time) return;
-        
         const due = new Date(`${date}T${time}`);
-        await addDoc(collection(db, `projects/${currentProjectId}/reminders`), {
-            title, due, addedBy: currentUser.displayName || "User", timestamp: serverTimestamp()
-        });
+        await addDoc(collection(db, `projects/${currentProjectId}/reminders`), { title, due, addedBy: currentUser.displayName || "User", timestamp: serverTimestamp() });
         document.getElementById('reminder-form').reset();
     });
 
@@ -802,15 +888,11 @@
         try {
             const clean = encodeURIComponent(`Context: ${context.substring(0,500)}...\nQ: ${prompt}`);
             const res = await fetch(`https://text.pollinations.ai/${clean}`);
-            if(!res.ok) throw new Error();
-            return await res.text();
+            if(!res.ok) throw new Error(); return await res.text();
         } catch(e) { return "AI Unavailable"; }
     }
     document.getElementById('ai-form').addEventListener('submit', async(e)=>{
-        e.preventDefault();
-        const inp = document.getElementById('ai-input');
-        const txt = inp.value.trim();
-        if(!txt) return;
+        e.preventDefault(); const inp = document.getElementById('ai-input'); const txt = inp.value.trim(); if(!txt) return;
         const div = document.getElementById('ai-messages');
         div.innerHTML += `<div class="flex flex-col items-end"><div class="bg-gray-100 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text shadow-sm">${txt}</div></div>`;
         inp.value = ''; div.scrollTop = div.scrollHeight;
@@ -830,106 +912,46 @@
     });
     
     document.getElementById('btn-open-share').addEventListener('click', ()=>showModal('share-modal'));
-    
-    // Copy Link Logic
     document.getElementById('btn-copy-link').addEventListener('click', () => {
         if(!currentProjectId) return;
         const url = window.location.protocol + "//" + window.location.host + window.location.pathname + '?project=' + currentProjectId;
-        navigator.clipboard.writeText(url).then(() => {
-            notify("Link copied to clipboard!", "success");
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
-            notify("Failed to copy link", "error");
-        });
+        navigator.clipboard.writeText(url).then(() => notify("Link copied to clipboard!", "success")).catch(err => notify("Failed to copy link", "error"));
     });
-
     function renderMembersList(access, isOwner) {
         const d = document.getElementById('members-list'); d.innerHTML = '';
         access.forEach(m => { 
             let roleDisplay = `<span class="text-[11px] text-gray-400 capitalize font-medium">${m.role}</span>`;
             let actions = '';
-
-            // If I am owner and this is not me, allow role change
             if(isOwner && m.email !== currentUser.email) {
-                roleDisplay = `
-                    <select onchange="window.updateMemberRole('${m.email}', this.value)" class="text-[11px] bg-transparent border-none outline-none text-gray-500 font-medium cursor-pointer hover:text-gray-800">
-                        <option value="editor" ${m.role==='editor'?'selected':''}>Editor</option>
-                        <option value="commenter" ${m.role==='commenter'?'selected':''}>Commenter</option>
-                        <option value="viewer" ${m.role==='viewer'?'selected':''}>Viewer</option>
-                    </select>
-                `;
+                roleDisplay = `<select onchange="window.updateMemberRole('${m.email}', this.value)" class="text-[11px] bg-transparent border-none outline-none text-gray-500 font-medium cursor-pointer hover:text-gray-800"><option value="editor" ${m.role==='editor'?'selected':''}>Editor</option><option value="commenter" ${m.role==='commenter'?'selected':''}>Commenter</option><option value="viewer" ${m.role==='viewer'?'selected':''}>Viewer</option></select>`;
                 actions = `<button class="text-xs text-red-400 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors" onclick="window.removeMember('${m.email}')">Remove</button>`;
-            } else {
-                 if(m.role === 'owner') roleDisplay = `<span class="text-[11px] text-notion-blue font-bold uppercase tracking-wider">Owner</span>`;
-            }
-
-            d.innerHTML += `
-            <div class="flex justify-between items-center p-2.5 hover:bg-gray-50 rounded-lg border border-transparent hover:border-gray-100 transition-all group">
-                <div class="flex items-center gap-3">
-                    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}" class="w-8 h-8 rounded-full bg-white border border-gray-200">
-                    <div class="flex flex-col">
-                        <span class="text-sm font-semibold text-notion-text">${m.email}</span>
-                        ${roleDisplay}
-                    </div>
-                </div>
-                ${actions}
-            </div>`; 
+            } else if(m.role === 'owner') roleDisplay = `<span class="text-[11px] text-notion-blue font-bold uppercase tracking-wider">Owner</span>`;
+            d.innerHTML += `<div class="flex justify-between items-center p-2.5 hover:bg-gray-50 rounded-lg border border-transparent hover:border-gray-100 transition-all group"><div class="flex items-center gap-3"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}" class="w-8 h-8 rounded-full bg-white border border-gray-200"><div class="flex flex-col"><span class="text-sm font-semibold text-notion-text">${m.email}</span>${roleDisplay}</div></div>${actions}</div>`; 
         });
     }
-    
     document.getElementById('btn-send-invite').addEventListener('click', async()=>{
-        const email = document.getElementById('invite-email').value;
-        const role = document.getElementById('invite-role').value;
-        if(!email) return;
-        const ref = doc(db, "projects", currentProjectId);
-        const snap = await getDoc(ref);
-        
+        const email = document.getElementById('invite-email').value; const role = document.getElementById('invite-role').value; if(!email) return;
+        const ref = doc(db, "projects", currentProjectId); const snap = await getDoc(ref);
         if(snap.exists() && !snap.data().access.find(a=>a.email===email)) {
-            // 1. Update Project
             await updateDoc(ref, { memberEmails: arrayUnion(email), access: arrayUnion({email, role}) });
             notify(`Invited ${email}`, 'success'); 
-            
-            // 2. Notify User in History
             const usersQ = query(collection(db, "users"), where("email", "==", email));
             const userSnap = await getDocs(usersQ);
-            if(!userSnap.empty) {
-                userSnap.forEach(async (u) => {
-                    await addDoc(collection(db, `users/${u.id}/notifications`), {
-                        title: "Project Invitation",
-                        text: `You were invited to join <strong>${snap.data().title || "a project"}</strong> as ${role}.`,
-                        timestamp: serverTimestamp(),
-                        read: false
-                    });
-                });
-            }
-            
+            if(!userSnap.empty) { userSnap.forEach(async (u) => { await addDoc(collection(db, `users/${u.id}/notifications`), { title: "Project Invitation", text: `You were invited to join <strong>${snap.data().title || "a project"}</strong> as ${role}.`, timestamp: serverTimestamp(), read: false }); }); }
             document.getElementById('invite-email').value = '';
         } else { notify("User already exists or error", "error"); }
     });
-    
     window.updateMemberRole = async (email, newRole) => {
-        const ref = doc(db, "projects", currentProjectId);
-        const snap = await getDoc(ref);
-        if(!snap.exists()) return;
-
-        let access = snap.data().access;
-        // Update the specific user's role
-        access = access.map(m => m.email === email ? { ...m, role: newRole } : m);
-        
-        await updateDoc(ref, { access });
-        notify(`Updated ${email} to ${newRole}`, 'success');
+        const ref = doc(db, "projects", currentProjectId); const snap = await getDoc(ref); if(!snap.exists()) return;
+        let access = snap.data().access; access = access.map(m => m.email === email ? { ...m, role: newRole } : m);
+        await updateDoc(ref, { access }); notify(`Updated ${email} to ${newRole}`, 'success');
     };
-
     window.removeMember = async (email) => {
         if(!confirm(`Remove ${email}?`)) return;
-        const ref = doc(db, "projects", currentProjectId);
-        const snap = await getDoc(ref);
-        const access = snap.data().access.filter(a=>a.email!==email);
-        const emails = snap.data().memberEmails.filter(e=>e!==email);
-        await updateDoc(ref, {access, memberEmails: emails});
-        notify("Member removed");
+        const ref = doc(db, "projects", currentProjectId); const snap = await getDoc(ref);
+        const access = snap.data().access.filter(a=>a.email!==email); const emails = snap.data().memberEmails.filter(e=>e!==email);
+        await updateDoc(ref, {access, memberEmails: emails}); notify("Member removed");
     }
-
     window.focusEditor = () => { if(currentRole!=='viewer') document.getElementById('doc-content').focus(); }
 
 </script>

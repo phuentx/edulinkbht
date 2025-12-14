@@ -26,7 +26,8 @@
             },
             boxShadow: {
                 'modal': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                'popover': '0 4px 12px -2px rgba(0, 0, 0, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.08)'
+                'popover': '0 4px 12px -2px rgba(0, 0, 0, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.08)',
+                'menu': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0,0,0,0.05)'
             },
             keyframes: {
                 slideIn: {
@@ -175,7 +176,7 @@
         </div>
         <div id="team-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar pb-4"></div>
 
-        <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.2</div>
+        <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.3</div>
     </div>
 
     <!-- MAIN AREA -->
@@ -231,7 +232,7 @@
             </div>
 
             <!-- Editor -->
-            <div class="flex flex-1 overflow-hidden">
+            <div class="flex flex-1 overflow-hidden relative">
                 <div class="flex-1 overflow-y-auto bg-white cursor-text relative no-scrollbar flex justify-center" id="editor-container" onclick="focusEditor(event)">
                     <div class="w-full max-w-[850px] py-12 px-14 min-h-full flex flex-col relative">
                         <div id="editor-toolbar" class="sticky top-0 bg-white/95 backdrop-blur z-30 flex gap-2 py-2 mb-6 border-b border-transparent hover:border-gray-100 transition-colors opacity-0 hover:opacity-100 items-center">
@@ -244,6 +245,25 @@
                         <div id="read-only-banner" class="hidden mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500 flex items-center gap-3"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><span class="font-medium">View Only</span></div>
                         <div id="remote-cursors-layer" class="absolute inset-0 pointer-events-none z-10 overflow-hidden"></div>
                         <div id="doc-content" contenteditable="true" class="w-full h-full min-h-[75vh] outline-none text-[#37352F] leading-8 text-[17px] font-sans placeholder-gray-300 relative z-20" placeholder="Type '/' for AI commands..."></div>
+                    </div>
+                </div>
+
+                <!-- Slash AI Menu -->
+                <div id="slash-menu" class="fixed hidden bg-white border border-gray-200 rounded-xl shadow-menu z-[100] w-64 overflow-hidden animate-popIn">
+                    <div class="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide bg-gray-50 border-b border-gray-100">AI Assistant</div>
+                    <div class="p-1">
+                        <button onclick="executeAICommand('Continue writing')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
+                            <span class="text-lg">✍️</span> Continue writing
+                        </button>
+                        <button onclick="executeAICommand('Summarize')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
+                            <span class="text-lg">📝</span> Summarize
+                        </button>
+                        <button onclick="executeAICommand('Fix grammar and spelling')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
+                            <span class="text-lg">🔧</span> Fix grammar
+                        </button>
+                        <button onclick="executeAICommand('Translate to Spanish')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
+                            <span class="text-lg">🇪🇸</span> Translate to Spanish
+                        </button>
                     </div>
                 </div>
 
@@ -318,7 +338,7 @@
                 <div class="p-2 bg-blue-50 rounded-lg text-notion-blue"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg></div>
                 <h3 class="text-lg font-bold text-notion-text">Share Folder</h3>
             </div>
-            <p class="text-sm text-gray-500 mb-5 leading-relaxed">Inviting a user here will add them to <strong>every project</strong> currently inside this folder.</p>
+            <p class="text-sm text-gray-500 mb-5 leading-relaxed">Inviting a user here will add them to <strong>every project</strong> currently inside this folder and give them access to the folder structure.</p>
             
             <div class="mb-2">
                 <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">User Email</label>
@@ -480,7 +500,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove, orderBy, serverTimestamp, getDoc, setDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove, orderBy, serverTimestamp, getDoc, setDoc, deleteDoc, getDocs, or } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
@@ -603,14 +623,22 @@
     // --- FOLDERS & PROJECT ORGANIZATION ---
     function loadFolders() {
         if(unsubscribeFolders) unsubscribeFolders();
-        const q = query(collection(db, "folders"), where("ownerId", "==", currentUser.uid));
+        // Query folders where I am owner OR sharedWith contains my email
+        const q = query(
+            collection(db, "folders"), 
+            or(
+                where("ownerId", "==", currentUser.uid),
+                where("sharedWith", "array-contains", currentUser.email)
+            )
+        );
         unsubscribeFolders = onSnapshot(q, (snap) => {
             myFolders = [];
             const folderSelect = document.getElementById('new-proj-folder');
             folderSelect.innerHTML = '<option value="">No Folder</option>';
             snap.forEach(d => {
-                myFolders.push({id: d.id, ...d.data()});
-                folderSelect.innerHTML += `<option value="${d.id}">${d.data().name}</option>`;
+                const fData = d.data();
+                myFolders.push({id: d.id, ...fData});
+                folderSelect.innerHTML += `<option value="${d.id}">${fData.name} ${fData.ownerId !== currentUser.uid ? '(Shared)' : ''}</option>`;
             });
             loadProjects(); 
         });
@@ -620,7 +648,7 @@
     document.getElementById('btn-confirm-folder').addEventListener('click', async() => {
         const name = document.getElementById('new-folder-name').value.trim();
         if(!name) return;
-        await addDoc(collection(db, "folders"), { name, ownerId: currentUser.uid, createdAt: serverTimestamp() });
+        await addDoc(collection(db, "folders"), { name, ownerId: currentUser.uid, sharedWith: [], createdAt: serverTimestamp() });
         window.hideModal('create-folder-modal');
         document.getElementById('new-folder-name').value = '';
     });
@@ -736,7 +764,7 @@
             const organized = {};
             const unorganized = [];
 
-            myFolders.forEach(f => organized[f.id] = { id: f.id, name: f.name, projects: [] });
+            myFolders.forEach(f => organized[f.id] = { id: f.id, name: f.name, owner: f.ownerId, projects: [] });
 
             snap.forEach((doc) => {
                 const p = { id: doc.id, ...doc.data() };
@@ -752,13 +780,14 @@
             Object.values(organized).forEach(f => {
                 const folderDiv = document.createElement('div');
                 folderDiv.className = "mb-1";
+                const isShared = f.owner !== currentUser.uid;
                 folderDiv.innerHTML = `
                     <div class="px-3 py-2 text-xs font-semibold text-gray-500 cursor-pointer hover:bg-gray-100 flex items-center justify-between group sidebar-item">
                         <div class="flex items-center gap-2 flex-1" onclick="this.parentElement.parentElement.classList.toggle('folder-open')">
                             <svg class="w-3 h-3 text-gray-400 folder-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                            ${f.name}
+                            <span class="truncate">${f.name} ${isShared ? '👥' : ''}</span>
                         </div>
-                        <button class="item-actions hover:bg-gray-200 p-1 rounded" onclick="window.showFolderMenu(event, '${f.id}')">•••</button>
+                        <button class="item-actions hover:bg-gray-200 rounded h-6 w-6 flex items-center justify-center text-gray-400" onclick="window.showFolderMenu(event, '${f.id}', ${!isShared})">•••</button>
                     </div>
                     <div class="folder-content pl-2 border-l border-gray-100 ml-4 mb-2"></div>
                 `;
@@ -784,7 +813,7 @@
                 <span class="opacity-80 text-base">${data.icon || "📄"}</span> 
                 <span class="truncate font-medium">${data.title}</span>
             </div>
-            <button class="item-actions hover:bg-gray-300 p-0.5 rounded text-gray-500" onclick="window.showProjectMenu(event, '${data.id}', ${data.ownerId === currentUser.uid}, '${data.folderId || ''}')">•••</button>
+            <button class="item-actions hover:bg-gray-300 rounded h-6 w-6 flex items-center justify-center text-gray-500" onclick="window.showProjectMenu(event, '${data.id}', ${data.ownerId === currentUser.uid}, '${data.folderId || ''}')">•••</button>
         `;
         return div;
     }
@@ -799,7 +828,10 @@
         
         let folderOptions = '';
         myFolders.forEach(f => {
-            if(f.id !== fid) folderOptions += `<button onclick="window.moveProject('${pid}', '${f.id}')" class="w-full text-left px-3 py-2 hover:bg-gray-100">Move to ${f.name}</button>`;
+            // Only allow moving to folders I own or write access (simplified to ownership for now)
+            if(f.id !== fid && f.owner === currentUser.uid) {
+                folderOptions += `<button onclick="window.moveProject('${pid}', '${f.id}')" class="w-full text-left px-3 py-2 hover:bg-gray-100">Move to ${f.name}</button>`;
+            }
         });
         if(fid) folderOptions += `<button onclick="window.moveProject('${pid}', null)" class="w-full text-left px-3 py-2 hover:bg-gray-100 text-orange-600">Remove from Folder</button>`;
 
@@ -814,17 +846,22 @@
         menu.innerHTML = html;
     };
 
-    window.showFolderMenu = (e, fid) => {
+    window.showFolderMenu = (e, fid, isOwner) => {
         e.stopPropagation();
         const menu = document.getElementById('sidebar-context-menu');
         menu.style.left = e.pageX + 'px';
         menu.style.top = e.pageY + 'px';
         menu.classList.remove('hidden');
-        menu.innerHTML = `
-            <button onclick="window.shareFolder('${fid}')" class="w-full text-left px-3 py-2 hover:bg-gray-100 text-notion-blue font-medium">Share Folder</button>
+        
+        let html = '';
+        if(isOwner) {
+            html += `<button onclick="window.shareFolder('${fid}')" class="w-full text-left px-3 py-2 hover:bg-gray-100 text-notion-blue font-medium">Share Folder</button>
             <div class="border-t border-gray-100 my-1"></div>
-            <button onclick="window.deleteFolder('${fid}')" class="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600">Delete Folder</button>
-        `;
+            <button onclick="window.deleteFolder('${fid}')" class="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600">Delete Folder</button>`;
+        } else {
+            html += `<div class="px-3 py-2 text-xs text-gray-400 italic">Shared with you</div>`;
+        }
+        menu.innerHTML = html;
     };
 
     let sharingFolderId = null;
@@ -838,29 +875,30 @@
         const email = document.getElementById('folder-share-email').value.trim();
         if(!email || !sharingFolderId) return;
 
-        // Query all projects in folder
+        // 1. Update the folder document to include the user in sharedWith
+        await updateDoc(doc(db, "folders", sharingFolderId), {
+            sharedWith: arrayUnion(email)
+        });
+
+        // 2. Query all projects in folder and share them
         const q = query(collection(db, "projects"), where("folderId", "==", sharingFolderId));
         const snap = await getDocs(q);
         
-        if (snap.empty) {
-            notify("Folder is empty.", "info");
-        } else {
-            let count = 0;
-            const updates = [];
-            snap.forEach(d => {
-                const data = d.data();
-                if(!data.memberEmails.includes(email)) {
-                    updates.push(updateDoc(doc(db, "projects", d.id), {
-                        memberEmails: arrayUnion(email),
-                        access: arrayUnion({ email, role: 'editor' })
-                    }));
-                    count++;
-                }
-            });
-            await Promise.all(updates);
-            if(count > 0) notify(`Shared ${count} projects with ${email}`, 'success');
-            else notify(`${email} already has access to all projects`, 'info');
-        }
+        const updates = [];
+        let count = 0;
+        snap.forEach(d => {
+            const data = d.data();
+            if(!data.memberEmails.includes(email)) {
+                updates.push(updateDoc(doc(db, "projects", d.id), {
+                    memberEmails: arrayUnion(email),
+                    access: arrayUnion({ email, role: 'editor' })
+                }));
+                count++;
+            }
+        });
+        await Promise.all(updates);
+        
+        notify(`Shared folder & ${count} projects with ${email}`, 'success');
         window.hideModal('share-folder-modal');
     });
 
@@ -962,8 +1000,62 @@
         window.hideModal('link-modal');
     });
 
-    const titleInput = document.getElementById('doc-title');
+    // --- SLASH COMMANDS LOGIC ---
     const contentInput = document.getElementById('doc-content');
+    const slashMenu = document.getElementById('slash-menu');
+    
+    contentInput.addEventListener('keyup', (e) => {
+        if(e.key === '/') {
+            const sel = window.getSelection();
+            if(sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                
+                // Position menu near cursor
+                slashMenu.style.left = `${rect.left}px`;
+                slashMenu.style.top = `${rect.bottom + 10}px`;
+                slashMenu.classList.remove('hidden');
+            }
+        } else {
+            // Hide if typing continues normally, unless checking for command logic
+            // simple version: hide on space or escape
+            if(e.key === 'Escape' || e.key === ' ') {
+                slashMenu.classList.add('hidden');
+            }
+        }
+    });
+
+    window.executeAICommand = async (command) => {
+        slashMenu.classList.add('hidden');
+        contentInput.focus();
+        
+        // Remove the slash
+        document.execCommand('delete', false, null); 
+
+        // Show loading indicator
+        document.getElementById('ai-indicator').classList.remove('hidden');
+        
+        const context = contentInput.innerText;
+        const prompt = `Act as a professional writing assistant. ${command}: ${context.substring(0, 1000)}`;
+        
+        try {
+            const result = await fetchAI(prompt, "");
+            document.execCommand('insertHTML', false, ` ${result} `);
+        } catch(e) {
+            notify("AI failed to respond", "error");
+        }
+        
+        document.getElementById('ai-indicator').classList.add('hidden');
+    };
+
+    // Close slash menu on outside click
+    document.addEventListener('click', (e) => {
+        if(!slashMenu.contains(e.target) && e.target !== contentInput) {
+            slashMenu.classList.add('hidden');
+        }
+    });
+
+    const titleInput = document.getElementById('doc-title');
     function save() {
         if(!currentProjectId || currentRole === 'viewer') return;
         document.getElementById('save-indicator').classList.remove('hidden');

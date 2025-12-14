@@ -991,7 +991,6 @@
         const emailInput = document.getElementById('email-input');
         const passInput = document.getElementById('password-input');
         const fileInput = document.getElementById('profile-pic-input');
-        // removed fileNameDisplay element reference as it was removed from DOM
 
         // Terms Overlay Elements
         const termsOverlay = document.getElementById('termsOverlay');
@@ -1003,16 +1002,15 @@
         let pendingAction = null; // 'google' or 'signup'
         let pendingSignUpData = null; // { email, password, file }
 
-        // Auto Redirect
+        // --- AUTH STATE MONITORING (UPDATED) ---
+        // We removed the auto-redirect here to ensure user must explicitly click "Sign In".
+        // This listener is now only for debug or silent internal state tracking if needed.
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // FIXED: handle undefined name
-                let displayName = user.displayName;
-                if (!displayName || displayName === 'undefined') {
-                    displayName = user.email ? user.email.split('@')[0] : 'User';
-                }
-                showNotification("Welcome back, " + displayName, "success", user.photoURL);
-                setTimeout(() => window.location.href = "home.html", 1500);
+                console.log("User is authenticated:", user.email);
+                // No auto-redirect here. 
+                // The user remains on the login screen until they click a button, 
+                // which will then simply check their state or re-auth them.
             }
         });
 
@@ -1114,11 +1112,16 @@
                 termsOverlay.classList.add('active');
 
             } else {
-                // Login directly (No terms needed for Login usually, but can add if needed)
+                // Login directly
                 emailBtn.textContent = "Signing In...";
                 emailBtn.disabled = true;
                 try {
-                    await signInWithEmailAndPassword(auth, email, password);
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    
+                    showNotification("Signed in successfully!", "success", user.photoURL);
+                    setTimeout(() => window.location.href = "home.html", 1500);
+
                 } catch (error) {
                     handleAuthError(error);
                     emailBtn.textContent = "Sign In";
@@ -1142,7 +1145,7 @@
                 document.getElementById('main-avatar-img').src = "https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=transparent&flip=true";
                 document.getElementById('avatar-tooltip').innerHTML = '<span style="font-weight: 600;">Ngawang:</span> You are invited!';
                 fileInput.value = ""; 
-                fileLabelText.innerHTML = defaultFileLabel; // Reset label text to "Upload Profile Picture"
+                fileLabelText.innerHTML = defaultFileLabel; 
             }
 
             pendingAction = null;
@@ -1156,13 +1159,23 @@
             
             try {
                 if (pendingAction === 'google') {
-                    await signInWithPopup(auth, provider);
+                    // Manual handling of Google Sign-in to ensure user interaction
+                    const result = await signInWithPopup(auth, provider);
+                    const user = result.user;
+                    
+                    // Show success feedback ONLY after user interaction
+                    showNotification("Successfully signed in!", "success", user.photoURL);
+                    setTimeout(() => { window.location.href = "home.html"; }, 1500);
+                    
                 } else if (pendingAction === 'signup') {
                     await performSignUp(pendingSignUpData);
+                    // performSignUp handles notification/redirect internally
                 }
             } catch (error) {
                 console.error(error);
                 handleAuthError(error);
+            } finally {
+                // Reset UI state
                 termsConfirm.innerText = originalText;
                 termsConfirm.style.pointerEvents = "auto";
                 termsOverlay.classList.remove('active');
@@ -1195,6 +1208,7 @@
             });
 
             showNotification("Account created successfully!", "success", photoURL);
+            setTimeout(() => window.location.href = "home.html", 1500);
         }
 
         function handleAuthError(error) {

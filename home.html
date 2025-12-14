@@ -757,6 +757,32 @@
         </div>
     </div>
 
+    <!-- NOTEBOOK -->
+    <div id="notebook-backdrop" class="backdrop" onclick="closeNotebook()"></div>
+    <div id="notebook-sheet" class="notebook-overlay overflow-hidden">
+        <div class="h-20 border-b border-[#f0f0f0] flex items-center justify-between px-8 shrink-0 bg-white">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-[#eff4ff] flex items-center justify-center text-[#0b57d0]"><i data-lucide="notebook-pen" class="w-5 h-5"></i></div>
+                <span class="google-font font-medium text-[22px] text-[#1f1f1f]">Smart Note</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="btn-use-ai" onclick="generateAiNotes()" class="hidden md:flex px-5 py-2.5 rounded-full text-sm font-bold text-[#0b57d0] bg-[#f9fafb] hover:bg-[#eff4ff] gap-2 items-center transition-colors"><i data-lucide="sparkles" class="w-4 h-4"></i> Generate Summary</button>
+                <button onclick="saveNote()" class="px-6 py-2.5 rounded-full text-sm font-bold bg-[#0b57d0] text-white hover:bg-[#0b57d0]/90 ml-2 shadow-sm">Save Note</button>
+                <button onclick="closeNotebook()" class="icon-btn"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+        </div>
+        <div class="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
+            <div class="hidden md:block w-[35%] bg-[#f9fafb] p-8 border-r border-[#eaecf0] overflow-y-auto">
+                <div class="mb-4 text-xs font-bold text-[#667085] uppercase tracking-wider">Reference Content</div>
+                <div id="notebook-source-content" class="bg-white p-6 rounded-[20px] shadow-sm border border-[#eaecf0] text-[14px] text-[#1f1f1f] leading-relaxed"></div>
+            </div>
+            <div class="w-full md:w-[65%] p-8 md:p-10 flex flex-col bg-white">
+                <input id="note-title" type="text" placeholder="Untitled Note" class="text-3xl font-medium text-[#1f1f1f] outline-none w-full mb-6 google-font placeholder-[#b0b0b0]">
+                <textarea id="note-body" placeholder="Start typing..." class="flex-1 w-full resize-none outline-none text-[17px] text-[#444746] leading-8"></textarea>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN SIDEBAR -->
     <aside id="main-sidebar" class="hidden md:flex app-panel">
         <div class="h-12 flex items-center gap-3 mb-6 px-2">
@@ -1076,7 +1102,7 @@
                 if (!userSnap.exists()) {
                     await setDoc(userRef, {
                         uid: user.uid,
-                        name: user.displayName || "User",
+                        name: user.displayName || user.email.split('@')[0],
                         email: user.email,
                         avatar: user.photoURL || `https://api.dicebear.com/9.x/notionists/svg?seed=${user.uid}`,
                         bio: "New to EduLink",
@@ -1095,6 +1121,7 @@
                 
                 listenToUsers();
                 listenToPosts();
+                listenToNotifications();
                 setupClassifier();
                 lucide.createIcons();
                 
@@ -1124,6 +1151,24 @@
                     };
                 });
                 renderFeed();
+                // If viewing a post, re-render comments
+                if(window.currentViewingPostId) renderCommentsInModal(window.currentViewingPostId);
+            });
+        }
+
+        function listenToNotifications() {
+            // Listen for notifications where receiverId is current user
+            const q = query(collection(db, "notifications"), where("receiverId", "==", auth.currentUser.uid), orderBy("timestamp", "desc"));
+            onSnapshot(q, (snapshot) => {
+                window.notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Show badge if there are unread notifications (simple check: if count > 0)
+                const badge = document.getElementById('notif-badge');
+                if(window.notifications.length > 0 && badge) badge.classList.remove('hidden');
+                
+                // If notification view is active, re-render
+                if(document.getElementById('view-notifications') && !document.getElementById('view-notifications').classList.contains('hidden')) {
+                    renderNotifications();
+                }
             });
         }
 
@@ -1199,6 +1244,7 @@
             if(viewName === 'feed') document.getElementById('nav-feed').classList.add('active');
             if(viewName === 'chat') document.getElementById('nav-chat').classList.add('active');
             if(viewName === 'saved') { document.getElementById('nav-saved').classList.add('active'); renderSaved(); }
+            if(viewName === 'notifications') renderNotifications();
             
             if(viewName === 'feed') renderFeed();
             lucide.createIcons();
@@ -1267,11 +1313,41 @@
         window.toggleLike = async function(postId) {
             const postRef = doc(db, "posts", postId);
             const post = window.posts.find(p => p.id === postId);
+            
             if(post.likes.includes(window.currentUser.id)) {
                 await updateDoc(postRef, { likes: arrayRemove(window.currentUser.id) });
             } else {
                 await updateDoc(postRef, { likes: arrayUnion(window.currentUser.id) });
+                // Send notification
+                if(post.authorId !== window.currentUser.id) {
+                    sendNotification(post.authorId, 'like', 'liked your post', postId);
+                }
             }
+        }
+
+        window.submitCommentDesktop = async function() {
+            const txt = document.getElementById('comment-input-desktop').value.trim();
+            if(!txt || !window.currentViewingPostId) return;
+            
+            const postRef = doc(db, "posts", window.currentViewingPostId);
+            const post = window.posts.find(p => p.id === window.currentViewingPostId);
+            
+            const newComment = {
+                id: "c" + Date.now(),
+                authorId: window.currentUser.id,
+                content: txt,
+                timestamp: Date.now()
+            };
+
+            await updateDoc(postRef, {
+                comments: arrayUnion(newComment)
+            });
+            
+            if(post && post.authorId !== window.currentUser.id) {
+                sendNotification(post.authorId, 'comment', 'commented on your post', window.currentViewingPostId);
+            }
+            
+            document.getElementById('comment-input-desktop').value = "";
         }
 
         window.publishPost = async function() {
@@ -1330,6 +1406,60 @@
                 showToast("Error publishing post", true);
                 document.getElementById('btn-publish').disabled = false;
             }
+        }
+
+        // --- NOTIFICATIONS ---
+        async function sendNotification(receiverId, type, content, linkId = null) {
+            await addDoc(collection(db, "notifications"), {
+                receiverId: receiverId,
+                senderId: window.currentUser.id,
+                senderName: window.currentUser.name,
+                senderAvatar: window.currentUser.avatar,
+                type: type,
+                content: content,
+                linkId: linkId,
+                timestamp: serverTimestamp(),
+                read: false
+            });
+        }
+
+        window.renderNotifications = function() {
+            const container = document.getElementById('notification-list');
+            container.innerHTML = "";
+            
+            // Just show all for now, simplified
+            if (window.notifications.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">No notifications yet</div>`;
+                return;
+            }
+
+            window.notifications.forEach(n => {
+                const div = document.createElement('div');
+                div.className = "w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100 bg-white shadow-sm mb-2";
+                
+                let icon = "";
+                if(n.type === 'like') icon = '<i data-lucide="heart" class="w-3 h-3 text-white"></i>';
+                if(n.type === 'comment') icon = '<i data-lucide="message-circle" class="w-3 h-3 text-white"></i>';
+                
+                let colorClass = n.type === 'like' ? 'bg-red-500' : 'bg-blue-600';
+
+                div.innerHTML = `
+                    <div class="relative">
+                        <img src="${n.senderAvatar}" class="w-10 h-10 rounded-full bg-gray-200">
+                        <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${colorClass} flex items-center justify-center border-2 border-white">
+                            ${icon}
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm">
+                            <span class="font-bold text-gray-900">${n.senderName}</span>
+                            <span class="text-gray-600">${n.content}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
         }
 
         // --- PROFILE ---
@@ -1405,6 +1535,7 @@
                 await updateDoc(myRef, { following: arrayUnion(userId) });
                 await updateDoc(targetRef, { followers: arrayUnion(window.currentUser.id) });
                 showToast("Following");
+                sendNotification(userId, 'like', 'started following you');
             }
             showProfile(userId);
         }
@@ -1419,8 +1550,12 @@
             
             const chatId = [window.currentUser.id, userId].sort().join("_");
             const q = query(collection(db, "chats", chatId, "messages"), orderBy("timestamp", "asc"));
+            
+            // Real-time listener for messages
             onSnapshot(q, (snapshot) => {
-                window.chats[userId] = snapshot.docs.map(d => d.data());
+                const messages = snapshot.docs.map(d => d.data());
+                // Group by chat ID or just store in window.chats
+                window.chats[userId] = messages;
                 renderMessages();
             });
             renderChatList();
@@ -1436,6 +1571,7 @@
             friends.forEach(f => {
                 const div = document.createElement('div');
                 div.className = "chat-sidebar-item";
+                if(f.id === window.activeChatUserId) div.classList.add('active');
                 div.onclick = () => startChat(f.id);
                 div.innerHTML = `<img src="${f.avatar}" class="w-6 h-6 rounded-full"><span>${f.name}</span>`;
                 list.appendChild(div);
@@ -1530,11 +1666,18 @@
         window.closePostView = () => { document.getElementById('post-view-overlay').classList.add('hidden'); };
         window.renderCommentsInModal = (pid) => {
             const post = window.posts.find(p => p.id === pid);
-            const html = (post.comments || []).map(c => `
-                <div class="flex gap-3 p-4 border-b border-gray-50">
-                    <div class="font-bold text-sm">${c.content}</div>
-                </div>`).join('');
+            const html = (post.comments || []).map(c => {
+                const author = window.users.find(u => u.id === c.authorId);
+                return `<div class="flex gap-3 p-4 border-b border-gray-50">
+                    <img src="${author ? author.avatar : ''}" class="w-8 h-8 rounded-full bg-gray-200">
+                    <div>
+                        <div class="font-bold text-sm text-gray-900">${author ? author.name : 'Unknown'}</div>
+                        <div class="text-sm text-gray-700">${c.content}</div>
+                    </div>
+                </div>`;
+            }).join('');
             document.getElementById('comments-list-desktop').innerHTML = html || '<div class="p-4 text-gray-400">No comments</div>';
+            document.getElementById('comments-list-mobile').innerHTML = html || '<div class="p-4 text-gray-400">No comments</div>';
         }
         window.showToast = (msg, err) => {
             const t = document.getElementById('toast');

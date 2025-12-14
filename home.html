@@ -1117,6 +1117,8 @@
         function listenToUsers() {
             onSnapshot(collection(db, "users"), (snapshot) => {
                 window.users = snapshot.docs.map(d => d.data());
+                // RE-RENDER FEED when users load to fix "Unknown" user issue
+                if(window.posts.length > 0) renderFeed();
             });
         }
 
@@ -1180,7 +1182,18 @@
         }
 
         window.createPostElement = (post) => {
-            const author = window.users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: 'https://via.placeholder.com/40' };
+            // First check if the author is ME (avoids wait for users list)
+            let author = null;
+            if(currentUser && post.authorId === currentUser.id) {
+                author = currentUser;
+            } else {
+                author = window.users.find(u => u.id === post.authorId);
+            }
+            
+            if (!author) {
+                author = { name: 'User', avatar: 'https://api.dicebear.com/9.x/notionists/svg?seed=' + post.authorId };
+            }
+
             const isLiked = currentUser && post.likes && post.likes.includes(currentUser.id);
             const isSaved = window.savedPosts.includes(post.id);
             const dateStr = post.timestamp?.toDate ? post.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now';

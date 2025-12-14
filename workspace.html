@@ -132,8 +132,15 @@
         .folder-content { display: none; }
         .folder-open .folder-content { display: block; }
 
+        /* Hover Controls */
+        .sidebar-item .item-actions { opacity: 0; transition: opacity 0.2s; }
         .sidebar-item:hover .item-actions { opacity: 1; }
-        .item-actions { opacity: 0; transition: opacity 0.2s; }
+        
+        .chat-row .chat-actions { opacity: 0; transition: opacity 0.2s; }
+        .chat-row:hover .chat-actions { opacity: 1; }
+
+        .reminder-item .reminder-actions { opacity: 0; transition: opacity 0.2s; }
+        .reminder-item:hover .reminder-actions { opacity: 1; }
 
         select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.4rem center; background-size: 1em; padding-right: 2rem; }
     </style>
@@ -176,7 +183,7 @@
         </div>
         <div id="team-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar pb-4"></div>
 
-        <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.3</div>
+        <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.4</div>
     </div>
 
     <!-- MAIN AREA -->
@@ -246,6 +253,15 @@
                         <div id="remote-cursors-layer" class="absolute inset-0 pointer-events-none z-10 overflow-hidden"></div>
                         <div id="doc-content" contenteditable="true" class="w-full h-full min-h-[75vh] outline-none text-[#37352F] leading-8 text-[17px] font-sans placeholder-gray-300 relative z-20" placeholder="Type '/' for AI commands..."></div>
                     </div>
+                </div>
+
+                <!-- AI Selection Menu -->
+                <div id="ai-selection-menu" class="fixed hidden bg-white border border-gray-200 shadow-xl rounded-full p-1.5 z-[200] flex gap-2 items-center animate-popIn">
+                    <div class="flex items-center gap-1.5 pl-2">
+                        <span class="text-sm">✨</span>
+                        <input id="ai-selection-input" type="text" class="text-sm outline-none w-48 text-gray-700 placeholder-gray-400 bg-transparent" placeholder="Ask AI to edit...">
+                    </div>
+                    <button id="btn-ai-submit" class="p-1.5 rounded-full hover:bg-gray-100 text-notion-blue" onclick="handleAIEdit()"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg></button>
                 </div>
 
                 <!-- Slash AI Menu -->
@@ -932,7 +948,7 @@
         if(unsubscribeChat) unsubscribeChat();
         if(unsubscribeReminders) unsubscribeReminders();
         if(unsubscribeComments) unsubscribeComments();
-        if(unsubscribeBroadcasts) unsubscribeBroadcasts();
+        // Removed local broadcast listener as it's now global
         if(unsubscribePresence) unsubscribePresence();
 
         unsubscribeDoc = onSnapshot(doc(db, "projects", id), (snap) => {
@@ -988,7 +1004,7 @@
             }
         });
 
-        loadChat(id); loadComments(id); loadReminders(id); listenForBroadcasts(id); setupPresence(id);
+        loadChat(id); loadComments(id); loadReminders(id); setupPresence(id);
     }
 
     // --- EDITOR ---
@@ -1017,8 +1033,6 @@
                 slashMenu.classList.remove('hidden');
             }
         } else {
-            // Hide if typing continues normally, unless checking for command logic
-            // simple version: hide on space or escape
             if(e.key === 'Escape' || e.key === ' ') {
                 slashMenu.classList.add('hidden');
             }
@@ -1028,11 +1042,7 @@
     window.executeAICommand = async (command) => {
         slashMenu.classList.add('hidden');
         contentInput.focus();
-        
-        // Remove the slash
         document.execCommand('delete', false, null); 
-
-        // Show loading indicator
         document.getElementById('ai-indicator').classList.remove('hidden');
         
         const context = contentInput.innerText;
@@ -1041,18 +1051,74 @@
         try {
             const result = await fetchAI(prompt, "");
             document.execCommand('insertHTML', false, ` ${result} `);
-        } catch(e) {
-            notify("AI failed to respond", "error");
-        }
-        
+        } catch(e) { notify("AI failed to respond", "error"); }
         document.getElementById('ai-indicator').classList.add('hidden');
     };
 
-    // Close slash menu on outside click
-    document.addEventListener('click', (e) => {
-        if(!slashMenu.contains(e.target) && e.target !== contentInput) {
-            slashMenu.classList.add('hidden');
+    // --- CONTEXTUAL AI EDIT MENU ---
+    document.addEventListener('selectionchange', () => {
+        const sel = window.getSelection();
+        const menu = document.getElementById('ai-selection-menu');
+        const editor = document.getElementById('editor-container');
+        
+        if (!sel.rangeCount || sel.isCollapsed || !editor.contains(sel.anchorNode)) {
+            menu.classList.add('hidden');
+            return;
         }
+
+        const range = sel.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        
+        // Don't show if empty selection
+        if (rect.width === 0) return;
+
+        menu.style.left = `${rect.left + (rect.width / 2) - 100}px`;
+        menu.style.top = `${rect.top - 50}px`;
+        menu.classList.remove('hidden');
+    });
+
+    window.handleAIEdit = async () => {
+        const input = document.getElementById('ai-selection-input');
+        const prompt = input.value.toLowerCase().trim();
+        const menu = document.getElementById('ai-selection-menu');
+        
+        if (!prompt) return;
+
+        // Smart Styling Heuristics
+        if (prompt.includes('red')) document.execCommand('foreColor', false, 'red');
+        else if (prompt.includes('blue')) document.execCommand('foreColor', false, 'blue');
+        else if (prompt.includes('green')) document.execCommand('foreColor', false, 'green');
+        else if (prompt.includes('bold')) document.execCommand('bold');
+        else if (prompt.includes('italic')) document.execCommand('italic');
+        else if (prompt.includes('underline')) document.execCommand('underline');
+        else if (prompt.includes('times')) document.execCommand('fontName', false, 'Times New Roman');
+        else if (prompt.includes('serif')) document.execCommand('fontName', false, 'serif');
+        else if (prompt.includes('sans')) document.execCommand('fontName', false, 'sans-serif');
+        else {
+            // Generative AI Edit
+            const sel = window.getSelection();
+            if (sel.rangeCount) {
+                const selectedText = sel.toString();
+                menu.classList.add('hidden'); 
+                document.getElementById('ai-indicator').classList.remove('hidden');
+                const newText = await fetchAI(prompt, selectedText);
+                document.execCommand('insertHTML', false, newText);
+                document.getElementById('ai-indicator').classList.add('hidden');
+            }
+        }
+        
+        input.value = '';
+        menu.classList.add('hidden');
+    };
+    
+    // Allow pressing enter in the AI menu input
+    document.getElementById('ai-selection-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') window.handleAIEdit();
+    });
+
+    // Close menus on outside click
+    document.addEventListener('click', (e) => {
+        if(!slashMenu.contains(e.target) && e.target !== contentInput) slashMenu.classList.add('hidden');
     });
 
     const titleInput = document.getElementById('doc-title');
@@ -1107,36 +1173,40 @@
     document.getElementById('btn-send-broadcast').addEventListener('click', async () => {
         const text = document.getElementById('broadcast-input').value.trim();
         const type = document.querySelector('input[name="bc-recipient"]:checked').value;
-        let recipients = 'all';
+        let recipients = [];
+        
         if(type === 'specific') {
             const els = document.querySelectorAll('.bc-target-user:checked');
             recipients = Array.from(els).map(el => el.value);
+        } else {
+            // Fetch all project members if 'all' is selected
+            const pDoc = await getDoc(doc(db, "projects", currentProjectId));
+            if (pDoc.exists()) {
+                recipients = pDoc.data().memberEmails;
+            }
         }
-        if(!text) return;
-        await addDoc(collection(db, `projects/${currentProjectId}/broadcasts`), { text, senderId: currentUser.uid, recipients, timestamp: serverTimestamp() });
-        window.hideModal('broadcast-compose-modal'); notify("Sent!", "success");
+
+        if(!text || recipients.length === 0) return;
+
+        // Send to individual user notification streams for global alerting
+        const batchPromises = recipients.map(async (email) => {
+            const uq = query(collection(db, "users"), where("email", "==", email));
+            const usnap = await getDocs(uq);
+            usnap.forEach(async u => {
+                await addDoc(collection(db, `users/${u.id}/notifications`), {
+                    type: 'broadcast', 
+                    text: text, 
+                    senderId: currentUser.uid, 
+                    timestamp: serverTimestamp(), 
+                    read: false 
+                });
+            });
+        });
+
+        await Promise.all(batchPromises);
+        window.hideModal('broadcast-compose-modal'); notify("Broadcast sent!", "success");
     });
     
-    function listenForBroadcasts(pid) {
-        if(unsubscribeBroadcasts) unsubscribeBroadcasts();
-        unsubscribeBroadcasts = onSnapshot(collection(db, `projects/${pid}/broadcasts`), (snap) => {
-             snap.docChanges().forEach(change => {
-                 if(change.type === 'added') {
-                     const d = change.doc.data();
-                     const now = new Date(); const msgTime = d.timestamp ? d.timestamp.toDate() : now;
-                     // Only show if message is recent (< 1 min old)
-                     if (now - msgTime < 60000) { 
-                         if(d.recipients === 'all' || (Array.isArray(d.recipients) && d.recipients.includes(currentUser.email))) {
-                             document.getElementById('broadcast-message-text').textContent = d.text;
-                             document.getElementById('broadcast-receive-overlay').classList.remove('hidden');
-                             window.playSound();
-                         }
-                     }
-                 }
-             });
-        });
-    }
-
     // --- TABS & SIDEBAR ---
     const tabs = document.querySelectorAll('[data-tab]'); const tabContents = { 'chat': document.getElementById('tab-chat'), 'comments': document.getElementById('tab-comments'), 'calendar': document.getElementById('tab-calendar'), 'ai': document.getElementById('tab-ai') };
     tabs.forEach(t => t.addEventListener('click', () => { tabs.forEach(x => { x.classList.remove('tab-active'); x.classList.add('tab-inactive'); }); t.classList.add('tab-active'); t.classList.remove('tab-inactive'); Object.values(tabContents).forEach(c => c.classList.add('hidden')); tabContents[t.dataset.tab].classList.remove('hidden'); }));
@@ -1210,7 +1280,7 @@
 
                 const isMe = m.senderId === currentUser.uid;
                 const wrap = document.createElement('div'); 
-                wrap.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} group relative`; 
+                wrap.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} group relative chat-row`; 
                 
                 let bubbleClass = isMe ? 'bg-[#EBF5FE] text-notion-text' : 'bg-white border border-gray-200 text-notion-text';
                 let extraLabel = '';
@@ -1227,7 +1297,8 @@
                     }
                 }
 
-                const menuTrigger = `<button onclick="window.openMsgMenu(event, '${d.id}', ${isMe})" class="absolute top-1/2 -translate-y-1/2 ${isMe ? '-left-6' : '-right-6'} opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-600 px-1">⋮</button>`;
+                // Note: chat-actions class used for hover visibility
+                const menuTrigger = `<button onclick="window.openMsgMenu(event, '${d.id}', ${isMe})" class="absolute top-1/2 -translate-y-1/2 ${isMe ? '-left-6' : '-right-6'} chat-actions text-gray-400 hover:text-gray-600 px-1">⋮</button>`;
 
                 wrap.innerHTML = `${menuTrigger}<div class="text-[10px] text-gray-400 ml-1 mb-0.5 flex items-center">${m.senderName} ${extraLabel}</div><div class="px-3.5 py-2.5 rounded-xl text-[14px] max-w-[90%] ${bubbleClass} shadow-sm leading-relaxed chat-content relative">${content}</div>`; 
                 div.appendChild(wrap); 
@@ -1260,7 +1331,18 @@
     // --- REMINDERS WITH OVERLAY ---
     function loadReminders(pid) { 
         if(unsubscribeReminders) unsubscribeReminders();
-        unsubscribeReminders = onSnapshot(query(collection(db, `projects/${pid}/reminders`), orderBy("due", "asc")), (snap) => { const div = document.getElementById('reminder-list'); div.innerHTML = ''; activeReminders = []; if(snap.empty) div.innerHTML = '<div class="text-center text-xs text-gray-400 py-6">No upcoming events</div>'; snap.forEach(d => { const r = d.data(); const dateObj = r.due ? r.due.toDate() : new Date(); activeReminders.push({ id: d.id, title: r.title, date: dateObj }); const item = document.createElement('div'); item.className = "flex items-center p-3 bg-blue-50/30 border border-blue-100 rounded-lg hover:bg-blue-50/60 transition relative group"; const del = document.createElement('button'); del.className="absolute top-1.5 right-1.5 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"; del.innerHTML = "&times;"; del.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `projects/${pid}/reminders`, d.id)); }; item.innerHTML = `<div class="w-12 text-center leading-tight mr-4 border-r border-blue-100 pr-4"><div class="text-[10px] text-blue-600 uppercase font-bold tracking-wide">${dateObj.toLocaleString('default', {month:'short'})}</div><div class="text-xl font-bold text-gray-800">${dateObj.getDate()}</div></div><div class="flex-1"><div class="text-[14px] font-semibold text-notion-text">${r.title}</div><div class="text-[12px] text-gray-500 mt-0.5">${dateObj.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} • ${r.addedBy}</div></div>`; item.appendChild(del); div.appendChild(item); }); }); 
+        unsubscribeReminders = onSnapshot(query(collection(db, `projects/${pid}/reminders`), orderBy("due", "asc")), (snap) => { 
+            const div = document.getElementById('reminder-list'); div.innerHTML = ''; activeReminders = []; 
+            if(snap.empty) div.innerHTML = '<div class="text-center text-xs text-gray-400 py-6">No upcoming events</div>'; 
+            snap.forEach(d => { 
+                const r = d.data(); const dateObj = r.due ? r.due.toDate() : new Date(); activeReminders.push({ id: d.id, title: r.title, date: dateObj }); 
+                const item = document.createElement('div'); 
+                item.className = "flex items-center p-3 bg-blue-50/30 border border-blue-100 rounded-lg hover:bg-blue-50/60 transition relative group reminder-item"; 
+                // reminder-actions for hover logic
+                const del = document.createElement('button'); del.className="absolute top-1.5 right-1.5 text-gray-300 hover:text-red-500 reminder-actions p-1"; del.innerHTML = "&times;"; del.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `projects/${pid}/reminders`, d.id)); }; 
+                item.innerHTML = `<div class="w-12 text-center leading-tight mr-4 border-r border-blue-100 pr-4"><div class="text-[10px] text-blue-600 uppercase font-bold tracking-wide">${dateObj.toLocaleString('default', {month:'short'})}</div><div class="text-xl font-bold text-gray-800">${dateObj.getDate()}</div></div><div class="flex-1"><div class="text-[14px] font-semibold text-notion-text">${r.title}</div><div class="text-[12px] text-gray-500 mt-0.5">${dateObj.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} • ${r.addedBy}</div></div>`; item.appendChild(del); div.appendChild(item); 
+            }); 
+        }); 
     }
     function checkReminders() {
         const now = new Date();
@@ -1287,7 +1369,7 @@
     document.getElementById('btn-cancel-profile').addEventListener('click', () => window.hideModal('profile-modal'));
     document.getElementById('btn-save-profile').addEventListener('click', async () => { const newName = document.getElementById('edit-display-name').value.trim(); if(!newName) return; try { await updateProfile(currentUser, { displayName: newName }); await updateDoc(doc(db, "users", currentUser.uid), { displayName: newName }); updateUserUI(); notify("Profile updated successfully", "success"); window.hideModal('profile-modal'); } catch(e) { notify("Failed to update profile", "error"); } });
     
-    // --- NOTIFICATIONS & INVITES ---
+    // --- NOTIFICATIONS & INVITES & GLOBAL BROADCASTS ---
     document.getElementById('btn-notifications').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('notification-popover').classList.toggle('hidden'); document.getElementById('notif-badge').classList.add('hidden'); });
     document.addEventListener('click', (e) => { if(!document.getElementById('btn-notifications').contains(e.target) && !document.getElementById('notification-popover').contains(e.target)) { document.getElementById('notification-popover').classList.add('hidden'); } });
     function loadUserNotifications() {
@@ -1297,6 +1379,20 @@
             if(snap.empty) { list.innerHTML = '<div class="p-8 text-center text-gray-400 text-sm italic">No new notifications</div>'; return; }
             list.innerHTML = '';
             let hasUnread = false;
+            snap.docChanges().forEach(change => {
+                if(change.type === 'added') {
+                    const n = change.doc.data();
+                    // Handle Global Broadcast Alert
+                    if (n.type === 'broadcast' && !n.read) {
+                        // Play sound even if not focusing
+                        window.playSound();
+                        document.getElementById('broadcast-message-text').textContent = n.text;
+                        document.getElementById('broadcast-receive-overlay').classList.remove('hidden');
+                        updateDoc(doc(db, `users/${currentUser.uid}/notifications`, change.doc.id), { read: true });
+                    }
+                }
+            });
+
             snap.forEach(d => {
                 const n = d.data();
                 const item = document.createElement('div');
@@ -1312,9 +1408,9 @@
                     actions = `<div class="mt-2 flex gap-2"><button onclick="window.acceptTeam('${n.teamId}', '${d.id}')" class="px-3 py-1 bg-blue-600 text-white rounded text-xs">Accept</button><button onclick="window.declineTeam('${d.id}')" class="px-3 py-1 bg-gray-200 text-gray-700 rounded text-xs">Decline</button></div>`;
                 }
 
-                item.innerHTML = `${icon}<div class="flex-1 pr-4"><div class="font-semibold text-notion-text leading-tight text-[14px]">${n.title || "Notification"}</div><div class="text-gray-500 mt-1 leading-relaxed text-[13px]">${n.text}</div>${actions}<div class="text-[11px] text-gray-400 mt-2 font-medium">${n.timestamp?.toDate().toLocaleDateString() || ""}</div></div>`;
+                item.innerHTML = `${icon}<div class="flex-1 pr-4"><div class="font-semibold text-notion-text leading-tight text-[14px]">${n.title || (n.type === 'broadcast' ? 'Announcement' : 'Notification')}</div><div class="text-gray-500 mt-1 leading-relaxed text-[13px]">${n.text}</div>${actions}<div class="text-[11px] text-gray-400 mt-2 font-medium">${n.timestamp?.toDate().toLocaleDateString() || ""}</div></div>`;
                 item.appendChild(delBtn); list.appendChild(item);
-                if(!n.read) { updateDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id), { read: true }); }
+                if(!n.read && n.type !== 'broadcast') { updateDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id), { read: true }); }
             });
             if(hasUnread) document.getElementById('notif-badge').classList.remove('hidden');
         });

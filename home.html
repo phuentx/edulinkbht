@@ -36,13 +36,11 @@
         * { scrollbar-width: none; -ms-overflow-style: none; }
         *::-webkit-scrollbar { width: 0px; background: transparent; display: none; }
         
-        /* Prevent icon squishing globally */
         i[data-lucide], svg { flex-shrink: 0; }
 
-        .fade-in { animation: fadeUp 0.4s cubic-bezier(0.2, 0, 0, 1) forwards; opacity: 0; transform: translateY(10px); }
+        .fade-in { animation: fadeUp 0.3s cubic-bezier(0.2, 0, 0, 1) forwards; opacity: 0; transform: translateY(10px); }
         @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-        /* --- UNIFIED PANEL STYLES --- */
         .app-panel {
             background: #ffffff;
             border-radius: 20px;
@@ -55,167 +53,38 @@
             transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
         }
 
-        /* Mobile Adjustments */
         @media (max-width: 768px) {
-            .app-panel {
-                border-radius: 0 !important;
-                border: none !important;
-                box-shadow: none !important;
-            }
-            body {
-                padding: 0 !important;
-                background-color: #fff;
-            }
-            #workspace-layout {
-                gap: 0 !important;
-            }
+            .app-panel { border-radius: 0 !important; border: none !important; box-shadow: none !important; }
+            body { padding: 0 !important; background-color: #fff; }
+            #workspace-layout { gap: 0 !important; }
         }
 
-        /* --- SIDEBAR --- */
-        #main-sidebar {
-            width: 88px;
-            flex-shrink: 0;
-            padding: 24px 12px;
-            transition: width 0.3s cubic-bezier(0.2, 0, 0, 1), padding 0.3s ease;
-        }
+        #main-sidebar { width: 88px; flex-shrink: 0; padding: 24px 12px; transition: width 0.3s ease; }
+        @media (min-width: 1024px) { #main-sidebar { width: 260px; padding: 24px 20px; } }
 
-        @media (min-width: 1024px) {
-            #main-sidebar {
-                width: 260px; 
-                padding: 24px 20px;
-            }
-        }
-
-        .nav-item {
-            display: flex; align-items: center; gap: 14px;
-            padding: 12px; 
-            color: #667085;
-            font-weight: 500;
-            font-size: 15px;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            text-decoration: none;
-            margin-bottom: 4px;
-            justify-content: center;
-        }
-
-        .nav-item:hover {
-            color: #1f1f1f;
-            background-color: #f3f4f6;
-        }
-
-        .nav-item.active {
-            color: #0b57d0;
-            background-color: #eff4ff;
-            font-weight: 600;
-        }
-
-        @media (min-width: 1024px) {
-            .nav-item {
-                justify-content: flex-start;
-                padding: 10px 16px; 
-            }
-        }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 12px; color: #667085; font-weight: 500; font-size: 15px; border-radius: 12px; transition: all 0.2s ease; cursor: pointer; text-decoration: none; margin-bottom: 4px; justify-content: center; position: relative; }
+        .nav-item:hover { color: #1f1f1f; background-color: #f3f4f6; }
+        .nav-item.active { color: #0b57d0; background-color: #eff4ff; font-weight: 600; }
+        @media (min-width: 1024px) { .nav-item { justify-content: flex-start; padding: 10px 16px; } }
         
-        .sidebar-user {
-            display: flex; align-items: center; gap: 12px;
-            padding: 8px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            justify-content: center;
-        }
+        .sidebar-user { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 12px; cursor: pointer; transition: background-color 0.2s; justify-content: center; }
         .sidebar-user:hover { background-color: #f9fafb; }
+        @media (min-width: 1024px) { .sidebar-user { justify-content: flex-start; padding: 8px 12px; } }
         
-        @media (min-width: 1024px) {
-            .sidebar-user { justify-content: flex-start; padding: 8px 12px; }
-        }
-        
-        .create-btn {
-            display: flex; 
-            align-items: center; 
-            justify-content: flex-start; 
-            gap: 12px;
-            background: #1f1f1f;
-            color: white;
-            padding: 12px 20px; 
-            border-radius: 12px;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            width: 100%;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            line-height: 1; 
-            min-width: 0;
-            white-space: nowrap;
-        }
-        
-        .create-btn:hover {
-            background: #000;
-            transform: translateY(-1px);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-        }
+        .create-btn { display: flex; align-items: center; justify-content: flex-start; gap: 12px; background: #1f1f1f; color: white; padding: 12px 20px; border-radius: 12px; font-weight: 500; font-size: 14px; transition: all 0.2s ease; width: 100%; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); white-space: nowrap; }
+        .create-btn:hover { background: #000; transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
 
-        /* --- POST CARD DESIGN (Twitter-Style Full Width) --- */
-        .post-card { 
-            background: white; 
-            border-bottom: 1px solid var(--outline); 
-            border-radius: 0; 
-            transition: background-color 0.2s ease; 
-            margin-bottom: 0;
-            box-shadow: none;
-            overflow: visible;
-        }
-        .post-card:hover { 
-            background-color: #f8fafe; 
-            cursor: pointer; 
-            transform: none;
-        }
-        
-        .post-header {
-            display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;
-        }
-
-        .post-avatar-container {
-            position: relative;
-        }
-        .post-avatar {
-            width: 44px; height: 44px;
-            border-radius: 50%;
-            background-color: #f3f4f6;
-            border: 1px solid #eaecf0;
-            object-fit: cover;
-        }
-        
-        .post-author-name {
-            font-weight: 700; font-size: 15px; color: #1f1f1f;
-            line-height: 1.2;
-        }
+        .post-card { background: white; border-bottom: 1px solid var(--outline); border-radius: 0; transition: background-color 0.2s ease; margin-bottom: 0; box-shadow: none; overflow: visible; }
+        .post-card:hover { background-color: #f8fafe; cursor: pointer; }
+        .post-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+        .post-avatar { width: 44px; height: 44px; border-radius: 50%; background-color: #f3f4f6; border: 1px solid #eaecf0; object-fit: cover; }
+        .post-author-name { font-weight: 700; font-size: 15px; color: #1f1f1f; line-height: 1.2; }
         .post-author-name:hover { text-decoration: underline; color: #0b57d0; }
-        
-        .post-meta {
-            font-size: 12px; color: #667085; margin-top: 3px; font-weight: 500;
-        }
+        .post-meta { font-size: 12px; color: #667085; margin-top: 3px; font-weight: 500; }
+        .post-body { font-size: 15px; line-height: 1.6; color: #374151; margin-bottom: 16px; }
+        .post-actions { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid #f2f4f7; }
 
-        .post-body {
-            font-size: 15px; line-height: 1.6; color: #374151;
-            margin-bottom: 16px;
-        }
-        
-        .post-actions {
-            display: flex; align-items: center; justify-content: space-between;
-            padding-top: 14px; border-top: 1px solid #f2f4f7;
-        }
-
-        .action-btn {
-            display: flex; align-items: center; gap: 6px;
-            padding: 8px 12px; border-radius: 10px;
-            color: #667085; font-size: 13px; font-weight: 600;
-            transition: all 0.2s;
-            background: transparent; border: none; cursor: pointer;
-        }
+        .action-btn { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 10px; color: #667085; font-size: 13px; font-weight: 600; transition: all 0.2s; background: transparent; border: none; cursor: pointer; }
         .action-btn:hover { background-color: #f9fafb; color: #1f1f1f; }
         .action-btn.like:hover { background-color: #fff1f2; color: #e11d48; }
         .action-btn.comment:hover { background-color: #eff6ff; color: #2563eb; }
@@ -223,300 +92,46 @@
         .action-btn.ai-pin { color: #0b57d0; background-color: #eff6ff; } 
         .action-btn.ai-pin:hover { background-color: #dbeafe; }
 
-        .code-preview {
-            background: #111827; border-radius: 16px; overflow: hidden;
-            border: 1px solid #1f2937; margin-top: 16px; margin-bottom: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .code-preview-header {
-            padding: 10px 16px; background: #1f2937; border-bottom: 1px solid #374151;
-            display: flex; align-items: center; gap: 6px;
-        }
-        .window-dot { width: 10px; height: 10px; border-radius: 50%; }
-        
-        /* --- COMPOSE & CREATE MENUS --- */
-        #compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal {
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            border: 1px solid #eaecf0;
-        }
-        
-        .compose-header {
-            display: flex; align-items: center; justify-content: space-between;
-            padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid #f0f0f0;
-        }
-        .compose-title { font-size: 18px; font-weight: 600; color: #1f1f1f; font-family: 'Google Sans', sans-serif; }
-
-        .compose-user-area {
-            display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
-        }
-        
-        .compose-textarea {
-            width: 100%; min-height: 120px;
-            font-size: 17px; line-height: 1.6;
-            color: #1f1f1f; placeholder-color: #98a2b3;
-            border: none; outline: none; resize: none;
-            background: transparent;
-        }
-
-        .compose-tools {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-top: 16px; padding-top: 16px; border-top: 1px solid #f0f0f0;
-        }
-
-        .tool-group { display: flex; gap: 4px; }
-        
-        .tool-btn {
-            width: 40px; height: 40px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: #444746; transition: background 0.2s; cursor: pointer;
-        }
+        #compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal { box-shadow: 0 20px 60px rgba(0,0,0,0.15); border: 1px solid #eaecf0; }
+        .compose-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid #f0f0f0; }
+        .compose-textarea { width: 100%; min-height: 120px; font-size: 17px; line-height: 1.6; color: #1f1f1f; border: none; outline: none; resize: none; background: transparent; }
+        .compose-tools { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 1px solid #f0f0f0; }
+        .tool-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #444746; transition: background 0.2s; cursor: pointer; }
         .tool-btn:hover { background-color: #f3f4f6; color: #1f1f1f; }
 
-        /* Create Menu Specific */
-        .create-option-card {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 24px; border-radius: 16px; border: 1px solid #eaecf0;
-            background: #fff; cursor: pointer; transition: all 0.2s;
-            gap: 12px;
-        }
-        .create-option-card:hover {
-            border-color: #0b57d0; background: #eff4ff; transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(11, 87, 208, 0.1);
-        }
-        .create-icon-bg {
-            width: 56px; height: 56px; border-radius: 50%; background: #f3f4f6;
-            display: flex; align-items: center; justify-content: center; color: #1f1f1f;
-            margin-bottom: 8px; transition: background 0.2s;
-        }
+        .create-option-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; border-radius: 16px; border: 1px solid #eaecf0; background: #fff; cursor: pointer; transition: all 0.2s; gap: 12px; }
+        .create-option-card:hover { border-color: #0b57d0; background: #eff4ff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(11, 87, 208, 0.1); }
+        .create-icon-bg { width: 56px; height: 56px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #1f1f1f; margin-bottom: 8px; transition: background 0.2s; }
         .create-option-card:hover .create-icon-bg { background: #d3e3fd; color: #0b57d0; }
 
-        /* Notion Style Event Form */
-        .notion-input-row {
-            display: flex; align-items: center; gap: 12px; padding: 8px 0;
-            color: #374151; font-size: 15px;
-        }
-        .notion-label {
-            width: 100px; color: #667085; display: flex; align-items: center; gap: 6px; font-size: 14px;
-        }
-        .notion-input {
-            flex: 1; border: none; outline: none; background: transparent;
-            font-size: 15px; color: #1f1f1f;
-        }
-        .notion-input:focus { background: #f9fafb; border-radius: 4px; }
+        .gemini-input-wrapper { background-color: #f3f4f6; border-radius: 24px; transition: all 0.3s; border: 1px solid transparent; display: flex; flex-direction: column; min-height: 52px; }
+        .gemini-input-wrapper:focus-within { background-color: #ffffff; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px #e3e3e3; }
         
-        .media-preview-wrapper {
-            margin-top: 12px; position: relative; 
-            width: 100%; background: #f8f9fa; border-radius: 12px;
-            overflow: hidden; border: 1px solid #eaecf0;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .media-preview-content {
-            width: 100%; height: auto; max-height: 400px;
-            object-fit: contain; display: block;
-        }
-
-        /* --- OTHER --- */
-        .gemini-input-wrapper {
-            background-color: #f3f4f6; 
-            border-radius: 24px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid transparent;
-            display: flex; flex-direction: column;
-            min-height: 52px;
-        }
-        .gemini-input-wrapper:focus-within {
-            background-color: #ffffff;
-            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px #e3e3e3; 
-        }
-        .gemini-input-wrapper.search-active { background-color: #fff; box-shadow: 0 0 20px rgba(11, 87, 208, 0.1), 0 0 0 1.5px #c2e7ff; }
-        .gemini-input-wrapper.idea-active { background-color: #fff; box-shadow: 0 0 20px rgba(192, 132, 252, 0.1), 0 0 0 1.5px #e8d5fc; }
-
-        .gemini-code-container { border-radius: 12px; overflow: hidden; margin: 20px 0; border: 1px solid #444746; background: #1e1f20; }
-        .gemini-code-header { background: #2f3033; padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444746; font-size: 13px; color: #e3e3e3; font-family: 'Google Sans', sans-serif; font-weight: 500; }
-        .gemini-code-btn { display: flex; align-items: center; gap: 6px; color: #e3e3e3; cursor: pointer; padding: 6px 10px; border-radius: 6px; transition: background 0.2s; }
-        .gemini-code-btn:hover { background: rgba(255,255,255,0.1); }
-        pre { background: #1e1f20; padding: 20px; color: #e3e3e3; overflow-x: auto; font-family: 'Consolas', monospace; font-size: 0.95rem; margin: 0; }
-        .code-keyword { color: #ffab91; } .code-function { color: #81c784; } 
-
-        .feed-panel { flex: 1; min-width: 0; order: 1; }
         .ai-panel { width: 100%; flex-shrink: 0; order: 2; }
         @media (min-width: 1280px) { .ai-panel { width: 440px; } }
-
-        /* Focus Mode Logic - Sidebar stays standard, Feed is hidden, AI Panel expands */
-        #workspace-layout.swapped { justify-content: flex-start;  padding-left: 0; gap: 20px; }
-        /* Hide middle panel when swapped to focus on Newton */
         #workspace-layout.swapped #main-panel { display: none !important; }
-        /* When swapped (focused), AI panel takes remaining width next to sidebar */
-        .swapped .ai-panel { 
-            flex: 1; 
-            width: 100% !important;
-            max-width: none; 
-            order: 1;  
-            border: 2px solid #a8c7fa;  
-            box-shadow: 0 12px 40px rgba(11, 87, 208, 0.1); 
-        }
+        .swapped .ai-panel { flex: 1; width: 100% !important; max-width: none; order: 1; border: 2px solid #a8c7fa; box-shadow: 0 12px 40px rgba(11, 87, 208, 0.1); }
         
-        .plus-menu {
-            position: absolute; bottom: 140px; left: 20px; background: white; border: 1px solid #eaecf0;
-            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 200px; display: flex; flex-direction: column; padding: 6px;
-            z-index: 50; transform-origin: bottom left; transform: scale(0.95); opacity: 0; pointer-events: none; transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-        }
-        .plus-menu.active { transform: scale(1); opacity: 1; pointer-events: auto; }
-
-        .model-menu {
-            position: absolute; top: 50px; right: 60px; background: white; border: 1px solid #eaecf0;
-            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 220px; display: flex; flex-direction: column; padding: 6px;
-            z-index: 100; transform-origin: top right; transform: scale(0.95); opacity: 0; pointer-events: none; transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-        }
-        .model-menu.active { transform: scale(1); opacity: 1; pointer-events: auto; }
-
-        .menu-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: #1f1f1f; font-size: 14px; font-weight: 500; transition: background 0.1s; }
-        .menu-item:hover { background: #f9fafb; }
-        .menu-item.active-item { background: #eff4ff; color: #0b57d0; }
-
-        .idea-container { border: 1px solid #eaecf0; border-radius: 20px; overflow: hidden; margin-bottom: 16px; transition: all 0.3s ease; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
-        .idea-header { padding: 18px; background: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid transparent; }
-        .idea-body { padding: 0; height: 0; overflow: hidden; opacity: 0; transition: all 0.3s ease; }
-        .idea-container.expanded { border-color: #c2e7ff; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
-        .idea-container.expanded .idea-body { height: auto; padding: 24px; opacity: 1; }
-        .idea-container.expanded .idea-header { border-bottom: 1px solid #f0f0f0; background: #f9fafb; }
-
-        .roadmap-container { position: relative; margin-left: 10px; border-left: 2px solid #eaecf0; padding-bottom: 8px; margin-top: 10px; }
-        .roadmap-step { position: relative; padding-left: 32px; margin-bottom: 24px; }
-        .roadmap-step:last-child { margin-bottom: 0; }
-        .roadmap-dot { position: absolute; left: -13px; top: 0; width: 24px; height: 24px; background: white; border: 2px solid #0b57d0; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #0b57d0; font-size: 11px; font-weight: 700; z-index: 2; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .roadmap-content { background: #f9fafb; padding: 14px 18px; border-radius: 12px; border: 1px solid #eaecf0; transition: background 0.2s; }
-        
-        .website-link { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: white; border: 1px solid #eaecf0; border-radius: 20px; color: #1f1f1f; font-size: 13px; font-weight: 500; transition: all 0.2s; text-decoration: none; }
-        .website-link:hover { background: #f9fafb; border-color: #d3e3fd; transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-        .website-link img { width: 16px; height: 16px; border-radius: 3px; }
-
-        .google-panel { background: #ffffff; border-radius: 20px; padding: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #eaecf0; margin-bottom: 20px; overflow: hidden; }
-        .search-summary-section { background: #f9fafb; padding: 24px; border-bottom: 1px solid #eaecf0; }
-        .search-grid { display: grid; grid-template-columns: 1fr; gap: 0px; }
-        .search-card { background: #fff; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; transition: background 0.1s; cursor: pointer; text-decoration: none; display: block; }
-        .search-card:hover { background: #f9fafb; }
-        .search-favicon { width: 24px; height: 24px; border-radius: 50%; background: #f3f4f6; padding: 2px; object-fit: contain; }
-
-        .notebook-overlay { position: fixed; bottom: 0; left: 50%; width: 96%; max-width: 1200px; height: 92vh; background: white; border-top-left-radius: 32px; border-top-right-radius: 32px; box-shadow: 0 -10px 40px rgba(0,0,0,0.05); z-index: 100; transform: translate(-50%, 110%); transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1); display: flex; flex-direction: column; }
-        .notebook-active { transform: translate(-50%, 0); }
-        .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.2); backdrop-filter: blur(2px); z-index: 90; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-        .backdrop.active { opacity: 1; pointer-events: auto; }
+        .plus-menu, .model-menu, .post-options-menu { position: absolute; background: white; border: 1px solid #eaecf0; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); z-index: 50; opacity: 0; pointer-events: none; transition: all 0.2s; padding: 6px; transform: scale(0.95); }
+        .plus-menu.active, .model-menu.active, .post-options-menu.active { transform: scale(1); opacity: 1; pointer-events: auto; }
+        .menu-item, .post-option-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: #1f1f1f; font-size: 14px; font-weight: 500; }
+        .menu-item:hover, .post-option-item:hover { background: #f9fafb; }
         
         .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: #303134; color: #f2f2f2; padding: 14px 28px; border-radius: 48px; font-size: 15px; opacity: 0; pointer-events: none; transition: all 0.3s; z-index: 200; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         
-        .icon-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s; cursor: pointer; color: #667085; }
-        .icon-btn:hover { background-color: #f3f4f6; color: #1f1f1f; }
-        
-        .hashtag { color: #0b57d0; font-weight: 500; cursor: pointer; padding: 2px 6px; border-radius: 6px; }
-        .hashtag:hover { background: #eff4ff; }
-
-        /* --- POST MENU STYLES --- */
-        .post-options-menu {
-            position: absolute;
-            background: white;
-            border: 1px solid #eaecf0;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            width: 160px;
-            z-index: 50;
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(0.95);
-            transition: all 0.1s ease-out;
-            padding: 6px;
-        }
-        .post-options-menu.active {
-            opacity: 1;
-            pointer-events: auto;
-            transform: scale(1);
-        }
-        .post-option-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            font-size: 14px;
-            color: #374151;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: background 0.1s;
-            font-weight: 500;
-        }
-        .post-option-item:hover {
-            background: #f3f4f6;
-            color: #1f1f1f;
-        }
-        .post-option-item.danger {
-            color: #d92d20;
-        }
-        .post-option-item.danger:hover {
-            background: #fef2f2;
-            color: #b91c1c;
-        }
-
-        /* --- NOTIFICATION TABS (Refined) --- */
-        .tab-group { 
-            display: inline-flex; 
-            background: #f3f4f6; 
-            padding: 4px; 
-            border-radius: 12px; 
-            width: auto;
-            border: 1px solid #eaecf0;
-        }
-        .tab-btn { 
-            padding: 8px 20px; 
-            font-size: 13px; 
-            font-weight: 600; 
-            color: #667085; 
-            border-radius: 8px; 
-            transition: all 0.2s ease; 
-            cursor: pointer;
-            background: transparent;
-        }
-        .tab-btn:hover {
-            color: #1f1f1f;
-        }
-        .tab-btn.active { 
-            background: #ffffff; 
-            color: #0b57d0; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08); 
-        }
-
-        /* --- UPDATED CHAT STYLES (Notion Style) --- */
-        .chat-sidebar-item { 
-            display: flex; align-items: center; gap: 10px; padding: 8px 12px; 
-            margin: 2px 8px; border-radius: 6px; cursor: pointer; color: #37352f; 
-            transition: background 0.1s; font-size: 14px; font-weight: 500;
-        }
+        .chat-sidebar-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; margin: 2px 8px; border-radius: 6px; cursor: pointer; color: #37352f; transition: background 0.1s; font-size: 14px; font-weight: 500; }
         .chat-sidebar-item:hover { background: #efefef; }
         .chat-sidebar-item.active { background: #e0e0e0; color: #1f1f1f; }
+        .chat-bubble-me { background: #0b57d0; color: white; padding: 8px 14px; border-radius: 10px; font-size: 15px; max-width: 70%; align-self: flex-end; margin-bottom: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .chat-bubble-them { background: #f2f3f5; color: #37352f; padding: 8px 14px; border-radius: 10px; font-size: 15px; max-width: 70%; align-self: flex-start; margin-bottom: 6px; }
 
-        .chat-bubble-me { 
-            background: #0b57d0; color: white; 
-            padding: 8px 14px; border-radius: 10px; 
-            font-size: 15px; max-width: 70%; align-self: flex-end; 
-            margin-bottom: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        .chat-bubble-them { 
-            background: #f2f3f5; color: #37352f; 
-            padding: 8px 14px; border-radius: 10px; 
-            font-size: 15px; max-width: 70%; align-self: flex-start; 
-            margin-bottom: 6px; 
-        }
-        .chat-date-divider { text-align: center; font-size: 11px; color: #9ca3af; margin: 16px 0; font-weight: 500; }
-
-        .mobile-nav-item {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100%; flex: 1; gap: 4px; color: #98a2b3; transition: all 0.2s; cursor: pointer;
-        }
+        .mobile-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; flex: 1; gap: 4px; color: #98a2b3; transition: all 0.2s; cursor: pointer; position: relative; }
         .mobile-nav-item.active { color: #0b57d0; }
-        .mobile-nav-item i { width: 24px; height: 24px; transition: transform 0.2s; }
-        .mobile-nav-item.active i { transform: scale(1.1); stroke-width: 2.5px; }
-
-        .scale-in { animation: scaleIn 0.3s cubic-bezier(0.2, 0, 0, 1) forwards; }
-        @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .red-dot { position: absolute; top: 10px; right: 20px; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid white; display: none; }
+        .red-dot.show { display: block; }
+        .sidebar-red-dot { width: 8px; height: 8px; background: #ef4444; border-radius: 50%; position: absolute; top: 8px; right: 10px; display: none; }
+        .sidebar-red-dot.show { display: block; }
 
     </style>
 <script type="importmap">
@@ -534,10 +149,9 @@
 
 <body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
 
-    <!-- Post Options Global Menu -->
     <div id="global-post-menu" class="post-options-menu"></div>
 
-    <!-- Post View Overlay -->
+    <!-- POST VIEW OVERLAY (Comments) -->
     <div id="post-view-overlay" class="fixed inset-0 z-[60] hidden flex justify-center items-end md:items-center">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closePostView()"></div>
         <div class="bg-white w-full md:w-[1000px] h-[95vh] md:h-[85vh] md:rounded-2xl rounded-t-2xl shadow-2xl relative flex flex-col md:flex-row transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in">
@@ -550,7 +164,8 @@
                  </div>
                  <div id="post-view-scroll" class="flex-1 overflow-y-auto p-0 scroll-smooth">
                     <div id="injected-post" class="p-6 md:p-8"></div>
-                    <div id="mobile-comments-section" class="md:hidden border-t border-gray-100">
+                    <!-- Mobile Comments -->
+                    <div class="md:hidden border-t border-gray-100">
                         <div class="p-4 bg-gray-50/50">
                             <h4 class="text-sm font-bold text-gray-800 mb-4">Comments</h4>
                             <div id="comments-list-mobile"></div>
@@ -560,11 +175,14 @@
                  <div class="md:hidden border-t border-gray-100 p-3 bg-white shrink-0 sticky bottom-0 z-20">
                      <div class="flex gap-3 items-center">
                         <img src="" id="comment-input-avatar-mobile" class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200">
-                        <div class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm text-gray-500">Add a comment...</div>
-                        <button class="text-[#0b57d0] font-bold text-sm">Post</button>
+                        <div class="flex-1 relative">
+                            <input id="comment-input-mobile" type="text" class="w-full bg-gray-100 rounded-full px-4 py-2 text-sm text-gray-800 outline-none" placeholder="Add a comment...">
+                        </div>
+                        <button onclick="submitComment('mobile')" class="text-[#0b57d0] font-bold text-sm">Post</button>
                      </div>
                  </div>
              </div>
+             <!-- Desktop Comments Panel -->
              <div class="hidden md:flex w-[40%] flex-col h-full bg-[#fff]">
                  <div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white">
                      <span class="font-bold text-[#1f1f1f]">Comments</span>
@@ -577,10 +195,8 @@
                         <div class="flex-1">
                             <textarea id="comment-input-desktop" placeholder="Add a comment..." class="w-full bg-transparent outline-none text-[14px] text-gray-800 placeholder-gray-500 resize-none min-h-[40px] py-1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
                             <div class="flex justify-between items-center mt-2 pt-2 border-t border-gray-200/60">
-                                <div class="flex gap-1">
-                                    <button class="p-2 rounded-full hover:bg-gray-200 text-gray-500 transition-colors"><i data-lucide="smile" class="w-4 h-4"></i></button>
-                                </div>
-                                <button onclick="submitCommentDesktop()" class="bg-[#0b57d0] text-white px-5 py-1.5 rounded-full text-[13px] font-bold hover:bg-blue-700 transition-all shadow-sm hover:shadow active:scale-95">Post</button>
+                                <div class="flex gap-1"></div>
+                                <button onclick="submitComment('desktop')" class="bg-[#0b57d0] text-white px-5 py-1.5 rounded-full text-[13px] font-bold hover:bg-blue-700 transition-all shadow-sm">Post</button>
                             </div>
                         </div>
                     </div>
@@ -589,6 +205,7 @@
         </div>
     </div>
 
+    <!-- Lightbox -->
     <div id="lightbox" class="fixed inset-0 bg-black/95 z-[9999] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300" onclick="closeLightbox()">
         <button class="absolute top-8 right-8 text-white/70 hover:text-white bg-white/10 rounded-full p-3 hover:bg-white/20"><i data-lucide="x" class="w-8 h-8"></i></button>
         <div id="lightbox-wrapper" class="w-full h-full flex justify-center items-center p-6"></div>
@@ -717,11 +334,11 @@
                 <img id="compose-avatar" src="" class="w-10 h-10 rounded-full border border-gray-100 bg-gray-50 object-cover">
                 <div>
                     <div id="compose-name" class="text-[15px] font-bold text-[#1f1f1f]">User</div>
-                    <div class="relative mt-1" onclick="event.stopPropagation()">
-                        <button class="flex items-center gap-1.5 text-xs bg-gray-100 rounded-md py-1.5 px-3 text-gray-700 font-medium">
+                    <div class="relative mt-1">
+                        <div class="flex items-center gap-1.5 text-xs bg-gray-100 rounded-md py-1.5 px-3 text-gray-700 font-medium">
                             <i data-lucide="globe" class="w-3.5 h-3.5"></i>
                             <span>Public</span>
-                        </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -738,35 +355,8 @@
                 <div class="tool-group">
                     <button onclick="document.getElementById('media-input').click()" class="tool-btn" title="Add Media"><i data-lucide="image" class="w-5 h-5"></i></button>
                     <button onclick="insertCodeBlock()" class="tool-btn" title="Add Code"><i data-lucide="code-2" class="w-5 h-5"></i></button>
-                    <button class="tool-btn" title="More"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
                 </div>
                 <button id="btn-publish" onclick="publishPost()" class="bg-[#0b57d0] text-white px-6 py-2 rounded-full font-bold text-[15px] hover:bg-[#0b57d0]/90 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed">Post</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- NOTEBOOK -->
-    <div id="notebook-backdrop" class="backdrop" onclick="closeNotebook()"></div>
-    <div id="notebook-sheet" class="notebook-overlay overflow-hidden">
-        <div class="h-20 border-b border-[#f0f0f0] flex items-center justify-between px-8 shrink-0 bg-white">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-full bg-[#eff4ff] flex items-center justify-center text-[#0b57d0]"><i data-lucide="notebook-pen" class="w-5 h-5"></i></div>
-                <span class="google-font font-medium text-[22px] text-[#1f1f1f]">Smart Note</span>
-            </div>
-            <div class="flex items-center gap-3">
-                <button id="btn-use-ai" onclick="generateAiNotes()" class="hidden md:flex px-5 py-2.5 rounded-full text-sm font-bold text-[#0b57d0] bg-[#f9fafb] hover:bg-[#eff4ff] gap-2 items-center transition-colors"><i data-lucide="sparkles" class="w-4 h-4"></i> Generate Summary</button>
-                <button onclick="saveNote()" class="px-6 py-2.5 rounded-full text-sm font-bold bg-[#0b57d0] text-white hover:bg-[#0b57d0]/90 ml-2 shadow-sm">Save Note</button>
-                <button onclick="closeNotebook()" class="icon-btn"><i data-lucide="x" class="w-6 h-6"></i></button>
-            </div>
-        </div>
-        <div class="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
-            <div class="hidden md:block w-[35%] bg-[#f9fafb] p-8 border-r border-[#eaecf0] overflow-y-auto">
-                <div class="mb-4 text-xs font-bold text-[#667085] uppercase tracking-wider">Reference Content</div>
-                <div id="notebook-source-content" class="bg-white p-6 rounded-[20px] shadow-sm border border-[#eaecf0] text-[14px] text-[#1f1f1f] leading-relaxed"></div>
-            </div>
-            <div class="w-full md:w-[65%] p-8 md:p-10 flex flex-col bg-white">
-                <input id="note-title" type="text" placeholder="Untitled Note" class="text-3xl font-medium text-[#1f1f1f] outline-none w-full mb-6 google-font placeholder-[#b0b0b0]">
-                <textarea id="note-body" placeholder="Start typing..." class="flex-1 w-full resize-none outline-none text-[17px] text-[#444746] leading-8"></textarea>
             </div>
         </div>
     </div>
@@ -785,14 +375,15 @@
         <nav class="flex-1 space-y-1">
             <a href="#" onclick="switchView('feed'); return false;" id="nav-feed" class="nav-item active"><i data-lucide="home" class="w-5 h-5"></i> <span class="hidden lg:block">Home</span></a>
             <a href="#" onclick="switchView('network'); return false;" id="nav-network" class="nav-item"><i data-lucide="users" class="w-5 h-5"></i> <span class="hidden lg:block">Network</span></a>
-            <a href="#" onclick="switchView('chat'); return false;" id="nav-chat" class="nav-item"><i data-lucide="message-circle" class="w-5 h-5"></i> <span class="hidden lg:block">Chat</span></a>
+            <a href="#" onclick="switchView('chat'); return false;" id="nav-chat" class="nav-item relative">
+                <div class="relative">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    <span id="sidebar-chat-dot" class="sidebar-red-dot" style="top: -2px; right: -2px;"></span>
+                </div>
+                <span class="hidden lg:block">Chat</span>
+            </a>
             <a href="#" onclick="showProfile(currentUser.id); return false;" id="nav-profile" class="nav-item"><i data-lucide="user" class="w-5 h-5"></i> <span class="hidden lg:block">Profile</span></a>
-            
-            <div class="pt-6 pb-2 px-3 hidden lg:block">
-                <span class="text-xs font-bold text-[#98a2b3] uppercase tracking-wider">Library</span>
-            </div>
             <a href="#" onclick="switchView('saved'); return false;" id="nav-saved" class="nav-item"><i data-lucide="bookmark" class="w-5 h-5"></i> <span class="hidden lg:block">Saved</span></a>
-            <a href="#" class="nav-item"><i data-lucide="file-text" class="w-5 h-5"></i> <span class="hidden lg:block">Notes</span></a>
         </nav>
         
         <div class="mt-auto pt-4 border-t border-gray-100">
@@ -829,42 +420,34 @@
             <!-- FEED VIEW -->
             <div id="view-feed" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 bg-white">
                 <div id="feed-container"></div>
-                <div class="flex flex-col items-center justify-center py-10 opacity-60">
-                    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase" class="w-24 h-24 mb-4 opacity-80 grayscale hover:grayscale-0 transition-all duration-500">
-                    <h3 class="text-lg font-bold text-gray-400 google-font">Grow and Share</h3>
-                    <p class="text-sm text-gray-400 text-center max-w-xs mt-1">Your network starts here. Share your first idea!</p>
-                </div>
             </div>
 
             <!-- SAVED VIEW -->
             <div id="view-saved" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
                 <h2 class="text-2xl font-bold mb-6 px-4 md:px-0">Saved Posts</h2>
-                <div id="saved-container" class="space-y-4"></div>
+                <div id="saved-container" class="space-y-4 px-4 md:px-0"></div>
             </div>
 
             <!-- PROFILE VIEW -->
             <div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
 
-            <!-- NOTIFICATIONS VIEW (Moved from Overlay) -->
+            <!-- NOTIFICATIONS VIEW -->
             <div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
                 <h2 class="text-2xl font-bold mb-6 px-4 md:px-0">Notifications</h2>
                 <div id="notification-list" class="space-y-2 px-4 md:px-0 w-full"></div>
             </div>
 
-            <!-- CHAT VIEW (UPDATED DESIGN) -->
+            <!-- CHAT VIEW -->
             <div id="view-chat" class="flex-1 h-full hidden flex flex-col bg-white">
                 <div class="flex h-full">
                     <div class="w-1/4 min-w-[260px] border-r border-gray-100 flex flex-col bg-[#fbfbfa]">
                         <div class="flex items-center justify-between p-4 border-b border-gray-100">
-                            <span class="font-medium text-xs text-gray-500 uppercase tracking-wide">Direct Messages</span>
-                            <button onclick="switchChatTab()" id="chat-tab-toggle" class="text-xs font-bold text-blue-600 hover:underline">Requests</button>
+                            <span class="font-medium text-xs text-gray-500 uppercase tracking-wide">Chats</span>
                         </div>
                         <div id="chat-list" class="flex-1 overflow-y-auto pt-2"></div>
                     </div>
                     <div class="flex-1 flex flex-col relative bg-white">
-                        <div id="chat-header" class="h-16 border-b border-gray-100 bg-white flex items-center justify-between px-6 font-semibold text-gray-800 text-[15px]">
-                            Select a friend to chat
-                        </div>
+                        <div id="chat-header" class="h-16 border-b border-gray-100 bg-white flex items-center justify-between px-6 font-semibold text-gray-800 text-[15px]">Select a chat</div>
                         <div id="chat-messages" class="flex-1 overflow-y-auto p-6 flex flex-col"></div>
                         <div id="chat-input-area" class="p-4 bg-white hidden">
                             <form onsubmit="sendChatMessage(event)" class="flex gap-3 items-center border border-gray-200 rounded-xl p-2 px-3 focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all">
@@ -882,11 +465,10 @@
                     <h2 class="text-2xl font-bold text-[#1f1f1f]">Upcoming Events</h2>
                     <button onclick="openEventComposer()" class="bg-[#0b57d0] text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i> New Event</button>
                 </div>
-                <div id="events-list" class="grid grid-cols-1 gap-4 px-4 md:px-0">
-                    <!-- Events will be rendered here -->
-                </div>
+                <div id="events-list" class="grid grid-cols-1 gap-4 px-4 md:px-0"></div>
             </div>
-             <!-- SEARCH RESULTS VIEW -->
+             
+            <!-- SEARCH RESULTS VIEW -->
             <div id="view-search-results" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]"></div>
 
         </main>
@@ -899,32 +481,18 @@
                     <span id="ai-header-name" class="text-[19px] font-medium text-[#1f1f1f] google-font">Newton</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="resetChat()" class="icon-btn bg-[#f9fafb] hover:bg-[#eaecf0] border border-[#eaecf0]" title="New Chat">
-                        <i data-lucide="plus" class="w-5 h-5 text-[#667085]"></i>
-                    </button>
+                    <button onclick="resetChat()" class="icon-btn bg-[#f9fafb] hover:bg-[#eaecf0] border border-[#eaecf0]" title="New Chat"><i data-lucide="plus" class="w-5 h-5 text-[#667085]"></i></button>
                     <div class="relative">
-                        <button onclick="toggleModelMenu()" class="icon-btn bg-[#f9fafb] hover:bg-[#eaecf0] border border-[#eaecf0]" title="More Options">
-                            <i data-lucide="more-vertical" class="w-5 h-5 text-[#667085]"></i>
-                        </button>
+                        <button onclick="toggleModelMenu()" class="icon-btn bg-[#f9fafb] hover:bg-[#eaecf0] border border-[#eaecf0]"><i data-lucide="more-vertical" class="w-5 h-5 text-[#667085]"></i></button>
                         <div id="model-menu" class="model-menu">
                             <div class="px-2 py-2 text-xs font-bold text-[#667085] uppercase tracking-wider">Select Model</div>
-                            <div onclick="switchModel('standard')" class="menu-item active-item" id="model-btn-standard">
-                                <img src="https://i.imghippo.com/files/XEEq5247S.png" class="w-5 h-5 object-contain"> Newton
-                            </div>
-                            <div onclick="switchModel('friendly')" class="menu-item" id="model-btn-friendly">
-                                <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase" class="w-5 h-5 rounded-full bg-indigo-50"> Tutor Chase
-                            </div>
-                            <div onclick="switchModel('logical')" class="menu-item" id="model-btn-logical">
-                                <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Adrian" class="w-5 h-5 rounded-full bg-teal-50"> Tutor Adrian
-                            </div>
-                            <div onclick="switchModel('arun')" class="menu-item" id="model-btn-arun">
-                                <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Destiny" class="w-5 h-5 rounded-full bg-orange-50"> Arun
-                            </div>
+                            <div onclick="switchModel('standard')" class="menu-item active-item" id="model-btn-standard"><img src="https://i.imghippo.com/files/XEEq5247S.png" class="w-5 h-5 object-contain"> Newton</div>
+                            <div onclick="switchModel('friendly')" class="menu-item" id="model-btn-friendly"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase" class="w-5 h-5 rounded-full bg-indigo-50"> Tutor Chase</div>
+                            <div onclick="switchModel('logical')" class="menu-item" id="model-btn-logical"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Adrian" class="w-5 h-5 rounded-full bg-teal-50"> Tutor Adrian</div>
+                            <div onclick="switchModel('arun')" class="menu-item" id="model-btn-arun"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Destiny" class="w-5 h-5 rounded-full bg-orange-50"> Arun</div>
                         </div>
                     </div>
-                    <button onclick="toggleNewtonExpand()" class="hidden md:flex icon-btn bg-[#f9fafb] hover:bg-[#eaecf0] border border-[#eaecf0]" title="Swap & Expand View">
-                        <i id="expand-icon" data-lucide="maximize-2" class="w-5 h-5 text-[#667085]"></i>
-                    </button>
+                    <button onclick="toggleNewtonExpand()" class="hidden md:flex icon-btn bg-[#f9fafb] hover:bg-[#eaecf0] border border-[#eaecf0]"><i id="expand-icon" data-lucide="maximize-2" class="w-5 h-5 text-[#667085]"></i></button>
                 </div>
             </div>
             <div class="flex-1 overflow-hidden relative bg-white flex flex-col">
@@ -943,36 +511,13 @@
                 </div>
                 
                 <div class="p-6 bg-white relative">
-                     <div id="plus-menu" class="plus-menu">
-                        <div class="menu-item" onclick="document.getElementById('media-input').click(); togglePlusMenu()">
-                            <i data-lucide="image"></i> Upload Media
-                        </div>
-                        <div class="menu-item" onclick="insertCodeSnippetAI(); togglePlusMenu()">
-                            <i data-lucide="code-2"></i> Code Snippet
-                        </div>
-                    </div>
-
                     <div id="search-container" class="gemini-input-wrapper relative z-20 flex flex-col group">
-                        <textarea id="ai-input" rows="1" placeholder="Ask anything..." 
-                            class="w-full bg-transparent text-[#1f1f1f] p-4 pl-6 pr-6 outline-none resize-none max-h-48 overflow-y-auto text-[16px] rounded-t-[28px] placeholder-[#98a2b3] border-none focus:ring-0" 
-                            oninput="handleInput(this)" 
-                            onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessageAction(); }"></textarea>
-                        
+                        <textarea id="ai-input" rows="1" placeholder="Ask anything..." class="w-full bg-transparent text-[#1f1f1f] p-4 pl-6 pr-6 outline-none resize-none max-h-48 overflow-y-auto text-[16px] rounded-t-[28px] placeholder-[#98a2b3] border-none focus:ring-0" oninput="handleInput(this)" onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessageAction(); }"></textarea>
                         <div class="flex items-center justify-between px-3 pb-2 pt-0">
-                            <div class="flex items-center gap-1">
-                                <button onclick="togglePlusMenu()" class="icon-btn w-9 h-9 hover:bg-[#e0e2e5]" title="Add Features"><i id="plus-icon" data-lucide="plus-circle" class="w-5 h-5 text-[#667085]"></i></button>
-                                <button id="web-search-btn" onclick="toggleWebSearch()" class="hidden md:flex icon-btn w-9 h-9 hover:bg-[#e0e2e5]" title="Search the Web"><i data-lucide="globe" class="w-5 h-5 text-[#667085]"></i></button>
-                                <button id="menu-idea-validator" onclick="toggleIdeaMode()" class="hidden md:flex icon-btn w-9 h-9 hover:bg-[#e0e2e5]" title="Idea Validator"><i data-lucide="lightbulb" class="w-5 h-5 text-[#667085]"></i></button>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button id="ai-send-btn" onclick="sendMessageAction()" class="bg-[#1e1e1e] text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#333] hover:scale-105 transition-all shadow-sm">
-                                    <i data-lucide="arrow-up" class="w-5 h-5"></i>
-                                </button>
-                            </div>
+                            <div class="flex items-center gap-1"></div>
+                            <button id="ai-send-btn" onclick="sendMessageAction()" class="bg-[#1e1e1e] text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#333] hover:scale-105 transition-all shadow-sm"><i data-lucide="arrow-up" class="w-5 h-5"></i></button>
                         </div>
                     </div>
-                    
-                    <div class="text-center mt-3 flex items-center justify-center gap-2"><span class="text-[10px] font-medium text-[#98a2b3] opacity-60">Newton may display inaccurate info, so double-check its responses.</span></div>
                 </div>
             </div>
         </aside>
@@ -980,27 +525,14 @@
 
     <!-- Bottom Nav for Mobile -->
     <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-[#eaecf0] h-[64px] flex items-center justify-around z-50 pb-[env(safe-area-inset-bottom)] px-2 shadow-lg">
-        <div class="mobile-nav-item active" onclick="switchView('feed')">
-            <i data-lucide="home"></i>
-            <span class="text-[10px] font-medium">Home</span>
+        <div class="mobile-nav-item active" onclick="switchView('feed')"><i data-lucide="home"></i><span class="text-[10px] font-medium">Home</span></div>
+        <div class="mobile-nav-item" onclick="switchView('network')"><i data-lucide="users"></i><span class="text-[10px] font-medium">Network</span></div>
+        <div class="mobile-nav-item" onclick="openCreateMenu()"><div class="w-10 h-10 bg-[#1f1f1f] rounded-full flex items-center justify-center text-white shadow-md mb-1"><i data-lucide="plus" style="width:20px;height:20px"></i></div></div>
+        <div class="mobile-nav-item" onclick="switchView('chat')">
+            <div class="relative"><i data-lucide="message-circle"></i><span id="mobile-chat-dot" class="red-dot border-white absolute -top-1 -right-1" style="width:8px;height:8px;border-width:1.5px;"></span></div>
+            <span class="text-[10px] font-medium">Chat</span>
         </div>
-        <div class="mobile-nav-item" onclick="switchView('network')">
-            <i data-lucide="users"></i>
-            <span class="text-[10px] font-medium">Network</span>
-        </div>
-        <div class="mobile-nav-item" onclick="openCreateMenu()">
-            <div class="w-10 h-10 bg-[#1f1f1f] rounded-full flex items-center justify-center text-white shadow-md mb-1">
-                <i data-lucide="plus" style="width:20px;height:20px"></i>
-            </div>
-        </div>
-        <div class="mobile-nav-item" onclick="switchView('ai')">
-            <i data-lucide="sparkles"></i>
-            <span class="text-[10px] font-medium">Newton</span>
-        </div>
-        <div class="mobile-nav-item" onclick="showProfile(currentUser.id)">
-            <img id="mobile-avatar" src="" class="w-6 h-6 rounded-full border border-gray-200">
-            <span class="text-[10px] font-medium">Profile</span>
-        </div>
+        <div class="mobile-nav-item" onclick="showProfile(currentUser.id)"><img id="mobile-avatar" src="" class="w-6 h-6 rounded-full border border-gray-200"><span class="text-[10px] font-medium">Profile</span></div>
     </nav>
 
     <input type="file" id="media-input" class="hidden" accept="image/*,video/*" onchange="handleFileSelect(event)">
@@ -1008,10 +540,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { 
-            getFirestore, collection, addDoc, getDoc, getDocs, doc, onSnapshot, 
-            query, orderBy, where, serverTimestamp, updateDoc, arrayUnion, arrayRemove, setDoc, deleteDoc
-        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDoc, getDocs, doc, onSnapshot, query, orderBy, where, serverTimestamp, updateDoc, arrayUnion, arrayRemove, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
         // --- FIREBASE CONFIG ---
@@ -1036,205 +565,114 @@
         window.posts = [];
         window.notifications = [];
         window.chats = {};
-        window.savedPosts = [];
         window.currentMedia = null;
-        window.currentMediaType = null;
-        window.editingPostId = null;
         window.activeChatUserId = null;
-        window.activeChatIsRequest = false; // Chat logic state
-        window.showRequestsTab = false;
         window.activeModel = 'standard';
-        window.currentContext = "";
-        window.isWebSearchActive = false;
-        window.isIdeaMode = false;
-        window.isPlusMenuOpen = false;
-        window.isModelMenuOpen = false;
-        window.conversationHistory = [];
-        window.currentViewingPostId = null;
         let classifier;
 
-        // --- CONSTANTS ---
         const models = {
             standard: { name: "Newton", avatar: "https://i.imghippo.com/files/XEEq5247S.png", system: "You are Newton.", greeting: "Hello! I'm Newton. How can I help?" },
-            friendly: { name: "Tutor Chase", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=Chase", system: "You are Chase.", greeting: "Hi! I'm Chase!" }
+            friendly: { name: "Tutor Chase", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=Chase", system: "You are Chase.", greeting: "Hi! I'm Chase!" },
+            logical: { name: "Tutor Adrian", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=Adrian", system: "You are Adrian.", greeting: "Greetings." },
+            arun: { name: "Arun", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=Destiny", system: "You are Arun.", greeting: "Let's master this." }
         };
 
-        // --- AUTH & INIT ---
+        // --- HELPER TO FORCE ICON RELOAD ---
+        function refreshIcons() {
+            setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 100);
+            setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 500);
+        }
+
+        // --- INIT ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userRef = doc(db, "users", user.uid);
                 const userSnap = await getDoc(userRef);
+                if (!userSnap.exists()) await setDoc(userRef, { uid: user.uid, name: user.displayName||user.email.split('@')[0], email: user.email, avatar: user.photoURL||`https://api.dicebear.com/9.x/notionists/svg?seed=${user.uid}`, bio: "New to EduLink", following:[], followers:[], friends:[], savedPosts:[] });
                 
-                if (!userSnap.exists()) {
-                    await setDoc(userRef, {
-                        uid: user.uid,
-                        name: user.displayName || user.email.split('@')[0],
-                        email: user.email,
-                        avatar: user.photoURL || `https://api.dicebear.com/9.x/notionists/svg?seed=${user.uid}`,
-                        bio: "New to EduLink",
-                        following: [],
-                        followers: [],
-                        friends: [],
-                        isOfficial: false
-                    });
-                }
-                
-                // Get fresh data listener
-                onSnapshot(userRef, (doc) => {
-                    window.currentUser = { id: doc.id, ...doc.data() };
-                    updateUserInterface();
-                });
-                
-                listenToUsers();
-                listenToPosts();
-                listenToNotifications();
-                setupClassifier();
-                lucide.createIcons();
+                onSnapshot(userRef, (doc) => { window.currentUser = { id: doc.id, ...doc.data() }; updateUserInterface(); });
+                listenToUsers(); listenToPosts(); listenToNotifications();
                 
                 document.getElementById('nav-feed').classList.add('active');
-            } else {
-                window.location.href = "index.html";
-            }
+                refreshIcons();
+            } else { window.location.href = "index.html"; }
         });
 
-        // --- LISTENERS ---
-        function listenToUsers() {
-            onSnapshot(collection(db, "users"), (snapshot) => {
-                window.users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // Update search / chat lists if they depend on user data
-                if(document.getElementById('view-chat').classList.contains('hidden') === false) renderChatList();
-            });
+        function listenToUsers() { onSnapshot(collection(db, "users"), (s) => { window.users = s.docs.map(d => ({id:d.id, ...d.data()})); if(document.getElementById('view-chat').classList.contains('hidden') === false) renderChatList(); }); }
+        
+        function listenToPosts() { 
+            onSnapshot(query(collection(db, "posts"), orderBy("timestamp", "desc")), (s) => { 
+                window.posts = s.docs.map(d => ({id:d.id, ...d.data(), timestamp: d.data().timestamp?.toDate ? d.data().timestamp.toDate().getTime() : Date.now()})); 
+                renderFeed(); 
+                if(window.currentViewingPostId) renderCommentsInModal(window.currentViewingPostId); 
+            }); 
         }
-
-        function listenToPosts() {
-            const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-            onSnapshot(q, (snapshot) => {
-                window.posts = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    return {
-                        id: doc.id,
-                        ...data,
-                        timestamp: data.timestamp?.toDate ? data.timestamp.toDate().getTime() : Date.now()
-                    };
-                });
-                renderFeed();
-                // If viewing a post, re-render to show new comments/likes
-                if(window.currentViewingPostId) renderCommentsInModal(window.currentViewingPostId);
-            });
-        }
-
+        
         function listenToNotifications() {
-            const q = query(collection(db, "notifications"), where("receiverId", "==", auth.currentUser.uid), orderBy("timestamp", "desc"));
-            onSnapshot(q, (snapshot) => {
-                window.notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            onSnapshot(query(collection(db, "notifications"), where("receiverId", "==", auth.currentUser.uid), orderBy("timestamp", "desc")), (s) => {
+                window.notifications = s.docs.map(d => ({id:d.id, ...d.data()}));
+                const hasUnread = window.notifications.some(n => !n.read);
                 const badge = document.getElementById('notif-badge');
-                // Simple logic: if any unread (we won't fully implement read status toggling here for brevity, just show badge if count > 0)
-                if(window.notifications.length > 0 && badge) badge.classList.remove('hidden');
+                if(hasUnread && badge) badge.classList.remove('hidden'); else if(badge) badge.classList.add('hidden');
                 
-                if(!document.getElementById('view-notifications').classList.contains('hidden')) {
-                    renderNotifications();
+                // Show red dot on chat icon if there is a 'message' type notification unread
+                const hasUnreadMsg = window.notifications.some(n => n.type === 'message' && !n.read);
+                const sidebarDot = document.getElementById('sidebar-chat-dot');
+                const mobileDot = document.getElementById('mobile-chat-dot');
+                if(hasUnreadMsg) {
+                    if(sidebarDot) sidebarDot.classList.add('show');
+                    if(mobileDot) mobileDot.classList.add('show');
+                } else {
+                    if(sidebarDot) sidebarDot.classList.remove('show');
+                    if(mobileDot) mobileDot.classList.remove('show');
                 }
-            });
-        }
 
-        function setupClassifier() {
-             if(typeof ml5 !== 'undefined') classifier = ml5.imageClassifier('MobileNet', () => console.log("MobileNet Ready")); 
+                if(!document.getElementById('view-notifications').classList.contains('hidden')) renderNotifications();
+            });
         }
 
         function updateUserInterface() {
             if(!window.currentUser) return;
             const u = window.currentUser;
-            const textEls = ['sidebar-name', 'compose-name'];
-            const imgEls = ['sidebar-avatar', 'mobile-avatar', 'header-avatar', 'compose-avatar', 'comment-input-avatar', 'comment-input-avatar-mobile', 'edit-avatar-preview'];
-            
-            textEls.forEach(id => { const el = document.getElementById(id); if(el) el.innerText = u.name; });
-            imgEls.forEach(id => { const el = document.getElementById(id); if(el) el.src = u.avatar; });
-            
-            const en = document.getElementById('edit-name'); if(en) en.value = u.name;
-            const eb = document.getElementById('edit-bio'); if(eb) eb.value = u.bio;
+            const els = ['sidebar-name','compose-name']; els.forEach(id => { const el=document.getElementById(id); if(el) el.innerText=u.name; });
+            const imgs = ['sidebar-avatar','mobile-avatar','header-avatar','compose-avatar','comment-input-avatar','comment-input-avatar-mobile','edit-avatar-preview'];
+            imgs.forEach(id => { const el=document.getElementById(id); if(el) el.src=u.avatar; });
+            const en=document.getElementById('edit-name'); if(en) en.value=u.name;
+            const eb=document.getElementById('edit-bio'); if(eb) eb.value=u.bio;
         }
 
-        // --- SEARCH ---
-        window.handleSearch = function(val) {
-            if(!val) { switchView('feed'); return; }
-            switchView('search-results');
-            const container = document.getElementById('view-search-results');
-            const term = val.toLowerCase();
+        // --- UI ---
+        window.switchView = function(v) {
+            ['feed','events','saved','profile','chat','search-results','notifications'].forEach(id => document.getElementById('view-'+id).classList.add('hidden'));
+            const ai = document.getElementById('ai-panel'); const main = document.getElementById('main-panel');
+            if(window.innerWidth<768) {
+                if(v==='ai') { main.classList.add('hidden'); ai.classList.remove('hidden','xl:flex'); ai.classList.add('flex'); }
+                else { main.classList.remove('hidden'); ai.classList.add('hidden'); ai.classList.remove('flex'); }
+            } else { if(v==='chat') { ai.classList.add('hidden'); ai.classList.remove('xl:flex'); } else { ai.classList.remove('hidden'); ai.classList.add('xl:flex'); } }
             
-            const foundUsers = window.users.filter(u => u.name.toLowerCase().includes(term));
-            const foundPosts = window.posts.filter(p => p.content.toLowerCase().includes(term) && p.privacy !== 'private');
-
-            let html = `<div class="p-4 space-y-6">`;
+            if(v!=='ai') document.getElementById('view-'+v).classList.remove('hidden');
             
-            // Users
-            if(foundUsers.length > 0) {
-                html += `<div><h3 class="font-bold text-gray-900 mb-2">People</h3><div class="space-y-2">`;
-                foundUsers.forEach(u => {
-                    html += `<div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 cursor-pointer" onclick="showProfile('${u.id}')">
-                        <img src="${u.avatar}" class="w-10 h-10 rounded-full">
-                        <div><div class="font-bold text-sm">${u.name}</div><div class="text-xs text-gray-500">${u.bio}</div></div>
-                    </div>`;
-                });
-                html += `</div></div>`;
-            }
-
-            // Posts
-            if(foundPosts.length > 0) {
-                html += `<div><h3 class="font-bold text-gray-900 mb-2">Posts</h3><div id="search-posts-list" class="space-y-4"></div></div>`;
-            } else if (foundUsers.length === 0) {
-                html += `<div class="text-gray-500 text-center mt-10">No results found</div>`;
-            }
-            html += `</div>`;
-            
-            container.innerHTML = html;
-            
-            const postsList = document.getElementById('search-posts-list');
-            if(postsList) {
-                foundPosts.forEach(p => {
-                    postsList.appendChild(createPostElement(p));
-                });
-            }
-            lucide.createIcons();
+            document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(el=>el.classList.remove('active'));
+            if(v==='feed') document.getElementById('nav-feed').classList.add('active');
+            if(v==='chat') document.getElementById('nav-chat').classList.add('active');
+            if(v==='saved') { document.getElementById('nav-saved').classList.add('active'); renderSaved(); }
+            if(v==='notifications') renderNotifications();
+            if(v==='feed') renderFeed();
+            if(v==='chat') renderChatList();
+            refreshIcons();
         }
 
-        // --- UI NAVIGATION ---
-        window.switchView = function(viewName) {
-            const views = ['feed', 'events', 'saved', 'profile', 'chat', 'search-results', 'notifications'];
-            views.forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
-
-            // Desktop/Mobile AI Panel logic
-            const aiPanel = document.getElementById('ai-panel');
-            const mainPanel = document.getElementById('main-panel');
-            if(window.innerWidth < 768) {
-                if(viewName === 'ai') { mainPanel.classList.add('hidden'); aiPanel.classList.remove('hidden', 'xl:flex'); aiPanel.classList.add('flex'); }
-                else { mainPanel.classList.remove('hidden'); aiPanel.classList.add('hidden'); aiPanel.classList.remove('flex'); }
-            } else {
-                if(viewName === 'chat') { aiPanel.classList.add('hidden'); aiPanel.classList.remove('xl:flex'); }
-                else { aiPanel.classList.remove('hidden'); aiPanel.classList.add('xl:flex'); }
-            }
-
-            if(viewName !== 'ai') document.getElementById(`view-${viewName}`).classList.remove('hidden');
-
-            document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(el => el.classList.remove('active'));
-            if(viewName === 'feed') document.getElementById('nav-feed').classList.add('active');
-            if(viewName === 'chat') document.getElementById('nav-chat').classList.add('active');
-            if(viewName === 'notifications') renderNotifications(); 
-            if(viewName === 'feed') renderFeed();
-            
-            lucide.createIcons();
-        }
-
-        // --- POSTS ---
+        // --- FEED ---
         window.renderFeed = function() {
-            const container = document.getElementById('feed-container');
-            container.innerHTML = "";
-            window.posts.forEach(post => container.appendChild(createPostElement(post)));
-            lucide.createIcons();
+            const c = document.getElementById('feed-container'); c.innerHTML = "";
+            window.posts.forEach(p => c.appendChild(createPostElement(p)));
+            refreshIcons();
         }
 
         window.createPostElement = function(post) {
             const author = window.users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', isOfficial: false };
-            const isLiked = post.likes && post.likes.includes(window.currentUser.id);
+            const isLiked = post.likes?.includes(window.currentUser.id);
+            const isSaved = window.currentUser.savedPosts?.includes(post.id);
             const dateStr = new Date(post.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             
             const div = document.createElement('article');
@@ -1271,24 +709,35 @@
                              <button class="action-btn like" onclick="event.stopPropagation(); toggleLike('${post.id}')"><i data-lucide="thumbs-up" class="w-5 h-5 ${isLiked ? 'fill-blue-600 text-blue-600' : ''}"></i> <span class="text-xs font-medium">${post.likes ? post.likes.length : 0}</span></button>
                              <button class="action-btn comment" onclick="event.stopPropagation(); openPostView('${post.id}')"><i data-lucide="message-square" class="w-5 h-5"></i> <span class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span></button>
                         </div>
+                        <button class="action-btn bookmark" onclick="event.stopPropagation(); toggleSave('${post.id}')"><i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-current text-purple-600' : ''}"></i></button>
                     </div>
                 </div>
             `;
             return div;
         }
 
-        // --- POST ACTIONS ---
-        window.toggleLike = async function(postId) {
-            const postRef = doc(db, "posts", postId);
-            const post = window.posts.find(p => p.id === postId);
-            if(post.likes.includes(window.currentUser.id)) {
-                await updateDoc(postRef, { likes: arrayRemove(window.currentUser.id) });
+        // --- SAVED POSTS ---
+        window.toggleSave = async function(postId) {
+            const userRef = doc(db, "users", window.currentUser.id);
+            if(window.currentUser.savedPosts?.includes(postId)) {
+                await updateDoc(userRef, { savedPosts: arrayRemove(postId) });
+                showToast("Removed from saved");
             } else {
-                await updateDoc(postRef, { likes: arrayUnion(window.currentUser.id) });
-                if(post.authorId !== window.currentUser.id) sendNotification(post.authorId, 'like', 'liked your post', postId);
+                await updateDoc(userRef, { savedPosts: arrayUnion(postId) });
+                showToast("Post saved");
             }
         }
 
+        window.renderSaved = function() {
+            const c = document.getElementById('saved-container'); c.innerHTML = "";
+            const savedIds = window.currentUser.savedPosts || [];
+            if(savedIds.length === 0) { c.innerHTML = "<div class='text-center text-gray-400 mt-10'>No saved posts yet.</div>"; return; }
+            const saved = window.posts.filter(p => savedIds.includes(p.id));
+            saved.forEach(p => c.appendChild(createPostElement(p)));
+            refreshIcons();
+        }
+
+        // --- COMMENTS ---
         window.openPostView = function(pid) {
             window.currentViewingPostId = pid;
             const post = window.posts.find(p => p.id === pid);
@@ -1298,110 +747,93 @@
             document.getElementById('injected-post').innerHTML = `
                 <div class="flex gap-4 items-center mb-6">
                     <img src="${author.avatar}" class="w-12 h-12 rounded-full border border-gray-200">
-                    <div>
-                        <h3 class="font-bold text-[#1f1f1f] text-[16px]">${author.name}</h3>
-                        <div class="text-xs text-[#667085] font-medium">Post Details</div>
-                    </div>
+                    <div><h3 class="font-bold text-[#1f1f1f] text-[16px]">${author.name}</h3><div class="text-xs text-[#667085] font-medium">Post Details</div></div>
                 </div>
                 <div class="text-[#1f1f1f] text-[16px] leading-relaxed mb-4">${marked.parse(post.content)}</div>
                 ${post.media ? `<img src="${post.media}" class="w-full rounded-xl mb-4">` : ''}
             `;
-            
             renderCommentsInModal(pid);
             document.getElementById('post-view-overlay').classList.remove('hidden');
-            lucide.createIcons();
+            refreshIcons();
         }
 
         window.renderCommentsInModal = function(pid) {
             const post = window.posts.find(p => p.id === pid);
             if(!post) return;
             const comments = post.comments || [];
-            
-            const html = comments.map(c => {
+            const html = comments.map((c, idx) => {
                 const author = window.users.find(u => u.id === c.authorId) || {name:'Unknown', avatar:''};
+                const isLiked = c.likes && c.likes.includes(window.currentUser.id);
                 return `
                 <div class="flex gap-3 p-4 border-b border-gray-50">
                     <img src="${author.avatar}" class="w-8 h-8 rounded-full bg-gray-200 shrink-0">
-                    <div>
+                    <div class="flex-1">
                         <div class="flex items-center gap-2"><span class="font-bold text-sm text-gray-900">${author.name}</span><span class="text-xs text-gray-400">${new Date(c.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span></div>
                         <div class="text-sm text-gray-800 mt-1">${c.content}</div>
+                        <div class="flex gap-4 mt-2">
+                            <button onclick="toggleCommentLike('${pid}', ${idx})" class="text-xs font-semibold ${isLiked ? 'text-red-500' : 'text-gray-500'} hover:text-red-500">Like ${c.likes?.length ? `(${c.likes.length})` : ''}</button>
+                            <button onclick="replyToComment('${author.name}')" class="text-xs font-semibold text-gray-500 hover:text-blue-500">Reply</button>
+                        </div>
                     </div>
                 </div>`;
             }).join('');
             
-            document.getElementById('comments-list-desktop').innerHTML = html || '<div class="p-8 text-center text-gray-400">No comments yet. Be the first!</div>';
+            document.getElementById('comments-list-desktop').innerHTML = html || '<div class="p-8 text-center text-gray-400">No comments yet.</div>';
             document.getElementById('comments-list-mobile').innerHTML = html || '<div class="p-4 text-center text-gray-400 text-sm">No comments yet.</div>';
         }
 
-        window.submitCommentDesktop = async function() {
-            const txt = document.getElementById('comment-input-desktop').value.trim();
+        window.toggleCommentLike = async function(pid, idx) {
+            const postRef = doc(db, "posts", pid);
+            const post = window.posts.find(p => p.id === pid);
+            const comments = [...post.comments];
+            const comment = comments[idx];
+            
+            if(!comment.likes) comment.likes = [];
+            if(comment.likes.includes(window.currentUser.id)) {
+                comment.likes = comment.likes.filter(id => id !== window.currentUser.id);
+            } else {
+                comment.likes.push(window.currentUser.id);
+            }
+            comments[idx] = comment;
+            await updateDoc(postRef, { comments: comments });
+        }
+
+        window.replyToComment = function(name) {
+            const dInput = document.getElementById('comment-input-desktop');
+            const mInput = document.getElementById('comment-input-mobile');
+            const val = `@${name} `;
+            dInput.value = val; mInput.value = val;
+            dInput.focus();
+        }
+
+        window.submitComment = async function(mode) {
+            const inputId = mode === 'desktop' ? 'comment-input-desktop' : 'comment-input-mobile';
+            const txt = document.getElementById(inputId).value.trim();
             if(!txt || !window.currentViewingPostId) return;
             
             const postRef = doc(db, "posts", window.currentViewingPostId);
             const post = window.posts.find(p => p.id === window.currentViewingPostId);
-            const newComment = { id: "c"+Date.now(), authorId: window.currentUser.id, content: txt, timestamp: Date.now() };
+            const newComment = { id: "c"+Date.now(), authorId: window.currentUser.id, content: txt, timestamp: Date.now(), likes: [] };
 
             await updateDoc(postRef, { comments: arrayUnion(newComment) });
             if(post.authorId !== window.currentUser.id) sendNotification(post.authorId, 'comment', 'commented on your post', window.currentViewingPostId);
             
-            document.getElementById('comment-input-desktop').value = "";
+            document.getElementById(inputId).value = "";
         }
 
-        // --- NOTIFICATIONS ---
-        async function sendNotification(receiverId, type, content, linkId = null) {
-            await addDoc(collection(db, "notifications"), {
-                receiverId, senderId: window.currentUser.id, senderName: window.currentUser.name, 
-                senderAvatar: window.currentUser.avatar, type, content, linkId, timestamp: serverTimestamp(), read: false
-            });
+        window.toggleLike = async function(postId) {
+            const postRef = doc(db, "posts", postId);
+            const post = window.posts.find(p => p.id === postId);
+            if(post.likes.includes(window.currentUser.id)) await updateDoc(postRef, { likes: arrayRemove(window.currentUser.id) });
+            else { await updateDoc(postRef, { likes: arrayUnion(window.currentUser.id) }); if(post.authorId !== window.currentUser.id) sendNotification(post.authorId, 'like', 'liked your post', postId); }
         }
 
-        window.renderNotifications = function() {
-            const container = document.getElementById('notification-list');
-            container.innerHTML = "";
-            if(window.notifications.length === 0) { container.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">No notifications</div>`; return; }
-
-            window.notifications.forEach(n => {
-                const div = document.createElement('div');
-                div.className = "w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100 bg-white shadow-sm mb-2";
-                let icon = n.type === 'like' ? '<i data-lucide="heart" class="w-3 h-3 text-white"></i>' : '<i data-lucide="message-circle" class="w-3 h-3 text-white"></i>';
-                let color = n.type === 'like' ? 'bg-red-500' : 'bg-blue-600';
-                div.innerHTML = `
-                    <div class="relative"><img src="${n.senderAvatar}" class="w-10 h-10 rounded-full bg-gray-200"><div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${color} flex items-center justify-center border-2 border-white">${icon}</div></div>
-                    <div class="flex-1"><div class="text-sm"><span class="font-bold text-gray-900">${n.senderName}</span> <span class="text-gray-600">${n.content}</span></div></div>
-                `;
-                container.appendChild(div);
-            });
-            lucide.createIcons();
-        }
-
-        // --- CHAT SYSTEM ---
-        window.switchChatTab = function() {
-            window.showRequestsTab = !window.showRequestsTab;
-            document.getElementById('chat-tab-toggle').innerText = window.showRequestsTab ? "Messages" : "Requests";
-            renderChatList();
-        }
-
+        // --- CHAT ---
         window.renderChatList = function() {
-            const list = document.getElementById('chat-list');
-            list.innerHTML = "";
-            
-            // Logic: 
-            // 1. Get all unique users we've chatted with from a hypothetical `userChats` or by scanning `chats` collection (hard in client-side only efficiently).
-            // Simplified: We will show people we follow (Friends) in "Messages"
-            // And people who follow us BUT we don't follow back in "Requests" (mock logic for "Request")
-            
-            let usersToShow = [];
-            if (window.showRequestsTab) {
-                // Requests: People who follow me, but I don't follow them
-                usersToShow = window.users.filter(u => u.following.includes(window.currentUser.id) && !window.currentUser.following.includes(u.id));
-            } else {
-                // Messages: People I follow (treating follow as "connect" for simplicity in this demo architecture)
-                usersToShow = window.users.filter(u => window.currentUser.following.includes(u.id));
-            }
-
-            if(usersToShow.length === 0) list.innerHTML = `<div class="p-4 text-xs text-gray-400 text-center">No ${window.showRequestsTab ? 'requests' : 'chats'}</div>`;
-
-            usersToShow.forEach(u => {
+            const list = document.getElementById('chat-list'); list.innerHTML = "";
+            // Show all users for simplicity as "Open Chat"
+            const otherUsers = window.users.filter(u => u.id !== window.currentUser.id);
+            otherUsers.forEach(u => {
                 const div = document.createElement('div');
                 div.className = "chat-sidebar-item";
                 if(u.id === window.activeChatUserId) div.classList.add('active');
@@ -1409,26 +841,14 @@
                 div.innerHTML = `<img src="${u.avatar}" class="w-6 h-6 rounded-full"><span>${u.name}</span>`;
                 list.appendChild(div);
             });
+            refreshIcons();
         }
 
         window.startChat = function(userId) {
             window.activeChatUserId = userId;
-            // Check if this is a request state
-            const targetUser = window.users.find(u => u.id === userId);
-            const isFollowingMe = targetUser.following.includes(window.currentUser.id);
-            const isMeFollowing = window.currentUser.following.includes(userId);
-            
-            // If they follow me but I don't follow them, it's a request I can accept
-            window.activeChatIsRequest = isFollowingMe && !isMeFollowing;
-
             switchView('chat');
-            
-            let headerHTML = `<div class="flex items-center gap-3"><img src="${targetUser.avatar}" class="w-8 h-8 rounded-full border border-gray-200"><span class="font-semibold text-gray-800">${targetUser.name}</span></div>`;
-            if(window.activeChatIsRequest) {
-                headerHTML += `<button onclick="acceptChatRequest('${userId}')" class="bg-blue-600 text-white text-xs px-3 py-1 rounded-full">Accept</button>`;
-            }
-            
-            document.getElementById('chat-header').innerHTML = headerHTML;
+            const user = window.users.find(u => u.id === userId);
+            document.getElementById('chat-header').innerHTML = `<div class="flex items-center gap-3"><img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200"><span class="font-semibold text-gray-800">${user.name}</span></div>`;
             document.getElementById('chat-input-area').classList.remove('hidden');
             
             const chatId = [window.currentUser.id, userId].sort().join("_");
@@ -1440,27 +860,18 @@
             renderChatList();
         }
 
-        window.acceptChatRequest = async function(userId) {
-            // "Accept" means following them back in this simplified model
-            await toggleFollow(userId);
-            window.showRequestsTab = false; // Switch back to main inbox
-            window.switchChatTab(); // Update UI
-            startChat(userId); // Restart chat view
-        }
-
         window.renderMessages = function() {
-            const container = document.getElementById('chat-messages');
-            container.innerHTML = "";
+            const c = document.getElementById('chat-messages'); c.innerHTML = "";
             const msgs = window.chats[window.activeChatUserId] || [];
-            if(msgs.length === 0) container.innerHTML = `<div class="text-center text-xs text-gray-400 mt-10">Start the conversation...</div>`;
-            
+            if(msgs.length===0) c.innerHTML = `<div class="text-center text-xs text-gray-400 mt-10">Start conversation</div>`;
             msgs.forEach(m => {
                 const div = document.createElement('div');
                 div.className = m.senderId === window.currentUser.id ? 'chat-bubble-me' : 'chat-bubble-them';
                 div.innerText = m.text;
-                container.appendChild(div);
+                c.appendChild(div);
             });
-            container.scrollTop = container.scrollHeight;
+            c.scrollTop = c.scrollHeight;
+            refreshIcons();
         }
 
         window.sendChatMessage = async function(e) {
@@ -1468,30 +879,99 @@
             const input = document.getElementById('message-input');
             const text = input.value.trim();
             if(!text || !window.activeChatUserId) return;
-            
             const chatId = [window.currentUser.id, window.activeChatUserId].sort().join("_");
-            await addDoc(collection(db, "chats", chatId, "messages"), {
-                senderId: window.currentUser.id, text, timestamp: serverTimestamp()
-            });
+            await addDoc(collection(db, "chats", chatId, "messages"), { senderId: window.currentUser.id, text, timestamp: serverTimestamp() });
+            
+            // Send notification for Red Dot to work on receiver side
+            sendNotification(window.activeChatUserId, 'message', 'sent you a message');
+            
             input.value = "";
         }
 
-        // --- PUBLISH POST (Storage & Data) ---
+        // --- NOTIFICATIONS ---
+        async function sendNotification(receiverId, type, content, linkId = null) {
+            await addDoc(collection(db, "notifications"), {
+                receiverId, senderId: window.currentUser.id, senderName: window.currentUser.name, 
+                senderAvatar: window.currentUser.avatar, type, content, linkId, timestamp: serverTimestamp(), read: false
+            });
+        }
+
+        window.renderNotifications = function() {
+            const c = document.getElementById('notification-list'); c.innerHTML = "";
+            if(window.notifications.length === 0) { c.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">No notifications</div>`; return; }
+            window.notifications.forEach(n => {
+                const div = document.createElement('div');
+                div.className = "w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100 bg-white shadow-sm mb-2";
+                let icon = n.type === 'like' ? '<i data-lucide="heart" class="w-3 h-3 text-white"></i>' : '<i data-lucide="message-circle" class="w-3 h-3 text-white"></i>';
+                let color = n.type === 'like' ? 'bg-red-500' : 'bg-blue-600';
+                div.innerHTML = `<div class="relative"><img src="${n.senderAvatar}" class="w-10 h-10 rounded-full bg-gray-200"><div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${color} flex items-center justify-center border-2 border-white">${icon}</div></div><div class="flex-1"><div class="text-sm"><span class="font-bold text-gray-900">${n.senderName}</span> <span class="text-gray-600">${n.content}</span></div></div>`;
+                c.appendChild(div);
+            });
+            refreshIcons();
+        }
+
+        // --- AI LOGIC ---
+        window.switchModel = (m) => { 
+            window.activeModel = m; 
+            const model = models[m];
+            document.getElementById('ai-header-name').innerText = model.name;
+            document.getElementById('ai-header-logo').src = model.avatar;
+            document.getElementById('model-menu').classList.remove('active');
+            window.resetChat();
+            showToast(`Switched to ${model.name}`);
+        };
+
+        window.resetChat = () => { 
+            const model = models[window.activeModel];
+            document.getElementById('chat-history').innerHTML = `<div class="chat-wrapper flex flex-col w-full mb-6 fade-in"><div class="flex items-center gap-2 mb-2"><img src="${model.avatar}" class="w-6 h-6 object-contain"></div><div class="chat-msg-ai"><p>${model.greeting}</p></div></div>`;
+        };
+
+        window.sendMessageAction = async function() {
+            const inp = document.getElementById('ai-input'); const txt = inp.value.trim(); if(!txt) return;
+            addMessage(txt, true); inp.value = ""; handleInput(inp);
+            
+            const model = models[window.activeModel];
+            const thinkingId = 'thinking-'+Date.now();
+            const h = document.getElementById('chat-history');
+            h.insertAdjacentHTML('beforeend', `<div id="${thinkingId}" class="flex flex-col mb-6 fade-in"><div class="flex gap-4"><img src="${model.avatar}" class="w-6 h-6 animate-pulse"><span class="text-sm font-medium animate-pulse">Thinking...</span></div></div>`);
+            
+            try {
+                const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(model.system + " " + txt)}?model=openai`);
+                const ans = await res.text();
+                document.getElementById(thinkingId).remove();
+                addMessage(ans, false);
+            } catch(e) {
+                document.getElementById(thinkingId).remove();
+                addMessage("I'm having trouble connecting right now.", false);
+            }
+        }
+
+        window.addMessage = function(text, isUser) {
+            const h = document.getElementById('chat-history');
+            const d = document.createElement('div');
+            d.className = isUser ? 'chat-wrapper flex justify-end fade-in mb-6' : 'chat-wrapper flex flex-col fade-in w-full mb-6';
+            if(isUser) {
+                d.innerHTML = `<div class="chat-msg-user bg-blue-100 p-3 rounded-2xl text-sm">${text}</div>`;
+            } else {
+                const model = models[window.activeModel];
+                d.innerHTML = `<div class="flex items-center gap-4 mb-2"><img src="${model.avatar}" class="w-6 h-6"></div><div class="chat-msg-ai text-sm leading-relaxed">${marked.parse(text)}</div>`;
+            }
+            h.appendChild(d);
+            h.scrollTop = h.scrollHeight;
+            refreshIcons();
+        }
+
+        // --- OTHER HELPERS ---
         window.publishPost = async function() {
             try {
                 const textRaw = document.getElementById('compose-text').value; 
                 const btn = document.getElementById('btn-publish');
                 const fileInput = document.getElementById('media-input');
-                
                 if (!textRaw.trim() && !window.currentMedia && !fileInput.files[0]) { showToast("Empty post!", true); return; }
-
                 const originalHtml = btn.innerHTML; 
                 btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`; 
-                btn.disabled = true; lucide.createIcons();
-
-                let mediaUrl = null;
-                let mediaType = null;
-
+                btn.disabled = true; refreshIcons();
+                let mediaUrl = null; let mediaType = null;
                 if (fileInput.files[0]) {
                     const file = fileInput.files[0];
                     mediaType = file.type.startsWith('video') ? 'video' : 'image';
@@ -1499,79 +979,11 @@
                     await uploadBytes(storageRef, file);
                     mediaUrl = await getDownloadURL(storageRef);
                 }
-
-                await addDoc(collection(db, "posts"), {
-                    authorId: window.currentUser.id, content: textRaw, media: mediaUrl, mediaType: mediaType,
-                    timestamp: serverTimestamp(), likes: [], comments: [], privacy: 'public' // Force public as requested
-                });
-                
-                document.getElementById('compose-text').value = ""; 
-                removeMedia(); 
-                btn.innerHTML = originalHtml; btn.disabled = false; 
-                closeCompose(); showToast("Posted!"); 
-
-            } catch (error) {
-                console.error(error);
-                showToast("Error", true);
-                document.getElementById('btn-publish').disabled = false;
-            }
+                await addDoc(collection(db, "posts"), { authorId: window.currentUser.id, content: textRaw, media: mediaUrl, mediaType: mediaType, timestamp: serverTimestamp(), likes: [], comments: [], privacy: 'public' });
+                document.getElementById('compose-text').value = ""; removeMedia(); btn.innerHTML = originalHtml; btn.disabled = false; closeCompose(); showToast("Posted!"); 
+            } catch (error) { console.error(error); showToast("Error", true); document.getElementById('btn-publish').disabled = false; }
         }
 
-        // --- PROFILE ---
-        window.saveProfileChanges = async function() {
-            const name = document.getElementById('edit-name').value;
-            const bio = document.getElementById('edit-bio').value;
-            const fileInput = document.getElementById('edit-avatar-input');
-            let avatarUrl = window.currentUser.avatar;
-            
-            if (fileInput.files[0]) {
-                const file = fileInput.files[0];
-                const storageRef = ref(storage, `profile_images/${auth.currentUser.uid}`);
-                await uploadBytes(storageRef, file);
-                avatarUrl = await getDownloadURL(storageRef);
-            }
-
-            await updateDoc(doc(db, "users", auth.currentUser.uid), { name, bio, avatar: avatarUrl });
-            closeEditProfile();
-            showToast("Profile Updated");
-        }
-
-        window.toggleFollow = async function(userId) {
-            const myRef = doc(db, "users", window.currentUser.id);
-            const targetRef = doc(db, "users", userId);
-            
-            if(window.currentUser.following.includes(userId)) {
-                await updateDoc(myRef, { following: arrayRemove(userId) });
-                await updateDoc(targetRef, { followers: arrayRemove(window.currentUser.id) });
-                showToast("Unfollowed");
-            } else {
-                await updateDoc(myRef, { following: arrayUnion(userId) });
-                await updateDoc(targetRef, { followers: arrayUnion(window.currentUser.id) });
-                showToast("Following");
-                sendNotification(userId, 'like', 'started following you');
-            }
-            showProfile(userId);
-        }
-
-        // --- HELPER EXPORTS ---
-        window.showProfile = (id) => { 
-            const user = window.users.find(u => u.id === id);
-            if(!user) return;
-            // Basic profile rendering logic here... matches previous code...
-            const container = document.getElementById('view-profile');
-            const isMe = id === window.currentUser.id;
-            const isFollowing = window.currentUser.following.includes(id);
-            let actionBtn = isMe ? `<button onclick="openEditProfile()" class="bg-gray-100 px-4 py-2 rounded-lg font-bold">Edit</button>` : `<button onclick="toggleFollow('${id}')" class="${isFollowing ? 'bg-gray-100' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold">${isFollowing ? 'Following' : 'Follow'}</button>`;
-            if(!isMe) actionBtn += ` <button onclick="startChat('${id}')" class="ml-2 border border-gray-200 px-3 py-2 rounded-lg"><i data-lucide="message-circle" class="w-5 h-5"></i></button>`;
-            
-            container.innerHTML = `<div class="h-32 bg-gradient-to-r from-blue-600 to-indigo-600"></div><div class="px-6 -mt-10"><div class="flex justify-between items-end mb-4"><img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white"><div class="flex items-center mb-2">${actionBtn}</div></div><h1 class="text-2xl font-bold">${user.name}</h1><p class="text-gray-600">${user.bio}</p><div class="flex gap-4 mt-3 text-sm"><span><strong>${user.following.length}</strong> Following</span><span><strong>${user.followers.length}</strong> Followers</span></div><div class="mt-6 border-t pt-4" id="profile-posts"></div></div>`;
-            const pc = document.getElementById('profile-posts');
-            window.posts.filter(p => p.authorId === id).forEach(p => pc.appendChild(createPostElement(p)));
-            switchView('profile');
-            lucide.createIcons();
-        }
-
-        // Standard Helpers
         window.openEventComposer = () => { document.getElementById('event-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('event-modal-box').classList.remove('scale-95'); };
         window.closeEventComposer = () => { document.getElementById('event-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('event-modal-box').classList.add('scale-95'); };
         window.handleFileSelect = (e) => { const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = (ev) => { window.currentMedia = ev.target.result; document.getElementById('media-preview-img').src = ev.target.result; document.getElementById('media-preview-container').classList.remove('hidden'); }; r.readAsDataURL(f); } };
@@ -1579,9 +991,8 @@
         window.openCompose = () => { document.getElementById('compose-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('compose-modal').classList.remove('scale-95'); };
         window.closeCompose = () => { document.getElementById('compose-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('compose-modal').classList.add('scale-95'); };
         window.closePostView = () => { document.getElementById('post-view-overlay').classList.add('hidden'); window.currentViewingPostId = null; };
-        window.showToast = (msg, err) => { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+        window.showToast = (msg, err) => { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); refreshIcons(); }
         window.toggleNotifications = () => switchView('notifications');
-        window.switchNotifTab = (t) => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById('ntab-'+t).classList.add('active'); };
         window.openCreateMenu = () => { document.getElementById('create-menu-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('create-menu-modal').classList.remove('scale-95'); };
         window.closeCreateMenu = () => { document.getElementById('create-menu-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('create-menu-modal').classList.add('scale-95'); };
         window.handleEditAvatarSelect = (e) => { const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = (ev) => document.getElementById('edit-avatar-preview').src = ev.target.result; r.readAsDataURL(f); }};
@@ -1594,21 +1005,15 @@
         window.deletePost = async (pid) => { if(confirm("Delete?")) { await deleteDoc(doc(db, "posts", pid)); showToast("Deleted"); } };
         window.openLightbox = (src) => { document.getElementById('lightbox-wrapper').innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh]">`; document.getElementById('lightbox').classList.remove('opacity-0', 'pointer-events-none'); };
         window.closeLightbox = () => { document.getElementById('lightbox').classList.add('opacity-0', 'pointer-events-none'); };
-        // Empty stubs for non-essential UI parts requested to just "work"
-        window.togglePrivacyMenu = () => {}; 
-        window.selectPrivacy = () => {}; 
-        window.toggleNewtonExpand = () => {};
+        window.toggleNewtonExpand = () => { document.body.classList.toggle('mode-focus'); document.getElementById('workspace-layout').classList.toggle('swapped'); };
         window.handleInput = (el) => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
         window.togglePlusMenu = () => document.getElementById('plus-menu').classList.toggle('active');
         window.toggleModelMenu = () => document.getElementById('model-menu').classList.toggle('active');
-        window.switchModel = (m) => { window.activeModel = m; };
-        window.resetChat = () => document.getElementById('chat-history').innerHTML = "";
-        window.toggleWebSearch = () => document.getElementById('web-search-btn').classList.toggle('active');
-        window.toggleIdeaMode = () => document.getElementById('menu-idea-validator').classList.toggle('active');
         window.insertCodeSnippetAI = () => document.getElementById('ai-input').value += " ```js\n\n``` ";
         window.pinPost = (pid) => { document.getElementById('ai-context-chip').classList.remove('hidden'); document.getElementById('ai-context-text').innerText = "Post Context"; };
         window.clearContext = () => document.getElementById('ai-context-chip').classList.add('hidden');
-        window.sendMessageAction = async function() { const inp = document.getElementById('ai-input'); if(inp.value.trim()){ document.getElementById('chat-history').innerHTML += `<div class="chat-wrapper flex justify-end mb-4"><div class="bg-blue-100 p-3 rounded-lg text-sm">${inp.value}</div></div>`; inp.value=""; } }; 
+        window.saveProfileChanges = async function() { const n=document.getElementById('edit-name').value; const b=document.getElementById('edit-bio').value; const fi=document.getElementById('edit-avatar-input'); let u=window.currentUser.avatar; if(fi.files[0]){const r=ref(storage,`profile_images/${auth.currentUser.uid}`);await uploadBytes(r,fi.files[0]);u=await getDownloadURL(r);} await updateDoc(doc(db,"users",auth.currentUser.uid),{name:n,bio:b,avatar:u}); closeEditProfile(); showToast("Updated"); };
+        window.showProfile = (id) => { const u=window.users.find(u=>u.id===id); if(!u) return; document.getElementById('view-profile').innerHTML = `<div class="h-32 bg-gradient-to-r from-blue-600 to-indigo-600"></div><div class="px-6 -mt-10"><div class="flex justify-between items-end mb-4"><img src="${u.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white"><button onclick="startChat('${id}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">Message</button></div><h1 class="text-2xl font-bold">${u.name}</h1><p class="text-gray-600">${u.bio}</p></div>`; switchView('profile'); };
 
     </script>
 </body>

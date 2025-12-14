@@ -488,44 +488,57 @@ transition: background 0.1s; font-size: 14px; font-weight: 500;
 .chat-sidebar-item.active { background: #e0e0e0; color: #1f1f1f; }
 
 .chat-bubble-me {
-background: #0b57d0; color: white;
-padding: 8px 14px; border-radius: 10px;
-font-size: 15px; max-width: 70%; align-self: flex-end;
-margin-bottom: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-position: relative;
+    background: #0b57d0;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 18px 18px 4px 18px;
+    font-size: 15px;
+    max-width: 75%;
+    align-self: flex-end;
+    margin-bottom: 2px;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 .chat-bubble-them {
-background: #f2f3f5; color: #37352f;
-padding: 8px 14px; border-radius: 10px;
-font-size: 15px; max-width: 70%; align-self: flex-start;
-margin-bottom: 6px;
-position: relative;
+    background: #f0f2f5;
+    color: #050505;
+    padding: 10px 16px;
+    border-radius: 18px 18px 18px 4px;
+    font-size: 15px;
+    max-width: 75%;
+    align-self: flex-start;
+    margin-bottom: 2px;
+    position: relative;
 }
+
 .chat-date-divider { text-align: center; font-size: 11px; color: #9ca3af; margin: 16px 0; font-weight: 500; }
 
 .chat-actions-menu {
     position: absolute;
-    top: -30px;
-    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 100%;
+    margin-right: 8px;
     background: white;
     border: 1px solid #eaecf0;
-    border-radius: 8px;
-    padding: 2px;
+    border-radius: 20px;
+    padding: 4px;
     display: none;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     z-index: 10;
-    gap: 2px;
+    gap: 4px;
 }
-.chat-bubble-them .chat-actions-menu { right: auto; left: 0; }
+.chat-bubble-them .chat-actions-menu { right: auto; left: 100%; margin-left: 8px; margin-right: 0; }
 .chat-bubble-me:hover .chat-actions-menu,
 .chat-bubble-them:hover .chat-actions-menu { display: flex; }
 
 .chat-action-btn {
-    padding: 4px;
-    border-radius: 4px;
+    padding: 6px;
+    border-radius: 50%;
     color: #667085;
     cursor: pointer;
     transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
 }
 .chat-action-btn:hover { background: #f3f4f6; color: #1f1f1f; }
 .chat-action-btn.delete:hover { background: #fef2f2; color: #ef4444; }
@@ -547,7 +560,7 @@ position: relative;
     font-size: 11px;
     color: inherit;
     opacity: 0.8;
-    border-left: 2px solid rgba(0,0,0,0.2);
+    border-left: 2px solid rgba(255,255,255,0.5);
     padding-left: 6px;
     margin-bottom: 4px;
     display: block;
@@ -555,6 +568,7 @@ position: relative;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.chat-bubble-them .quoted-reply { border-color: rgba(0,0,0,0.2); }
 
 .mobile-nav-item {
 display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -885,18 +899,18 @@ Change
     </div>
 
     <!-- CHAT VIEW -->
-    <div id="view-chat" class="flex-1 h-full hidden flex flex-col bg-white">
+    <div id="view-chat" class="flex-1 h-full hidden flex flex-col bg-white overflow-hidden">
         <div class="flex h-full">
             <div class="w-1/4 min-w-[260px] border-r border-gray-100 flex flex-col bg-[#fbfbfa]">
                 <div class="p-4 border-b border-gray-100 font-medium text-xs text-gray-500 uppercase tracking-wide">Direct Messages</div>
                 <div id="chat-list" class="flex-1 overflow-y-auto pt-2"></div>
             </div>
-            <div class="flex-1 flex flex-col relative bg-white">
-                <div id="chat-header" class="h-16 border-b border-gray-100 bg-white flex items-center justify-between px-6 font-semibold text-gray-800 text-[15px]">
+            <div class="flex-1 flex flex-col relative bg-white h-full overflow-hidden">
+                <div id="chat-header" class="h-16 border-b border-gray-100 bg-white flex items-center justify-between px-6 font-semibold text-gray-800 text-[15px] shrink-0">
                     Select a friend to chat
                 </div>
                 <div id="chat-messages" class="flex-1 overflow-y-auto p-6 flex flex-col"></div>
-                <div id="chat-input-area" class="p-4 bg-white hidden flex-col">
+                <div id="chat-input-area" class="p-4 bg-white hidden flex-col shrink-0 border-t border-gray-100">
                     <div id="reply-preview" class="hidden reply-preview-bar">
                         <span id="reply-to-text">Replying to...</span>
                         <button onclick="cancelReply()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-4 h-4"></i></button>
@@ -1147,7 +1161,7 @@ onAuthStateChanged(auth, async (user) => {
         updateUserInterface();
         initRealtimeListeners();
         setupClassifier();
-        lucide.createIcons();
+        setTimeout(lucide.createIcons, 100);
         
         if(loader) loader.style.opacity = '0';
         setTimeout(() => { if(loader) loader.remove(); }, 500);
@@ -1169,7 +1183,14 @@ function initRealtimeListeners() {
         users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const netView = document.getElementById('view-network');
         if(netView && !netView.classList.contains('hidden')) renderNetwork();
-        lucide.createIcons();
+        
+        // Update profile view if open
+        const profileView = document.getElementById('view-profile');
+        if(profileView && !profileView.classList.contains('hidden')) {
+             // Find ID of profile being viewed by checking onclick attr of follow button or just reload current if implemented
+             // For simplicity, just refresh UI icons
+        }
+        setTimeout(lucide.createIcons, 50);
     });
 
     const qPosts = query(collection(db, "posts"), orderBy("timestamp", "desc"));
@@ -1187,7 +1208,7 @@ function initRealtimeListeners() {
         if(activePostView && window.currentViewingPostId) {
             renderCommentsInModal(window.currentViewingPostId);
         }
-        lucide.createIcons();
+        setTimeout(lucide.createIcons, 50);
     });
 
     const qNotifs = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
@@ -1209,7 +1230,7 @@ function initRealtimeListeners() {
         
         const activeNotif = document.querySelector('#view-notifications:not(.hidden)');
         if(activeNotif) renderNotifications();
-        lucide.createIcons();
+        setTimeout(lucide.createIcons, 50);
     });
 }
 
@@ -1304,7 +1325,7 @@ window.switchView = function(viewName) {
     } else if (viewName === 'announcements') {
         const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
     }
-    lucide.createIcons();
+    setTimeout(lucide.createIcons, 50);
 }
 
 window.renderNetwork = function() {
@@ -1353,7 +1374,7 @@ window.renderFeed = function(filterTerm = "") {
         displayPosts = displayPosts.filter(p => p.content.toLowerCase().includes(term));
     }
     displayPosts.forEach(post => container.appendChild(createPostElement(post)));
-    lucide.createIcons();
+    setTimeout(lucide.createIcons, 50);
 }
 
 function createPostElement(post) {
@@ -1418,14 +1439,18 @@ function createPostElement(post) {
 window.toggleLike = async function(postId) {
     const btn = document.getElementById(`like-btn-${postId}`);
     if (btn) {
-        const icon = btn.querySelector('i');
+        // Look for SVG (transformed by Lucide) OR 'i' tag (if not yet transformed)
+        const icon = btn.querySelector('svg') || btn.querySelector('i');
         const countSpan = btn.querySelector('span');
         let currentCount = parseInt(countSpan.innerText) || 0;
         
-        if (icon.classList.contains('text-red-500')) {
+        // Optimistic UI update
+        if (icon && (icon.classList.contains('text-red-500') || icon.getAttribute('class').includes('text-red-500'))) {
             icon.classList.remove('fill-red-500', 'text-red-500');
+            // Remove explicit class attribute values if set by lucide
+            icon.setAttribute('class', icon.getAttribute('class').replace('fill-red-500 text-red-500', ''));
             countSpan.innerText = Math.max(0, currentCount - 1);
-        } else {
+        } else if (icon) {
             icon.classList.add('fill-red-500', 'text-red-500');
             countSpan.innerText = currentCount + 1;
         }
@@ -1446,11 +1471,12 @@ window.toggleLike = async function(postId) {
 window.toggleSave = async function(postId) {
     const btn = document.getElementById(`save-btn-${postId}`);
     if(btn) {
-        const icon = btn.querySelector('i');
-        if(icon.classList.contains('text-purple-600')) {
+        const icon = btn.querySelector('svg') || btn.querySelector('i');
+        if (icon && (icon.classList.contains('text-purple-600') || icon.getAttribute('class').includes('text-purple-600'))) {
             icon.classList.remove('fill-current', 'text-purple-600');
+            icon.setAttribute('class', icon.getAttribute('class').replace('fill-current text-purple-600', ''));
             showToast("Post removed");
-        } else {
+        } else if (icon) {
             icon.classList.add('fill-current', 'text-purple-600');
             showToast("Post saved");
         }
@@ -1482,7 +1508,7 @@ window.renderSaved = function() {
         const saved = posts.filter(p => savedPosts.includes(p.id));
         saved.forEach(post => container.appendChild(createPostElement(post)));
     }
-    lucide.createIcons();
+    setTimeout(lucide.createIcons, 50);
 }
 
 async function sendNotification(receiverId, type, content) {
@@ -1555,7 +1581,7 @@ window.renderNotifications = function() {
         `;
         container.appendChild(div);
     });
-    lucide.createIcons();
+    setTimeout(lucide.createIcons, 50);
 }
 
 window.deleteNotification = async function(id) {
@@ -1625,7 +1651,7 @@ window.showProfile = function(userId) {
     } else {
         postsContainer.innerHTML = '<div class="text-center py-10 text-gray-400">No posts yet</div>';
     }
-    lucide.createIcons();
+    setTimeout(lucide.createIcons, 50);
 }
 
 window.openEditProfile = function() { document.getElementById('edit-profile-overlay').classList.remove('pointer-events-none', 'opacity-0'); }
@@ -1669,7 +1695,7 @@ window.saveProfileChanges = async function() {
     updateUserInterface();
     closeEditProfile();
     showToast("Profile Updated");
-    if(!document.getElementById('view-profile').classList.contains('hidden')) showProfile(currentUser.id);
+    // Snapshot listener will verify updates
 }
 
 window.doLogout = async function() { await signOut(auth); window.location.href = "index.html"; }
@@ -1692,8 +1718,12 @@ window.toggleFollow = async function(userId) {
         await updateDoc(targetRef, { followers: arrayUnion(currentUser.id) });
         sendNotification(userId, 'follow', 'started following you');
     }
+    // Refresh active views
     const profileView = document.getElementById('view-profile');
     if(!profileView.classList.contains('hidden')) showProfile(userId);
+    
+    const netView = document.getElementById('view-network');
+    if(netView && !netView.classList.contains('hidden')) renderNetwork();
 }
 
 // --- CHAT SYSTEM ---
@@ -1746,13 +1776,13 @@ window.startChat = function(userId) {
         });
         renderMessages(msgs);
     });
-    lucide.createIcons();
+    setTimeout(lucide.createIcons, 50);
 }
 
 function linkify(text) {
     var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
     return text.replace(urlRegex, function(url) {
-        return '<a href="' + url + '" target="_blank" class="text-blue-200 underline hover:text-white">' + url + '</a>';
+        return '<a href="' + url + '" target="_blank" class="text-blue-200 underline hover:text-white" onclick="event.stopPropagation()">' + url + '</a>';
     });
 }
 
@@ -1783,8 +1813,9 @@ function renderMessages(msgs) {
         
         div.innerHTML = `
             ${replyHTML}
-            ${linkifiedText}
-            ${m.reaction ? `<div class="absolute -bottom-2 ${isMe ? 'left-0' : 'right-0'} bg-white border rounded-full px-1 text-[10px] shadow-sm">${m.reaction}</div>` : ''}
+            <span>${linkifiedText}</span>
+            <span class="text-[9px] opacity-60 ml-2 align-bottom">${new Date(m.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+            ${m.reaction ? `<div class="absolute -bottom-2 ${isMe ? 'left-0' : 'right-0'} bg-white border rounded-full px-1 text-[10px] shadow-sm scale-75">${m.reaction}</div>` : ''}
             <div class="chat-actions-menu">
                 <div class="chat-action-btn" onclick="setReply('${m.id}', '${m.text}')" title="Reply"><i data-lucide="reply" class="w-3 h-3"></i></div>
                 <div class="chat-action-btn" onclick="reactToMessage('${m.id}', '❤️')" title="Love"><i data-lucide="heart" class="w-3 h-3"></i></div>
@@ -1795,7 +1826,7 @@ function renderMessages(msgs) {
         container.appendChild(div);
     });
     container.scrollTop = container.scrollHeight;
-    lucide.createIcons();
+    setTimeout(lucide.createIcons, 50);
 }
 
 window.setReply = function(msgId, text) {
@@ -1879,7 +1910,7 @@ window.handleSearch = function(query) {
     if(foundPosts.length) foundPosts.forEach(p => postsDiv.appendChild(createPostElement(p)));
     else postsDiv.innerHTML = `<div class="text-gray-400 text-sm">No posts found</div>`;
     view.appendChild(postsDiv);
-    lucide.createIcons();
+    setTimeout(lucide.createIcons, 50);
 }
 
 window.openPostView = function(postId) {
@@ -1892,7 +1923,7 @@ window.openPostView = function(postId) {
     window.currentViewingPostId = postId;
     renderCommentsInModal(postId);
     document.getElementById('post-view-overlay').classList.remove('hidden');
-    lucide.createIcons();
+    setTimeout(lucide.createIcons, 50);
 }
 
 window.closePostView = function() {
@@ -1913,7 +1944,7 @@ function renderCommentsInModal(postId) {
     }
     containerDesktop.innerHTML = html;
     containerMobile.innerHTML = html;
-    lucide.createIcons();
+    setTimeout(lucide.createIcons, 50);
 }
 
 function createCommentHTML(c, allComments, postId) {
@@ -2036,7 +2067,7 @@ window.showPostOptions = function(event, postId, authorId) {
     const isAuthor = authorId === currentUser.id;
     let menuContent = isAuthor ? `<div class="post-option-item" onclick="editPost('${postId}')"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit</div><div class="post-option-item danger" onclick="deletePost('${postId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>` : `<div class="post-option-item" onclick="showToast('Post Saved')"><i data-lucide="bookmark" class="w-4 h-4"></i> Save</div><div class="post-option-item danger" onclick="showToast('Reported')"><i data-lucide="flag" class="w-4 h-4"></i> Report</div>`;
     menu.innerHTML = menuContent;
-    lucide.createIcons();
+    setTimeout(lucide.createIcons, 50);
     menu.style.top = (rect.bottom + window.scrollY) + 'px';
     menu.style.left = (rect.right - 160) + 'px';
     menu.classList.add('active');
@@ -2049,14 +2080,14 @@ window.closeCompose = function() { document.getElementById('compose-overlay').cl
 
 // AI Stuff
 function setupClassifier() { if(typeof ml5 !== 'undefined') classifier = ml5.imageClassifier('MobileNet', () => console.log("MobileNet Ready")); }
-window.toggleNewtonExpand = function() { document.body.classList.toggle('mode-focus'); const layout = document.getElementById('workspace-layout'); const icon = document.getElementById('expand-icon'); let isSwapped = layout.classList.contains('swapped'); if (!isSwapped) { layout.classList.add('swapped'); icon.setAttribute('data-lucide', 'minimize-2'); showToast("Focus Mode Active"); } else { layout.classList.remove('swapped'); icon.setAttribute('data-lucide', 'maximize-2'); } lucide.createIcons(); }
+window.toggleNewtonExpand = function() { document.body.classList.toggle('mode-focus'); const layout = document.getElementById('workspace-layout'); const icon = document.getElementById('expand-icon'); let isSwapped = layout.classList.contains('swapped'); if (!isSwapped) { layout.classList.add('swapped'); icon.setAttribute('data-lucide', 'minimize-2'); showToast("Focus Mode Active"); } else { layout.classList.remove('swapped'); icon.setAttribute('data-lucide', 'maximize-2'); } setTimeout(lucide.createIcons, 50); }
 window.handleInput = function(textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight) + 'px'; if(textarea.value === '') textarea.style.height = 'auto'; }
 window.togglePlusMenu = function() { if(window.isModelMenuOpen) toggleModelMenu(); window.isPlusMenuOpen = !window.isPlusMenuOpen; const menu = document.getElementById('plus-menu'); const icon = document.getElementById('plus-icon'); if(window.isPlusMenuOpen) { menu.classList.add('active'); icon.style.transform = "rotate(45deg)"; } else { menu.classList.remove('active'); icon.style.transform = "rotate(0deg)"; } }
 window.toggleModelMenu = function() { if(window.isPlusMenuOpen) togglePlusMenu(); window.isModelMenuOpen = !window.isModelMenuOpen; const menu = document.getElementById('model-menu'); if(window.isModelMenuOpen) menu.classList.add('active'); else menu.classList.remove('active'); }
 window.handleFileSelect = function(event) { const file = event.target.files[0]; if (file) { window.currentMediaBlob = file; const reader = new FileReader(); reader.onload = function(e) { window.currentMedia = e.target.result; window.currentMediaType = file.type.startsWith('video') ? 'video' : 'image'; const container = document.getElementById('media-preview-container'); container.classList.remove('hidden'); if(window.currentMediaType === 'video') { const vid = document.getElementById('media-preview-video'); vid.src = window.currentMedia; vid.classList.remove('hidden'); document.getElementById('media-preview-img').classList.add('hidden'); } else { const img = document.getElementById('media-preview-img'); img.src = window.currentMedia; img.classList.remove('hidden'); document.getElementById('media-preview-video').classList.add('hidden'); } showToast("Media Uploaded"); }; reader.readAsDataURL(file); } }
 window.removeMedia = function() { window.currentMedia = null; window.currentMediaType = null; window.mediaVisionLog = ""; window.currentMediaBlob = null; document.getElementById('media-preview-container').classList.add('hidden'); document.getElementById('media-input').value = ""; }
-window.publishPost = async function() { const textRaw = document.getElementById('compose-text').value; const btn = document.getElementById('btn-publish'); if (!textRaw.trim() && !window.currentMedia) { showToast("Empty post!", true); return; } const originalHtml = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`; btn.disabled = true; lucide.createIcons(); try { let mediaUrl = window.currentMedia; if(window.currentMediaBlob) { const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`); await uploadBytes(mediaRef, window.currentMediaBlob); mediaUrl = await getDownloadURL(mediaRef); } if(window.editingPostId) { await updateDoc(doc(db, "posts", window.editingPostId), { content: textRaw }); showToast("Post Updated!"); } else { await addDoc(collection(db, "posts"), { authorId: currentUser.id, content: textRaw, media: mediaUrl, timestamp: serverTimestamp(), likes: [], comments: [] }); showToast("Posted!"); } closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; lucide.createIcons(); } }
-window.showToast = function(message, isError = false) { const toast = document.getElementById('toast'); const toastMsg = document.getElementById('toast-msg'); const icon = document.getElementById('toast-icon'); toastMsg.innerText = message; if (isError) { toast.style.backgroundColor = '#d93025'; icon.setAttribute('data-lucide', 'alert-circle'); icon.classList.remove('text-[#c4eed0]'); icon.classList.add('text-white'); } else { toast.style.backgroundColor = '#303134'; icon.setAttribute('data-lucide', 'check-circle-2'); icon.classList.add('text-[#c4eed0]'); } lucide.createIcons(); toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3000); }
+window.publishPost = async function() { const textRaw = document.getElementById('compose-text').value; const btn = document.getElementById('btn-publish'); if (!textRaw.trim() && !window.currentMedia) { showToast("Empty post!", true); return; } const originalHtml = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`; btn.disabled = true; setTimeout(lucide.createIcons, 50); try { let mediaUrl = window.currentMedia; if(window.currentMediaBlob) { const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`); await uploadBytes(mediaRef, window.currentMediaBlob); mediaUrl = await getDownloadURL(mediaRef); } if(window.editingPostId) { await updateDoc(doc(db, "posts", window.editingPostId), { content: textRaw }); showToast("Post Updated!"); } else { await addDoc(collection(db, "posts"), { authorId: currentUser.id, content: textRaw, media: mediaUrl, timestamp: serverTimestamp(), likes: [], comments: [] }); showToast("Posted!"); } closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; setTimeout(lucide.createIcons, 50); } }
+window.showToast = function(message, isError = false) { const toast = document.getElementById('toast'); const toastMsg = document.getElementById('toast-msg'); const icon = document.getElementById('toast-icon'); toastMsg.innerText = message; if (isError) { toast.style.backgroundColor = '#d93025'; icon.setAttribute('data-lucide', 'alert-circle'); icon.classList.remove('text-[#c4eed0]'); icon.classList.add('text-white'); } else { toast.style.backgroundColor = '#303134'; icon.setAttribute('data-lucide', 'check-circle-2'); icon.classList.add('text-[#c4eed0]'); } setTimeout(lucide.createIcons, 50); toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3000); }
 window.openLightbox = function(src, type = 'image') { const wrapper = document.getElementById('lightbox-wrapper'); const lightbox = document.getElementById('lightbox'); if (type === 'video' || src.includes('.mp4') || src.includes('data:video') || src.includes('.webm')) { wrapper.innerHTML = `<video src="${src}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`; } else { wrapper.innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; } lightbox.classList.add('active'); lightbox.classList.remove('pointer-events-none'); lightbox.classList.remove('opacity-0'); }
 window.closeLightbox = function() { const lightbox = document.getElementById('lightbox'); lightbox.classList.remove('active'); lightbox.classList.add('pointer-events-none'); lightbox.classList.add('opacity-0'); const video = lightbox.querySelector('video'); if(video) video.pause(); }
 
@@ -2067,7 +2098,7 @@ let activeModel = 'standard';
 window.resetChat = function() { conversationHistory = []; window.clearContext(); const chatContainer = document.getElementById('chat-history'); const modelData = models[activeModel]; let cls = "w-6 h-6 object-contain"; if(activeModel !== 'standard') cls = "w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100"; chatContainer.innerHTML = `<div class="chat-wrapper flex flex-col w-full mb-6 fade-in"><div class="flex items-center gap-2 mb-2"><img src="${modelData.avatar}" class="${cls}"></div><div class="chat-msg-ai"><p>${modelData.greeting}</p></div></div>`; }
 window.switchModel = function(modelKey) { if(activeModel === modelKey) { window.toggleModelMenu(); return; } activeModel = modelKey; document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active-item')); document.getElementById(`model-btn-${modelKey}`).classList.add('active-item'); document.getElementById('ai-header-name').innerText = models[modelKey].name; const logo = document.getElementById('ai-header-logo'); logo.src = models[modelKey].avatar; window.toggleModelMenu(); window.resetChat(); showToast(`Switched to ${models[modelKey].name}`); }
 window.sendMessageAction = async function() { const inp = document.getElementById('ai-input'); const txt = inp.value.trim(); if(!txt) return; addMessage(txt, true); inp.value = ""; window.handleInput(inp); stopGeneration = false; const thinkingId = 'thinking-' + Date.now(); const chatContainer = document.getElementById('chat-history'); const modelData = models[activeModel]; let cls = "w-6 h-6 object-contain"; if(activeModel !== 'standard') cls = "w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100"; const thinkingHTML = `<div id="${thinkingId}" class="flex flex-col w-full mb-6 fade-in"><div class="flex items-center gap-4 mb-2"><img src="${modelData.avatar}" class="${cls} animate-pulse"><span class="text-sm text-[#444746] font-medium animate-pulse">Thinking...</span></div></div>`; chatContainer.insertAdjacentHTML('beforeend', thinkingHTML); chatContainer.scrollTop = chatContainer.scrollHeight; const historyStr = conversationHistory.slice(0, -1).map(msg => `${msg.role === 'user' ? 'User' : 'Newton'}: ${msg.content}`).join('\n'); let system = models[activeModel].system; let q = `${system} \n${window.currentContext ? "Current Context: " + window.currentContext : ""}\nConversation History:\n${historyStr}\nUser: ${txt}`; try { const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(q)}?model=openai`); const ans = await res.text(); if(document.getElementById(thinkingId)) document.getElementById(thinkingId).remove(); if(!stopGeneration) await addMessage(ans, false); } catch(e) { if(document.getElementById(thinkingId)) document.getElementById(thinkingId).remove(); addMessage("Connection error.", false); } }
-async function addMessage(text, isUser) { const h = document.getElementById('chat-history'); const d = document.createElement('div'); d.className = isUser ? 'chat-wrapper flex justify-end fade-in mb-6' : 'chat-wrapper flex flex-col fade-in w-full mb-6'; if(isUser) { d.innerHTML = `<div class="chat-msg-user">${text}</div>`; h.appendChild(d); conversationHistory.push({ role: 'user', content: text }); } else { const modelData = models[activeModel]; let cls = "w-6 h-6 object-contain"; if(activeModel !== 'standard') cls = "w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100"; d.innerHTML = `<div class="flex items-center gap-4 mb-2"><img src="${modelData.avatar}" class="${cls}"></div><div class="chat-msg-ai">${marked.parse(text)}</div>`; h.appendChild(d); conversationHistory.push({ role: 'assistant', content: text }); lucide.createIcons(); } h.scrollTop = h.scrollHeight; }
+async function addMessage(text, isUser) { const h = document.getElementById('chat-history'); const d = document.createElement('div'); d.className = isUser ? 'chat-wrapper flex justify-end fade-in mb-6' : 'chat-wrapper flex flex-col fade-in w-full mb-6'; if(isUser) { d.innerHTML = `<div class="chat-msg-user">${text}</div>`; h.appendChild(d); conversationHistory.push({ role: 'user', content: text }); } else { const modelData = models[activeModel]; let cls = "w-6 h-6 object-contain"; if(activeModel !== 'standard') cls = "w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100"; d.innerHTML = `<div class="flex items-center gap-4 mb-2"><img src="${modelData.avatar}" class="${cls}"></div><div class="chat-msg-ai">${marked.parse(text)}</div>`; h.appendChild(d); conversationHistory.push({ role: 'assistant', content: text }); setTimeout(lucide.createIcons, 50); } h.scrollTop = h.scrollHeight; }
 window.copyText = function(text, btn) { navigator.clipboard.writeText(decodeURIComponent(text)).then(() => { showToast("Copied to clipboard"); }); };
 window.insertCodeSnippetAI = function() { const inp = document.getElementById('ai-input'); inp.value += " ```javascript\nconsole.log('Hello');\n``` "; inp.focus(); window.handleInput(inp); }
 window.insertCodeBlock = function() { const ta = document.getElementById('compose-text'); ta.value += "\n```javascript\n// Code here\n```\n"; ta.focus(); };
@@ -2076,7 +2107,7 @@ window.toggleIdeaMode = function() { showToast("Idea mode enabled"); window.isId
 window.pinPost = function(pid, author) { window.currentContext = `Context: Post by ${author}`; document.getElementById('ai-context-chip').classList.remove('hidden'); document.getElementById('ai-context-text').innerText = `Post by ${author}`; showToast("Added to Newton context"); };
 window.clearContext = function() { window.currentContext = ""; document.getElementById('ai-context-chip').classList.add('hidden'); };
 
-lucide.createIcons();
+setTimeout(lucide.createIcons, 100);
 </script>
 </body>
 </html>

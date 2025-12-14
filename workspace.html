@@ -136,6 +136,7 @@
         .sidebar-item .item-actions { opacity: 0; transition: opacity 0.2s; }
         .sidebar-item:hover .item-actions { opacity: 1; }
         
+        /* Chat Row Hover Logic */
         .chat-row .chat-actions { opacity: 0; transition: all 0.2s ease; pointer-events: none; transform: scale(0.9); }
         .chat-row:hover .chat-actions { opacity: 1; pointer-events: auto; transform: scale(1); }
 
@@ -183,7 +184,7 @@
         </div>
         <div id="team-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar pb-4"></div>
 
-        <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.5</div>
+        <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.6</div>
     </div>
 
     <!-- MAIN AREA -->
@@ -323,6 +324,19 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- MODALS -->
+    <!-- Re-introduced Message Context Menu -->
+    <div id="msg-context-menu" class="fixed hidden bg-white border border-gray-200 shadow-popover rounded-lg py-1 z-[160] w-40 text-sm overflow-hidden">
+        <button id="btn-delete-me" class="w-full text-left px-4 py-2 hover:bg-gray-50 text-gray-700 flex items-center gap-2">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+            Hide for me
+        </button>
+        <button id="btn-delete-all" class="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 hidden flex items-center gap-2 border-t border-gray-100">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            Delete for all
+        </button>
     </div>
 
     <div id="link-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
@@ -1236,15 +1250,29 @@
         chatInput.focus();
     };
 
-    window.deleteMessage = async (mid) => {
-        if(confirm("Delete this message?")) {
-            await deleteDoc(doc(db, `projects/${currentProjectId}/messages`, mid));
-        }
+    // Chat Message Action Menu Logic
+    let selectedMsgId = null;
+    window.openMsgMenu = (e, mid, isSender) => {
+        e.stopPropagation();
+        selectedMsgId = mid;
+        const menu = document.getElementById('msg-context-menu');
+        menu.style.left = (e.clientX - 140) + 'px'; 
+        menu.style.top = (e.clientY + 5) + 'px';
+        menu.classList.remove('hidden');
+        document.getElementById('btn-delete-all').classList.toggle('hidden', !isSender);
     };
-
-    window.hideMessage = async (mid) => {
-        await updateDoc(doc(db, `projects/${currentProjectId}/messages`, mid), { hiddenBy: arrayUnion(currentUser.uid) });
-    };
+    
+    document.getElementById('btn-delete-me').addEventListener('click', async () => {
+        if(!selectedMsgId) return;
+        await updateDoc(doc(db, `projects/${currentProjectId}/messages`, selectedMsgId), { hiddenBy: arrayUnion(currentUser.uid) });
+        document.getElementById('msg-context-menu').classList.add('hidden');
+    });
+    document.getElementById('btn-delete-all').addEventListener('click', async () => {
+        if(!selectedMsgId) return;
+        await deleteDoc(doc(db, `projects/${currentProjectId}/messages`, selectedMsgId));
+        document.getElementById('msg-context-menu').classList.add('hidden');
+    });
+    document.addEventListener('click', () => { document.getElementById('msg-context-menu').classList.add('hidden'); });
 
     function loadChat(pid) { 
         if(unsubscribeChat) unsubscribeChat();
@@ -1275,15 +1303,10 @@
                     }
                 }
 
-                // Chat Actions Buttons (Messenger Style)
-                let actionsHtml = '';
-                if (isMe) {
-                    actionsHtml = `<div class="chat-actions absolute top-1/2 -translate-y-1/2 -left-8 flex gap-1"><button onclick="window.deleteMessage('${d.id}')" class="p-1 rounded-full bg-gray-100 hover:bg-red-100 text-gray-400 hover:text-red-500 shadow-sm" title="Delete"><svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div>`;
-                } else {
-                    actionsHtml = `<div class="chat-actions absolute top-1/2 -translate-y-1/2 -right-8 flex gap-1"><button onclick="window.hideMessage('${d.id}')" class="p-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-600 shadow-sm" title="Hide"><svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg></button></div>`;
-                }
+                // Chat Actions Buttons (Three Dots Menu Style)
+                const menuTrigger = `<button onclick="window.openMsgMenu(event, '${d.id}', ${isMe})" class="absolute top-1/2 -translate-y-1/2 ${isMe ? '-left-6' : '-right-6'} chat-actions text-gray-400 hover:text-gray-600 px-1 text-lg leading-none">⋮</button>`;
 
-                wrap.innerHTML = `${actionsHtml}<div class="text-[10px] text-gray-400 ml-1 mb-0.5 flex items-center">${m.senderName} ${extraLabel}</div><div class="px-3.5 py-2.5 rounded-xl text-[14px] max-w-[90%] ${bubbleClass} shadow-sm leading-relaxed chat-content relative">${content}</div>`; 
+                wrap.innerHTML = `${menuTrigger}<div class="text-[10px] text-gray-400 ml-1 mb-0.5 flex items-center">${m.senderName} ${extraLabel}</div><div class="px-3.5 py-2.5 rounded-xl text-[14px] max-w-[90%] ${bubbleClass} shadow-sm leading-relaxed chat-content relative">${content}</div>`; 
                 div.appendChild(wrap); 
             }); 
             div.scrollTop = div.scrollHeight; 

@@ -136,20 +136,9 @@
         .sidebar-item .item-actions { opacity: 0; transition: opacity 0.2s; }
         .sidebar-item:hover .item-actions { opacity: 1; }
         
-        /* Chat Row Actions - Always Visible */
-        .chat-row .chat-actions { 
-            opacity: 1; 
-            transition: color 0.2s ease; 
-            pointer-events: auto; 
-            transform: none; 
-            color: #d1d5db; /* gray-300 - Subtle by default */
-        }
-        .chat-row:hover .chat-actions { 
-            color: #6b7280; /* gray-500 - Clearer on row hover */
-        }
-        .chat-row .chat-actions:hover {
-            color: #1f2937; /* gray-800 - Dark on direct hover */
-        }
+        /* Chat Row Hover Logic */
+        .chat-row .chat-actions { opacity: 0; transition: all 0.2s ease; pointer-events: none; transform: scale(0.9); }
+        .chat-row:hover .chat-actions { opacity: 1; pointer-events: auto; transform: scale(1); }
 
         .reminder-item .reminder-actions { opacity: 0; transition: opacity 0.2s; }
         .reminder-item:hover .reminder-actions { opacity: 1; }
@@ -1169,4 +1158,348 @@
             });
         });
     }
-    function update
+    function updateMyPresence() {
+        if(!currentProjectId) return;
+        const sel = window.getSelection();
+        if(sel.rangeCount > 0) {
+            const range = sel.getRangeAt(0); const rect = range.getBoundingClientRect(); const containerRect = document.getElementById('editor-container').getBoundingClientRect();
+            const x = rect.left - containerRect.left + document.getElementById('editor-container').scrollLeft;
+            const y = rect.top - containerRect.top + document.getElementById('editor-container').scrollTop;
+            setDoc(doc(db, `projects/${currentProjectId}/presence`, currentUser.uid), { name: currentUser.displayName || "User", color: myColor, x: x, y: y, timestamp: Date.now() });
+        }
+    }
+    function throttle(func, limit) { let inThrottle; return function() { const args = arguments; const context = this; if (!inThrottle) { func.apply(context, args); inThrottle = true; setTimeout(() => inThrottle = false, limit); }}}
+
+    // --- BROADCAST & ANNOUNCE ---
+    const openBroadcast = (title) => {
+        document.getElementById('bc-modal-title').textContent = title;
+        document.getElementById('broadcast-input').value = ""; 
+        window.showModal('broadcast-compose-modal');
+    }
+    document.getElementById('btn-broadcast-create').addEventListener('click', () => openBroadcast('Broadcast'));
+    document.getElementById('btn-announce-create').addEventListener('click', () => openBroadcast('Announcement'));
+
+    document.getElementById('btn-send-broadcast').addEventListener('click', async () => {
+        const text = document.getElementById('broadcast-input').value.trim();
+        const type = document.querySelector('input[name="bc-recipient"]:checked').value;
+        let recipients = [];
+        
+        if(type === 'specific') {
+            const els = document.querySelectorAll('.bc-target-user:checked');
+            recipients = Array.from(els).map(el => el.value);
+        } else {
+            const pDoc = await getDoc(doc(db, "projects", currentProjectId));
+            if (pDoc.exists()) {
+                recipients = pDoc.data().memberEmails;
+            }
+        }
+
+        if(!text || recipients.length === 0) return;
+
+        const batchPromises = recipients.map(async (email) => {
+            const uq = query(collection(db, "users"), where("email", "==", email));
+            const usnap = await getDocs(uq);
+            usnap.forEach(async u => {
+                await addDoc(collection(db, `users/${u.id}/notifications`), {
+                    type: 'broadcast', 
+                    text: text, 
+                    senderId: currentUser.uid, 
+                    timestamp: serverTimestamp(), 
+                    read: false 
+                });
+            });
+        });
+
+        await Promise.all(batchPromises);
+        window.hideModal('broadcast-compose-modal'); notify("Broadcast sent!", "success");
+    });
+    
+    // --- TABS & SIDEBAR ---
+    const tabs = document.querySelectorAll('[data-tab]'); const tabContents = { 'chat': document.getElementById('tab-chat'), 'comments': document.getElementById('tab-comments'), 'calendar': document.getElementById('tab-calendar'), 'ai': document.getElementById('tab-ai') };
+    tabs.forEach(t => t.addEventListener('click', () => { tabs.forEach(x => { x.classList.remove('tab-active'); x.classList.add('tab-inactive'); }); t.classList.add('tab-active'); t.classList.remove('tab-inactive'); Object.values(tabContents).forEach(c => c.classList.add('hidden')); tabContents[t.dataset.tab].classList.remove('hidden'); }));
+    document.getElementById('btn-toggle-sidebar').addEventListener('click', () => { const p = document.getElementById('right-panel'); p.style.width = p.style.width === '0px' ? '360px' : '0px'; });
+    window.focusEditor = (e) => { if(currentRole!=='viewer' && e.target.id === 'editor-container') { document.getElementById('doc-content').focus(); } }
+
+    // --- CHAT: MENTIONS & ACTIONS ---
+    const chatInput = document.getElementById('chat-input');
+    const mentionBox = document.getElementById('mention-suggestions');
+    
+    chatInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        const lastWord = val.split(' ').pop();
+        if(lastWord.startsWith('@') && lastWord.length > 1) {
+            const query = lastWord.substring(1).toLowerCase();
+            const matches = Array.from(mentionableUsers).filter(m => m.toLowerCase().includes(query));
+            if(matches.length > 0) {
+                mentionBox.innerHTML = matches.map(m => `<div class="p-2 hover:bg-gray-100 cursor-pointer text-xs" onclick="window.insertMention('${m}')">${m}</div>`).join('');
+                mentionBox.classList.remove('hidden');
+            } else {
+                mentionBox.classList.add('hidden');
+            }
+        } else {
+            mentionBox.classList.add('hidden');
+        }
+    });
+
+    window.insertMention = (email) => {
+        const val = chatInput.value;
+        const words = val.split(' ');
+        words.pop(); 
+        chatInput.value = words.join(' ') + ` @${email} `;
+        mentionBox.classList.add('hidden');
+        chatInput.focus();
+    };
+
+    // Chat Message Action Menu Logic
+    let selectedMsgId = null;
+    window.openMsgMenu = (e, mid, isSender) => {
+        e.stopPropagation();
+        selectedMsgId = mid;
+        const menu = document.getElementById('msg-context-menu');
+        menu.style.left = (e.clientX - 140) + 'px'; 
+        menu.style.top = (e.clientY + 5) + 'px';
+        menu.classList.remove('hidden');
+        document.getElementById('btn-delete-all').classList.toggle('hidden', !isSender);
+    };
+    
+    document.getElementById('btn-delete-me').addEventListener('click', async () => {
+        if(!selectedMsgId) return;
+        await updateDoc(doc(db, `projects/${currentProjectId}/messages`, selectedMsgId), { hiddenBy: arrayUnion(currentUser.uid) });
+        document.getElementById('msg-context-menu').classList.add('hidden');
+    });
+    document.getElementById('btn-delete-all').addEventListener('click', async () => {
+        if(!selectedMsgId) return;
+        await deleteDoc(doc(db, `projects/${currentProjectId}/messages`, selectedMsgId));
+        document.getElementById('msg-context-menu').classList.add('hidden');
+    });
+    document.addEventListener('click', () => { document.getElementById('msg-context-menu').classList.add('hidden'); });
+
+    function loadChat(pid) { 
+        if(unsubscribeChat) unsubscribeChat();
+        unsubscribeChat = onSnapshot(query(collection(db, `projects/${pid}/messages`), orderBy("timestamp", "asc")), (snap) => { 
+            const div = document.getElementById('chat-messages'); div.innerHTML = ''; 
+            snap.forEach(d => { 
+                const m = d.data();
+                if(m.hiddenBy && m.hiddenBy.includes(currentUser.uid)) return;
+                
+                if(m.to && m.to !== 'all') { if(m.to !== currentUser.email && m.senderId !== currentUser.uid) return; }
+
+                const isMe = m.senderId === currentUser.uid;
+                const wrap = document.createElement('div'); 
+                wrap.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} group relative chat-row mb-1`; 
+                
+                let bubbleClass = isMe ? 'bg-[#EBF5FE] text-notion-text' : 'bg-white border border-gray-200 text-notion-text';
+                let extraLabel = '';
+                if(m.to && m.to !== 'all') { bubbleClass = 'bg-purple-50 text-purple-900 border border-purple-100'; extraLabel = `<span class="text-[9px] bg-purple-200 text-purple-800 px-1 rounded ml-1">Private</span>`; }
+
+                let content = linkify(m.text);
+                const mentionRegex = new RegExp(`@${currentUser.displayName}|@${currentUser.email}`, 'gi');
+                if(!isMe && m.text.match(mentionRegex)) {
+                    content = content.replace(mentionRegex, (match) => `<span class="mention-highlight">${match}</span>`);
+                    const msgTime = m.timestamp ? m.timestamp.toDate() : new Date();
+                    if(new Date() - msgTime < 10000) { 
+                        window.playSound(); 
+                        notify(`You were mentioned by ${m.senderName}`, 'info');
+                    }
+                }
+
+                // Chat Actions Buttons (Three Dots Menu Style)
+                const menuTrigger = `<button onclick="window.openMsgMenu(event, '${d.id}', ${isMe})" class="absolute top-1/2 -translate-y-1/2 ${isMe ? '-left-6' : '-right-6'} chat-actions text-gray-400 hover:text-gray-600 px-1 text-lg leading-none">⋮</button>`;
+
+                wrap.innerHTML = `${menuTrigger}<div class="text-[10px] text-gray-400 ml-1 mb-0.5 flex items-center">${m.senderName} ${extraLabel}</div><div class="px-3.5 py-2.5 rounded-xl text-[14px] max-w-[90%] ${bubbleClass} shadow-sm leading-relaxed chat-content relative">${content}</div>`; 
+                div.appendChild(wrap); 
+            }); 
+            div.scrollTop = div.scrollHeight; 
+        }); 
+    }
+    document.getElementById('chat-form').addEventListener('submit', async(e) => { 
+        e.preventDefault(); 
+        const inp = document.getElementById('chat-input'); 
+        const recipient = document.getElementById('chat-recipient').value;
+        if(!inp.value.trim()) return; 
+        addDoc(collection(db, `projects/${currentProjectId}/messages`), { 
+            text: inp.value.trim(), 
+            senderId: currentUser.uid, 
+            senderName: currentUser.displayName||"User", 
+            to: recipient,
+            timestamp: serverTimestamp(),
+            hiddenBy: []
+        }); 
+        inp.value = ''; 
+    });
+
+    function loadComments(pid) { 
+        if(unsubscribeComments) unsubscribeComments();
+        unsubscribeComments = onSnapshot(query(collection(db, `projects/${pid}/comments`), orderBy("timestamp", "asc")), (snap) => { const div = document.getElementById('comments-list'); div.innerHTML = ''; snap.forEach(d => { const c = d.data(); const item = document.createElement('div'); item.className = "flex gap-3 items-start p-3 bg-gray-50/80 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"; item.innerHTML = `<img src="https://api.dicebear.com/9.x/lorelei/svg?seed=${c.senderEmail}" class="w-6 h-6 rounded-full mt-1 border border-black/5"><div class="flex-1 min-w-0"><div class="flex justify-between items-center"><span class="text-[12px] font-bold text-gray-800">${c.senderName}</span><span class="text-[10px] text-gray-400">${c.timestamp?.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) || ''}</span></div><div class="text-[14px] text-notion-text mt-1 chat-content break-words">${linkify(c.text)}</div></div>`; div.appendChild(item); }); div.scrollTop = div.scrollHeight; }); 
+    }
+    document.getElementById('comments-form').addEventListener('submit', async (e) => { e.preventDefault(); const inp = document.getElementById('comment-input'); if(!inp.value.trim()) return; addDoc(collection(db, `projects/${currentProjectId}/comments`), { text: inp.value.trim(), senderId: currentUser.uid, senderEmail: currentUser.email, senderName: currentUser.displayName||"User", timestamp: serverTimestamp() }); inp.value = ''; });
+    
+    // --- REMINDERS WITH OVERLAY & SYSTEM NOTIFICATION ---
+    function loadReminders(pid) { 
+        if(unsubscribeReminders) unsubscribeReminders();
+        unsubscribeReminders = onSnapshot(query(collection(db, `projects/${pid}/reminders`), orderBy("due", "asc")), (snap) => { 
+            const div = document.getElementById('reminder-list'); div.innerHTML = ''; activeReminders = []; 
+            if(snap.empty) div.innerHTML = '<div class="text-center text-xs text-gray-400 py-6">No upcoming events</div>'; 
+            snap.forEach(d => { 
+                const r = d.data(); const dateObj = r.due ? r.due.toDate() : new Date(); activeReminders.push({ id: d.id, title: r.title, date: dateObj }); 
+                const item = document.createElement('div'); 
+                item.className = "flex items-center p-3 bg-blue-50/30 border border-blue-100 rounded-lg hover:bg-blue-50/60 transition relative group reminder-item"; 
+                // reminder-actions for hover logic
+                const del = document.createElement('button'); del.className="absolute top-1.5 right-1.5 text-gray-300 hover:text-red-500 reminder-actions p-1"; del.innerHTML = "&times;"; del.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `projects/${pid}/reminders`, d.id)); }; 
+                item.innerHTML = `<div class="w-12 text-center leading-tight mr-4 border-r border-blue-100 pr-4"><div class="text-[10px] text-blue-600 uppercase font-bold tracking-wide">${dateObj.toLocaleString('default', {month:'short'})}</div><div class="text-xl font-bold text-gray-800">${dateObj.getDate()}</div></div><div class="flex-1"><div class="text-[14px] font-semibold text-notion-text">${r.title}</div><div class="text-[12px] text-gray-500 mt-0.5">${dateObj.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} • ${r.addedBy}</div></div>`; item.appendChild(del); div.appendChild(item); 
+            }); 
+        }); 
+    }
+    function checkReminders() {
+        const now = new Date();
+        activeReminders.forEach(r => {
+            if(r.date <= now && !notifiedReminders.has(r.id)) {
+                const diff = now - r.date;
+                if(diff < 5 * 60 * 1000) { 
+                    // In-App Overlay
+                    document.getElementById('reminder-overlay-text').textContent = r.title;
+                    document.getElementById('reminder-overlay').classList.remove('hidden');
+                    window.playSound();
+                    
+                    // System Notification (Background)
+                    if (Notification.permission === "granted") {
+                        new Notification("EduLink Reminder", { body: r.title, icon: "https://i.imghippo.com/files/vgr8207c.png" });
+                    }
+
+                    notifiedReminders.add(r.id);
+                }
+            }
+        });
+    }
+    document.getElementById('reminder-form').addEventListener('submit', async (e) => { e.preventDefault(); const title = document.getElementById('rem-title').value; const date = document.getElementById('rem-date').value; const time = document.getElementById('rem-time').value; if(!title || !date || !time) return; const due = new Date(`${date}T${time}`); await addDoc(collection(db, `projects/${currentProjectId}/reminders`), { title, due, addedBy: currentUser.displayName || "User", timestamp: serverTimestamp() }); document.getElementById('reminder-form').reset(); });
+
+    // --- AI ---
+    async function fetchAI(prompt, context) { try { const clean = encodeURIComponent(`Context: ${context.substring(0,500)}...\nQ: ${prompt}`); const res = await fetch(`https://text.pollinations.ai/${clean}`); if(!res.ok) throw new Error(); return await res.text(); } catch(e) { return "AI Unavailable"; } }
+    document.getElementById('ai-form').addEventListener('submit', async(e)=>{ e.preventDefault(); const inp = document.getElementById('ai-input'); const txt = inp.value.trim(); if(!txt) return; const div = document.getElementById('ai-messages'); div.innerHTML += `<div class="flex flex-col items-end"><div class="bg-gray-100 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text shadow-sm">${txt}</div></div>`; inp.value = ''; div.scrollTop = div.scrollHeight; const resp = await fetchAI(txt, document.getElementById('doc-content').innerText); div.innerHTML += `<div class="flex flex-col items-start"><div class="bg-purple-50 border border-purple-100 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text leading-relaxed shadow-sm">${resp}</div></div>`; div.scrollTop = div.scrollHeight; });
+
+    // --- PROFILE ---
+    const btnSettings = document.getElementById('btn-settings'); btnSettings.addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('edit-display-name').value = currentUser.displayName || ""; window.showModal('profile-modal'); });
+    document.getElementById('btn-cancel-profile').addEventListener('click', () => window.hideModal('profile-modal'));
+    document.getElementById('btn-save-profile').addEventListener('click', async () => { const newName = document.getElementById('edit-display-name').value.trim(); if(!newName) return; try { await updateProfile(currentUser, { displayName: newName }); await updateDoc(doc(db, "users", currentUser.uid), { displayName: newName }); updateUserUI(); notify("Profile updated successfully", "success"); window.hideModal('profile-modal'); } catch(e) { notify("Failed to update profile", "error"); } });
+    
+    // --- NOTIFICATIONS & INVITES & GLOBAL BROADCASTS ---
+    document.getElementById('btn-notifications').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('notification-popover').classList.toggle('hidden'); document.getElementById('notif-badge').classList.add('hidden'); });
+    document.addEventListener('click', (e) => { if(!document.getElementById('btn-notifications').contains(e.target) && !document.getElementById('notification-popover').contains(e.target)) { document.getElementById('notification-popover').classList.add('hidden'); } });
+    function loadUserNotifications() {
+        const q = query(collection(db, `users/${currentUser.uid}/notifications`), orderBy('timestamp', 'desc'));
+        unsubscribeNotifs = onSnapshot(q, (snap) => {
+            const list = document.getElementById('notification-list');
+            if(snap.empty) { list.innerHTML = '<div class="p-8 text-center text-gray-400 text-sm italic">No new notifications</div>'; return; }
+            list.innerHTML = '';
+            let hasUnread = false;
+            snap.docChanges().forEach(change => {
+                if(change.type === 'added') {
+                    const n = change.doc.data();
+                    // Handle Global Broadcast Alert
+                    if (n.type === 'broadcast' && !n.read) {
+                        window.playSound();
+                        document.getElementById('broadcast-message-text').textContent = n.text;
+                        document.getElementById('broadcast-receive-overlay').classList.remove('hidden');
+                        
+                        if (Notification.permission === "granted") {
+                            new Notification("Announcement", { body: n.text, icon: "https://i.imghippo.com/files/vgr8207c.png" });
+                        }
+
+                        updateDoc(doc(db, `users/${currentUser.uid}/notifications`, change.doc.id), { read: true });
+                    }
+                }
+            });
+
+            snap.forEach(d => {
+                const n = d.data();
+                const item = document.createElement('div');
+                item.className = "p-4 border-b border-gray-50 hover:bg-gray-50 text-sm flex gap-3 relative group transition-colors";
+                const delBtn = document.createElement('button'); delBtn.className = "absolute top-2 right-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"; delBtn.innerHTML = "&times;";
+                delBtn.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id)); };
+                
+                let icon = n.read ? '<div class="w-2.5 h-2.5 rounded-full bg-transparent mt-1.5 flex-shrink-0"></div>' : '<div class="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0 shadow-sm border border-white"></div>';
+                if(!n.read) hasUnread = true;
+                
+                let actions = '';
+                if(n.type === 'team_invite') {
+                    actions = `<div class="mt-2 flex gap-2"><button onclick="window.acceptTeam('${n.teamId}', '${d.id}')" class="px-3 py-1 bg-blue-600 text-white rounded text-xs">Accept</button><button onclick="window.declineTeam('${d.id}')" class="px-3 py-1 bg-gray-200 text-gray-700 rounded text-xs">Decline</button></div>`;
+                }
+
+                item.innerHTML = `${icon}<div class="flex-1 pr-4"><div class="font-semibold text-notion-text leading-tight text-[14px]">${n.title || (n.type === 'broadcast' ? 'Announcement' : 'Notification')}</div><div class="text-gray-500 mt-1 leading-relaxed text-[13px]">${n.text}</div>${actions}<div class="text-[11px] text-gray-400 mt-2 font-medium">${n.timestamp?.toDate().toLocaleDateString() || ""}</div></div>`;
+                item.appendChild(delBtn); list.appendChild(item);
+                if(!n.read && n.type !== 'broadcast') { updateDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id), { read: true }); }
+            });
+            if(hasUnread) document.getElementById('notif-badge').classList.remove('hidden');
+        });
+    }
+
+    window.acceptTeam = async (tid, nid) => {
+        const ref = doc(db, "teams", tid);
+        await updateDoc(ref, { pending: arrayRemove(currentUser.email), members: arrayUnion(currentUser.email) });
+        await deleteDoc(doc(db, `users/${currentUser.uid}/notifications`, nid));
+        notify("Joined team!", "success");
+    };
+    window.declineTeam = async (nid) => { await deleteDoc(doc(db, `users/${currentUser.uid}/notifications`, nid)); notify("Invite declined"); };
+
+    // --- CREATE & SHARE ---
+    [document.getElementById('trigger-create-project'), document.getElementById('btn-create-empty')].forEach(b => b.addEventListener('click', ()=>window.showModal('create-modal')));
+    document.getElementById('btn-cancel-create').addEventListener('click', ()=>window.hideModal('create-modal'));
+    document.getElementById('btn-confirm-create').addEventListener('click', async()=>{
+        const title = document.getElementById('new-proj-title').value || "Untitled"; 
+        const isPrivate = document.getElementById('new-proj-private').checked;
+        const folderId = document.getElementById('new-proj-folder').value || null;
+        
+        const docRef = await addDoc(collection(db, "projects"), { 
+            title, icon: "📄", content: "", 
+            ownerId: currentUser.uid, 
+            folderId: folderId,
+            memberEmails: [currentUser.email], 
+            access: [{email:currentUser.email, role:'owner'}], 
+            createdAt: serverTimestamp(), 
+            isPrivate 
+        });
+        window.hideModal('create-modal'); selectProject(docRef.id);
+    });
+    document.getElementById('btn-open-share').addEventListener('click', ()=>window.showModal('share-modal'));
+    document.getElementById('btn-copy-link').addEventListener('click', () => { if(!currentProjectId) return; const url = window.location.protocol + "//" + window.location.host + window.location.pathname + '?project=' + currentProjectId; navigator.clipboard.writeText(url).then(() => notify("Link copied to clipboard!", "success")).catch(err => notify("Failed to copy link", "error")); });
+    function renderMembersList(access, isOwner) {
+        const d = document.getElementById('members-list'); d.innerHTML = '';
+        access.forEach(m => { 
+            let roleDisplay = `<span class="text-[11px] text-gray-400 capitalize font-medium">${m.role}</span>`;
+            let actions = '';
+            if(isOwner && m.email !== currentUser.email) {
+                roleDisplay = `<select onchange="window.updateMemberRole('${m.email}', this.value)" class="text-[11px] bg-transparent border-none outline-none text-gray-500 font-medium cursor-pointer hover:text-gray-800"><option value="editor" ${m.role==='editor'?'selected':''}>Editor</option><option value="commenter" ${m.role==='commenter'?'selected':''}>Commenter</option><option value="viewer" ${m.role==='viewer'?'selected':''}>Viewer</option></select>`;
+                actions = `<button class="text-xs text-red-400 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors" onclick="window.removeMember('${m.email}', '${currentProjectId}')">Remove</button>`;
+            } else if(m.role === 'owner') roleDisplay = `<span class="text-[11px] text-notion-blue font-bold uppercase tracking-wider">Owner</span>`;
+            d.innerHTML += `<div class="flex justify-between items-center p-2.5 hover:bg-gray-50 rounded-lg border border-transparent hover:border-gray-100 transition-all group"><div class="flex items-center gap-3"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}" class="w-8 h-8 rounded-full bg-white border border-gray-200"><div class="flex flex-col"><span class="text-sm font-semibold text-notion-text">${m.email}</span>${roleDisplay}</div></div>${actions}</div>`; 
+        });
+    }
+    document.getElementById('btn-send-invite').addEventListener('click', async()=>{
+        const email = document.getElementById('invite-email').value; const role = document.getElementById('invite-role').value; if(!email) return;
+        const ref = doc(db, "projects", currentProjectId); const snap = await getDoc(ref);
+        if(snap.exists() && !snap.data().access.find(a=>a.email===email)) {
+            await updateDoc(ref, { memberEmails: arrayUnion(email), access: arrayUnion({email, role}) });
+            notify(`Invited ${email}`, 'success'); 
+            const usersQ = query(collection(db, "users"), where("email", "==", email)); const userSnap = await getDocs(usersQ);
+            if(!userSnap.empty) { userSnap.forEach(async (u) => { await addDoc(collection(db, `users/${u.id}/notifications`), { title: "Project Invitation", text: `You were invited to join <strong>${snap.data().title || "a project"}</strong> as ${role}.`, timestamp: serverTimestamp(), read: false }); }); }
+            document.getElementById('invite-email').value = '';
+        } else { notify("User already exists or error", "error"); }
+    });
+    window.updateMemberRole = async (email, newRole) => {
+        const ref = doc(db, "projects", currentProjectId); const snap = await getDoc(ref); if(!snap.exists()) return;
+        let access = snap.data().access; access = access.map(m => m.email === email ? { ...m, role: newRole } : m);
+        await updateDoc(ref, { access }); notify(`Updated ${email} to ${newRole}`, 'success');
+    };
+    window.removeMember = async (email, pid) => {
+        if(!pid) pid = currentProjectId;
+        if(!confirm(`Remove/Leave ${email}?`)) return;
+        const ref = doc(db, "projects", pid); const snap = await getDoc(ref);
+        const access = snap.data().access.filter(a=>a.email!==email); const emails = snap.data().memberEmails.filter(e=>e!==email);
+        await updateDoc(ref, {access, memberEmails: emails}); 
+        if(email === currentUser.email) { window.location.href = "home.html"; } 
+        else { notify("Member removed"); }
+    }
+
+</script>
+</body>
+</html>

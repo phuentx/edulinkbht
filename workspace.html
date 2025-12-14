@@ -29,14 +29,18 @@
                 'popover': '0 4px 12px -2px rgba(0, 0, 0, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.08)'
             },
             keyframes: {
-                slideIn: { '0%': { transform: 'translateX(100%)', opacity: '0' }, '100%': { transform: 'translateX(0)', opacity: '1' } },
-                popIn: { '0%': { transform: 'scale(0.95)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } },
-                fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } }
+                slideIn: {
+                    '0%': { transform: 'translateX(100%)', opacity: '0' },
+                    '100%': { transform: 'translateX(0)', opacity: '1' }
+                },
+                popIn: {
+                    '0%': { transform: 'scale(0.95)', opacity: '0' },
+                    '100%': { transform: 'scale(1)', opacity: '1' }
+                }
             },
             animation: {
                 slideIn: 'slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                popIn: 'popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                fadeIn: 'fadeIn 0.2s ease-out'
+                popIn: 'popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
             }
           }
         }
@@ -64,40 +68,70 @@
         }
         @keyframes shimmer { to { background-position: 200% center; } }
         
+        /* Enhanced Link styling */
         .chat-content a, #doc-content a { 
-            color: #2383E2; text-decoration: underline; text-decoration-thickness: 1px;
-            text-underline-offset: 2px; font-weight: 500; transition: all 0.2s ease;
-            padding: 0 2px; border-radius: 2px; cursor: pointer;
+            color: #2383E2; 
+            text-decoration: underline; 
+            text-decoration-thickness: 1px;
+            text-underline-offset: 2px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            padding: 0 2px;
+            border-radius: 2px;
+            cursor: pointer;
         }
-        .chat-content a:hover, #doc-content a:hover { color: #1a6cb8; background-color: rgba(35, 131, 226, 0.1); }
+        .chat-content a:hover, #doc-content a:hover {
+            color: #1a6cb8;
+            background-color: rgba(35, 131, 226, 0.1);
+        }
         
-        .mention { background-color: rgba(35, 131, 226, 0.15); color: #2383E2; padding: 1px 4px; border-radius: 4px; font-weight: 500; }
+        /* Editor Styles */
+        #doc-content:empty:before {
+            content: attr(placeholder);
+            color: #9ca3af;
+            pointer-events: none;
+        }
         
-        #doc-content:empty:before { content: attr(placeholder); color: #9ca3af; pointer-events: none; }
-        
-        .remote-cursor { position: absolute; width: 2px; height: 1.2em; background-color: var(--cursor-color, #2383E2); pointer-events: none; transition: all 0.1s ease; z-index: 20; }
-        .remote-cursor-label { position: absolute; top: -1.4em; left: -2px; background-color: var(--cursor-color, #2383E2); color: white; font-size: 10px; padding: 1px 4px; border-radius: 3px; white-space: nowrap; font-weight: 600; }
+        /* Remote Cursors */
+        .remote-cursor {
+            position: absolute;
+            width: 2px;
+            height: 1.2em;
+            background-color: var(--cursor-color, #2383E2);
+            pointer-events: none;
+            transition: all 0.1s ease;
+            z-index: 20;
+        }
+        .remote-cursor-label {
+            position: absolute;
+            top: -1.4em;
+            left: -2px;
+            background-color: var(--cursor-color, #2383E2);
+            color: white;
+            font-size: 10px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            white-space: nowrap;
+            font-weight: 600;
+        }
 
-        /* Context Menu Styles */
-        .context-menu-trigger:hover .context-menu-btn { opacity: 1; }
-        
-        /* Tree View Indentation */
-        .tree-indent { padding-left: 12px; border-left: 1px solid #E9E9E7; margin-left: 10px; }
-        
+        /* Dropdown transition */
         select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.4rem center; background-size: 1em; padding-right: 2rem; }
     </style>
 </head>
 <body class="flex text-[15px]">
 
-    <!-- NOTIFICATION TOAST -->
+    <!-- NOTIFICATION TOAST CONTAINER (Top Right) -->
     <div id="notification-toast-container" class="fixed top-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none w-80"></div>
 
     <!-- SIDEBAR -->
     <div class="w-[260px] bg-notion-sidebar border-r border-notion-border flex flex-col h-full flex-shrink-0 transition-all duration-300">
-        <!-- User Profile -->
+        <!-- User Profile Dropdown -->
         <div class="h-14 flex items-center px-3 hover:bg-notion-hover cursor-pointer m-2 rounded-md transition-colors group relative">
             <img id="user-avatar" src="" class="w-8 h-8 rounded-full bg-white object-cover mr-3 shadow-sm border border-gray-200">
             <span id="user-name" class="font-medium truncate flex-1 text-notion-text">Loading...</span>
+            
+            <!-- Settings / Logout Controls -->
             <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 bg-notion-hover pl-2 shadow-sm rounded-lg border border-gray-200/50">
                 <button id="btn-settings" class="p-1.5 hover:bg-white rounded-md text-gray-500 hover:text-notion-text transition-colors" title="Edit Profile">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -108,32 +142,21 @@
             </div>
         </div>
 
-        <!-- Team / Workspace Header -->
-        <div class="px-4 py-2 flex justify-between items-center group mt-2 mb-1">
-             <div class="flex items-center gap-2 overflow-hidden">
-                 <img id="team-logo" src="https://ui-avatars.com/api/?name=Team&background=random" class="w-5 h-5 rounded-sm flex-shrink-0">
-                 <span id="team-name" class="text-xs font-semibold text-notion-textLight tracking-wide truncate uppercase">WORKSPACE</span>
-             </div>
-             <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button id="trigger-team-settings" class="hover:bg-gray-200 rounded p-1" title="Workspace Settings">
-                     <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </button>
-                <button id="trigger-create-folder" class="hover:bg-gray-200 rounded p-1" title="New Folder">
-                    <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-                </button>
-                <button id="trigger-create-project" class="hover:bg-gray-200 rounded p-1" title="New Project">
-                    <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-                </button>
-             </div>
+        <!-- Section Header -->
+        <div class="px-4 py-3 text-xs font-semibold text-notion-textLight flex justify-between items-center group tracking-wide mt-2">
+            <span>WORKSPACE</span>
+            <button id="trigger-create-project" class="hover:bg-gray-200 rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity" title="Create Project">
+                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+            </button>
         </div>
 
-        <!-- File Explorer -->
-        <div id="file-explorer" class="flex-1 overflow-y-auto px-2 space-y-0.5 custom-scroll pb-4">
-            <!-- Injected via JS -->
+        <!-- Project List -->
+        <div id="project-list" class="flex-1 overflow-y-auto px-2 space-y-1 custom-scroll pb-4">
+            <!-- Projects injected via JS -->
         </div>
 
         <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">
-            EduLink v2.0
+            EduLink v1.5
         </div>
     </div>
 
@@ -143,15 +166,19 @@
         <!-- Empty State -->
         <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-10">
             <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6 text-5xl shadow-sm border border-gray-100 animate-pulse">👋</div>
-            <h2 class="text-2xl font-semibold text-notion-text">Welcome back</h2>
-            <p class="text-notion-textLight mt-2 text-base">Select a file or folder to get started.</p>
+            <h2 class="text-2xl font-semibold text-notion-text">Welcome to EduLink</h2>
+            <p class="text-notion-textLight mt-2 text-base">Select a project from the sidebar to start collaborating.</p>
+            <button id="btn-create-empty" class="mt-8 px-6 py-3 bg-notion-blue text-white rounded-lg shadow-sm hover:bg-blue-600 transition text-sm font-medium flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                Create New Project
+            </button>
         </div>
 
         <!-- Workspace -->
         <div id="workspace-container" class="flex flex-col h-full hidden w-full">
             
             <!-- Navbar -->
-            <div class="h-14 border-b border-notion-border flex items-center justify-between px-6 bg-white sticky top-0 z-40">
+            <div class="h-16 border-b border-notion-border flex items-center justify-between px-6 bg-white sticky top-0 z-40">
                 <!-- Title Area -->
                 <div class="flex items-center gap-3 flex-1 min-w-0 mr-6">
                     <span class="text-2xl cursor-default select-none" id="doc-icon">📄</span>
@@ -162,27 +189,22 @@
                 <!-- Right Tools -->
                 <div class="flex items-center gap-3 relative">
                     
-                    <!-- Broadcast (Owner) -->
-                    <button id="btn-broadcast-create" class="hidden text-sm font-medium text-notion-text hover:bg-notion-sidebar px-3 py-1.5 rounded-lg transition-colors border border-gray-200 hover:border-gray-300 flex items-center gap-2 animate-slideIn" title="Broadcast">
+                    <!-- Broadcast Button (Owner Only) -->
+                    <button id="btn-broadcast-create" class="hidden text-sm font-medium text-notion-text hover:bg-notion-sidebar px-3 py-2 rounded-lg transition-colors border border-gray-200 hover:border-gray-300 flex items-center gap-2 animate-slideIn" title="Send Announcement">
                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
                         <span>Broadcast</span>
                     </button>
 
-                    <!-- Announce (Non-Owner) -->
-                    <button id="btn-announce-create" class="hidden text-sm font-medium text-notion-text hover:bg-notion-sidebar px-3 py-1.5 rounded-lg transition-colors border border-gray-200 hover:border-gray-300 flex items-center gap-2 animate-slideIn" title="Announce">
-                        <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
-                        <span>Announce</span>
-                    </button>
-
-                    <!-- Share -->
-                    <button id="btn-open-share" class="text-sm font-medium text-notion-text hover:bg-notion-sidebar px-3 py-1.5 rounded-lg transition-colors border border-gray-200 hover:border-gray-300 flex items-center gap-2">
+                    <!-- Share Button -->
+                    <button id="btn-open-share" class="text-sm font-medium text-notion-text hover:bg-notion-sidebar px-4 py-2 rounded-lg transition-colors border border-gray-200 hover:border-gray-300 flex items-center gap-2">
                         <span>Share</span>
                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
                     </button>
 
                     <span class="h-6 w-[1px] bg-gray-200 mx-1"></span>
 
-                    <div class="flex -space-x-2 overflow-hidden cursor-pointer hover:opacity-100 opacity-90 transition py-1 px-1" id="member-avatars" onclick="document.getElementById('share-modal').classList.remove('hidden')" title="Manage Members"></div>
+                    <!-- Members -->
+                    <div class="flex -space-x-3 overflow-hidden cursor-pointer hover:opacity-100 opacity-90 transition py-1 px-1" id="member-avatars" onclick="document.getElementById('share-modal').classList.remove('hidden')" title="Manage Members"></div>
 
                     <!-- Notification Bell -->
                     <div class="relative">
@@ -190,12 +212,22 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                             <span id="notif-badge" class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full hidden"></span>
                         </button>
+                        
+                        <!-- Notification Popover -->
                         <div id="notification-popover" class="hidden absolute top-14 right-0 w-80 bg-white border border-gray-200 shadow-popover rounded-xl z-50 flex flex-col max-h-96 animate-slideIn origin-top-right overflow-hidden">
-                            <div class="px-5 py-3 border-b border-gray-100 bg-gray-50/80 flex justify-between"><span class="font-semibold text-xs text-gray-500 tracking-wide">NOTIFICATIONS</span></div>
-                            <div id="notification-list" class="overflow-y-auto custom-scroll flex-1 p-0 min-h-[120px]"><div class="p-8 text-center text-gray-400 text-sm">No new notifications</div></div>
+                            <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/80 backdrop-blur-sm">
+                                <span class="font-semibold text-xs text-gray-500 tracking-wide">NOTIFICATIONS</span>
+                            </div>
+                            <div id="notification-list" class="overflow-y-auto custom-scroll flex-1 p-0 min-h-[120px]">
+                                <div class="p-8 text-center text-gray-400 text-sm">No new notifications</div>
+                            </div>
                         </div>
                     </div>
-                    <button id="btn-toggle-sidebar" class="text-notion-textLight hover:text-notion-text p-2 rounded-lg hover:bg-gray-100"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"/></svg></button>
+
+                    <!-- Sidebar Toggle -->
+                    <button id="btn-toggle-sidebar" class="text-notion-textLight hover:text-notion-text p-2 rounded-lg hover:bg-gray-100" title="Toggle Sidebar">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+                    </button>
                 </div>
             </div>
 
@@ -204,12 +236,15 @@
                 <!-- DOCUMENT EDITOR -->
                 <div class="flex-1 overflow-y-auto bg-white cursor-text relative custom-scroll flex justify-center" id="editor-container" onclick="focusEditor(event)">
                     <div class="w-full max-w-[850px] py-12 px-14 min-h-full flex flex-col relative">
-                        <!-- Editor Toolbar -->
+                        
+                        <!-- Toolbar -->
                         <div id="editor-toolbar" class="sticky top-0 bg-white/95 backdrop-blur z-30 flex gap-2 py-2 mb-6 border-b border-transparent hover:border-gray-100 transition-colors opacity-0 hover:opacity-100 items-center">
-                            <button onclick="formatDoc('bold')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 font-bold w-7 h-7 flex items-center justify-center text-sm border border-transparent">B</button>
-                            <button onclick="formatDoc('italic')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 italic w-7 h-7 flex items-center justify-center text-sm border border-transparent">I</button>
+                            <button onclick="formatDoc('bold')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 font-bold w-8 h-8 flex items-center justify-center text-sm border border-transparent hover:border-gray-200" title="Bold">B</button>
+                            <button onclick="formatDoc('italic')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 italic w-8 h-8 flex items-center justify-center text-sm border border-transparent hover:border-gray-200" title="Italic">I</button>
                             <div class="w-[1px] h-4 bg-gray-200 mx-1"></div>
-                            <button onclick="window.openLinkModal()" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 flex items-center gap-1.5 text-sm px-2">Link</button>
+                            <button onclick="window.openLinkModal()" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-600 flex items-center gap-1.5 text-sm px-3 border border-transparent hover:border-gray-200" title="Link">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Link
+                            </button>
                         </div>
 
                         <!-- AI Helper Pill -->
@@ -217,528 +252,827 @@
                              <span class="ai-shimmer font-semibold text-sm">✨ AI is writing...</span>
                         </div>
                         
-                        <div id="read-only-banner" class="hidden mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500 flex items-center gap-3"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><span class="font-medium">View Only</span></div>
+                        <!-- Permission Lock Warning -->
+                        <div id="read-only-banner" class="hidden mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            <span class="font-medium">View Only</span> <span>— You don't have permission to edit this file.</span>
+                        </div>
+
+                        <!-- Remote Cursors Layer -->
                         <div id="remote-cursors-layer" class="absolute inset-0 pointer-events-none z-10 overflow-hidden"></div>
+
+                        <!-- ContentEditable Div -->
                         <div id="doc-content" contenteditable="true" class="w-full h-full min-h-[75vh] outline-none text-[#37352F] leading-8 text-[17px] font-sans placeholder-gray-300 relative z-20" placeholder="Type '/' for AI commands..."></div>
                     </div>
                 </div>
 
                 <!-- RIGHT PANEL -->
                 <div id="right-panel" class="w-[360px] border-l border-notion-border bg-white flex flex-col shadow-sm relative z-30 transition-all duration-300">
-                    <div class="flex border-b border-notion-border h-12 items-center px-2 gap-1">
-                        <button class="flex-1 h-full text-[14px] tab-active transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50" data-tab="chat" title="Chat"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></button>
-                        <button class="flex-1 h-full text-[14px] tab-inactive transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50" data-tab="comments" title="Comments"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg></button>
-                        <button class="flex-1 h-full text-[14px] tab-inactive transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50" data-tab="calendar" title="Calendar"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></button>
-                        <button class="flex-1 h-full text-[14px] tab-inactive transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50" data-tab="ai" title="AI"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></button>
+                    
+                    <!-- Tabs -->
+                    <div class="flex border-b border-notion-border h-14 items-center px-2 gap-1">
+                        <button class="flex-1 h-full text-[14px] tab-active transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50" data-tab="chat" title="Chat">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                        </button>
+                        <button class="flex-1 h-full text-[14px] tab-inactive transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50" data-tab="comments" title="Comments">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+                        </button>
+                        <button class="flex-1 h-full text-[14px] tab-inactive transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50" data-tab="calendar" title="Calendar">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </button>
+                        <button class="flex-1 h-full text-[14px] tab-inactive transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50" data-tab="ai" title="AI">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                        </button>
                     </div>
 
                     <!-- TAB: CHAT -->
                     <div id="tab-chat" class="flex-1 flex flex-col h-full overflow-hidden">
                         <div id="chat-messages" class="flex-1 overflow-y-auto p-5 space-y-4 custom-scroll bg-[#FBFAFA]"></div>
-                        <div class="p-3 border-t border-notion-border bg-white relative">
-                            <!-- Tagging Overlay -->
-                            <div id="tag-overlay" class="absolute bottom-16 left-3 w-48 bg-white border border-gray-200 shadow-xl rounded-lg hidden flex-col z-50 max-h-40 overflow-y-auto"></div>
-                            
-                            <div class="flex items-center justify-between mb-2">
-                                <select id="chat-target" class="text-xs bg-gray-50 border border-gray-200 rounded px-2 py-1 text-gray-600 outline-none hover:bg-gray-100 cursor-pointer w-full max-w-[140px]">
-                                    <option value="everyone">Everyone</option>
-                                    <!-- Dynamic Members -->
-                                </select>
-                            </div>
+                        <div class="p-4 border-t border-notion-border bg-white">
                             <form id="chat-form" class="relative">
-                                <input id="chat-input" type="text" class="w-full text-[14px] p-2.5 pr-10 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:bg-white focus:border-gray-300 transition-all placeholder-gray-400" placeholder="Type @ to tag...">
-                                <button type="submit" class="absolute right-2 top-2 text-gray-400 hover:text-notion-blue"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg></button>
+                                <input id="chat-input" type="text" class="w-full text-[15px] p-3 pr-10 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:bg-white focus:border-gray-300 transition-all placeholder-gray-400" placeholder="Message team...">
+                                <button type="submit" class="absolute right-3 top-3 text-gray-400 hover:text-notion-blue"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg></button>
                             </form>
                         </div>
                     </div>
-                    
+
                     <!-- TAB: COMMENTS -->
                     <div id="tab-comments" class="flex-1 flex flex-col h-full hidden overflow-hidden">
-                         <div class="p-4 bg-yellow-50 text-xs text-yellow-800 border-b border-yellow-100 font-medium">Discussion</div>
-                         <div id="comments-list" class="flex-1 overflow-y-auto p-5 space-y-3 custom-scroll bg-white"></div>
-                         <div class="p-4 border-t border-notion-border bg-white">
-                            <form id="comments-form"><textarea id="comment-input" rows="2" class="w-full text-sm p-2 border border-gray-200 rounded bg-gray-50 resize-none outline-none" placeholder="Add comment..."></textarea><button class="mt-2 w-full py-1.5 bg-gray-100 text-xs font-semibold rounded hover:bg-gray-200">Post</button></form>
-                         </div>
-                    </div>
-                    <!-- TAB: CALENDAR -->
-                    <div id="tab-calendar" class="flex-1 flex flex-col h-full hidden bg-white">
-                        <div class="p-4 border-b border-gray-100">
-                             <form id="reminder-form" class="space-y-2"><input id="rem-title" class="w-full p-2 text-sm border rounded bg-gray-50 outline-none" placeholder="Event..." required><div class="flex gap-2"><input id="rem-date" type="date" class="flex-1 p-2 border rounded bg-gray-50 text-sm"><input id="rem-time" type="time" class="flex-1 p-2 border rounded bg-gray-50 text-sm"></div><button class="w-full py-2 bg-notion-blue text-white text-sm rounded font-medium">Add Reminder</button></form>
+                        <div class="p-4 bg-yellow-50 text-xs text-yellow-800 border-b border-yellow-100 flex justify-between items-center font-medium">
+                            <span>Discussion & Feedback</span>
                         </div>
-                        <div id="reminder-list" class="flex-1 p-4 space-y-3 overflow-y-auto custom-scroll"></div>
+                        <div id="comments-list" class="flex-1 overflow-y-auto p-5 space-y-3 custom-scroll bg-white"></div>
+                        <div class="p-4 border-t border-notion-border bg-white">
+                            <form id="comments-form" class="relative">
+                                <textarea id="comment-input" rows="2" class="w-full text-[15px] p-3 border border-gray-200 rounded-lg outline-none focus:border-notion-blue resize-none bg-gray-50 focus:bg-white transition-colors" placeholder="Add a comment..."></textarea>
+                                <button type="submit" class="mt-2 w-full py-2 bg-gray-100 text-xs font-semibold text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">Post Comment</button>
+                            </form>
+                        </div>
                     </div>
+
+                    <!-- TAB: CALENDAR / REMINDERS -->
+                    <div id="tab-calendar" class="flex-1 flex flex-col h-full hidden overflow-hidden bg-white">
+                        <div class="p-5 border-b border-gray-100">
+                            <h3 class="font-semibold text-sm mb-4 text-gray-700 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-notion-blue" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Add Reminder
+                            </h3>
+                            <form id="reminder-form" class="space-y-3">
+                                <input id="rem-title" type="text" placeholder="Event or Task..." class="w-full p-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-notion-blue bg-gray-50 focus:bg-white transition-colors" required>
+                                <div class="flex gap-2">
+                                    <input id="rem-date" type="date" class="flex-1 p-2.5 text-sm border border-gray-200 rounded-lg outline-none bg-gray-50 focus:bg-white transition-colors text-gray-500" required>
+                                    <input id="rem-time" type="time" class="flex-1 p-2.5 text-sm border border-gray-200 rounded-lg outline-none bg-gray-50 focus:bg-white transition-colors text-gray-500" required>
+                                </div>
+                                <button type="submit" class="w-full py-2 bg-notion-blue text-white text-sm font-medium rounded-lg hover:bg-blue-600 shadow-sm transition-transform active:scale-[0.98]">Set Reminder</button>
+                            </form>
+                        </div>
+                        <div class="flex-1 overflow-y-auto custom-scroll p-5">
+                            <h4 class="text-[11px] font-bold text-gray-400 uppercase mb-3 tracking-wider flex justify-between">Upcoming Events</h4>
+                            <div id="reminder-list" class="space-y-3"></div>
+                        </div>
+                    </div>
+
                     <!-- TAB: AI -->
-                    <div id="tab-ai" class="flex-1 flex flex-col h-full hidden"><div id="ai-messages" class="flex-1 p-4 space-y-3 overflow-y-auto"></div><form id="ai-form" class="p-4 border-t"><input id="ai-input" class="w-full p-2 border rounded bg-gray-50 outline-none text-sm" placeholder="Ask AI..."></form></div>
+                    <div id="tab-ai" class="flex-1 flex flex-col h-full hidden overflow-hidden">
+                        <div class="p-4 bg-blue-50 text-xs text-blue-800 border-b border-blue-100 leading-relaxed flex gap-2">
+                             <span class="text-xl">🤖</span> <span><strong>AI Assistant:</strong> Ask questions about the document, summarize content, or generate ideas.</span>
+                        </div>
+                        <div id="ai-messages" class="flex-1 overflow-y-auto p-5 space-y-4 custom-scroll bg-white"></div>
+                        <div class="p-4 border-t border-notion-border bg-white">
+                            <form id="ai-form" class="relative">
+                                <input id="ai-input" type="text" class="w-full text-[15px] p-3 pr-10 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-purple-300 focus:bg-white transition-all placeholder-gray-400" placeholder="Ask AI something...">
+                                <button type="submit" class="absolute right-3 top-3 text-purple-500 hover:text-purple-700"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                            </form>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODALS -->
-    <!-- Link Modal -->
-    <div id="link-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200"><div class="bg-white rounded-xl shadow-modal w-[380px] p-6 scale-95 transition-transform"><h3 class="text-lg font-semibold mb-4">Insert Link</h3><input id="link-text-input" class="w-full mb-3 p-2 border rounded text-sm" placeholder="Text"><input id="link-url-input" class="w-full mb-6 p-2 border rounded text-sm" placeholder="URL"><div class="flex justify-end gap-2"><button onclick="hideModal('link-modal')" class="px-3 py-1.5 text-sm text-gray-500">Cancel</button><button id="btn-confirm-link" class="px-3 py-1.5 text-sm bg-notion-blue text-white rounded">Insert</button></div></div></div>
-    
-    <!-- Broadcast Modal (Owner) -->
-    <div id="broadcast-compose-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200"><div class="bg-white rounded-xl shadow-modal w-[480px] p-6 scale-95 transition-transform"><h3 class="text-lg font-bold mb-2">Live Broadcast</h3><p class="text-sm text-gray-500 mb-4">Send an alert to everyone viewing this project.</p><textarea id="broadcast-input" rows="4" class="w-full p-3 border rounded-lg text-sm bg-gray-50 resize-none outline-none" placeholder="Message..."></textarea><div class="flex justify-end gap-2 mt-4"><button onclick="hideModal('broadcast-compose-modal')" class="px-3 py-1.5 text-sm text-gray-500">Cancel</button><button id="btn-send-broadcast" class="px-3 py-1.5 text-sm bg-black text-white rounded">Send</button></div></div></div>
+    <!-- MODAL: LINK INSERTION -->
+    <div id="link-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
+        <div class="bg-white rounded-xl shadow-modal w-[380px] p-6 scale-95 transition-transform duration-200 transform">
+            <h3 class="text-lg font-semibold text-notion-text mb-5">Insert Link</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-notion-textLight mb-1.5 uppercase tracking-wide">Text</label>
+                    <input id="link-text-input" type="text" class="w-full p-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue" placeholder="Display text">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-notion-textLight mb-1.5 uppercase tracking-wide">URL</label>
+                    <input id="link-url-input" type="text" class="w-full p-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue" placeholder="https://example.com">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-8">
+                <button onclick="document.getElementById('link-modal').classList.add('hidden')" class="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors">Cancel</button>
+                <button id="btn-confirm-link" class="px-4 py-2 text-sm bg-notion-blue text-white rounded-lg hover:bg-blue-600 shadow-sm font-medium transition-colors">Insert Link</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- Announce Modal (Non-Owner) -->
-    <div id="announce-compose-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200"><div class="bg-white rounded-xl shadow-modal w-[480px] p-6 scale-95 transition-transform"><h3 class="text-lg font-bold mb-2 text-orange-600">Send Announcement</h3><p class="text-sm text-gray-500 mb-4">Send a priority message to selected members.</p><div class="mb-3"><label class="text-xs font-bold text-gray-400 uppercase">Recipients</label><div id="announce-recipients" class="flex flex-wrap gap-2 mt-2 max-h-24 overflow-y-auto"></div></div><textarea id="announce-input" rows="3" class="w-full p-3 border rounded-lg text-sm bg-gray-50 resize-none outline-none" placeholder="Announcement..."></textarea><div class="flex justify-end gap-2 mt-4"><button onclick="hideModal('announce-compose-modal')" class="px-3 py-1.5 text-sm text-gray-500">Cancel</button><button id="btn-send-announce" class="px-3 py-1.5 text-sm bg-orange-500 text-white rounded">Announce</button></div></div></div>
+    <!-- MODAL: BROADCAST COMPOSE (Owner Only) -->
+    <div id="broadcast-compose-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
+        <div class="bg-white rounded-xl shadow-modal w-[480px] p-6 scale-95 transition-transform duration-200 transform">
+            <div class="flex items-center gap-2 mb-4 text-notion-text">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+                <h3 class="text-lg font-bold">Live Broadcast</h3>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">Send an announcement to everyone currently viewing this project. It will appear as a popup on their screen.</p>
+            <textarea id="broadcast-input" rows="4" class="w-full p-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue bg-gray-50 focus:bg-white transition-colors resize-none" placeholder="Type your announcement..."></textarea>
+            <div class="flex justify-end gap-3 mt-6">
+                <button onclick="document.getElementById('broadcast-compose-modal').classList.add('hidden')" class="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors">Cancel</button>
+                <button id="btn-send-broadcast" class="px-4 py-2 text-sm bg-notion-text text-white rounded-lg hover:bg-black shadow-sm font-medium transition-colors">Send Broadcast</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- Broadcast/Announce Receive Overlay -->
-    <div id="broadcast-receive-overlay" class="fixed inset-0 bg-black/60 z-[200] hidden flex items-center justify-center backdrop-blur-md animate-slideIn"><div class="bg-white rounded-2xl shadow-2xl w-[500px] p-8 text-center relative animate-popIn"><div id="broadcast-icon-container" class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-notion-blue"><svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg></div><h2 id="broadcast-title" class="text-2xl font-bold text-gray-800 mb-2">Announcement</h2><div class="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-6"></div><p id="broadcast-message-text" class="text-lg text-gray-600 leading-relaxed mb-8">...</p><button onclick="document.getElementById('broadcast-receive-overlay').classList.add('hidden')" class="px-8 py-3 bg-gray-900 text-white rounded-xl font-medium shadow-lg">Got it</button></div></div>
+    <!-- OVERLAY: BROADCAST RECEIVE (For Everyone) -->
+    <div id="broadcast-receive-overlay" class="fixed inset-0 bg-black/60 z-[200] hidden flex items-center justify-center backdrop-blur-md animate-slideIn">
+        <div class="bg-white rounded-2xl shadow-2xl w-[500px] p-8 text-center relative animate-popIn">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-notion-blue">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Announcement</h2>
+            <div class="w-12 h-1 bg-notion-blue rounded-full mx-auto mb-6"></div>
+            <p id="broadcast-message-text" class="text-lg text-gray-600 leading-relaxed mb-8">...</p>
+            <button onclick="document.getElementById('broadcast-receive-overlay').classList.add('hidden')" class="px-8 py-3 bg-gray-900 text-white rounded-xl font-medium hover:bg-black transition-colors shadow-lg">Got it</button>
+        </div>
+    </div>
 
-    <!-- Create Folder Modal -->
-    <div id="create-folder-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200"><div class="bg-white rounded-xl shadow-modal w-[380px] p-6 scale-95 transition-transform"><h3 class="text-lg font-semibold mb-4">New Folder</h3><input id="new-folder-name" class="w-full mb-6 p-2.5 border rounded-lg text-sm outline-none focus:border-notion-blue" placeholder="Folder Name"><div class="flex justify-end gap-2"><button onclick="hideModal('create-folder-modal')" class="px-3 py-1.5 text-sm text-gray-500">Cancel</button><button id="btn-confirm-folder" class="px-3 py-1.5 text-sm bg-notion-blue text-white rounded">Create</button></div></div></div>
+    <!-- MODAL: CREATE PROJECT -->
+    <div id="create-modal" class="fixed inset-0 bg-black/40 z-[80] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
+        <div class="bg-white rounded-xl shadow-modal w-[420px] p-6 scale-95 transition-transform duration-200 transform">
+            <h3 class="text-lg font-semibold text-notion-text mb-5">Create New Project</h3>
+            <div class="space-y-5">
+                <div><label class="block text-xs font-semibold text-notion-textLight mb-1.5 uppercase tracking-wide">Title</label><input id="new-proj-title" type="text" class="w-full p-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue focus:ring-1 focus:ring-blue-100 transition-all" placeholder="e.g. Marketing Plan Q4"></div>
+                <div><label class="block text-xs font-semibold text-notion-textLight mb-1.5 uppercase tracking-wide">Initial Privacy</label><div class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg bg-gray-50"><input type="checkbox" id="new-proj-private" class="w-4 h-4 rounded text-notion-blue focus:ring-offset-0 focus:ring-0"><span class="text-sm text-gray-700 font-medium">Private (Invite only)</span></div></div>
+            </div>
+            <div class="flex justify-end gap-3 mt-8">
+                <button id="btn-cancel-create" class="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg transition-colors font-medium">Cancel</button>
+                <button id="btn-confirm-create" class="px-4 py-2 text-sm bg-notion-blue text-white rounded-lg hover:bg-blue-600 shadow-sm transition-colors font-medium">Create Project</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- Move Project Modal -->
-    <div id="move-project-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200"><div class="bg-white rounded-xl shadow-modal w-[380px] p-6 scale-95 transition-transform"><h3 class="text-lg font-semibold mb-4">Move Project</h3><p class="text-xs text-gray-500 mb-2">Select destination folder:</p><select id="move-folder-select" class="w-full mb-6 p-2.5 border rounded-lg text-sm bg-white outline-none"><option value="">(Root)</option></select><div class="flex justify-end gap-2"><button onclick="hideModal('move-project-modal')" class="px-3 py-1.5 text-sm text-gray-500">Cancel</button><button id="btn-confirm-move" class="px-3 py-1.5 text-sm bg-notion-blue text-white rounded">Move</button></div></div></div>
+    <!-- MODAL: PROFILE EDIT -->
+    <div id="profile-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
+        <div class="bg-white rounded-xl shadow-modal w-[380px] p-6 scale-95 transition-transform duration-200 transform">
+            <h3 class="text-lg font-semibold text-notion-text mb-6">Edit Profile</h3>
+            <div class="space-y-6">
+                <div class="flex flex-col items-center">
+                    <img id="edit-profile-preview" src="" class="w-24 h-24 rounded-full border-4 border-gray-50 mb-3 object-cover shadow-sm bg-gray-100">
+                    <span class="text-xs text-gray-400">Preview</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-notion-textLight mb-1.5 uppercase tracking-wide">Display Name</label>
+                    <input id="edit-display-name" type="text" class="w-full p-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue focus:ring-1 focus:ring-blue-100" placeholder="Your Name">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-8">
+                <button id="btn-cancel-profile" class="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors">Cancel</button>
+                <button id="btn-save-profile" class="px-4 py-2 text-sm bg-notion-blue text-white rounded-lg hover:bg-blue-600 shadow-sm font-medium transition-colors">Save Changes</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- Create Project Modal -->
-    <div id="create-modal" class="fixed inset-0 bg-black/40 z-[80] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200"><div class="bg-white rounded-xl shadow-modal w-[420px] p-6 scale-95 transition-transform"><h3 class="text-lg font-semibold mb-5">Create New Project</h3><div class="space-y-4"><div><label class="block text-xs font-semibold text-gray-400 mb-1">TITLE</label><input id="new-proj-title" class="w-full p-2.5 border rounded-lg text-sm outline-none focus:border-notion-blue" placeholder="e.g. Marketing Q4"></div><div><label class="block text-xs font-semibold text-gray-400 mb-1">FOLDER (OPTIONAL)</label><select id="new-proj-folder" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none"><option value="">(Root)</option></select></div><div class="flex items-center gap-2"><input type="checkbox" id="new-proj-private"><span class="text-sm">Private (Invite only)</span></div></div><div class="flex justify-end gap-2 mt-6"><button onclick="hideModal('create-modal')" class="px-3 py-1.5 text-sm text-gray-500">Cancel</button><button id="btn-confirm-create" class="px-3 py-1.5 text-sm bg-notion-blue text-white rounded">Create</button></div></div></div>
+    <!-- MODAL: SHARE & PERMISSIONS -->
+    <div id="share-modal" class="fixed inset-0 bg-black/30 z-[90] hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-modal w-[520px] overflow-hidden">
+            <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-[#FBFBFA]">
+                <h3 class="font-semibold text-sm text-gray-700">Share Project</h3>
+                <button class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100" onclick="document.getElementById('share-modal').classList.add('hidden')"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- Invite -->
+                <div class="flex gap-2">
+                    <input id="invite-email" type="email" placeholder="Add people by email..." class="flex-1 p-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-notion-blue transition-colors">
+                    <select id="invite-role" class="text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 outline-none text-gray-600 cursor-pointer hover:bg-gray-100 transition-colors">
+                        <option value="editor">Editor</option>
+                        <option value="commenter">Commenter</option>
+                        <option value="viewer">Viewer</option>
+                    </select>
+                    <button id="btn-send-invite" class="px-4 py-2 bg-notion-blue text-white text-sm font-medium rounded-lg hover:bg-blue-600 shadow-sm transition-colors">Invite</button>
+                </div>
+                
+                <div class="mt-2 pt-4 border-t border-gray-100 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <div class="p-2 bg-gray-100 rounded-full text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg></div>
+                        <div class="text-xs text-gray-500">Anyone with the link can view if public</div>
+                    </div>
+                    <button id="btn-copy-link" class="text-xs font-semibold text-notion-blue hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                        Copy Link
+                    </button>
+                </div>
 
-    <!-- Team Settings Modal -->
-    <div id="team-settings-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200"><div class="bg-white rounded-xl shadow-modal w-[380px] p-6 scale-95 transition-transform"><h3 class="text-lg font-semibold mb-4">Workspace Settings</h3><div class="space-y-4"><div><label class="block text-xs font-semibold text-gray-400 mb-1">WORKSPACE NAME</label><input id="team-name-input" class="w-full p-2.5 border rounded-lg text-sm outline-none focus:border-notion-blue"></div><div><label class="block text-xs font-semibold text-gray-400 mb-1">LOGO URL</label><input id="team-logo-input" class="w-full p-2.5 border rounded-lg text-sm outline-none focus:border-notion-blue" placeholder="https://..."></div></div><div class="flex justify-end gap-2 mt-6"><button onclick="hideModal('team-settings-modal')" class="px-3 py-1.5 text-sm text-gray-500">Cancel</button><button id="btn-save-team" class="px-3 py-1.5 text-sm bg-notion-blue text-white rounded">Save</button></div></div></div>
-    
-    <!-- Profile & Share Modals (Existing structure maintained) -->
-    <div id="profile-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200"><div class="bg-white rounded-xl shadow-modal w-[380px] p-6 scale-95 transition-transform"><h3 class="text-lg font-semibold mb-6">Edit Profile</h3><div class="space-y-6"><div class="flex flex-col items-center"><img id="edit-profile-preview" src="" class="w-24 h-24 rounded-full border-4 border-gray-50 mb-3 object-cover shadow-sm bg-gray-100"><span class="text-xs text-gray-400">Preview</span></div><div><label class="block text-xs font-semibold mb-1.5 uppercase">Display Name</label><input id="edit-display-name" type="text" class="w-full p-2.5 border rounded-lg text-sm outline-none focus:border-notion-blue"></div></div><div class="flex justify-end gap-3 mt-8"><button id="btn-cancel-profile" class="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg font-medium">Cancel</button><button id="btn-save-profile" class="px-4 py-2 text-sm bg-notion-blue text-white rounded-lg hover:bg-blue-600 shadow-sm font-medium">Save Changes</button></div></div></div>
-    <div id="share-modal" class="fixed inset-0 bg-black/30 z-[90] hidden flex items-center justify-center backdrop-blur-sm"><div class="bg-white rounded-xl shadow-modal w-[520px] overflow-hidden"><div class="p-5 border-b border-gray-100 flex justify-between items-center bg-[#FBFBFA]"><h3 class="font-semibold text-sm text-gray-700">Share Project</h3><button class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100" onclick="document.getElementById('share-modal').classList.add('hidden')">&times;</button></div><div class="p-6 space-y-6"><div class="flex gap-2"><input id="invite-email" type="email" placeholder="Add people by email..." class="flex-1 p-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-notion-blue"><select id="invite-role" class="text-sm bg-gray-50 border rounded-lg px-3 outline-none text-gray-600"><option value="editor">Editor</option><option value="commenter">Commenter</option><option value="viewer">Viewer</option></select><button id="btn-send-invite" class="px-4 py-2 bg-notion-blue text-white text-sm font-medium rounded-lg hover:bg-blue-600 shadow-sm">Invite</button></div><div class="mt-4"><div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-3">Who has access</div><div id="members-list" class="flex flex-col gap-2 max-h-[240px] overflow-y-auto custom-scroll"></div></div><div class="pt-4 border-t flex justify-between"><button id="btn-copy-link" class="text-xs font-semibold text-notion-blue hover:bg-blue-50 px-3 py-1.5 rounded-md flex items-center gap-1">Copy Link</button></div></div></div></div>
+                <div class="mt-4">
+                    <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-3">Who has access</div>
+                    <div id="members-list" class="flex flex-col gap-2 max-h-[240px] overflow-y-auto custom-scroll"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc, arrayUnion, orderBy, serverTimestamp, getDoc, setDoc, deleteDoc, getDocs, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc, arrayUnion, orderBy, serverTimestamp, getDoc, setDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const firebaseConfig = { apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno", authDomain: "edulinki.firebaseapp.com", projectId: "edulinki", storageBucket: "edulinki.firebasestorage.app", messagingSenderId: "248886466474", appId: "1:248886466474:web:160043201a6b28bafbbdd3", measurementId: "G-MQBH12VL7N" };
-    const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
-
-    let currentUser = null, currentProjectId = null, currentRole = 'editor';
-    let unsubscribeDoc, unsubscribeChat, unsubscribeReminders, unsubscribeComments, unsubscribeNotifs, unsubscribeBroadcasts, unsubscribePresence, unsubscribeFolders, unsubscribeProjects, unsubscribeTeam;
-    let initialLoad = true, debounceTimer;
-    let folders = [], projects = [], projectMembers = [];
-    let sessionStartTime = new Date();
-    let moveTargetProjectId = null;
-
-    // --- SOUNDS ---
-    const sounds = {
-        msg: new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3'),
-        broadcast: new Audio('https://assets.mixkit.co/active_storage/sfx/1000/1000-preview.mp3'),
-        mention: new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
+        authDomain: "edulinki.firebaseapp.com",
+        projectId: "edulinki",
+        storageBucket: "edulinki.firebasestorage.app",
+        messagingSenderId: "248886466474",
+        appId: "1:248886466474:web:160043201a6b28bafbbdd3",
+        measurementId: "G-MQBH12VL7N"
     };
-    Object.values(sounds).forEach(s => s.volume = 0.5);
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let currentProjectId = null;
+    let currentRole = 'editor'; 
+    let unsubscribeDoc, unsubscribeChat, unsubscribeReminders, unsubscribeComments, unsubscribeNotifs, unsubscribeBroadcasts, unsubscribePresence;
+    let initialLoad = true;
+    let debounceTimer;
+    let activeReminders = [];
+    let notifiedReminders = new Set();
+    let sessionStartTime = new Date();
+    let userColors = ['#F5A623', '#2383E2', '#27AE60', '#EB5757', '#9D34DA', '#FF0080'];
+    let myColor = userColors[Math.floor(Math.random() * userColors.length)];
 
     // --- HELPERS ---
     const showModal = (id) => { const m = document.getElementById(id); m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); m.children[0].classList.remove('scale-95'); }, 10); }
-    window.hideModal = (id) => { const m = document.getElementById(id); m.classList.add('opacity-0'); m.children[0].classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 200); }
-    function linkify(text) { return text.replace(/((https?:\/\/|www\.)[^\s]+)/g, (url) => `<a href="${url.startsWith('http')?url:'http://'+url}" target="_blank">${url}</a>`); }
+    const hideModal = (id) => { const m = document.getElementById(id); m.classList.add('opacity-0'); m.children[0].classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 200); }
+    
+    function linkify(text) {
+        const urlRegex = /((https?:\/\/|www\.)[^\s]+)/g;
+        return text.replace(urlRegex, (url) => {
+            let href = url;
+            if (!href.startsWith('http')) href = 'http://' + href;
+            return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+        });
+    }
+
     function notify(msg, type='info') {
-        const c = document.getElementById('notification-toast-container'); const el = document.createElement('div');
-        el.className = "bg-white border border-gray-200 p-4 rounded-xl shadow-xl animate-slideIn flex items-start gap-3 w-full";
-        el.innerHTML = `<div class="font-semibold text-sm text-gray-800">${msg}</div>`; c.appendChild(el);
-        setTimeout(() => el.remove(), 4000);
+        const container = document.getElementById('notification-toast-container');
+        const el = document.createElement('div');
+        let icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+        if(type==='invite') icon = `<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
+        if(type==='success') icon = `<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+        if(type==='reminder') icon = `<svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+
+        el.className = "bg-white border border-gray-200 text-notion-text text-sm p-4 rounded-xl shadow-xl animate-slideIn pointer-events-auto flex items-start gap-4 w-full";
+        el.innerHTML = `<div class="mt-0.5 flex-shrink-0 text-notion-blue">${icon}</div><div class="flex-1"><div class="font-semibold text-gray-800">${type === 'invite' ? 'New Invitation' : (type === 'success' ? 'Success' : (type === 'reminder' ? 'Reminder' : 'Notification'))}</div><div class="text-xs text-gray-500 mt-1 leading-relaxed">${msg}</div></div>`;
+        container.appendChild(el);
+        setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(100%)'; setTimeout(() => el.remove(), 300); }, 6000);
+        if(type === 'reminder') { const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'); audio.volume = 0.5; audio.play().catch(e=>{}); }
+    }
+
+    // --- CURSOR PRESERVATION HELPER ---
+    // Attempts to keep the cursor relatively in place when content updates remotely
+    function saveCursor(el) {
+        const sel = window.getSelection();
+        if(!sel.rangeCount) return null;
+        const range = sel.getRangeAt(0);
+        if(!el.contains(range.startContainer)) return null;
+        const preCaretRange = range.cloneRange();
+        preCaretRange.selectNodeContents(el);
+        preCaretRange.setEnd(range.startContainer, range.startOffset);
+        return preCaretRange.toString().length;
+    }
+
+    function restoreCursor(el, pos) {
+        if(pos === null) return;
+        const range = document.createRange();
+        range.setStart(el, 0);
+        range.collapse(true);
+        let stack = [el], node, foundStart = false, stop = false, charIndex = 0;
+        
+        while (!stop && (node = stack.pop())) {
+            if (node.nodeType === 3) {
+                const nextCharIndex = charIndex + node.length;
+                if (!foundStart && pos >= charIndex && pos <= nextCharIndex) {
+                    range.setStart(node, pos - charIndex);
+                    range.collapse(true);
+                    foundStart = true;
+                    stop = true;
+                }
+                charIndex = nextCharIndex;
+            } else {
+                let i = node.childNodes.length;
+                while (i--) stack.push(node.childNodes[i]);
+            }
+        }
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
     }
 
     // --- AUTH ---
     onAuthStateChanged(auth, async (user) => {
         if (!user) { window.location.href = 'index.html'; } 
         else {
-            currentUser = user; updateUserUI();
+            currentUser = user;
+            updateUserUI();
             await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName||"", photoURL: user.photoURL||"", lastLogin: serverTimestamp() }, { merge: true });
             const urlParams = new URLSearchParams(window.location.search);
-            setupSidebarData(); loadUserNotifications(); loadTeamSettings();
-            if(urlParams.get('project')) selectProject(urlParams.get('project'));
+            const pid = urlParams.get('project');
+            loadProjects(pid);
+            loadUserNotifications();
+            setInterval(checkReminders, 10000);
         }
     });
 
     function updateUserUI() {
         document.getElementById('user-name').textContent = currentUser.displayName || currentUser.email;
-        document.getElementById('user-avatar').src = currentUser.photoURL || `https://api.dicebear.com/9.x/lorelei/svg?seed=${currentUser.email}`;
-        document.getElementById('edit-profile-preview').src = document.getElementById('user-avatar').src;
+        const avatarUrl = currentUser.photoURL && !currentUser.photoURL.includes('dicebear') ? currentUser.photoURL : `https://api.dicebear.com/9.x/lorelei/svg?seed=${currentUser.email}`;
+        document.getElementById('user-avatar').src = avatarUrl;
+        document.getElementById('edit-profile-preview').src = avatarUrl;
     }
     document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-    // --- TEAM / WORKSPACE ---
-    function loadTeamSettings() {
-        // Assuming single workspace concept for now rooted at "global" or based on first project owner
-        // For simplicity, we store workspace settings in a fixed doc "settings/workspace" or handle it per user?
-        // Let's use a collection "workspaces" and assume user belongs to one. For this demo, we'll just save to local user preferences or a common doc if we had a proper workspace ID.
-        // We will simulate it by storing in the user doc for now or a global singleton if rules allowed.
-        // Let's create a singleton doc 'workspace_metadata' if authenticated.
-        unsubscribeTeam = onSnapshot(doc(db, "settings", "workspace_general"), (snap) => {
-            if(snap.exists()) {
-                const d = snap.data();
-                document.getElementById('team-name').textContent = d.name || "WORKSPACE";
-                document.getElementById('team-logo').src = d.logo || `https://ui-avatars.com/api/?name=${d.name}&background=random`;
-            }
-        });
-    }
-    document.getElementById('trigger-team-settings').addEventListener('click', () => {
-        document.getElementById('team-name-input').value = document.getElementById('team-name').textContent;
-        document.getElementById('team-logo-input').value = document.getElementById('team-logo').src;
-        showModal('team-settings-modal');
-    });
-    document.getElementById('btn-save-team').addEventListener('click', async () => {
-        const name = document.getElementById('team-name-input').value;
-        const logo = document.getElementById('team-logo-input').value;
-        await setDoc(doc(db, "settings", "workspace_general"), { name, logo }, { merge: true });
-        hideModal('team-settings-modal');
-    });
-
-    // --- SIDEBAR: FOLDERS & PROJECTS ---
-    function setupSidebarData() {
-        // 1. Listen to Folders
-        const folderQ = query(collection(db, "folders"), where("ownerId", "==", currentUser.uid)); // Simple personal folders for now
-        unsubscribeFolders = onSnapshot(folderQ, (snap) => {
-            folders = []; snap.forEach(d => folders.push({id: d.id, ...d.data()}));
-            renderSidebar();
-        });
-        // 2. Listen to Projects
-        const projQ = query(collection(db, "projects"), where("memberEmails", "array-contains", currentUser.email));
-        unsubscribeProjects = onSnapshot(projQ, (snap) => {
-            projects = [];
-            snap.forEach(d => projects.push({id: d.id, ...d.data()}));
-            renderSidebar();
+    // --- PROJECTS ---
+    function loadProjects(preselectId) {
+        const q = query(collection(db, "projects"), where("memberEmails", "array-contains", currentUser.email));
+        onSnapshot(q, (snap) => {
+            const list = document.getElementById('project-list');
+            snap.docChanges().forEach((change) => {
+                if (change.type === "added") {
+                    const data = change.doc.data();
+                    const div = document.createElement('div');
+                    div.id = `proj-${change.doc.id}`;
+                    div.className = `px-3 py-2 rounded-md cursor-pointer text-[14px] flex items-center gap-2.5 transition-colors text-notion-textLight hover:bg-[#EFEFEF] hover:text-notion-text`;
+                    div.innerHTML = `<span class="opacity-80 text-base">${data.icon || "📄"}</span> <span class="truncate font-medium">${data.title}</span>`;
+                    div.onclick = () => selectProject(change.doc.id);
+                    list.appendChild(div);
+                    if (!initialLoad && data.ownerId !== currentUser.uid) { notify(`Invited to project: ${data.title}`, 'invite'); }
+                }
+                if (change.type === "modified") {
+                     const div = document.getElementById(`proj-${change.doc.id}`);
+                     if(div) div.innerHTML = `<span class="opacity-80 text-base">${change.doc.data().icon || "📄"}</span> <span class="truncate font-medium">${change.doc.data().title}</span>`;
+                }
+                if (change.type === "removed") { document.getElementById(`proj-${change.doc.id}`)?.remove(); }
+            });
+            if (preselectId && document.getElementById(`proj-${preselectId}`)) selectProject(preselectId);
+            else if (currentProjectId) document.getElementById(`proj-${currentProjectId}`)?.classList.add('bg-[#EFEFEF]', 'text-notion-text');
+            initialLoad = false;
         });
     }
 
-    function renderSidebar() {
-        const container = document.getElementById('file-explorer'); container.innerHTML = '';
-        
-        // Helper to create context menu
-        const createMenu = (id, type, ownerId, folderId=null) => {
-            const isOwner = ownerId === currentUser.uid;
-            let items = '';
-            if(type === 'project') {
-                items += `<div class="px-3 py-1.5 hover:bg-gray-100 cursor-pointer" onclick="window.initMoveProject('${id}')">Move to Folder</div>`;
-                if(isOwner) items += `<div class="px-3 py-1.5 hover:bg-gray-100 cursor-pointer text-red-600" onclick="window.deleteProject('${id}')">Delete</div>`;
-                else items += `<div class="px-3 py-1.5 hover:bg-gray-100 cursor-pointer text-red-600" onclick="window.leaveProject('${id}')">Leave</div>`;
-            } else if (type === 'folder') {
-                items += `<div class="px-3 py-1.5 hover:bg-gray-100 cursor-pointer text-red-600" onclick="window.deleteFolder('${id}')">Delete Folder</div>`;
-            }
-            return `<div class="absolute right-2 top-1 opacity-0 group-hover:opacity-100 transition-opacity"><button class="p-1 hover:bg-gray-200 rounded text-gray-500 context-menu-trigger relative">•••<div class="hidden context-menu-btn absolute right-0 top-full bg-white border shadow-lg rounded-lg text-xs w-32 z-50 py-1 flex-col items-start overflow-hidden">${items}</div></button></div>`;
-        };
-
-        const renderProjectItem = (p) => {
-             const div = document.createElement('div');
-             div.id = `proj-${p.id}`;
-             div.className = `group relative px-3 py-1.5 rounded-md cursor-pointer text-[14px] flex items-center gap-2 transition-colors text-notion-textLight hover:bg-[#EFEFEF] hover:text-notion-text ${currentProjectId===p.id ? 'bg-[#EFEFEF] text-notion-text font-medium' : ''}`;
-             div.onclick = (e) => { if(!e.target.closest('button')) selectProject(p.id); };
-             div.innerHTML = `<span class="opacity-80 text-base">${p.icon||"📄"}</span><span class="truncate flex-1">${p.title}</span>${createMenu(p.id, 'project', p.ownerId)}`;
-             return div;
-        };
-
-        // Render Folders
-        folders.forEach(f => {
-            const folderDiv = document.createElement('div');
-            folderDiv.innerHTML = `<div class="group relative px-3 py-1.5 rounded-md cursor-pointer text-[13px] font-semibold text-gray-600 hover:bg-[#EFEFEF] flex items-center gap-2"><span class="transform transition-transform text-gray-400">▶</span><span>${f.name}</span>${createMenu(f.id, 'folder', f.ownerId)}</div>`;
-            // Toggle Logic could be added here. For now, render expanded.
-            const contentDiv = document.createElement('div');
-            contentDiv.className = "tree-indent pb-1";
-            const childProjects = projects.filter(p => p.folderId === f.id);
-            childProjects.forEach(p => contentDiv.appendChild(renderProjectItem(p)));
-            if(childProjects.length === 0) contentDiv.innerHTML = `<div class="text-[11px] text-gray-300 px-3 py-1 italic">Empty</div>`;
-            
-            // Interaction to toggle collapse
-            folderDiv.firstElementChild.onclick = (e) => {
-                if(e.target.closest('button')) return;
-                contentDiv.classList.toggle('hidden');
-                folderDiv.querySelector('span').style.transform = contentDiv.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(90deg)';
-            };
-            folderDiv.querySelector('span').style.transform = 'rotate(90deg)'; // Default expanded
-
-            container.appendChild(folderDiv);
-            container.appendChild(contentDiv);
-        });
-
-        // Render Root Projects
-        const rootProjects = projects.filter(p => !p.folderId || !folders.find(f => f.id === p.folderId));
-        if(rootProjects.length > 0) {
-            const label = document.createElement('div'); label.className="px-3 py-1 text-[11px] font-bold text-gray-300 uppercase mt-2"; label.innerText="Files"; container.appendChild(label);
-            rootProjects.forEach(p => container.appendChild(renderProjectItem(p)));
-        }
-    }
-
-    // Folder Actions
-    document.getElementById('trigger-create-folder').addEventListener('click', () => showModal('create-folder-modal'));
-    document.getElementById('btn-confirm-folder').addEventListener('click', async () => {
-        const name = document.getElementById('new-folder-name').value.trim();
-        if(name) await addDoc(collection(db, "folders"), { name, ownerId: currentUser.uid });
-        hideModal('create-folder-modal');
-    });
-    window.deleteFolder = async (fid) => {
-        if(!confirm("Delete folder and all projects inside?")) return;
-        // Delete folder doc
-        await deleteDoc(doc(db, "folders", fid));
-        // Delete child projects
-        const q = query(collection(db, "projects"), where("folderId", "==", fid));
-        const snap = await getDocs(q);
-        snap.forEach(async d => await deleteDoc(doc(db, "projects", d.id)));
-    };
-    window.initMoveProject = (pid) => {
-        moveTargetProjectId = pid;
-        const sel = document.getElementById('move-folder-select');
-        sel.innerHTML = '<option value="">(Root)</option>';
-        folders.forEach(f => sel.innerHTML += `<option value="${f.id}">${f.name}</option>`);
-        showModal('move-project-modal');
-    };
-    document.getElementById('btn-confirm-move').addEventListener('click', async () => {
-        const fid = document.getElementById('move-folder-select').value;
-        await updateDoc(doc(db, "projects", moveTargetProjectId), { folderId: fid || null });
-        hideModal('move-project-modal');
-    });
-    window.deleteProject = async(pid) => { if(confirm("Delete project?")) await deleteDoc(doc(db, "projects", pid)); }
-    window.leaveProject = async(pid) => { if(confirm("Leave project?")) { await updateDoc(doc(db, "projects", pid), { memberEmails: arrayRemove(currentUser.email), access: arrayRemove(projects.find(p=>p.id===pid).access.find(a=>a.email===currentUser.email)) }); } }
-
-    // --- CREATE PROJECT ---
-    document.getElementById('trigger-create-project').addEventListener('click', () => {
-        const sel = document.getElementById('new-proj-folder');
-        sel.innerHTML = '<option value="">(Root)</option>';
-        folders.forEach(f => sel.innerHTML += `<option value="${f.id}">${f.name}</option>`);
-        showModal('create-modal');
-    });
-    document.getElementById('btn-confirm-create').addEventListener('click', async () => {
-        const title = document.getElementById('new-proj-title').value || "Untitled";
-        const folderId = document.getElementById('new-proj-folder').value || null;
-        const isPrivate = document.getElementById('new-proj-private').checked;
-        const docRef = await addDoc(collection(db, "projects"), { title, icon: "📄", content: "", ownerId: currentUser.uid, folderId, memberEmails: [currentUser.email], access: [{email:currentUser.email, role:'owner'}], createdAt: serverTimestamp(), isPrivate });
-        hideModal('create-modal'); selectProject(docRef.id);
-    });
-
-    // --- MAIN PROJECT LOGIC ---
     async function selectProject(id) {
         if(currentProjectId === id) return;
+        document.querySelectorAll('#project-list > div').forEach(d => d.className = "px-3 py-2 rounded-md cursor-pointer text-[14px] flex items-center gap-2.5 transition-colors text-notion-textLight hover:bg-[#EFEFEF] hover:text-notion-text");
+        document.getElementById(`proj-${id}`)?.classList.add('bg-[#EFEFEF]', 'text-notion-text');
         currentProjectId = id;
         document.getElementById('empty-state').classList.add('hidden');
         document.getElementById('workspace-container').classList.remove('hidden');
+        
         const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?project=' + id;
         window.history.pushState({path:newUrl},'',newUrl);
 
         if(unsubscribeDoc) unsubscribeDoc();
         if(unsubscribeChat) unsubscribeChat();
-        
+        if(unsubscribeReminders) unsubscribeReminders();
+        if(unsubscribeComments) unsubscribeComments();
+        if(unsubscribeBroadcasts) unsubscribeBroadcasts();
+        if(unsubscribePresence) unsubscribePresence();
+
+        // 1. Project Doc (Realtime Sync with Cursor Preservation)
         unsubscribeDoc = onSnapshot(doc(db, "projects", id), (snap) => {
             if(!snap.exists()) return;
             const data = snap.data();
-            projectMembers = data.access; // Store for mentions
             const myAccess = data.access.find(a => a.email === currentUser.email);
             currentRole = myAccess ? myAccess.role : 'viewer';
 
             document.getElementById('doc-title').value = data.title;
+            document.getElementById('doc-icon').textContent = data.icon || "📄";
+            
             const editor = document.getElementById('doc-content');
-            if (editor.innerHTML !== data.content) editor.innerHTML = data.content;
             
-            if(currentRole === 'viewer') { editor.setAttribute('contenteditable', 'false'); document.getElementById('read-only-banner').classList.remove('hidden'); } 
-            else { editor.setAttribute('contenteditable', 'true'); document.getElementById('read-only-banner').classList.add('hidden'); }
-
-            renderMembers(data.access);
-            
-            // Broadcast Buttons Logic
-            if(data.ownerId === currentUser.uid) {
-                document.getElementById('btn-broadcast-create').classList.remove('hidden');
-                document.getElementById('btn-announce-create').classList.add('hidden');
-            } else {
-                document.getElementById('btn-broadcast-create').classList.add('hidden');
-                document.getElementById('btn-announce-create').classList.remove('hidden');
+            // Sync Logic: Only update if content is different
+            // To prevent cursor jumping for user typing, we compare content.
+            // However, with contentEditable, simple string compare on innerHTML is safest.
+            const incomingContent = data.content || "";
+            if (editor.innerHTML !== incomingContent) {
+                 // If the user is currently focused on the editor, attempt to preserve cursor
+                 if(document.activeElement === editor) {
+                     const cursorPos = saveCursor(editor);
+                     editor.innerHTML = incomingContent;
+                     restoreCursor(editor, cursorPos);
+                 } else {
+                     editor.innerHTML = incomingContent;
+                 }
             }
+            
+            if(currentRole === 'viewer') {
+                editor.setAttribute('contenteditable', 'false');
+                document.getElementById('read-only-banner').classList.remove('hidden');
+            } else {
+                editor.setAttribute('contenteditable', 'true');
+                document.getElementById('read-only-banner').classList.add('hidden');
+            }
+
+            const ac = document.getElementById('member-avatars'); ac.innerHTML = '';
+            data.access.slice(0, 5).forEach(m => {
+                const img = document.createElement('img');
+                img.src = `https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}`;
+                img.className = "w-8 h-8 rounded-full border-2 border-white bg-gray-100 -ml-2.5 first:ml-0 hover:z-10 relative transition-transform hover:scale-110";
+                img.title = `${m.email} (${m.role})`;
+                ac.appendChild(img);
+            });
+            renderMembersList(data.access, data.ownerId === currentUser.uid);
+            
+            if(data.ownerId === currentUser.uid) document.getElementById('btn-broadcast-create').classList.remove('hidden');
+            else document.getElementById('btn-broadcast-create').classList.add('hidden');
         });
 
-        setupChat(id);
+        loadChat(id);
+        loadComments(id);
+        loadReminders(id);
+        listenForBroadcasts(id);
+        setupPresence(id);
     }
 
-    // --- CHAT SYSTEM (Advanced) ---
-    function setupChat(pid) {
-        // Setup Tagging & Recipients Dropdown
-        const targetSel = document.getElementById('chat-target');
-        const updateRecipients = () => {
-            targetSel.innerHTML = '<option value="everyone">Everyone</option>';
-            projectMembers.forEach(m => {
-                if(m.email !== currentUser.email) targetSel.innerHTML += `<option value="${m.email}">${m.email.split('@')[0]}</option>`;
-            });
-        };
-        updateRecipients(); // Initial
+    // --- EDITOR ---
+    window.formatDoc = (cmd) => {
+        document.execCommand(cmd, false, null);
+        document.getElementById('doc-content').focus();
+    };
 
+    window.openLinkModal = () => {
+        const sel = window.getSelection().toString();
+        document.getElementById('link-text-input').value = sel || "Link";
+        document.getElementById('link-url-input').value = "";
+        showModal('link-modal');
+    };
+    
+    document.getElementById('btn-confirm-link').addEventListener('click', () => {
+        const text = document.getElementById('link-text-input').value;
+        const url = document.getElementById('link-url-input').value;
+        if(text && url) {
+            // Restore selection if possible or just insert
+            // For simplicity in this demo, we assume user selected text or we insert new
+            document.getElementById('doc-content').focus();
+            document.execCommand('insertHTML', false, `<a href="${url}" target="_blank">${text}</a>`);
+        }
+        hideModal('link-modal');
+    });
+
+    const titleInput = document.getElementById('doc-title');
+    const contentInput = document.getElementById('doc-content');
+    function save() {
+        if(!currentProjectId || currentRole === 'viewer') return;
+        document.getElementById('save-indicator').classList.remove('hidden');
+        updateDoc(doc(db, "projects", currentProjectId), {
+            title: titleInput.value,
+            content: contentInput.innerHTML, // Save HTML
+            lastModified: serverTimestamp()
+        }).then(() => setTimeout(() => document.getElementById('save-indicator').classList.add('hidden'), 500));
+    }
+    // Debounce save for editing
+    contentInput.addEventListener('input', () => { 
+        clearTimeout(debounceTimer); 
+        debounceTimer = setTimeout(save, 500); 
+        updateMyPresence();
+    });
+    titleInput.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(save, 800); });
+    
+    // --- PRESENCE SYSTEM (Realtime Cursors) ---
+    function setupPresence(pid) {
+        // Track mouse/key events to update my location
+        const container = document.getElementById('editor-container');
+        container.addEventListener('mousemove', throttle((e) => {
+           // Simpler "I am here" tracking - tracking exact text caret X/Y is complex cross-browser
+           // We will track mouse position relative to editor content for "viewing"
+           // Or update on keyup for "typing"
+        }, 200));
+
+        contentInput.addEventListener('keyup', updateMyPresence);
+        contentInput.addEventListener('click', updateMyPresence);
+
+        // Listen for others
+        const presenceRef = collection(db, `projects/${pid}/presence`);
+        unsubscribePresence = onSnapshot(presenceRef, (snap) => {
+            const layer = document.getElementById('remote-cursors-layer');
+            layer.innerHTML = '';
+            snap.forEach(d => {
+                if(d.id === currentUser.uid) return;
+                const p = d.data();
+                if(Date.now() - p.timestamp > 30000) return; // Ignore stale
+
+                const cursor = document.createElement('div');
+                cursor.className = 'remote-cursor';
+                cursor.style.left = p.x + 'px';
+                cursor.style.top = p.y + 'px';
+                cursor.style.setProperty('--cursor-color', p.color);
+                
+                const label = document.createElement('div');
+                label.className = 'remote-cursor-label';
+                label.innerText = p.name;
+                cursor.appendChild(label);
+                
+                layer.appendChild(cursor);
+            });
+        });
+    }
+
+    function updateMyPresence() {
+        if(!currentProjectId) return;
+        // Calculate rough caret position
+        const sel = window.getSelection();
+        if(sel.rangeCount > 0) {
+            const range = sel.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            const containerRect = document.getElementById('editor-container').getBoundingClientRect();
+            
+            // Relative coords
+            const x = rect.left - containerRect.left + document.getElementById('editor-container').scrollLeft;
+            const y = rect.top - containerRect.top + document.getElementById('editor-container').scrollTop;
+            
+            setDoc(doc(db, `projects/${currentProjectId}/presence`, currentUser.uid), {
+                name: currentUser.displayName || "User",
+                color: myColor,
+                x: x,
+                y: y,
+                timestamp: Date.now()
+            });
+        }
+    }
+    
+    function throttle(func, limit) {
+        let inThrottle;
+        return function() {
+            const args = arguments;
+            const context = this;
+            if (!inThrottle) {
+                func.apply(context, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        }
+    }
+
+    // --- BROADCAST & OTHER ---
+    document.getElementById('btn-broadcast-create').addEventListener('click', () => {
+        document.getElementById('broadcast-input').value = "";
+        showModal('broadcast-compose-modal');
+    });
+
+    document.getElementById('btn-send-broadcast').addEventListener('click', async () => {
+        const text = document.getElementById('broadcast-input').value.trim();
+        if(!text) return;
+        await addDoc(collection(db, `projects/${currentProjectId}/broadcasts`), {
+            text, senderId: currentUser.uid, timestamp: serverTimestamp()
+        });
+        hideModal('broadcast-compose-modal');
+        notify("Broadcast sent.", "success");
+    });
+    
+    function listenForBroadcasts(pid) {
+        const q = query(collection(db, `projects/${pid}/broadcasts`), orderBy('timestamp', 'desc'), where('timestamp', '>', sessionStartTime));
+        unsubscribeBroadcasts = onSnapshot(collection(db, `projects/${pid}/broadcasts`), (snap) => {
+             snap.docChanges().forEach(change => {
+                 if(change.type === 'added') {
+                     const d = change.doc.data();
+                     const now = new Date();
+                     const msgTime = d.timestamp ? d.timestamp.toDate() : now;
+                     if (now - msgTime < 60000) { 
+                         document.getElementById('broadcast-message-text').textContent = d.text;
+                         document.getElementById('broadcast-receive-overlay').classList.remove('hidden');
+                     }
+                 }
+             });
+        });
+    }
+
+    // --- TABS & SIDEBAR ---
+    const tabs = document.querySelectorAll('[data-tab]');
+    const tabContents = {
+        'chat': document.getElementById('tab-chat'),
+        'comments': document.getElementById('tab-comments'),
+        'calendar': document.getElementById('tab-calendar'),
+        'ai': document.getElementById('tab-ai')
+    };
+    tabs.forEach(t => t.addEventListener('click', () => {
+        tabs.forEach(x => { x.classList.remove('tab-active'); x.classList.add('tab-inactive'); });
+        t.classList.add('tab-active'); t.classList.remove('tab-inactive');
+        Object.values(tabContents).forEach(c => c.classList.add('hidden'));
+        tabContents[t.dataset.tab].classList.remove('hidden');
+    }));
+
+    document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
+        const p = document.getElementById('right-panel');
+        p.style.width = p.style.width === '0px' ? '360px' : '0px';
+    });
+    
+    window.focusEditor = (e) => { 
+        if(currentRole!=='viewer' && e.target.id === 'editor-container') {
+             document.getElementById('doc-content').focus(); 
+        }
+    }
+
+    // --- COLLECTIONS (Chat, Comments, Reminders) ---
+    function loadChat(pid) {
         unsubscribeChat = onSnapshot(query(collection(db, `projects/${pid}/messages`), orderBy("timestamp", "asc")), (snap) => {
             const div = document.getElementById('chat-messages'); div.innerHTML = '';
             snap.forEach(d => {
                 const m = d.data();
-                if(m.deletedFor && m.deletedFor.includes(currentUser.uid)) return; // Hidden locally
-                
-                // Privacy Check
-                const amISender = m.senderId === currentUser.uid;
-                const isPrivate = m.isPrivate;
-                if(isPrivate && !amISender && m.targetEmail !== currentUser.email) return;
-
-                // Render
+                const isMe = m.senderId === currentUser.uid;
                 const wrap = document.createElement('div');
-                wrap.className = `flex flex-col group ${amISender ? 'items-end' : 'items-start'}`;
-                const bubbleColor = amISender ? 'bg-[#EBF5FE] text-notion-text' : (isPrivate ? 'bg-purple-50 border border-purple-200 text-purple-900' : 'bg-white border border-gray-200 text-notion-text');
-                const privateLabel = isPrivate ? `<span class="text-[9px] text-purple-500 font-bold ml-2">🔒 Private</span>` : '';
-                
-                // Delete Menu
-                let delMenu = '';
-                if(amISender) delMenu = `<button onclick="window.delMsg('${pid}','${d.id}', 'all')" class="text-xs hover:text-red-500">Delete for Everyone</button>`;
-                delMenu += `<button onclick="window.delMsg('${pid}','${d.id}', 'me')" class="text-xs hover:text-red-500">Hide for Me</button>`;
-                
-                wrap.innerHTML = `
-                    <div class="text-[10px] text-gray-400 ml-1 mb-0.5 flex gap-1">${m.senderName} ${privateLabel}</div>
-                    <div class="relative">
-                        <div class="px-3 py-2 rounded-xl text-[13px] max-w-[90%] ${bubbleColor} shadow-sm leading-relaxed chat-content">${linkify(m.text)}</div>
-                        <div class="absolute top-0 ${amISender?'right-full mr-2':'left-full ml-2'} opacity-0 group-hover:opacity-100 bg-white shadow-lg border rounded p-2 flex flex-col gap-1 z-10 w-32 hidden group-hover:flex">
-                            ${delMenu}
-                        </div>
-                    </div>`;
+                wrap.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'}`;
+                const bubbleClass = isMe ? 'bg-[#EBF5FE] text-notion-text' : 'bg-white border border-gray-200 text-notion-text';
+                wrap.innerHTML = `<div class="text-[10px] text-gray-400 ml-1 mb-0.5">${m.senderName}</div><div class="px-3.5 py-2.5 rounded-xl text-[14px] max-w-[90%] ${bubbleClass} shadow-sm leading-relaxed chat-content">${linkify(m.text)}</div>`;
                 div.appendChild(wrap);
             });
             div.scrollTop = div.scrollHeight;
         });
     }
-
-    // Chat Input Logic (Mentions)
-    const chatInput = document.getElementById('chat-input');
-    const overlay = document.getElementById('tag-overlay');
-    chatInput.addEventListener('keyup', (e) => {
-        const val = chatInput.value;
-        const lastWord = val.split(' ').pop();
-        if(lastWord.startsWith('@') && lastWord.length > 1) {
-            const match = lastWord.substring(1).toLowerCase();
-            const filtered = projectMembers.filter(m => m.email.toLowerCase().includes(match));
-            if(filtered.length > 0) {
-                overlay.innerHTML = '';
-                filtered.forEach(m => {
-                    const d = document.createElement('div');
-                    d.className = "p-2 hover:bg-blue-50 cursor-pointer text-xs flex items-center gap-2";
-                    d.innerHTML = `<div class="w-4 h-4 rounded-full bg-gray-200"></div>${m.email}`;
-                    d.onclick = () => {
-                        const words = val.split(' '); words.pop();
-                        chatInput.value = words.join(' ') + ` @${m.email.split('@')[0]} `;
-                        overlay.classList.add('hidden'); chatInput.focus();
-                    };
-                    overlay.appendChild(d);
-                });
-                overlay.classList.remove('hidden');
-            } else overlay.classList.add('hidden');
-        } else overlay.classList.add('hidden');
+    document.getElementById('chat-form').addEventListener('submit', async(e) => {
+        e.preventDefault(); const inp = document.getElementById('chat-input'); if(!inp.value.trim()) return;
+        addDoc(collection(db, `projects/${currentProjectId}/messages`), { text: inp.value.trim(), senderId: currentUser.uid, senderName: currentUser.displayName||"User", timestamp: serverTimestamp() });
+        inp.value = '';
     });
-
-    document.getElementById('chat-form').addEventListener('submit', async (e) => {
-        e.preventDefault(); const txt = chatInput.value.trim(); if(!txt) return;
-        const target = document.getElementById('chat-target').value;
-        const isPrivate = target !== 'everyone';
-        
-        // Detect mentions for notifications
-        const mentions = [];
-        if(txt.includes('@')) {
-            projectMembers.forEach(m => {
-                if(txt.includes(`@${m.email.split('@')[0]}`)) mentions.push(m.uid);
-            });
-        }
-
-        await addDoc(collection(db, `projects/${currentProjectId}/messages`), {
-            text: txt, senderId: currentUser.uid, senderName: currentUser.displayName||"User", 
-            timestamp: serverTimestamp(), isPrivate, targetEmail: target, mentions 
-        });
-        chatInput.value = '';
-    });
-
-    window.delMsg = async (pid, mid, scope) => {
-        if(scope === 'all') await deleteDoc(doc(db, `projects/${pid}/messages`, mid));
-        else await updateDoc(doc(db, `projects/${pid}/messages`, mid), { deletedFor: arrayUnion(currentUser.uid) });
-    };
-
-    // --- BROADCASTS & ANNOUNCEMENTS ---
-    // Owner Broadcast
-    document.getElementById('btn-broadcast-create').addEventListener('click', () => showModal('broadcast-compose-modal'));
-    document.getElementById('btn-send-broadcast').addEventListener('click', async () => {
-        const text = document.getElementById('broadcast-input').value;
-        if(text) await addDoc(collection(db, `projects/${currentProjectId}/broadcasts`), { text, type: 'broadcast', senderId: currentUser.uid, timestamp: serverTimestamp() });
-        hideModal('broadcast-compose-modal');
-    });
-
-    // Non-Owner Announce (Targeted)
-    document.getElementById('btn-announce-create').addEventListener('click', () => {
-        const div = document.getElementById('announce-recipients'); div.innerHTML = '';
-        projectMembers.forEach(m => {
-            if(m.email!==currentUser.email) div.innerHTML += `<label class="flex items-center gap-1 text-xs bg-gray-100 px-2 py-1 rounded cursor-pointer"><input type="checkbox" value="${m.uid}" class="announce-chk"> ${m.email.split('@')[0]}</label>`;
-        });
-        showModal('announce-compose-modal');
-    });
-    document.getElementById('btn-send-announce').addEventListener('click', async () => {
-        const text = document.getElementById('announce-input').value;
-        const targets = Array.from(document.querySelectorAll('.announce-chk:checked')).map(c=>c.value);
-        if(text && targets.length > 0) await addDoc(collection(db, `projects/${currentProjectId}/broadcasts`), { text, type: 'announce', targets, senderId: currentUser.uid, timestamp: serverTimestamp() });
-        hideModal('announce-compose-modal');
-    });
-
-    // Listener for Overlay Logic
-    function listenForBroadcasts(pid) { // Called inside selectProject theoretically, adding logic here for completeness if called
-        onSnapshot(query(collection(db, `projects/${pid}/broadcasts`), orderBy('timestamp', 'desc')), (snap) => {
-            snap.docChanges().forEach(change => {
-                if(change.type === 'added') {
-                    const d = change.doc.data();
-                    if((d.timestamp?.toDate() || new Date()) > sessionStartTime) {
-                        // Check if relevant
-                        if(d.type === 'broadcast' || (d.type === 'announce' && d.targets.includes(currentUser.uid))) {
-                            document.getElementById('broadcast-title').innerText = d.type === 'broadcast' ? "Announcement" : "Priority Message";
-                            document.getElementById('broadcast-message-text').innerText = d.text;
-                            document.getElementById('broadcast-icon-container').className = d.type==='broadcast' ? "w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-notion-blue" : "w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6 text-orange-500";
-                            document.getElementById('broadcast-receive-overlay').classList.remove('hidden');
-                            sounds.broadcast.play().catch(e=>{});
-                        }
-                    }
-                }
-            });
-        });
-    }
-
-    // --- GENERAL ---
-    function renderMembers(access) {
-        const d = document.getElementById('member-avatars'); d.innerHTML = '';
-        const l = document.getElementById('members-list'); l.innerHTML = '';
-        access.forEach(m => {
-            const img = `<img src="https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}" class="w-6 h-6 rounded-full border border-white">`;
-            d.innerHTML += img;
-            l.innerHTML += `<div class="flex justify-between p-2 text-sm"><span>${m.email}</span><span class="text-gray-400 text-xs uppercase">${m.role}</span></div>`;
-        });
-    }
-    
-    // Editor Save Logic
-    document.getElementById('doc-content').addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            updateDoc(doc(db, "projects", currentProjectId), { title: document.getElementById('doc-title').value, content: document.getElementById('doc-content').innerHTML });
-        }, 800);
-    });
-
-    // Tab Switching
-    document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', (e) => {
-        const t = e.currentTarget.dataset.tab;
-        document.querySelectorAll('[data-tab]').forEach(x=>x.className="flex-1 h-full text-[14px] tab-inactive transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50");
-        e.currentTarget.className="flex-1 h-full text-[14px] tab-active transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50";
-        ['tab-chat','tab-comments','tab-calendar','tab-ai'].forEach(id => document.getElementById(id).classList.add('hidden'));
-        document.getElementById(`tab-${t}`).classList.remove('hidden');
-    }));
-
-    // Notifications
-    function loadUserNotifications() {
-        onSnapshot(query(collection(db, `users/${currentUser.uid}/notifications`), orderBy('timestamp', 'desc')), (snap) => {
-            const l = document.getElementById('notification-list'); l.innerHTML = '';
-            let unread = false;
+    function loadComments(pid) {
+        unsubscribeComments = onSnapshot(query(collection(db, `projects/${pid}/comments`), orderBy("timestamp", "asc")), (snap) => {
+            const div = document.getElementById('comments-list'); div.innerHTML = '';
             snap.forEach(d => {
-                const n = d.data(); if(!n.read) unread = true;
-                l.innerHTML += `<div class="p-3 border-b hover:bg-gray-50 text-xs">${n.title}: ${n.text}</div>`;
+                const c = d.data();
+                const item = document.createElement('div');
+                item.className = "flex gap-3 items-start p-3 bg-gray-50/80 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors";
+                item.innerHTML = `<img src="https://api.dicebear.com/9.x/lorelei/svg?seed=${c.senderEmail}" class="w-6 h-6 rounded-full mt-1 border border-black/5"><div class="flex-1 min-w-0"><div class="flex justify-between items-center"><span class="text-[12px] font-bold text-gray-800">${c.senderName}</span><span class="text-[10px] text-gray-400">${c.timestamp?.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) || ''}</span></div><div class="text-[14px] text-notion-text mt-1 chat-content break-words">${linkify(c.text)}</div></div>`;
+                div.appendChild(item);
             });
-            if(unread) document.getElementById('notif-badge').classList.remove('hidden');
+            div.scrollTop = div.scrollHeight;
         });
     }
-    document.getElementById('btn-notifications').addEventListener('click', ()=>{ document.getElementById('notification-popover').classList.toggle('hidden'); document.getElementById('notif-badge').classList.add('hidden'); });
-    
-    // Sidebar toggle
-    document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
-        const p = document.getElementById('right-panel'); p.style.width = p.style.width==='0px'?'360px':'0px';
+    document.getElementById('comments-form').addEventListener('submit', async (e) => {
+        e.preventDefault(); const inp = document.getElementById('comment-input'); if(!inp.value.trim()) return;
+        addDoc(collection(db, `projects/${currentProjectId}/comments`), { text: inp.value.trim(), senderId: currentUser.uid, senderEmail: currentUser.email, senderName: currentUser.displayName||"User", timestamp: serverTimestamp() });
+        inp.value = '';
+    });
+    function loadReminders(pid) {
+        unsubscribeReminders = onSnapshot(query(collection(db, `projects/${pid}/reminders`), orderBy("due", "asc")), (snap) => {
+            const div = document.getElementById('reminder-list'); div.innerHTML = '';
+            activeReminders = []; 
+            if(snap.empty) div.innerHTML = '<div class="text-center text-xs text-gray-400 py-6">No upcoming events</div>';
+            snap.forEach(d => {
+                const r = d.data();
+                const dateObj = r.due ? r.due.toDate() : new Date();
+                activeReminders.push({ id: d.id, title: r.title, date: dateObj });
+                const item = document.createElement('div');
+                item.className = "flex items-center p-3 bg-blue-50/30 border border-blue-100 rounded-lg hover:bg-blue-50/60 transition relative group";
+                const del = document.createElement('button');
+                del.className="absolute top-1.5 right-1.5 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1";
+                del.innerHTML = "&times;";
+                del.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `projects/${pid}/reminders`, d.id)); }
+                item.innerHTML = `
+                    <div class="w-12 text-center leading-tight mr-4 border-r border-blue-100 pr-4">
+                        <div class="text-[10px] text-blue-600 uppercase font-bold tracking-wide">${dateObj.toLocaleString('default', {month:'short'})}</div>
+                        <div class="text-xl font-bold text-gray-800">${dateObj.getDate()}</div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-[14px] font-semibold text-notion-text">${r.title}</div>
+                        <div class="text-[12px] text-gray-500 mt-0.5">${dateObj.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} • ${r.addedBy}</div>
+                    </div>
+                `;
+                item.appendChild(del);
+                div.appendChild(item);
+            });
+        });
+    }
+    function checkReminders() {
+        const now = new Date();
+        activeReminders.forEach(r => {
+            if(r.date <= now && !notifiedReminders.has(r.id)) {
+                const diff = now - r.date;
+                if(diff < 5 * 60 * 1000) { 
+                    notify(`Reminder: ${r.title}`, 'reminder');
+                    notifiedReminders.add(r.id);
+                }
+            }
+        });
+    }
+    document.getElementById('reminder-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('rem-title').value;
+        const date = document.getElementById('rem-date').value;
+        const time = document.getElementById('rem-time').value;
+        if(!title || !date || !time) return;
+        const due = new Date(`${date}T${time}`);
+        await addDoc(collection(db, `projects/${currentProjectId}/reminders`), { title, due, addedBy: currentUser.displayName || "User", timestamp: serverTimestamp() });
+        document.getElementById('reminder-form').reset();
     });
 
-    // Init Logic for Copy/Paste Link Modal
-    window.openLinkModal = () => showModal('link-modal');
-    window.formatDoc = (cmd) => document.execCommand(cmd, false, null);
+    // --- AI ---
+    async function fetchAI(prompt, context) {
+        try {
+            const clean = encodeURIComponent(`Context: ${context.substring(0,500)}...\nQ: ${prompt}`);
+            const res = await fetch(`https://text.pollinations.ai/${clean}`);
+            if(!res.ok) throw new Error(); return await res.text();
+        } catch(e) { return "AI Unavailable"; }
+    }
+    document.getElementById('ai-form').addEventListener('submit', async(e)=>{
+        e.preventDefault(); const inp = document.getElementById('ai-input'); const txt = inp.value.trim(); if(!txt) return;
+        const div = document.getElementById('ai-messages');
+        div.innerHTML += `<div class="flex flex-col items-end"><div class="bg-gray-100 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text shadow-sm">${txt}</div></div>`;
+        inp.value = ''; div.scrollTop = div.scrollHeight;
+        const resp = await fetchAI(txt, document.getElementById('doc-content').innerText);
+        div.innerHTML += `<div class="flex flex-col items-start"><div class="bg-purple-50 border border-purple-100 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text leading-relaxed shadow-sm">${resp}</div></div>`;
+        div.scrollTop = div.scrollHeight;
+    });
+
+    // --- PROFILE ---
+    const btnSettings = document.getElementById('btn-settings');
+    btnSettings.addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('edit-display-name').value = currentUser.displayName || ""; showModal('profile-modal'); });
+    document.getElementById('btn-cancel-profile').addEventListener('click', () => hideModal('profile-modal'));
+    document.getElementById('btn-save-profile').addEventListener('click', async () => {
+        const newName = document.getElementById('edit-display-name').value.trim();
+        if(!newName) return;
+        try { await updateProfile(currentUser, { displayName: newName }); await updateDoc(doc(db, "users", currentUser.uid), { displayName: newName }); updateUserUI(); notify("Profile updated successfully", "success"); hideModal('profile-modal'); } catch(e) { notify("Failed to update profile", "error"); }
+    });
+    // --- NOTIFICATIONS ---
+    document.getElementById('btn-notifications').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('notification-popover').classList.toggle('hidden'); document.getElementById('notif-badge').classList.add('hidden'); });
+    document.addEventListener('click', (e) => { if(!document.getElementById('btn-notifications').contains(e.target) && !document.getElementById('notification-popover').contains(e.target)) { document.getElementById('notification-popover').classList.add('hidden'); } });
+    function loadUserNotifications() {
+        const q = query(collection(db, `users/${currentUser.uid}/notifications`), orderBy('timestamp', 'desc'));
+        unsubscribeNotifs = onSnapshot(q, (snap) => {
+            const list = document.getElementById('notification-list');
+            if(snap.empty) { list.innerHTML = '<div class="p-8 text-center text-gray-400 text-sm italic">No new notifications</div>'; return; }
+            list.innerHTML = '';
+            let hasUnread = false;
+            snap.forEach(d => {
+                const n = d.data();
+                const item = document.createElement('div');
+                item.className = "p-4 border-b border-gray-50 hover:bg-gray-50 text-sm flex gap-3 relative group transition-colors";
+                const delBtn = document.createElement('button'); delBtn.className = "absolute top-2 right-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"; delBtn.innerHTML = "&times;";
+                delBtn.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id)); };
+                let icon = n.read ? '<div class="w-2.5 h-2.5 rounded-full bg-transparent mt-1.5 flex-shrink-0"></div>' : '<div class="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0 shadow-sm border border-white"></div>';
+                if(!n.read) hasUnread = true;
+                item.innerHTML = `${icon}<div class="flex-1 pr-4"><div class="font-semibold text-notion-text leading-tight text-[14px]">${n.title || "Notification"}</div><div class="text-gray-500 mt-1 leading-relaxed text-[13px]">${n.text}</div><div class="text-[11px] text-gray-400 mt-2 font-medium">${n.timestamp?.toDate().toLocaleDateString() || ""}</div></div>`;
+                item.appendChild(delBtn); list.appendChild(item);
+                if(!n.read) { updateDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id), { read: true }); }
+            });
+            if(hasUnread) document.getElementById('notif-badge').classList.remove('hidden');
+        });
+    }
+
+    // --- CREATE & SHARE ---
+    [document.getElementById('trigger-create-project'), document.getElementById('btn-create-empty')].forEach(b => b.addEventListener('click', ()=>showModal('create-modal')));
+    document.getElementById('btn-cancel-create').addEventListener('click', ()=>hideModal('create-modal'));
+    document.getElementById('btn-confirm-create').addEventListener('click', async()=>{
+        const title = document.getElementById('new-proj-title').value || "Untitled";
+        const isPrivate = document.getElementById('new-proj-private').checked;
+        const docRef = await addDoc(collection(db, "projects"), { title, icon: "📄", content: "", ownerId: currentUser.uid, memberEmails: [currentUser.email], access: [{email:currentUser.email, role:'owner'}], createdAt: serverTimestamp(), isPrivate });
+        hideModal('create-modal'); selectProject(docRef.id);
+    });
+    
+    document.getElementById('btn-open-share').addEventListener('click', ()=>showModal('share-modal'));
+    document.getElementById('btn-copy-link').addEventListener('click', () => {
+        if(!currentProjectId) return;
+        const url = window.location.protocol + "//" + window.location.host + window.location.pathname + '?project=' + currentProjectId;
+        navigator.clipboard.writeText(url).then(() => notify("Link copied to clipboard!", "success")).catch(err => notify("Failed to copy link", "error"));
+    });
+    function renderMembersList(access, isOwner) {
+        const d = document.getElementById('members-list'); d.innerHTML = '';
+        access.forEach(m => { 
+            let roleDisplay = `<span class="text-[11px] text-gray-400 capitalize font-medium">${m.role}</span>`;
+            let actions = '';
+            if(isOwner && m.email !== currentUser.email) {
+                roleDisplay = `<select onchange="window.updateMemberRole('${m.email}', this.value)" class="text-[11px] bg-transparent border-none outline-none text-gray-500 font-medium cursor-pointer hover:text-gray-800"><option value="editor" ${m.role==='editor'?'selected':''}>Editor</option><option value="commenter" ${m.role==='commenter'?'selected':''}>Commenter</option><option value="viewer" ${m.role==='viewer'?'selected':''}>Viewer</option></select>`;
+                actions = `<button class="text-xs text-red-400 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors" onclick="window.removeMember('${m.email}')">Remove</button>`;
+            } else if(m.role === 'owner') roleDisplay = `<span class="text-[11px] text-notion-blue font-bold uppercase tracking-wider">Owner</span>`;
+            d.innerHTML += `<div class="flex justify-between items-center p-2.5 hover:bg-gray-50 rounded-lg border border-transparent hover:border-gray-100 transition-all group"><div class="flex items-center gap-3"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}" class="w-8 h-8 rounded-full bg-white border border-gray-200"><div class="flex flex-col"><span class="text-sm font-semibold text-notion-text">${m.email}</span>${roleDisplay}</div></div>${actions}</div>`; 
+        });
+    }
+    document.getElementById('btn-send-invite').addEventListener('click', async()=>{
+        const email = document.getElementById('invite-email').value; const role = document.getElementById('invite-role').value; if(!email) return;
+        const ref = doc(db, "projects", currentProjectId); const snap = await getDoc(ref);
+        if(snap.exists() && !snap.data().access.find(a=>a.email===email)) {
+            await updateDoc(ref, { memberEmails: arrayUnion(email), access: arrayUnion({email, role}) });
+            notify(`Invited ${email}`, 'success'); 
+            const usersQ = query(collection(db, "users"), where("email", "==", email));
+            const userSnap = await getDocs(usersQ);
+            if(!userSnap.empty) { userSnap.forEach(async (u) => { await addDoc(collection(db, `users/${u.id}/notifications`), { title: "Project Invitation", text: `You were invited to join <strong>${snap.data().title || "a project"}</strong> as ${role}.`, timestamp: serverTimestamp(), read: false }); }); }
+            document.getElementById('invite-email').value = '';
+        } else { notify("User already exists or error", "error"); }
+    });
+    window.updateMemberRole = async (email, newRole) => {
+        const ref = doc(db, "projects", currentProjectId); const snap = await getDoc(ref); if(!snap.exists()) return;
+        let access = snap.data().access; access = access.map(m => m.email === email ? { ...m, role: newRole } : m);
+        await updateDoc(ref, { access }); notify(`Updated ${email} to ${newRole}`, 'success');
+    };
+    window.removeMember = async (email) => {
+        if(!confirm(`Remove ${email}?`)) return;
+        const ref = doc(db, "projects", currentProjectId); const snap = await getDoc(ref);
+        const access = snap.data().access.filter(a=>a.email!==email); const emails = snap.data().memberEmails.filter(e=>e!==email);
+        await updateDoc(ref, {access, memberEmails: emails}); notify("Member removed");
+    }
 
 </script>
 </body>

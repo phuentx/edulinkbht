@@ -226,20 +226,10 @@ background: transparent; border: none; cursor: pointer;
 
 /* Comment Replies Styles */
 .reply-thread {
-    margin-left: 16px;
+    margin-left: 20px;
     padding-left: 16px;
     border-left: 2px solid #e5e7eb;
-    margin-top: 12px;
-}
-
-.reply-badge {
-    font-size: 11px;
-    background: #e0f2fe;
-    color: #0284c7;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-bottom: 4px;
-    display: inline-block;
+    margin-top: 4px;
 }
 
 .code-preview {
@@ -749,7 +739,8 @@ Change
     
     <div class="compose-tools">
         <div class="tool-group">
-            <button onclick="document.getElementById('media-input').click()" class="tool-btn" title="Add Media"><i data-lucide="image" class="w-5 h-5"></i></button>
+            <button onclick="document.getElementById('media-input').click()" class="tool-btn" title="Upload Media"><i data-lucide="image" class="w-5 h-5"></i></button>
+            <button onclick="promptForImageLink()" class="tool-btn" title="Image Link"><i data-lucide="link" class="w-5 h-5"></i></button>
             <button onclick="insertCodeBlock()" class="tool-btn" title="Add Code"><i data-lucide="code-2" class="w-5 h-5"></i></button>
             <button class="tool-btn" title="More"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
         </div>
@@ -768,7 +759,7 @@ Change
     <i data-lucide="plus" class="w-5 h-5"></i><span>Create</span>
 </button>
 
-<nav class="flex-1 space-y-1">
+<nav class="flex-1 space-y-1" id="desktop-nav-items">
     <a href="#" onclick="switchView('feed'); return false;" id="nav-feed" class="nav-item active"><i data-lucide="home" class="w-5 h-5"></i> <span class="hidden lg:block">Home</span></a>
     <a href="#" onclick="switchView('network'); return false;" id="nav-network" class="nav-item"><i data-lucide="users" class="w-5 h-5"></i> <span class="hidden lg:block">Network</span></a>
     <a href="#" onclick="switchView('chat'); return false;" id="nav-chat" class="nav-item"><i data-lucide="message-circle" class="w-5 h-5"></i> <span class="hidden lg:block">Chat</span></a>
@@ -861,6 +852,16 @@ Change
                     </form>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ANNOUNCEMENTS VIEW (Admin) -->
+    <div id="view-announcements" class="flex-1 h-full overflow-y-auto p-0 md:p-6 hidden bg-white">
+        <h2 class="text-2xl font-bold mb-6 px-4 md:px-0">Broadcast Announcement</h2>
+        <div class="p-6 bg-white rounded-xl border border-gray-200 shadow-sm max-w-2xl">
+            <label class="block text-sm font-bold text-gray-700 mb-2">Message to All Users</label>
+            <textarea id="announcement-text" class="w-full h-32 border border-gray-300 rounded-lg p-3 outline-none focus:border-blue-500 mb-4" placeholder="Type your official announcement here..."></textarea>
+            <button onclick="sendAnnouncement()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors">Send Broadcast</button>
         </div>
     </div>
 
@@ -1158,13 +1159,27 @@ function updateUserInterface() {
     const edName = document.getElementById('edit-name'); if(edName) edName.value = currentUser.name;
     const edBio = document.getElementById('edit-bio'); if(edBio) edBio.value = currentUser.bio;
     const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = currentUser.avatar;
+    
+    // Admin Check
+    if(currentUser.email === 'edulinkbht@gmail.com') {
+        const nav = document.querySelector('#desktop-nav-items');
+        if(!document.getElementById('nav-announcements')) {
+            const adminLink = document.createElement('a');
+            adminLink.href = "#";
+            adminLink.id = "nav-announcements";
+            adminLink.className = "nav-item text-blue-600";
+            adminLink.innerHTML = `<i data-lucide="megaphone" class="w-5 h-5"></i> <span class="hidden lg:block">Announcements</span>`;
+            adminLink.onclick = function() { switchView('announcements'); return false; };
+            nav.appendChild(adminLink);
+        }
+    }
     lucide.createIcons();
 }
 
 // --- GLOBAL FUNCTIONS EXPOSED TO WINDOW ---
 
 window.switchView = function(viewName) {
-    const views = ['feed', 'events', 'saved', 'network', 'profile', 'chat', 'search-results', 'notifications'];
+    const views = ['feed', 'events', 'saved', 'network', 'profile', 'chat', 'search-results', 'notifications', 'announcements'];
     views.forEach(v => {
         const el = document.getElementById(`view-${v}`);
         if(el) el.classList.add('hidden');
@@ -1222,6 +1237,8 @@ window.switchView = function(viewName) {
         if(mobileNavItems[3]) mobileNavItems[3].classList.add('active');
     } else if (viewName === 'notifications') {
         renderNotifications();
+    } else if (viewName === 'announcements') {
+        const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
     }
     lucide.createIcons();
 }
@@ -1325,11 +1342,11 @@ function createPostElement(post) {
     </div>
     <div class="post-actions">
     <div class="flex items-center gap-1">
-    <button class="action-btn like" onclick="event.stopPropagation(); toggleLike('${post.id}')"><i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i> <span class="text-xs font-medium">${post.likes ? post.likes.length : 0}</span></button>
+    <button id="like-btn-${post.id}" class="action-btn like" onclick="event.stopPropagation(); toggleLike('${post.id}')"><i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i> <span class="text-xs font-medium">${post.likes ? post.likes.length : 0}</span></button>
     <button class="action-btn comment" onclick="event.stopPropagation(); openPostView('${post.id}')"><i data-lucide="message-square" class="w-5 h-5"></i> <span class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span></button>
     </div>
     <div class="flex items-center gap-1">
-    <button class="action-btn bookmark" onclick="event.stopPropagation(); toggleSave('${post.id}')"><i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-current text-purple-600' : ''}"></i></button>
+    <button id="save-btn-${post.id}" class="action-btn bookmark" onclick="event.stopPropagation(); toggleSave('${post.id}')"><i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-current text-purple-600' : ''}"></i></button>
     <button class="action-btn ai-pin" onclick="event.stopPropagation(); pinPost('${post.id}', '${author.name}')" title="Analyze with Newton"><i data-lucide="sparkles" class="w-5 h-5"></i></button>
     </div>
     </div>
@@ -1339,6 +1356,24 @@ function createPostElement(post) {
 }
 
 window.toggleLike = async function(postId) {
+    // OPTIMISTIC UPDATE
+    const btn = document.getElementById(`like-btn-${postId}`);
+    if (btn) {
+        const icon = btn.querySelector('i');
+        const countSpan = btn.querySelector('span');
+        let currentCount = parseInt(countSpan.innerText) || 0;
+        
+        if (icon.classList.contains('text-red-500')) {
+            // Unliking
+            icon.classList.remove('fill-red-500', 'text-red-500');
+            countSpan.innerText = Math.max(0, currentCount - 1);
+        } else {
+            // Liking
+            icon.classList.add('fill-red-500', 'text-red-500');
+            countSpan.innerText = currentCount + 1;
+        }
+    }
+
     const postRef = doc(db, "posts", postId);
     const post = posts.find(p => p.id === postId);
     if(post.likes && post.likes.includes(currentUser.id)) {
@@ -1352,19 +1387,27 @@ window.toggleLike = async function(postId) {
 }
 
 window.toggleSave = async function(postId) {
+    // OPTIMISTIC UPDATE
+    const btn = document.getElementById(`save-btn-${postId}`);
+    if(btn) {
+        const icon = btn.querySelector('i');
+        if(icon.classList.contains('text-purple-600')) {
+            icon.classList.remove('fill-current', 'text-purple-600');
+            showToast("Post removed");
+        } else {
+            icon.classList.add('fill-current', 'text-purple-600');
+            showToast("Post saved");
+        }
+    }
+
     const userRef = doc(db, "users", currentUser.id);
     if(savedPosts.includes(postId)) {
         await updateDoc(userRef, { saved: arrayRemove(postId) });
         savedPosts = savedPosts.filter(id => id !== postId);
-        showToast("Post removed from saved");
     } else {
         await updateDoc(userRef, { saved: arrayUnion(postId) });
         savedPosts.push(postId);
-        showToast("Post saved");
     }
-    // Refresh saved view if active
-    const activeSaved = document.querySelector('#view-saved:not(.hidden)');
-    if(activeSaved) renderSaved();
 }
 
 window.renderSaved = function() {
@@ -1720,6 +1763,7 @@ window.handleSearch = function(query) {
     if(foundPosts.length) foundPosts.forEach(p => postsDiv.appendChild(createPostElement(p)));
     else postsDiv.innerHTML = `<div class="text-gray-400 text-sm">No posts found</div>`;
     view.appendChild(postsDiv);
+    lucide.createIcons();
 }
 
 // --- POST VIEW ---
@@ -1908,6 +1952,47 @@ window.submitCommentDesktop = async function() {
 
     document.getElementById('comment-input-desktop').value = "";
     window.replyingToCommentId = null; // Reset reply state
+}
+
+window.promptForImageLink = function() {
+    const url = prompt("Enter Image URL:");
+    if(url && (url.startsWith('http') || url.startsWith('data:'))) {
+        window.currentMedia = url;
+        window.currentMediaType = 'image';
+        const container = document.getElementById('media-preview-container');
+        container.classList.remove('hidden');
+        const img = document.getElementById('media-preview-img');
+        img.src = window.currentMedia;
+        img.classList.remove('hidden');
+        document.getElementById('media-preview-video').classList.add('hidden');
+        showToast("Image link added");
+    }
+}
+
+// ADMIN ANNOUNCEMENTS
+window.sendAnnouncement = async function() {
+    const text = document.getElementById('announcement-text').value.trim();
+    if(!text) return;
+    
+    if(confirm("Send this announcement to all users?")) {
+        // Iterate client-side users for prototype (In production use Cloud Functions)
+        let count = 0;
+        for(const u of users) {
+            if(u.id !== currentUser.id) {
+                await addDoc(collection(db, "notifications"), {
+                    receiverId: u.id,
+                    senderId: currentUser.id,
+                    type: 'official',
+                    content: text,
+                    timestamp: serverTimestamp(),
+                    read: false
+                });
+                count++;
+            }
+        }
+        showToast(`Sent to ${count} users`);
+        document.getElementById('announcement-text').value = "";
+    }
 }
 
 // --- Menu Functions ---

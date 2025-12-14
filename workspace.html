@@ -136,8 +136,8 @@
         .sidebar-item .item-actions { opacity: 0; transition: opacity 0.2s; }
         .sidebar-item:hover .item-actions { opacity: 1; }
         
-        .chat-row .chat-actions { opacity: 0; transition: opacity 0.2s; }
-        .chat-row:hover .chat-actions { opacity: 1; }
+        .chat-row .chat-actions { opacity: 0; transition: all 0.2s ease; pointer-events: none; transform: scale(0.9); }
+        .chat-row:hover .chat-actions { opacity: 1; pointer-events: auto; transform: scale(1); }
 
         .reminder-item .reminder-actions { opacity: 0; transition: opacity 0.2s; }
         .reminder-item:hover .reminder-actions { opacity: 1; }
@@ -183,7 +183,7 @@
         </div>
         <div id="team-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar pb-4"></div>
 
-        <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.4</div>
+        <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.5</div>
     </div>
 
     <!-- MAIN AREA -->
@@ -258,10 +258,10 @@
                 <!-- AI Selection Menu -->
                 <div id="ai-selection-menu" class="fixed hidden bg-white border border-gray-200 shadow-xl rounded-full p-1.5 z-[200] flex gap-2 items-center animate-popIn">
                     <div class="flex items-center gap-1.5 pl-2">
-                        <span class="text-sm">✨</span>
+                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                         <input id="ai-selection-input" type="text" class="text-sm outline-none w-48 text-gray-700 placeholder-gray-400 bg-transparent" placeholder="Ask AI to edit...">
                     </div>
-                    <button id="btn-ai-submit" class="p-1.5 rounded-full hover:bg-gray-100 text-notion-blue" onclick="handleAIEdit()"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg></button>
+                    <button id="btn-ai-submit" class="p-1.5 rounded-full hover:bg-gray-100 text-notion-blue transition-colors" onclick="window.handleAIEdit()"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg></button>
                 </div>
 
                 <!-- Slash AI Menu -->
@@ -269,16 +269,16 @@
                     <div class="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide bg-gray-50 border-b border-gray-100">AI Assistant</div>
                     <div class="p-1">
                         <button onclick="executeAICommand('Continue writing')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
-                            <span class="text-lg">✍️</span> Continue writing
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg> Continue writing
                         </button>
                         <button onclick="executeAICommand('Summarize')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
-                            <span class="text-lg">📝</span> Summarize
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg> Summarize
                         </button>
                         <button onclick="executeAICommand('Fix grammar and spelling')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
-                            <span class="text-lg">🔧</span> Fix grammar
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Fix grammar
                         </button>
                         <button onclick="executeAICommand('Translate to Spanish')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
-                            <span class="text-lg">🇪🇸</span> Translate to Spanish
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg> Translate to Spanish
                         </button>
                     </div>
                 </div>
@@ -323,18 +323,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- MODALS -->
-    <div id="msg-context-menu" class="fixed hidden bg-white border border-gray-200 shadow-popover rounded-lg py-1 z-[160] w-40 text-sm overflow-hidden">
-        <button id="btn-delete-me" class="w-full text-left px-4 py-2 hover:bg-gray-50 text-gray-700 flex items-center gap-2">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-            Hide for me
-        </button>
-        <button id="btn-delete-all" class="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 hidden flex items-center gap-2 border-t border-gray-100">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-            Delete for all
-        </button>
     </div>
 
     <div id="link-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
@@ -547,7 +535,8 @@
     let myColor = userColors[Math.floor(Math.random() * userColors.length)];
     let myTeams = []; 
     let myFolders = [];
-    let mentionableUsers = new Set(); // Stores known emails for mentions
+    let mentionableUsers = new Set();
+    let currentSelectionRange = null;
 
     // --- GLOBAL HELPERS (Attached to window for HTML events) ---
     window.showModal = (id) => { const m = document.getElementById(id); m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); m.children[0].classList.remove('scale-95'); }, 10); }
@@ -612,6 +601,9 @@
                 updateUserUI();
                 await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName||"", photoURL: user.photoURL||"", lastLogin: serverTimestamp() }, { merge: true });
                 
+                // Request Notification Permission
+                if (Notification.permission !== 'granted') { Notification.requestPermission(); }
+
                 const urlParams = new URLSearchParams(window.location.search); 
                 const pid = urlParams.get('project');
                 
@@ -844,7 +836,6 @@
         
         let folderOptions = '';
         myFolders.forEach(f => {
-            // Only allow moving to folders I own or write access (simplified to ownership for now)
             if(f.id !== fid && f.owner === currentUser.uid) {
                 folderOptions += `<button onclick="window.moveProject('${pid}', '${f.id}')" class="w-full text-left px-3 py-2 hover:bg-gray-100">Move to ${f.name}</button>`;
             }
@@ -891,12 +882,10 @@
         const email = document.getElementById('folder-share-email').value.trim();
         if(!email || !sharingFolderId) return;
 
-        // 1. Update the folder document to include the user in sharedWith
         await updateDoc(doc(db, "folders", sharingFolderId), {
             sharedWith: arrayUnion(email)
         });
 
-        // 2. Query all projects in folder and share them
         const q = query(collection(db, "projects"), where("folderId", "==", sharingFolderId));
         const snap = await getDocs(q);
         
@@ -948,7 +937,6 @@
         if(unsubscribeChat) unsubscribeChat();
         if(unsubscribeReminders) unsubscribeReminders();
         if(unsubscribeComments) unsubscribeComments();
-        // Removed local broadcast listener as it's now global
         if(unsubscribePresence) unsubscribePresence();
 
         unsubscribeDoc = onSnapshot(doc(db, "projects", id), (snap) => {
@@ -1027,7 +1015,6 @@
                 const range = sel.getRangeAt(0);
                 const rect = range.getBoundingClientRect();
                 
-                // Position menu near cursor
                 slashMenu.style.left = `${rect.left}px`;
                 slashMenu.style.top = `${rect.bottom + 10}px`;
                 slashMenu.classList.remove('hidden');
@@ -1069,8 +1056,10 @@
         const range = sel.getRangeAt(0);
         const rect = range.getBoundingClientRect();
         
-        // Don't show if empty selection
         if (rect.width === 0) return;
+
+        // Store range so we can restore it when clicking the AI button
+        currentSelectionRange = range.cloneRange();
 
         menu.style.left = `${rect.left + (rect.width / 2) - 100}px`;
         menu.style.top = `${rect.top - 50}px`;
@@ -1083,6 +1072,13 @@
         const menu = document.getElementById('ai-selection-menu');
         
         if (!prompt) return;
+
+        // Restore selection if lost
+        if (currentSelectionRange) {
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(currentSelectionRange);
+        }
 
         // Smart Styling Heuristics
         if (prompt.includes('red')) document.execCommand('foreColor', false, 'red');
@@ -1109,14 +1105,13 @@
         
         input.value = '';
         menu.classList.add('hidden');
+        currentSelectionRange = null;
     };
     
-    // Allow pressing enter in the AI menu input
     document.getElementById('ai-selection-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') window.handleAIEdit();
     });
 
-    // Close menus on outside click
     document.addEventListener('click', (e) => {
         if(!slashMenu.contains(e.target) && e.target !== contentInput) slashMenu.classList.add('hidden');
     });
@@ -1179,7 +1174,6 @@
             const els = document.querySelectorAll('.bc-target-user:checked');
             recipients = Array.from(els).map(el => el.value);
         } else {
-            // Fetch all project members if 'all' is selected
             const pDoc = await getDoc(doc(db, "projects", currentProjectId));
             if (pDoc.exists()) {
                 recipients = pDoc.data().memberEmails;
@@ -1188,7 +1182,6 @@
 
         if(!text || recipients.length === 0) return;
 
-        // Send to individual user notification streams for global alerting
         const batchPromises = recipients.map(async (email) => {
             const uq = query(collection(db, "users"), where("email", "==", email));
             const usnap = await getDocs(uq);
@@ -1222,7 +1215,6 @@
         const lastWord = val.split(' ').pop();
         if(lastWord.startsWith('@') && lastWord.length > 1) {
             const query = lastWord.substring(1).toLowerCase();
-            // Filter all known users, not just current project members
             const matches = Array.from(mentionableUsers).filter(m => m.toLowerCase().includes(query));
             if(matches.length > 0) {
                 mentionBox.innerHTML = matches.map(m => `<div class="p-2 hover:bg-gray-100 cursor-pointer text-xs" onclick="window.insertMention('${m}')">${m}</div>`).join('');
@@ -1238,34 +1230,21 @@
     window.insertMention = (email) => {
         const val = chatInput.value;
         const words = val.split(' ');
-        words.pop(); // Remove partial
+        words.pop(); 
         chatInput.value = words.join(' ') + ` @${email} `;
         mentionBox.classList.add('hidden');
         chatInput.focus();
     };
 
-    let selectedMsgId = null;
-    window.openMsgMenu = (e, mid, isSender) => {
-        e.stopPropagation();
-        selectedMsgId = mid;
-        const menu = document.getElementById('msg-context-menu');
-        menu.style.left = (e.clientX - 140) + 'px'; // Adjusted offset
-        menu.style.top = (e.clientY + 5) + 'px';
-        menu.classList.remove('hidden');
-        document.getElementById('btn-delete-all').classList.toggle('hidden', !isSender);
+    window.deleteMessage = async (mid) => {
+        if(confirm("Delete this message?")) {
+            await deleteDoc(doc(db, `projects/${currentProjectId}/messages`, mid));
+        }
     };
-    
-    document.getElementById('btn-delete-me').addEventListener('click', async () => {
-        if(!selectedMsgId) return;
-        await updateDoc(doc(db, `projects/${currentProjectId}/messages`, selectedMsgId), { hiddenBy: arrayUnion(currentUser.uid) });
-        document.getElementById('msg-context-menu').classList.add('hidden');
-    });
-    document.getElementById('btn-delete-all').addEventListener('click', async () => {
-        if(!selectedMsgId) return;
-        await deleteDoc(doc(db, `projects/${currentProjectId}/messages`, selectedMsgId));
-        document.getElementById('msg-context-menu').classList.add('hidden');
-    });
-    document.addEventListener('click', () => { document.getElementById('msg-context-menu').classList.add('hidden'); });
+
+    window.hideMessage = async (mid) => {
+        await updateDoc(doc(db, `projects/${currentProjectId}/messages`, mid), { hiddenBy: arrayUnion(currentUser.uid) });
+    };
 
     function loadChat(pid) { 
         if(unsubscribeChat) unsubscribeChat();
@@ -1275,12 +1254,11 @@
                 const m = d.data();
                 if(m.hiddenBy && m.hiddenBy.includes(currentUser.uid)) return;
                 
-                // Filter private messages
                 if(m.to && m.to !== 'all') { if(m.to !== currentUser.email && m.senderId !== currentUser.uid) return; }
 
                 const isMe = m.senderId === currentUser.uid;
                 const wrap = document.createElement('div'); 
-                wrap.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} group relative chat-row`; 
+                wrap.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} group relative chat-row mb-1`; 
                 
                 let bubbleClass = isMe ? 'bg-[#EBF5FE] text-notion-text' : 'bg-white border border-gray-200 text-notion-text';
                 let extraLabel = '';
@@ -1297,10 +1275,15 @@
                     }
                 }
 
-                // Note: chat-actions class used for hover visibility
-                const menuTrigger = `<button onclick="window.openMsgMenu(event, '${d.id}', ${isMe})" class="absolute top-1/2 -translate-y-1/2 ${isMe ? '-left-6' : '-right-6'} chat-actions text-gray-400 hover:text-gray-600 px-1">⋮</button>`;
+                // Chat Actions Buttons (Messenger Style)
+                let actionsHtml = '';
+                if (isMe) {
+                    actionsHtml = `<div class="chat-actions absolute top-1/2 -translate-y-1/2 -left-8 flex gap-1"><button onclick="window.deleteMessage('${d.id}')" class="p-1 rounded-full bg-gray-100 hover:bg-red-100 text-gray-400 hover:text-red-500 shadow-sm" title="Delete"><svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div>`;
+                } else {
+                    actionsHtml = `<div class="chat-actions absolute top-1/2 -translate-y-1/2 -right-8 flex gap-1"><button onclick="window.hideMessage('${d.id}')" class="p-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-600 shadow-sm" title="Hide"><svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg></button></div>`;
+                }
 
-                wrap.innerHTML = `${menuTrigger}<div class="text-[10px] text-gray-400 ml-1 mb-0.5 flex items-center">${m.senderName} ${extraLabel}</div><div class="px-3.5 py-2.5 rounded-xl text-[14px] max-w-[90%] ${bubbleClass} shadow-sm leading-relaxed chat-content relative">${content}</div>`; 
+                wrap.innerHTML = `${actionsHtml}<div class="text-[10px] text-gray-400 ml-1 mb-0.5 flex items-center">${m.senderName} ${extraLabel}</div><div class="px-3.5 py-2.5 rounded-xl text-[14px] max-w-[90%] ${bubbleClass} shadow-sm leading-relaxed chat-content relative">${content}</div>`; 
                 div.appendChild(wrap); 
             }); 
             div.scrollTop = div.scrollHeight; 
@@ -1328,7 +1311,7 @@
     }
     document.getElementById('comments-form').addEventListener('submit', async (e) => { e.preventDefault(); const inp = document.getElementById('comment-input'); if(!inp.value.trim()) return; addDoc(collection(db, `projects/${currentProjectId}/comments`), { text: inp.value.trim(), senderId: currentUser.uid, senderEmail: currentUser.email, senderName: currentUser.displayName||"User", timestamp: serverTimestamp() }); inp.value = ''; });
     
-    // --- REMINDERS WITH OVERLAY ---
+    // --- REMINDERS WITH OVERLAY & SYSTEM NOTIFICATION ---
     function loadReminders(pid) { 
         if(unsubscribeReminders) unsubscribeReminders();
         unsubscribeReminders = onSnapshot(query(collection(db, `projects/${pid}/reminders`), orderBy("due", "asc")), (snap) => { 
@@ -1350,9 +1333,16 @@
             if(r.date <= now && !notifiedReminders.has(r.id)) {
                 const diff = now - r.date;
                 if(diff < 5 * 60 * 1000) { 
+                    // In-App Overlay
                     document.getElementById('reminder-overlay-text').textContent = r.title;
                     document.getElementById('reminder-overlay').classList.remove('hidden');
                     window.playSound();
+                    
+                    // System Notification (Background)
+                    if (Notification.permission === "granted") {
+                        new Notification("EduLink Reminder", { body: r.title, icon: "https://i.imghippo.com/files/vgr8207c.png" });
+                    }
+
                     notifiedReminders.add(r.id);
                 }
             }
@@ -1384,10 +1374,14 @@
                     const n = change.doc.data();
                     // Handle Global Broadcast Alert
                     if (n.type === 'broadcast' && !n.read) {
-                        // Play sound even if not focusing
                         window.playSound();
                         document.getElementById('broadcast-message-text').textContent = n.text;
                         document.getElementById('broadcast-receive-overlay').classList.remove('hidden');
+                        
+                        if (Notification.permission === "granted") {
+                            new Notification("Announcement", { body: n.text, icon: "https://i.imghippo.com/files/vgr8207c.png" });
+                        }
+
                         updateDoc(doc(db, `users/${currentUser.uid}/notifications`, change.doc.id), { read: true });
                     }
                 }

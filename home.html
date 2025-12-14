@@ -808,7 +808,7 @@
         </nav>
         
         <div class="mt-auto pt-4 border-t border-gray-100">
-            <div class="sidebar-user group" onclick="if(currentUser.id === 'guest') loginWithGoogle(); else showProfile(currentUser.id)">
+            <div class="sidebar-user group" onclick="if(currentUser.id !== 'guest') showProfile(currentUser.id)">
                 <img id="sidebar-avatar" src="" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 shrink-0 object-cover">
                 <div class="hidden lg:block">
                     <div id="sidebar-name" class="text-sm font-bold text-[#1f1f1f] group-hover:text-blue-700 transition-colors truncate w-[140px]">User</div>
@@ -834,7 +834,7 @@
                         <i data-lucide="bell" class="w-6 h-6"></i>
                         <span id="notif-badge" class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white hidden"></span>
                     </button>
-                    <img id="header-avatar" src="" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 cursor-pointer hover:ring-2 ring-offset-1 ring-blue-500 transition-all hidden md:block" onclick="if(currentUser.id === 'guest') loginWithGoogle(); else showProfile(currentUser.id)">
+                    <img id="header-avatar" src="" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 cursor-pointer hover:ring-2 ring-offset-1 ring-blue-500 transition-all hidden md:block" onclick="if(currentUser.id !== 'guest') showProfile(currentUser.id)">
                 </div>
             </header>
 
@@ -1010,7 +1010,7 @@
             <i data-lucide="sparkles"></i>
             <span class="text-[10px] font-medium">Newton</span>
         </div>
-        <div class="mobile-nav-item" onclick="if(currentUser.id === 'guest') loginWithGoogle(); else showProfile(currentUser.id)">
+        <div class="mobile-nav-item" onclick="if(currentUser.id !== 'guest') showProfile(currentUser.id)">
             <img id="mobile-avatar" src="" class="w-6 h-6 rounded-full border border-gray-200">
             <span class="text-[10px] font-medium">Profile</span>
         </div>
@@ -1055,35 +1055,15 @@
         window.getDoc = getDoc;
         window.serverTimestamp = serverTimestamp;
 
-        // Login Logic
-        window.loginWithGoogle = async () => {
-            const provider = new GoogleAuthProvider();
-            try {
-                await signInWithPopup(auth, provider);
-            } catch (error) {
-                console.error(error);
-                alert("Login failed: " + error.message);
-            }
-        };
-
         window.logout = () => {
-            signOut(auth);
-            window.location.reload();
+            signOut(auth).then(() => {
+                window.location.href = "index.html";
+            });
         }
 
         // --- GLOBAL DATA STORES (Updated via listeners) ---
-        const GUEST_USER = {
-            id: "guest",
-            name: "Sign In",
-            email: "",
-            avatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Guest",
-            bio: "Join the community to post and chat!",
-            following: [],
-            followers: [],
-            friends: []
-        };
-        
-        window.currentUser = GUEST_USER;
+        // Initial state is null until auth resolves
+        window.currentUser = null;
         window.users = [];
         window.posts = [];
         window.notifications = [];
@@ -1096,9 +1076,6 @@
         window.initApp = function() {
             lucide.createIcons();
             setupClassifier();
-            
-            // Initial render with Guest User
-            updateUserInterface();
             
             // Listen to public data immediately
             listenToFeed();
@@ -1113,9 +1090,9 @@
                     if (!userSnap.exists()) {
                         await setDoc(userRef, {
                             id: user.uid,
-                            name: user.displayName,
+                            name: user.displayName || user.email.split('@')[0],
                             email: user.email,
-                            avatar: user.photoURL,
+                            avatar: user.photoURL || "https://api.dicebear.com/9.x/notionists/svg?seed=" + user.uid,
                             bio: "New to EduLink",
                             following: [],
                             followers: [],
@@ -1123,7 +1100,7 @@
                         });
                     }
                     
-                    window.currentUser = { ...userSnap.data(), id: user.uid, name: user.displayName, avatar: user.photoURL }; 
+                    window.currentUser = { ...userSnap.data(), id: user.uid, name: user.displayName || user.email.split('@')[0], avatar: user.photoURL || "https://api.dicebear.com/9.x/notionists/svg?seed=" + user.uid }; 
                     if(!window.currentUser.following) window.currentUser.following = [];
                     if(!window.currentUser.friends) window.currentUser.friends = [];
 
@@ -1131,8 +1108,8 @@
                     listenToNotifications();
                     showToast(`Welcome back, ${window.currentUser.name.split(' ')[0]}!`);
                 } else {
-                    window.currentUser = GUEST_USER;
-                    updateUserInterface();
+                    // Redirect to login page if not authenticated
+                    window.location.href = "index.html";
                 }
             });
         };
@@ -1152,7 +1129,7 @@
         }
 
         function listenToNotifications() {
-             if(currentUser.id === 'guest') return;
+             if(!currentUser) return;
              const q = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id), orderBy("timestamp", "desc"));
              onSnapshot(q, (snapshot) => {
                  window.notifications = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
@@ -1166,7 +1143,7 @@
 
         // --- CORE UI FUNCTIONS ---
         window.updateUserInterface = () => {
-            const isGuest = currentUser.id === 'guest';
+            if (!currentUser) return;
             document.getElementById('sidebar-name').innerText = currentUser.name;
             document.getElementById('sidebar-avatar').src = currentUser.avatar;
             document.getElementById('mobile-avatar').src = currentUser.avatar;
@@ -1177,8 +1154,8 @@
             document.getElementById('mobile-comment-avatar').src = currentUser.avatar;
             
             if(document.getElementById('edit-name')) {
-                document.getElementById('edit-name').value = isGuest ? "" : currentUser.name;
-                document.getElementById('edit-bio').value = isGuest ? "" : currentUser.bio;
+                document.getElementById('edit-name').value = currentUser.name;
+                document.getElementById('edit-bio').value = currentUser.bio;
                 document.getElementById('edit-avatar-preview').src = currentUser.avatar;
             }
         }
@@ -1188,7 +1165,8 @@
             const container = document.getElementById('feed-container');
             container.innerHTML = "";
             let displayPosts = window.posts.filter(p => {
-                if (p.privacy === 'private' && p.authorId !== currentUser.id) return false;
+                // If private and not author, hide
+                if (p.privacy === 'private' && currentUser && p.authorId !== currentUser.id) return false;
                 return true;
             });
 
@@ -1203,7 +1181,7 @@
 
         window.createPostElement = (post) => {
             const author = window.users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: 'https://via.placeholder.com/40' };
-            const isLiked = post.likes && post.likes.includes(currentUser.id);
+            const isLiked = currentUser && post.likes && post.likes.includes(currentUser.id);
             const isSaved = window.savedPosts.includes(post.id);
             const dateStr = post.timestamp?.toDate ? post.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now';
 
@@ -1264,7 +1242,7 @@
 
         // --- ACTIONS ---
         window.publishPost = async () => {
-            if (currentUser.id === 'guest') return loginWithGoogle();
+            if (!currentUser) return; // Should not happen due to redirect
 
             const textRaw = document.getElementById('compose-text').value; 
             const privacy = document.getElementById('post-privacy').value;
@@ -1292,7 +1270,7 @@
         };
 
         window.toggleLike = async (postId) => {
-            if (currentUser.id === 'guest') return loginWithGoogle();
+            if (!currentUser) return;
 
             const postRef = doc(db, "posts", postId);
             const post = window.posts.find(p => p.id === postId);
@@ -1305,7 +1283,7 @@
         };
 
         window.submitComment = async () => {
-            if (currentUser.id === 'guest') return loginWithGoogle();
+            if (!currentUser) return;
 
             const txt = document.getElementById('comment-input-desktop').value.trim();
             if(!txt || !window.currentViewingPostId) return;
@@ -1330,10 +1308,9 @@
 
         // --- CHAT WITH ANYONE ---
         window.startChat = async (targetUserId) => {
-            if (currentUser.id === 'guest') return loginWithGoogle();
+            if (!currentUser) return;
             
-            // Check if chat exists (Query for chats containing both users)
-            // Note: Firestore array-contains only handles one value. We need a composite key or just query all user's chats and filter in memory since scale is small for now.
+            // Simple query for now. In production, consider composite keys or subcollections.
             const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.id));
             const snapshot = await getDocs(q);
             let chatDoc = snapshot.docs.find(d => d.data().participants.includes(targetUserId));
@@ -1366,7 +1343,7 @@
 
         window.sendChatMessage = async (e) => {
             e.preventDefault();
-            if (currentUser.id === 'guest') return loginWithGoogle();
+            if (!currentUser) return;
 
             const input = document.getElementById('message-input');
             const text = input.value.trim();
@@ -1621,7 +1598,6 @@
         function openEditProfile() { document.getElementById('edit-profile-overlay').classList.remove('pointer-events-none', 'opacity-0'); }
         function closeEditProfile() { document.getElementById('edit-profile-overlay').classList.add('pointer-events-none', 'opacity-0'); }
         function openCreateMenu() { 
-            if(currentUser.id === 'guest') { loginWithGoogle(); return; }
             document.getElementById('create-menu-overlay').classList.remove('opacity-0', 'pointer-events-none'); 
             document.getElementById('create-menu-modal').classList.remove('scale-95'); 
         }

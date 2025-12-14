@@ -232,6 +232,17 @@ background: transparent; border: none; cursor: pointer;
     margin-top: 4px;
 }
 
+.code-preview {
+background: #111827; border-radius: 16px; overflow: hidden;
+border: 1px solid #1f2937; margin-top: 16px; margin-bottom: 8px;
+box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+.code-preview-header {
+padding: 10px 16px; background: #1f2937; border-bottom: 1px solid #374151;
+display: flex; align-items: center; gap: 6px;
+}
+.window-dot { width: 10px; height: 10px; border-radius: 50%; }
+
 /* --- COMPOSE & CREATE MENUS --- */
 #compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
@@ -488,124 +499,18 @@ transition: background 0.1s; font-size: 14px; font-weight: 500;
 .chat-sidebar-item.active { background: #e0e0e0; color: #1f1f1f; }
 
 .chat-bubble-me {
-    background: #0b57d0;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 18px 18px 4px 18px;
-    font-size: 15px;
-    max-width: 75%;
-    align-self: flex-end;
-    margin-bottom: 2px;
-    position: relative;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+background: #0b57d0; color: white;
+padding: 8px 14px; border-radius: 10px;
+font-size: 15px; max-width: 70%; align-self: flex-end;
+margin-bottom: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 .chat-bubble-them {
-    background: #f0f2f5;
-    color: #050505;
-    padding: 10px 16px;
-    border-radius: 18px 18px 18px 4px;
-    font-size: 15px;
-    max-width: 75%;
-    align-self: flex-start;
-    margin-bottom: 2px;
-    position: relative;
+background: #f2f3f5; color: #37352f;
+padding: 8px 14px; border-radius: 10px;
+font-size: 15px; max-width: 70%; align-self: flex-start;
+margin-bottom: 6px;
 }
-
 .chat-date-divider { text-align: center; font-size: 11px; color: #9ca3af; margin: 16px 0; font-weight: 500; }
-
-.chat-row {
-    position: relative;
-    display: flex;
-    width: 100%;
-    margin-bottom: 6px;
-    align-items: center;
-}
-.chat-row.me { justify-content: flex-end; }
-.chat-row.them { justify-content: flex-start; }
-
-.chat-options-btn {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    color: #9ca3af;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s, background-color 0.2s;
-    flex-shrink: 0;
-}
-.chat-options-btn:hover { background-color: #f3f4f6; color: #374151; }
-.chat-row:hover .chat-options-btn { opacity: 1; }
-.chat-row.me .chat-options-btn { margin-right: 8px; order: -1; }
-.chat-row.them .chat-options-btn { margin-left: 8px; order: 1; }
-
-.chat-context-menu {
-    position: absolute;
-    background: white;
-    border: 1px solid #eaecf0;
-    border-radius: 12px;
-    padding: 6px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    z-index: 100;
-    width: 180px;
-    display: none;
-    flex-direction: column;
-}
-.chat-context-menu.active { display: flex; }
-
-.chat-menu-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 12px;
-    font-size: 13px; font-weight: 500; color: #374151;
-    border-radius: 8px; cursor: pointer; transition: background 0.1s;
-}
-.chat-menu-item:hover { background: #f9fafb; color: #1f1f1f; }
-.chat-menu-item.danger { color: #d92d20; }
-.chat-menu-item.danger:hover { background: #fef2f2; }
-
-.reaction-row {
-    display: flex; justify-content: space-around;
-    padding: 6px 4px;
-    border-bottom: 1px solid #f0f0f0;
-    margin-bottom: 4px;
-}
-.reaction-btn {
-    font-size: 18px;
-    cursor: pointer;
-    transition: transform 0.1s;
-    padding: 4px;
-    border-radius: 4px;
-}
-.reaction-btn:hover { transform: scale(1.2); background: #f3f4f6; }
-
-.reply-preview-bar {
-    background: #f9fafb;
-    border-left: 3px solid #0b57d0;
-    padding: 8px 12px;
-    margin-bottom: 8px;
-    border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    color: #4b5563;
-}
-
-.quoted-reply {
-    font-size: 11px;
-    color: inherit;
-    opacity: 0.8;
-    border-left: 2px solid rgba(255,255,255,0.5);
-    padding-left: 6px;
-    margin-bottom: 4px;
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.chat-bubble-them .quoted-reply { border-color: rgba(0,0,0,0.2); }
 
 .mobile-nav-item {
 display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -633,18 +538,13 @@ height: 100%; flex: 1; gap: 4px; color: #98a2b3; transition: all 0.2s; cursor: p
 
 </style>
 </head>
-<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="closeMenus()">
+<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
 
 <!-- LOADING OVERLAY -->
 <div id="app-loader"><div class="loader-spinner"></div></div>
 
 <!-- Post Options Global Menu -->
 <div id="global-post-menu" class="post-options-menu"></div>
-
-<!-- Chat Message Menu -->
-<div id="chat-msg-menu" class="chat-context-menu" onclick="event.stopPropagation()">
-    <!-- Populated by JS -->
-</div>
 
 <!-- Post View Overlay -->
 <div id="post-view-overlay" class="fixed inset-0 z-[60] hidden flex justify-center items-end md:items-center">
@@ -941,22 +841,18 @@ Change
     </div>
 
     <!-- CHAT VIEW -->
-    <div id="view-chat" class="flex-1 h-full hidden flex flex-col bg-white overflow-hidden">
+    <div id="view-chat" class="flex-1 h-full hidden flex flex-col bg-white">
         <div class="flex h-full">
             <div class="w-1/4 min-w-[260px] border-r border-gray-100 flex flex-col bg-[#fbfbfa]">
                 <div class="p-4 border-b border-gray-100 font-medium text-xs text-gray-500 uppercase tracking-wide">Direct Messages</div>
                 <div id="chat-list" class="flex-1 overflow-y-auto pt-2"></div>
             </div>
-            <div class="flex-1 flex flex-col relative bg-white h-full overflow-hidden">
-                <div id="chat-header" class="h-16 border-b border-gray-100 bg-white flex items-center justify-between px-6 font-semibold text-gray-800 text-[15px] shrink-0">
+            <div class="flex-1 flex flex-col relative bg-white">
+                <div id="chat-header" class="h-16 border-b border-gray-100 bg-white flex items-center justify-between px-6 font-semibold text-gray-800 text-[15px]">
                     Select a friend to chat
                 </div>
                 <div id="chat-messages" class="flex-1 overflow-y-auto p-6 flex flex-col"></div>
-                <div id="chat-input-area" class="p-4 bg-white hidden flex-col shrink-0 border-t border-gray-100">
-                    <div id="reply-preview" class="hidden reply-preview-bar">
-                        <span id="reply-to-text">Replying to...</span>
-                        <button onclick="cancelReply()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-4 h-4"></i></button>
-                    </div>
+                <div id="chat-input-area" class="p-4 bg-white hidden">
                     <form onsubmit="sendChatMessage(event)" class="flex gap-3 items-center border border-gray-200 rounded-xl p-2 px-3 focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all">
                         <input id="message-input" type="text" placeholder="Type a message..." class="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder-gray-400">
                         <button type="submit" class="text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors"><i data-lucide="send" class="w-4 h-4"></i></button>
@@ -1124,7 +1020,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Expose services globally
+// Expose services globally for inline handlers
 window.auth = auth;
 window.db = db;
 
@@ -1136,9 +1032,7 @@ let notifications = [];
 let savedPosts = [];
 let activeChatUserId = null;
 let activeNotifTab = 'friends';
-window.replyingToCommentId = null; 
-window.replyingToMessageId = null;
-window.activeMessageMenuId = null;
+window.replyingToCommentId = null; // Track nesting
 
 // Global Vars for App Logic
 window.currentContext = "";
@@ -1156,66 +1050,29 @@ window.currentEventCover = null;
 window.editingPostId = null;
 let currentEventCoverBlob = null;
 
-// Helper: Reliable Icon Refresh
-function refreshIcons() {
-    if(window.lucide) {
-        setTimeout(() => {
-            window.lucide.createIcons();
-        }, 50);
-    }
-}
-
-// NUCLEAR OPTION: MutationObserver to ensure icons NEVER disappear
-const observer = new MutationObserver(() => {
-    if(window.lucide) window.lucide.createIcons();
-});
-observer.observe(document.body, { childList: true, subtree: true });
-
-// Helper: Date Formatter
-function formatDate(timestamp) {
-    if (!timestamp) return '';
-    let date;
-    // Handle Firestore Timestamp
-    if (timestamp.toDate && typeof timestamp.toDate === 'function') {
-        date = timestamp.toDate();
-    } 
-    // Handle milliseconds number
-    else if (typeof timestamp === 'number') {
-        date = new Date(timestamp);
-    } 
-    // Handle Date object
-    else if (timestamp instanceof Date) {
-        date = timestamp;
-    }
-    // Fallback for string ISO dates or other
-    else {
-        date = new Date(timestamp);
-    }
-
-    if (isNaN(date.getTime())) return ''; // Invalid Date
-    
-    return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-}
-
-// Auth Listener
+// Auth Listener with Robust Google Auth Handling
 onAuthStateChanged(auth, async (user) => {
     const loader = document.getElementById('app-loader');
     if (user) {
+        // Fetch User Data
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
         
         let isOfficial = false;
+        // Auto-Verify Edulink User
         if(user.email === 'edulinkbht@gmail.com') {
             isOfficial = true;
         }
 
         if (userSnap.exists()) {
             currentUser = { id: user.uid, ...userSnap.data() };
+            // Ensure official status is synced if email matches
             if(isOfficial && !currentUser.isOfficial) {
                 await updateDoc(userRef, { isOfficial: true });
                 currentUser.isOfficial = true;
             }
         } else {
+            // Create default user doc if missing (Crucial for Google Auth first time)
             currentUser = {
                 id: user.uid,
                 name: user.displayName || user.email.split('@')[0],
@@ -1231,22 +1088,31 @@ onAuthStateChanged(auth, async (user) => {
             await setDoc(userRef, currentUser);
         }
         
+        // Ensure arrays exist to prevent undefined errors if DB field is missing
         currentUser.following = currentUser.following || [];
         currentUser.followers = currentUser.followers || [];
         currentUser.friends = currentUser.friends || [];
         currentUser.saved = currentUser.saved || [];
 
+        // Expose current user globally
         window.currentUser = currentUser;
         savedPosts = currentUser.saved;
 
+        // Check for Deep Link (Shared Post)
         const params = new URLSearchParams(window.location.search);
         const sharedPostId = params.get('postId');
         
+        // Update UI with User Info
         updateUserInterface();
-        initRealtimeListeners();
-        setupClassifier();
-        refreshIcons();
         
+        // Start Listeners
+        initRealtimeListeners();
+        
+        // Setup Logic
+        setupClassifier();
+        lucide.createIcons();
+        
+        // Hide loader
         if(loader) loader.style.opacity = '0';
         setTimeout(() => { if(loader) loader.remove(); }, 500);
         
@@ -1254,49 +1120,55 @@ onAuthStateChanged(auth, async (user) => {
             setTimeout(() => {
                 openPostView(sharedPostId);
                 window.history.pushState({}, document.title, window.location.pathname);
-            }, 1000); 
+            }, 1000); // Small delay to allow posts to load
         }
 
     } else {
+        // Redirect to Login
         window.location.href = 'index.html';
     }
 });
 
 function initRealtimeListeners() {
+    // Users Listener
     onSnapshot(collection(db, "users"), (snapshot) => {
         users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // If network view is open, refresh it
         const netView = document.getElementById('view-network');
         if(netView && !netView.classList.contains('hidden')) renderNetwork();
-        refreshIcons();
     });
 
+    // Posts Listener
     const qPosts = query(collection(db, "posts"), orderBy("timestamp", "desc"));
     onSnapshot(qPosts, (snapshot) => {
         posts = snapshot.docs.map(doc => ({ 
             id: doc.id, 
             ...doc.data(), 
-            timestamp: doc.data().timestamp 
+            timestamp: doc.data().timestamp?.toDate()?.getTime() || Date.now() 
         }));
         
+        // Rerender active view if needed
         const activeFeed = document.querySelector('#view-feed:not(.hidden)');
         if(activeFeed) renderFeed();
         
+        // IMPORTANT: Update open modal in realtime
         const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
         if(activePostView && window.currentViewingPostId) {
             renderCommentsInModal(window.currentViewingPostId);
         }
-        refreshIcons();
     });
 
+    // Notifications Listener - REMOVED ORDERBY to fix missing index issue
     const qNotifs = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
     onSnapshot(qNotifs, (snapshot) => {
         notifications = snapshot.docs.map(doc => ({ 
             id: doc.id, 
             ...doc.data(),
-            timestamp: doc.data().timestamp
+            timestamp: doc.data().timestamp?.toDate()?.getTime() || Date.now()
         }));
         
-        notifications.sort((a,b) => (b.timestamp?.toDate ? b.timestamp.toDate() : 0) - (a.timestamp?.toDate ? a.timestamp.toDate() : 0));
+        // Client-side sort
+        notifications.sort((a,b) => b.timestamp - a.timestamp);
         
         const badge = document.getElementById('notif-badge');
         const unread = notifications.some(n => !n.read);
@@ -1307,7 +1179,6 @@ function initRealtimeListeners() {
         
         const activeNotif = document.querySelector('#view-notifications:not(.hidden)');
         if(activeNotif) renderNotifications();
-        refreshIcons();
     });
 }
 
@@ -1325,6 +1196,7 @@ function updateUserInterface() {
     const edBio = document.getElementById('edit-bio'); if(edBio) edBio.value = currentUser.bio;
     const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = currentUser.avatar;
     
+    // Admin Check
     if(currentUser.email === 'edulinkbht@gmail.com') {
         const nav = document.querySelector('#desktop-nav-items');
         if(!document.getElementById('nav-announcements')) {
@@ -1337,8 +1209,10 @@ function updateUserInterface() {
             nav.appendChild(adminLink);
         }
     }
-    refreshIcons();
+    lucide.createIcons();
 }
+
+// --- GLOBAL FUNCTIONS EXPOSED TO WINDOW ---
 
 window.switchView = function(viewName) {
     const views = ['feed', 'events', 'saved', 'network', 'profile', 'chat', 'search-results', 'notifications', 'announcements'];
@@ -1402,7 +1276,7 @@ window.switchView = function(viewName) {
     } else if (viewName === 'announcements') {
         const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
     }
-    refreshIcons();
+    lucide.createIcons();
 }
 
 window.renderNetwork = function() {
@@ -1439,26 +1313,30 @@ window.renderNetwork = function() {
     });
 
     container.appendChild(grid);
-    refreshIcons();
+    lucide.createIcons();
 }
 
 window.renderFeed = function(filterTerm = "") {
     const container = document.getElementById('feed-container');
     container.innerHTML = "";
+
+    // Sort posts
     let displayPosts = [...posts]; 
+    
     if(filterTerm) {
         const term = filterTerm.toLowerCase();
         displayPosts = displayPosts.filter(p => p.content.toLowerCase().includes(term));
     }
+
     displayPosts.forEach(post => container.appendChild(createPostElement(post)));
-    refreshIcons();
+    lucide.createIcons();
 }
 
 function createPostElement(post) {
     const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', isOfficial: false, id: post.authorId };
     const isLiked = post.likes ? post.likes.includes(currentUser.id) : false;
     const isSaved = savedPosts.includes(post.id);
-    const dateStr = formatDate(post.timestamp);
+    const dateStr = new Date(post.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
     const div = document.createElement('article');
     div.className = "post-card group overflow-hidden fade-in";
@@ -1514,21 +1392,19 @@ function createPostElement(post) {
 }
 
 window.toggleLike = async function(postId) {
+    // OPTIMISTIC UPDATE
     const btn = document.getElementById(`like-btn-${postId}`);
     if (btn) {
-        // Look for SVG or I
-        const icon = btn.querySelector('svg') || btn.querySelector('i');
+        const icon = btn.querySelector('i');
         const countSpan = btn.querySelector('span');
         let currentCount = parseInt(countSpan.innerText) || 0;
         
-        let hasClass = false;
-        if(icon.tagName === 'svg') hasClass = icon.classList.contains('text-red-500');
-        else hasClass = icon.classList.contains('text-red-500');
-
-        if (hasClass) {
+        if (icon.classList.contains('text-red-500')) {
+            // Unliking
             icon.classList.remove('fill-red-500', 'text-red-500');
             countSpan.innerText = Math.max(0, currentCount - 1);
         } else {
+            // Liking
             icon.classList.add('fill-red-500', 'text-red-500');
             countSpan.innerText = currentCount + 1;
         }
@@ -1547,14 +1423,11 @@ window.toggleLike = async function(postId) {
 }
 
 window.toggleSave = async function(postId) {
+    // OPTIMISTIC UPDATE
     const btn = document.getElementById(`save-btn-${postId}`);
     if(btn) {
-        const icon = btn.querySelector('svg') || btn.querySelector('i');
-        let hasClass = false;
-        if(icon.tagName === 'svg') hasClass = icon.classList.contains('text-purple-600');
-        else hasClass = icon.classList.contains('text-purple-600');
-
-        if (hasClass) {
+        const icon = btn.querySelector('i');
+        if(icon.classList.contains('text-purple-600')) {
             icon.classList.remove('fill-current', 'text-purple-600');
             showToast("Post removed");
         } else {
@@ -1586,10 +1459,11 @@ window.renderSaved = function() {
     if(savedPosts.length === 0) {
         container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-60"><i data-lucide="bookmark" class="w-16 h-16 mb-2"></i><p>No saved posts yet</p></div>`;
     } else {
+        // We have IDs, find posts in loaded posts array
         const saved = posts.filter(p => savedPosts.includes(p.id));
         saved.forEach(post => container.appendChild(createPostElement(post)));
     }
-    refreshIcons();
+    lucide.createIcons();
 }
 
 async function sendNotification(receiverId, type, content) {
@@ -1619,8 +1493,10 @@ window.renderNotifications = function() {
         if (activeNotifTab === 'official') {
             return n.type === 'official';
         } else if (activeNotifTab === 'friends') {
+            // Renamed tab logic: Show notifications from people I follow
             return currentUser.following.includes(n.senderId);
         } else {
+            // Others (not official, not following)
             return n.type !== 'official' && !currentUser.following.includes(n.senderId);
         }
     });
@@ -1656,18 +1532,19 @@ window.renderNotifications = function() {
         <span class="font-bold text-gray-900">${sender.name}</span>
         <span class="text-gray-600">${n.content}</span>
         </div>
-        <div class="text-xs text-gray-400 mt-0.5">${formatDate(n.timestamp)}</div>
+        <div class="text-xs text-gray-400 mt-0.5">${new Date(n.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
         </div>
         <button onclick="deleteNotification('${n.id}')" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
         `;
         container.appendChild(div);
     });
-    refreshIcons();
+    lucide.createIcons();
 }
 
 window.deleteNotification = async function(id) {
     if(confirm("Delete notification?")) {
         await deleteDoc(doc(db, "notifications", id));
+        // Realtime listener will handle UI
     }
 }
 
@@ -1732,7 +1609,7 @@ window.showProfile = function(userId) {
     } else {
         postsContainer.innerHTML = '<div class="text-center py-10 text-gray-400">No posts yet</div>';
     }
-    refreshIcons();
+    lucide.createIcons();
 }
 
 window.openEditProfile = function() { document.getElementById('edit-profile-overlay').classList.remove('pointer-events-none', 'opacity-0'); }
@@ -1756,6 +1633,8 @@ window.saveProfileChanges = async function() {
     if(!name) return showToast("Name is required");
     
     let avatarUrl = currentUser.avatar;
+    
+    // Priority: Link > File > Existing
     if(linkInput.value.trim()) {
         avatarUrl = linkInput.value.trim();
     } else if(fileInput.files.length > 0) {
@@ -1763,55 +1642,55 @@ window.saveProfileChanges = async function() {
             const storageRef = ref(storage, `profile_images/${currentUser.id}`);
             await uploadBytes(storageRef, fileInput.files[0]);
             avatarUrl = await getDownloadURL(storageRef);
-        } catch(e) { console.error(e); }
+        } catch(e) {
+            console.error(e);
+            showToast("Error uploading image");
+        }
     }
 
     const userRef = doc(db, "users", currentUser.id);
-    await updateDoc(userRef, { name, bio, avatar: avatarUrl });
-    
-    // Instant Local Update
-    currentUser.name = name;
-    currentUser.bio = bio;
-    currentUser.avatar = avatarUrl;
-    updateUserInterface();
+    await updateDoc(userRef, {
+        name: name,
+        bio: bio,
+        avatar: avatarUrl
+    });
+
     closeEditProfile();
     showToast("Profile Updated");
+    // Snapshot listener will update UI
 }
 
-window.doLogout = async function() { await signOut(auth); window.location.href = "index.html"; }
+window.doLogout = async function() {
+    await signOut(auth);
+    window.location.href = "index.html";
+}
 
 window.toggleFollow = async function(userId) {
     const meRef = doc(db, "users", currentUser.id);
     const targetRef = doc(db, "users", userId);
     
     if(currentUser.following.includes(userId)) {
-        // Optimistic
-        currentUser.following = currentUser.following.filter(id => id !== userId);
-        showToast(`Unfollowed`);
         await updateDoc(meRef, { following: arrayRemove(userId) });
         await updateDoc(targetRef, { followers: arrayRemove(currentUser.id) });
+        showToast(`Unfollowed`);
     } else {
-        // Optimistic
-        currentUser.following.push(userId);
-        showToast(`Following`);
         await updateDoc(meRef, { following: arrayUnion(userId) });
         await updateDoc(targetRef, { followers: arrayUnion(currentUser.id) });
         sendNotification(userId, 'follow', 'started following you');
+        showToast(`Following`);
     }
-    // Refresh active views
-    const profileView = document.getElementById('view-profile');
-    if(!profileView.classList.contains('hidden')) showProfile(userId);
-    
-    const netView = document.getElementById('view-network');
-    if(netView && !netView.classList.contains('hidden')) renderNetwork();
-    refreshIcons();
+    // Refresh profile view if open
+    showProfile(userId);
 }
 
 // --- CHAT SYSTEM ---
 window.renderChatList = function() {
     const list = document.getElementById('chat-list');
     list.innerHTML = "";
+    
+    // Logic: Users I follow or who follow me
     const contacts = users.filter(u => currentUser.following.includes(u.id));
+    
     if(contacts.length === 0) { list.innerHTML = `<div class="p-4 text-xs text-gray-400 text-center">Follow people to chat</div>`; return; }
 
     contacts.forEach(f => {
@@ -1819,7 +1698,10 @@ window.renderChatList = function() {
         div.className = "chat-sidebar-item";
         if(activeChatUserId === f.id) div.classList.add('active');
         div.onclick = () => startChat(f.id);
-        div.innerHTML = `<img src="${f.avatar}" class="w-6 h-6 rounded-full object-cover border border-gray-200"><span class="truncate">${f.name}</span>`;
+        div.innerHTML = `
+        <img src="${f.avatar}" class="w-6 h-6 rounded-full object-cover border border-gray-200">
+        <span class="truncate">${f.name}</span>
+        `;
         list.appendChild(div);
     });
 }
@@ -1837,19 +1719,23 @@ window.startChat = function(userId) {
     <img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover">
     <span class="font-semibold text-gray-800">${user.name}</span>
     </div>
-    <button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+    <button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation">
+    <i data-lucide="trash-2" class="w-5 h-5"></i>
+    </button>
     `;
     document.getElementById('chat-input-area').classList.remove('hidden');
-    document.getElementById('chat-input-area').classList.add('flex');
     renderChatList(); 
 
+    // Listen for messages
     if(messageUnsubscribe) messageUnsubscribe();
+    
     const qMsgs = query(collection(db, "messages"), orderBy("timestamp", "asc"));
     
     messageUnsubscribe = onSnapshot(qMsgs, (snapshot) => {
         const msgs = [];
         snapshot.forEach(doc => {
             const m = doc.data();
+            // Filter locally for the active pair
             if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) || 
                 (m.senderId === activeChatUserId && m.receiverId === currentUser.id)) {
                 msgs.push({ id: doc.id, ...m });
@@ -1857,125 +1743,29 @@ window.startChat = function(userId) {
         });
         renderMessages(msgs);
     });
-    refreshIcons();
-}
-
-function linkify(text) {
-    var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-    return text.replace(urlRegex, function(url) {
-        return '<a href="' + url + '" target="_blank" class="text-blue-200 underline hover:text-white" onclick="event.stopPropagation()">' + url + '</a>';
-    });
+    lucide.createIcons();
 }
 
 function renderMessages(msgs) {
     const container = document.getElementById('chat-messages');
     container.innerHTML = "";
+
     const dateDiv = document.createElement('div');
     dateDiv.className = 'chat-date-divider';
     dateDiv.innerText = 'Conversation Started';
     container.appendChild(dateDiv);
 
-    if(msgs.length === 0) container.innerHTML += `<div class="text-center text-xs text-gray-400 mt-10">Say hi!</div>`;
+    if(msgs.length === 0) {
+        container.innerHTML += `<div class="text-center text-xs text-gray-400 mt-10">Say hi!</div>`;
+    }
 
     msgs.forEach(m => {
         const div = document.createElement('div');
-        const isMe = m.senderId === currentUser.id;
-        div.className = isMe ? 'chat-row me group' : 'chat-row them group';
-        
-        let replyHTML = '';
-        if(m.replyToId) {
-            const parent = msgs.find(msg => msg.id === m.replyToId);
-            if(parent) {
-                replyHTML = `<div class="quoted-reply">${parent.text.substring(0, 30)}...</div>`;
-            }
-        }
-
-        const linkifiedText = linkify(m.text);
-        const bubbleClass = isMe ? 'chat-bubble-me' : 'chat-bubble-them';
-        
-        div.innerHTML = `
-            <div class="chat-options-btn" onclick="openMessageMenu(event, '${m.id}', ${isMe}, '${m.text}')">
-                <i data-lucide="more-vertical" class="w-4 h-4"></i>
-            </div>
-            <div class="${bubbleClass}">
-                ${replyHTML}
-                <span>${linkifiedText}</span>
-                <span class="text-[9px] opacity-60 ml-2 align-bottom">${formatDate(m.timestamp)}</span>
-                ${m.reaction ? `<div class="absolute -bottom-2 ${isMe ? 'left-0' : 'right-0'} bg-white border rounded-full px-1 text-[10px] shadow-sm scale-75">${m.reaction}</div>` : ''}
-            </div>
-        `;
+        div.className = m.senderId === currentUser.id ? 'chat-bubble-me' : 'chat-bubble-them';
+        div.innerText = m.text;
         container.appendChild(div);
     });
     container.scrollTop = container.scrollHeight;
-    refreshIcons();
-}
-
-window.openMessageMenu = function(e, msgId, isMe, text) {
-    e.stopPropagation();
-    window.activeMessageMenuId = msgId;
-    const menu = document.getElementById('chat-msg-menu');
-    const btn = e.currentTarget;
-    const rect = btn.getBoundingClientRect();
-    
-    // Position Menu near button
-    menu.style.top = (rect.bottom + window.scrollY) + 'px';
-    if(isMe) {
-        menu.style.left = 'auto';
-        menu.style.right = (window.innerWidth - rect.right) + 'px';
-    } else {
-        menu.style.left = (rect.left) + 'px';
-        menu.style.right = 'auto';
-    }
-
-    let html = `
-        <div class="reaction-row">
-            <div class="reaction-btn" onclick="reactToMessage('${msgId}', '❤️')">❤️</div>
-            <div class="reaction-btn" onclick="reactToMessage('${msgId}', '😂')">😂</div>
-            <div class="reaction-btn" onclick="reactToMessage('${msgId}', '👍')">👍</div>
-            <div class="reaction-btn" onclick="reactToMessage('${msgId}', '😮')">😮</div>
-            <div class="reaction-btn" onclick="reactToMessage('${msgId}', '😢')">😢</div>
-        </div>
-        <div class="chat-menu-item" onclick="setReply('${msgId}', '${text.replace(/'/g, "\\'")}')"><i data-lucide="reply" class="w-4 h-4"></i> Reply</div>
-    `;
-
-    if(isMe) {
-        html += `<div class="chat-menu-item danger" onclick="deleteMessage('${msgId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>`;
-    }
-
-    menu.innerHTML = html;
-    menu.classList.add('active');
-    refreshIcons();
-}
-
-window.closeMenus = function() {
-    document.getElementById('chat-msg-menu').classList.remove('active');
-    document.getElementById('global-post-menu').classList.remove('active');
-}
-
-window.setReply = function(msgId, text) {
-    window.replyingToMessageId = msgId;
-    document.getElementById('reply-preview').classList.remove('hidden');
-    document.getElementById('reply-to-text').innerText = `Replying to: "${text.substring(0, 20)}..."`;
-    document.getElementById('message-input').focus();
-    closeMenus();
-}
-
-window.cancelReply = function() {
-    window.replyingToMessageId = null;
-    document.getElementById('reply-preview').classList.add('hidden');
-}
-
-window.reactToMessage = async function(msgId, emoji) {
-    const msgRef = doc(db, "messages", msgId);
-    await updateDoc(msgRef, { reaction: emoji });
-    closeMenus();
-}
-
-window.deleteMessage = async function(msgId) {
-    if(confirm("Unsend this message?")) {
-        await deleteDoc(doc(db, "messages", msgId));
-    }
-    closeMenus();
 }
 
 window.sendChatMessage = async function(e) {
@@ -1988,19 +1778,18 @@ window.sendChatMessage = async function(e) {
         senderId: currentUser.id,
         receiverId: activeChatUserId,
         text: text,
-        timestamp: serverTimestamp(),
-        replyToId: window.replyingToMessageId || null
+        timestamp: serverTimestamp()
     });
     input.value = "";
-    cancelReply();
 }
 
 window.deleteCurrentChat = async function() {
     if(!activeChatUserId) return;
-    if(confirm("Permanently delete conversation?")) {
+    if(confirm("Permanently delete this conversation for everyone?")) {
         const batch = writeBatch(db);
         const qMsgs = query(collection(db, "messages"));
         const snapshot = await getDocs(qMsgs);
+        
         snapshot.forEach(doc => {
             const m = doc.data();
             if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) || 
@@ -2008,8 +1797,9 @@ window.deleteCurrentChat = async function() {
                 batch.delete(doc.ref);
             }
         });
+        
         await batch.commit();
-        showToast("Conversation deleted");
+        showToast("Conversation deleted permanently");
     }
 }
 
@@ -2018,38 +1808,61 @@ window.handleSearch = function(query) {
     switchView('search-results');
     const view = document.getElementById('view-search-results');
     document.getElementById('global-search').value = query;
+
     const term = query.toLowerCase();
     const foundUsers = users.filter(u => u.name.toLowerCase().includes(term));
     const foundPosts = posts.filter(p => p.content.toLowerCase().includes(term));
-    
+
     let html = `<div class="font-bold mb-2">People</div>`;
     if(foundUsers.length) {
         foundUsers.forEach(u => {
-            html += `<div class="flex items-center gap-3 p-3 bg-white rounded-xl mb-2 cursor-pointer hover:shadow-sm" onclick="showProfile('${u.id}')"><img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover"><div><div class="font-bold text-sm">${u.name}</div><div class="text-xs text-gray-500">${u.bio}</div></div></div>`;
+            html += `
+            <div class="flex items-center gap-3 p-3 bg-white rounded-xl mb-2 cursor-pointer hover:shadow-sm" onclick="showProfile('${u.id}')">
+            <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover">
+            <div><div class="font-bold text-sm">${u.name}</div><div class="text-xs text-gray-500">${u.bio}</div></div>
+            </div>
+            `;
         });
     } else { html += `<div class="text-gray-400 text-sm mb-4">No people found</div>`; }
-    
     html += `<div class="font-bold mb-2 mt-4">Posts</div>`;
     view.innerHTML = html;
+
     const postsDiv = document.createElement('div');
     postsDiv.className = "space-y-4";
     if(foundPosts.length) foundPosts.forEach(p => postsDiv.appendChild(createPostElement(p)));
     else postsDiv.innerHTML = `<div class="text-gray-400 text-sm">No posts found</div>`;
     view.appendChild(postsDiv);
-    refreshIcons();
+    lucide.createIcons();
 }
 
+// --- POST VIEW ---
 window.openPostView = function(postId) {
     const post = posts.find(p => p.id === postId);
     if(!post) return;
     const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
+
     const overlayContent = document.getElementById('injected-post');
     const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
-    overlayContent.innerHTML = `<div class="flex gap-4 items-center mb-6"><img src="${author.avatar}" class="w-12 h-12 rounded-full border border-gray-200 cursor-pointer object-cover" onclick="showProfile('${author.id}')"><div><h3 class="font-bold text-[#1f1f1f] text-[16px]">${author.name}</h3><div class="text-xs text-[#667085] font-medium">${formatDate(post.timestamp)}</div></div></div><div class="text-[#1f1f1f] text-[16px] leading-relaxed">${tagsHTML}</div><div class="flex gap-6 mt-6 pt-6 border-t border-gray-100 text-sm text-gray-500 font-medium select-none"><button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="heart" class="w-4 h-4"></i> ${post.likes ? post.likes.length : 0} Likes</button><button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="message-square" class="w-4 h-4"></i> ${post.comments ? post.comments.length : 0} Comments</button></div>`;
+
+    overlayContent.innerHTML = `
+    <div class="flex gap-4 items-center mb-6">
+    <img src="${author.avatar}" class="w-12 h-12 rounded-full border border-gray-200 cursor-pointer object-cover" onclick="showProfile('${author.id}')">
+    <div>
+    <h3 class="font-bold text-[#1f1f1f] text-[16px]">${author.name}</h3>
+    <div class="text-xs text-[#667085] font-medium">${new Date(post.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+    </div>
+    </div>
+    <div class="text-[#1f1f1f] text-[16px] leading-relaxed">${tagsHTML}</div>
+    <div class="flex gap-6 mt-6 pt-6 border-t border-gray-100 text-sm text-gray-500 font-medium select-none">
+    <button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="heart" class="w-4 h-4"></i> ${post.likes ? post.likes.length : 0} Likes</button>
+    <button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="message-square" class="w-4 h-4"></i> ${post.comments ? post.comments.length : 0} Comments</button>
+    </div>
+    `;
+
     window.currentViewingPostId = postId;
     renderCommentsInModal(postId);
     document.getElementById('post-view-overlay').classList.remove('hidden');
-    refreshIcons();
+    lucide.createIcons();
 }
 
 window.closePostView = function() {
@@ -2061,16 +1874,23 @@ window.closePostView = function() {
 function renderCommentsInModal(postId) {
     const post = posts.find(p => p.id === postId);
     if(!post) return;
+    
     const containerDesktop = document.getElementById('comments-list-desktop');
     const containerMobile = document.getElementById('comments-list-mobile');
+
     let html = '';
     if(post.comments) {
+        // Flat list, but we render parent comments first
         const topLevel = post.comments.filter(c => !c.parentId);
-        topLevel.forEach(c => { html += createCommentHTML(c, post.comments, postId); });
+        
+        topLevel.forEach(c => {
+            html += createCommentHTML(c, post.comments, postId);
+        });
     }
+
     containerDesktop.innerHTML = html;
     containerMobile.innerHTML = html;
-    refreshIcons();
+    lucide.createIcons();
 }
 
 function createCommentHTML(c, allComments, postId) {
@@ -2078,8 +1898,29 @@ function createCommentHTML(c, allComments, postId) {
     const isLiked = c.likes && c.likes.includes(currentUser.id);
     const likeCount = c.likes ? c.likes.length : 0;
     const isMyComment = c.authorId === currentUser.id;
+    
+    // Find replies to this comment
     const replies = allComments.filter(r => r.parentId === c.id);
-    let html = `<div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group"><img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-gray-900">${cAuthor.name}</span><span class="text-xs text-gray-500">• Now</span></div><p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p><div class="flex items-center gap-4 mt-2"><button onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> ${likeCount || ''}</button><button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>${isMyComment ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div>`;
+    
+    let html = `
+    <div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group">
+        <img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')">
+        <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="font-bold text-sm text-gray-900">${cAuthor.name}</span>
+                <span class="text-xs text-gray-500">• Now</span>
+            </div>
+            <p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p>
+            <div class="flex items-center gap-4 mt-2">
+                <button onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}">
+                    <i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> ${likeCount || ''}
+                </button>
+                <button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>
+                ${isMyComment ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}
+            </div>
+    `;
+    
+    // Render Replies Nested with Line
     if (replies.length > 0) {
         html += `<div class="reply-thread">`;
         replies.forEach(r => {
@@ -2087,10 +1928,28 @@ function createCommentHTML(c, allComments, postId) {
             const rLiked = r.likes && r.likes.includes(currentUser.id);
             const rLikeCount = r.likes ? r.likes.length : 0;
             const isMyReply = r.authorId === currentUser.id;
-            html += `<div class="flex gap-3 pt-3 mt-1 group"><img src="${rAuthor.avatar}" class="w-6 h-6 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${r.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-xs text-gray-900">${rAuthor.name}</span></div><p class="text-[13px] text-gray-800 leading-relaxed">${r.content}</p><div class="flex items-center gap-4 mt-1"><button onclick="toggleCommentLike('${postId}', '${r.id}')" class="text-xs font-medium flex items-center gap-1 ${rLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${rLiked ? 'fill-red-500' : ''}"></i> ${rLikeCount || ''}</button>${isMyReply ? `<button onclick="deleteComment('${postId}', '${r.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div></div></div>`;
+            
+            html += `
+            <div class="flex gap-3 pt-3 mt-1 group">
+                <img src="${rAuthor.avatar}" class="w-6 h-6 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${r.authorId}')">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="font-bold text-xs text-gray-900">${rAuthor.name}</span>
+                    </div>
+                    <p class="text-[13px] text-gray-800 leading-relaxed">${r.content}</p>
+                    <div class="flex items-center gap-4 mt-1">
+                        <button onclick="toggleCommentLike('${postId}', '${r.id}')" class="text-xs font-medium flex items-center gap-1 ${rLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}">
+                            <i data-lucide="heart" class="w-3 h-3 ${rLiked ? 'fill-red-500' : ''}"></i> ${rLikeCount || ''}
+                        </button>
+                        ${isMyReply ? `<button onclick="deleteComment('${postId}', '${r.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}
+                    </div>
+                </div>
+            </div>
+            `;
         });
         html += `</div>`;
     }
+    
     html += `</div></div>`;
     return html;
 }
@@ -2099,7 +1958,10 @@ window.deleteComment = async function(postId, commentId) {
     if(!confirm("Delete this comment?")) return;
     const postRef = doc(db, "posts", postId);
     const post = posts.find(p => p.id === postId);
+    
+    // Remove comment and its children (replies)
     const updatedComments = post.comments.filter(c => c.id !== commentId && c.parentId !== commentId);
+    
     await updateDoc(postRef, { comments: updatedComments });
     showToast("Comment deleted");
 }
@@ -2107,14 +1969,26 @@ window.deleteComment = async function(postId, commentId) {
 window.toggleCommentLike = async function(postId, commentId) {
     const post = posts.find(p => p.id === postId);
     if(!post) return;
+    
     const comments = post.comments || [];
     const commentIndex = comments.findIndex(c => c.id === commentId);
+    
     if(commentIndex === -1) return;
+    
     const comment = comments[commentIndex];
     if(!comment.likes) comment.likes = [];
-    if(comment.likes.includes(currentUser.id)) { comment.likes = comment.likes.filter(id => id !== currentUser.id); } 
-    else { comment.likes.push(currentUser.id); if(comment.authorId !== currentUser.id) sendNotification(comment.authorId, 'like', 'liked your comment'); }
+    
+    if(comment.likes.includes(currentUser.id)) {
+        comment.likes = comment.likes.filter(id => id !== currentUser.id);
+    } else {
+        comment.likes.push(currentUser.id);
+        if(comment.authorId !== currentUser.id) {
+            sendNotification(comment.authorId, 'like', 'liked your comment');
+        }
+    }
+    
     comments[commentIndex] = comment;
+    
     const postRef = doc(db, "posts", postId);
     await updateDoc(postRef, { comments: comments });
 }
@@ -2129,17 +2003,40 @@ window.replyToComment = function(commentId, username) {
 window.submitCommentDesktop = async function() {
     const txt = document.getElementById('comment-input-desktop').value.trim();
     if(!txt || !window.currentViewingPostId) return;
+    
     const postRef = doc(db, "posts", window.currentViewingPostId);
+    
+    // Generate a unique ID for the comment to support nesting
     const commentId = "c-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
-    const newComment = { id: commentId, authorId: currentUser.id, content: txt, timestamp: Date.now(), likes: [], parentId: window.replyingToCommentId };
-    await updateDoc(postRef, { comments: arrayUnion(newComment) });
+    
+    const newComment = { 
+        id: commentId, 
+        authorId: currentUser.id, 
+        content: txt, 
+        timestamp: Date.now(),
+        likes: [],
+        parentId: window.replyingToCommentId // Set parent if replying
+    };
+
+    await updateDoc(postRef, {
+        comments: arrayUnion(newComment)
+    });
+
     const post = posts.find(p => p.id === window.currentViewingPostId);
+    
+    // Notification Logic
     if (window.replyingToCommentId) {
+        // Find author of parent comment
         const parentComment = post.comments.find(c => c.id === window.replyingToCommentId);
-        if (parentComment && parentComment.authorId !== currentUser.id) sendNotification(parentComment.authorId, 'reply', 'replied to your comment');
-    } else if(post && post.authorId !== currentUser.id) { sendNotification(post.authorId, 'comment', 'commented on your post'); }
+        if (parentComment && parentComment.authorId !== currentUser.id) {
+            sendNotification(parentComment.authorId, 'reply', 'replied to your comment');
+        }
+    } else if(post && post.authorId !== currentUser.id) {
+        sendNotification(post.authorId, 'comment', 'commented on your post');
+    }
+
     document.getElementById('comment-input-desktop').value = "";
-    window.replyingToCommentId = null;
+    window.replyingToCommentId = null; // Reset reply state
 }
 
 window.promptForImageLink = function() {
@@ -2157,14 +2054,24 @@ window.promptForImageLink = function() {
     }
 }
 
+// ADMIN ANNOUNCEMENTS
 window.sendAnnouncement = async function() {
     const text = document.getElementById('announcement-text').value.trim();
     if(!text) return;
+    
     if(confirm("Send this announcement to all users?")) {
+        // Iterate client-side users for prototype (In production use Cloud Functions)
         let count = 0;
         for(const u of users) {
             if(u.id !== currentUser.id) {
-                await addDoc(collection(db, "notifications"), { receiverId: u.id, senderId: currentUser.id, type: 'official', content: text, timestamp: serverTimestamp(), read: false });
+                await addDoc(collection(db, "notifications"), {
+                    receiverId: u.id,
+                    senderId: currentUser.id,
+                    type: 'official',
+                    content: text,
+                    timestamp: serverTimestamp(),
+                    read: false
+                });
                 count++;
             }
         }
@@ -2173,67 +2080,405 @@ window.sendAnnouncement = async function() {
     }
 }
 
-// Menu Functions
-window.openCreateMenu = function() { document.getElementById('create-menu-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('create-menu-modal').classList.remove('scale-95'); }
-window.closeCreateMenu = function() { document.getElementById('create-menu-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('create-menu-modal').classList.add('scale-95'); }
-window.openMentorship = function() { closeCreateMenu(); document.getElementById('mentorship-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('mentorship-modal-box').classList.remove('scale-95'); }
-window.closeMentorship = function() { document.getElementById('mentorship-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('mentorship-modal-box').classList.add('scale-95'); }
-window.openEventComposer = function() { closeCreateMenu(); removeEventCover(); document.getElementById('event-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('event-modal-box').classList.remove('scale-95'); }
-window.closeEventComposer = function() { document.getElementById('event-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('event-modal-box').classList.add('scale-95'); }
-window.handleEventCoverSelect = function(event) { const file = event.target.files[0]; if (file) { currentEventCoverBlob = file; const reader = new FileReader(); reader.onload = function(e) { window.currentEventCover = e.target.result; document.getElementById('event-cover-preview').src = window.currentEventCover; document.getElementById('event-cover-preview-container').classList.remove('hidden'); document.getElementById('add-cover-btn').classList.add('hidden'); }; reader.readAsDataURL(file); } }
-window.removeEventCover = function() { window.currentEventCover = null; currentEventCoverBlob = null; document.getElementById('event-cover-preview').src = ""; document.getElementById('event-cover-preview-container').classList.add('hidden'); document.getElementById('add-cover-btn').classList.remove('hidden'); document.getElementById('event-cover-input').value = ""; }
-window.publishEvent = function() { showToast("Events feature connected to backend soon!", false); closeEventComposer(); }
+// --- Menu Functions ---
+window.openCreateMenu = function() {
+    document.getElementById('create-menu-overlay').classList.remove('opacity-0', 'pointer-events-none');
+    document.getElementById('create-menu-modal').classList.remove('scale-95');
+}
+window.closeCreateMenu = function() {
+    document.getElementById('create-menu-overlay').classList.add('opacity-0', 'pointer-events-none');
+    document.getElementById('create-menu-modal').classList.add('scale-95');
+}
+window.openMentorship = function() {
+    closeCreateMenu();
+    document.getElementById('mentorship-overlay').classList.remove('opacity-0', 'pointer-events-none');
+    document.getElementById('mentorship-modal-box').classList.remove('scale-95');
+}
+window.closeMentorship = function() {
+    document.getElementById('mentorship-overlay').classList.add('opacity-0', 'pointer-events-none');
+    document.getElementById('mentorship-modal-box').classList.add('scale-95');
+}
+window.openEventComposer = function() {
+    closeCreateMenu();
+    removeEventCover();
+    document.getElementById('event-overlay').classList.remove('opacity-0', 'pointer-events-none');
+    document.getElementById('event-modal-box').classList.remove('scale-95');
+}
+window.closeEventComposer = function() {
+    document.getElementById('event-overlay').classList.add('opacity-0', 'pointer-events-none');
+    document.getElementById('event-modal-box').classList.add('scale-95');
+}
 
-// Post Logic
+window.handleEventCoverSelect = function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        currentEventCoverBlob = file;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            window.currentEventCover = e.target.result;
+            document.getElementById('event-cover-preview').src = window.currentEventCover;
+            document.getElementById('event-cover-preview-container').classList.remove('hidden');
+            document.getElementById('add-cover-btn').classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+window.removeEventCover = function() {
+    window.currentEventCover = null;
+    currentEventCoverBlob = null;
+    document.getElementById('event-cover-preview').src = "";
+    document.getElementById('event-cover-preview-container').classList.add('hidden');
+    document.getElementById('add-cover-btn').classList.remove('hidden');
+    document.getElementById('event-cover-input').value = "";
+}
+
+window.publishEvent = function() {
+    showToast("Events feature connected to backend soon!", false);
+    closeEventComposer();
+}
+
+// --- Post Logic ---
 window.showPostOptions = function(event, postId, authorId) {
     event.stopPropagation();
     const menu = document.getElementById('global-post-menu');
     const btn = event.currentTarget;
     const rect = btn.getBoundingClientRect();
+
     const isAuthor = authorId === currentUser.id;
-    let menuContent = isAuthor ? `<div class="post-option-item" onclick="editPost('${postId}')"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit</div><div class="post-option-item danger" onclick="deletePost('${postId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>` : `<div class="post-option-item" onclick="showToast('Post Saved')"><i data-lucide="bookmark" class="w-4 h-4"></i> Save</div><div class="post-option-item danger" onclick="showToast('Reported')"><i data-lucide="flag" class="w-4 h-4"></i> Report</div>`;
+    let menuContent = '';
+
+    if(isAuthor) {
+        menuContent = `
+        <div class="post-option-item" onclick="editPost('${postId}')"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit</div>
+        <div class="post-option-item danger" onclick="deletePost('${postId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>
+        `;
+    } else {
+        menuContent = `
+        <div class="post-option-item" onclick="showToast('Post Saved')"><i data-lucide="bookmark" class="w-4 h-4"></i> Save</div>
+        <div class="post-option-item danger" onclick="showToast('Reported')"><i data-lucide="flag" class="w-4 h-4"></i> Report</div>
+        `;
+    }
+
     menu.innerHTML = menuContent;
-    refreshIcons();
+    lucide.createIcons();
     menu.style.top = (rect.bottom + window.scrollY) + 'px';
     menu.style.left = (rect.right - 160) + 'px';
     menu.classList.add('active');
 }
-window.hidePostMenu = function() { document.getElementById('global-post-menu').classList.remove('active'); }
-window.editPost = function(postId) { const post = posts.find(p => p.id === postId); if(!post) return; document.getElementById('compose-text').value = post.content; window.editingPostId = postId; document.getElementById('compose-title-text').innerText = "Edit Post"; document.getElementById('btn-publish').innerText = "Update"; openCompose(); }
-window.deletePost = async function(postId) { if(confirm("Delete this post?")) { await deleteDoc(doc(db, "posts", postId)); showToast("Post deleted"); } }
-window.openCompose = function() { closeCreateMenu(); document.getElementById('compose-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('compose-modal').classList.remove('scale-95'); }
-window.closeCompose = function() { document.getElementById('compose-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('compose-modal').classList.add('scale-95'); setTimeout(() => { window.editingPostId = null; document.getElementById('compose-title-text').innerText = "Create Post"; document.getElementById('btn-publish').innerText = "Post"; document.getElementById('compose-text').value = ""; removeMedia(); }, 200); }
 
-// AI Stuff
-function setupClassifier() { if(typeof ml5 !== 'undefined') classifier = ml5.imageClassifier('MobileNet', () => console.log("MobileNet Ready")); }
-window.toggleNewtonExpand = function() { document.body.classList.toggle('mode-focus'); const layout = document.getElementById('workspace-layout'); const icon = document.getElementById('expand-icon'); let isSwapped = layout.classList.contains('swapped'); if (!isSwapped) { layout.classList.add('swapped'); icon.setAttribute('data-lucide', 'minimize-2'); showToast("Focus Mode Active"); } else { layout.classList.remove('swapped'); icon.setAttribute('data-lucide', 'maximize-2'); } refreshIcons(); }
-window.handleInput = function(textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight) + 'px'; if(textarea.value === '') textarea.style.height = 'auto'; }
-window.togglePlusMenu = function() { if(window.isModelMenuOpen) toggleModelMenu(); window.isPlusMenuOpen = !window.isPlusMenuOpen; const menu = document.getElementById('plus-menu'); const icon = document.getElementById('plus-icon'); if(window.isPlusMenuOpen) { menu.classList.add('active'); icon.style.transform = "rotate(45deg)"; } else { menu.classList.remove('active'); icon.style.transform = "rotate(0deg)"; } }
-window.toggleModelMenu = function() { if(window.isPlusMenuOpen) togglePlusMenu(); window.isModelMenuOpen = !window.isModelMenuOpen; const menu = document.getElementById('model-menu'); if(window.isModelMenuOpen) menu.classList.add('active'); else menu.classList.remove('active'); }
-window.handleFileSelect = function(event) { const file = event.target.files[0]; if (file) { window.currentMediaBlob = file; const reader = new FileReader(); reader.onload = function(e) { window.currentMedia = e.target.result; window.currentMediaType = file.type.startsWith('video') ? 'video' : 'image'; const container = document.getElementById('media-preview-container'); container.classList.remove('hidden'); if(window.currentMediaType === 'video') { const vid = document.getElementById('media-preview-video'); vid.src = window.currentMedia; vid.classList.remove('hidden'); document.getElementById('media-preview-img').classList.add('hidden'); } else { const img = document.getElementById('media-preview-img'); img.src = window.currentMedia; img.classList.remove('hidden'); document.getElementById('media-preview-video').classList.add('hidden'); } showToast("Media Uploaded"); }; reader.readAsDataURL(file); } }
-window.removeMedia = function() { window.currentMedia = null; window.currentMediaType = null; window.mediaVisionLog = ""; window.currentMediaBlob = null; document.getElementById('media-preview-container').classList.add('hidden'); document.getElementById('media-input').value = ""; }
-window.publishPost = async function() { const textRaw = document.getElementById('compose-text').value; const btn = document.getElementById('btn-publish'); if (!textRaw.trim() && !window.currentMedia) { showToast("Empty post!", true); return; } const originalHtml = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`; btn.disabled = true; refreshIcons(); try { let mediaUrl = window.currentMedia; if(window.currentMediaBlob) { const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`); await uploadBytes(mediaRef, window.currentMediaBlob); mediaUrl = await getDownloadURL(mediaRef); } if(window.editingPostId) { await updateDoc(doc(db, "posts", window.editingPostId), { content: textRaw }); showToast("Post Updated!"); } else { await addDoc(collection(db, "posts"), { authorId: currentUser.id, content: textRaw, media: mediaUrl, timestamp: serverTimestamp(), likes: [], comments: [] }); showToast("Posted!"); } closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; refreshIcons(); } }
-window.showToast = function(message, isError = false) { const toast = document.getElementById('toast'); const toastMsg = document.getElementById('toast-msg'); const icon = document.getElementById('toast-icon'); toastMsg.innerText = message; if (isError) { toast.style.backgroundColor = '#d93025'; icon.setAttribute('data-lucide', 'alert-circle'); icon.classList.remove('text-[#c4eed0]'); icon.classList.add('text-white'); } else { toast.style.backgroundColor = '#303134'; icon.setAttribute('data-lucide', 'check-circle-2'); icon.classList.add('text-[#c4eed0]'); } refreshIcons(); toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3000); }
-window.openLightbox = function(src, type = 'image') { const wrapper = document.getElementById('lightbox-wrapper'); const lightbox = document.getElementById('lightbox'); if (type === 'video' || src.includes('.mp4') || src.includes('data:video') || src.includes('.webm')) { wrapper.innerHTML = `<video src="${src}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`; } else { wrapper.innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; } lightbox.classList.add('active'); lightbox.classList.remove('pointer-events-none'); lightbox.classList.remove('opacity-0'); }
-window.closeLightbox = function() { const lightbox = document.getElementById('lightbox'); lightbox.classList.remove('active'); lightbox.classList.add('pointer-events-none'); lightbox.classList.add('opacity-0'); const video = lightbox.querySelector('video'); if(video) video.pause(); }
+window.hidePostMenu = function() {
+    document.getElementById('global-post-menu').classList.remove('active');
+}
 
-// AI - Restored
+window.editPost = function(postId) {
+    const post = posts.find(p => p.id === postId);
+    if(!post) return;
+
+    document.getElementById('compose-text').value = post.content;
+    window.editingPostId = postId;
+    document.getElementById('compose-title-text').innerText = "Edit Post";
+    document.getElementById('btn-publish').innerText = "Update";
+    openCompose();
+}
+
+window.deletePost = async function(postId) {
+    if(confirm("Delete this post?")) {
+        await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js")
+            .then(m => m.deleteDoc(doc(db, "posts", postId)));
+        showToast("Post deleted");
+    }
+}
+
+window.openCompose = function() {
+    closeCreateMenu();
+    document.getElementById('compose-overlay').classList.remove('opacity-0', 'pointer-events-none');
+    document.getElementById('compose-modal').classList.remove('scale-95');
+}
+window.closeCompose = function() {
+    document.getElementById('compose-overlay').classList.add('opacity-0', 'pointer-events-none');
+    document.getElementById('compose-modal').classList.add('scale-95');
+    setTimeout(() => {
+        window.editingPostId = null;
+        document.getElementById('compose-title-text').innerText = "Create Post";
+        document.getElementById('btn-publish').innerText = "Post";
+        document.getElementById('compose-text').value = "";
+        removeMedia();
+    }, 200);
+}
+
+// AI STUFF (REMOVED FIREBASE DEPENDENCY)
 let conversationHistory = [];
-const models = { standard: { name: "Newton", avatar: "https://i.imghippo.com/files/XEEq5247S.png", system: "You are Newton, an AI tutor.", greeting: "Hello! I'm Newton. What are you working on?" }, friendly: { name: "Tutor Chase", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=Chase", system: "You are Chase, friendly tutor.", greeting: "Hi there! I'm Chase!" } };
+const MAX_HISTORY = 10;
+const models = {
+    standard: {
+        name: "Newton",
+        avatar: "https://i.imghippo.com/files/XEEq5247S.png",
+        system: "You are Newton, an AI tutor and study companion. Explain concepts clearly.",
+        greeting: "Hello! I'm Newton, your personal AI tutor. What are you working on?"
+    },
+    friendly: { name: "Tutor Chase", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=Chase", system: "You are Tutor Chase, a friendly study buddy!", greeting: "Hi there! I'm Chase!" }
+};
 let activeModel = 'standard';
-window.resetChat = function() { conversationHistory = []; window.clearContext(); const chatContainer = document.getElementById('chat-history'); const modelData = models[activeModel]; let cls = "w-6 h-6 object-contain"; if(activeModel !== 'standard') cls = "w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100"; chatContainer.innerHTML = `<div class="chat-wrapper flex flex-col w-full mb-6 fade-in"><div class="flex items-center gap-2 mb-2"><img src="${modelData.avatar}" class="${cls}"></div><div class="chat-msg-ai"><p>${modelData.greeting}</p></div></div>`; }
-window.switchModel = function(modelKey) { if(activeModel === modelKey) { window.toggleModelMenu(); return; } activeModel = modelKey; document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active-item')); document.getElementById(`model-btn-${modelKey}`).classList.add('active-item'); document.getElementById('ai-header-name').innerText = models[modelKey].name; const logo = document.getElementById('ai-header-logo'); logo.src = models[modelKey].avatar; window.toggleModelMenu(); window.resetChat(); showToast(`Switched to ${models[modelKey].name}`); }
-window.sendMessageAction = async function() { const inp = document.getElementById('ai-input'); const txt = inp.value.trim(); if(!txt) return; addMessage(txt, true); inp.value = ""; window.handleInput(inp); stopGeneration = false; const thinkingId = 'thinking-' + Date.now(); const chatContainer = document.getElementById('chat-history'); const modelData = models[activeModel]; let cls = "w-6 h-6 object-contain"; if(activeModel !== 'standard') cls = "w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100"; const thinkingHTML = `<div id="${thinkingId}" class="flex flex-col w-full mb-6 fade-in"><div class="flex items-center gap-4 mb-2"><img src="${modelData.avatar}" class="${cls} animate-pulse"><span class="text-sm text-[#444746] font-medium animate-pulse">Thinking...</span></div></div>`; chatContainer.insertAdjacentHTML('beforeend', thinkingHTML); chatContainer.scrollTop = chatContainer.scrollHeight; const historyStr = conversationHistory.slice(0, -1).map(msg => `${msg.role === 'user' ? 'User' : 'Newton'}: ${msg.content}`).join('\n'); let system = models[activeModel].system; let q = `${system} \n${window.currentContext ? "Current Context: " + window.currentContext : ""}\nConversation History:\n${historyStr}\nUser: ${txt}`; try { const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(q)}?model=openai`); const ans = await res.text(); if(document.getElementById(thinkingId)) document.getElementById(thinkingId).remove(); if(!stopGeneration) await addMessage(ans, false); } catch(e) { if(document.getElementById(thinkingId)) document.getElementById(thinkingId).remove(); addMessage("Connection error.", false); } }
-async function addMessage(text, isUser) { const h = document.getElementById('chat-history'); const d = document.createElement('div'); d.className = isUser ? 'chat-wrapper flex justify-end fade-in mb-6' : 'chat-wrapper flex flex-col fade-in w-full mb-6'; if(isUser) { d.innerHTML = `<div class="chat-msg-user">${text}</div>`; h.appendChild(d); conversationHistory.push({ role: 'user', content: text }); } else { const modelData = models[activeModel]; let cls = "w-6 h-6 object-contain"; if(activeModel !== 'standard') cls = "w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100"; d.innerHTML = `<div class="flex items-center gap-4 mb-2"><img src="${modelData.avatar}" class="${cls}"></div><div class="chat-msg-ai">${marked.parse(text)}</div>`; h.appendChild(d); conversationHistory.push({ role: 'assistant', content: text }); refreshIcons(); } h.scrollTop = h.scrollHeight; }
-window.copyText = function(text, btn) { navigator.clipboard.writeText(decodeURIComponent(text)).then(() => { showToast("Copied to clipboard"); }); };
-window.insertCodeSnippetAI = function() { const inp = document.getElementById('ai-input'); inp.value += " ```javascript\nconsole.log('Hello');\n``` "; inp.focus(); window.handleInput(inp); }
+
+function setupClassifier() { if(typeof ml5 !== 'undefined') classifier = ml5.imageClassifier('MobileNet', () => console.log("MobileNet Ready")); }
+
+window.toggleNewtonExpand = function() {
+    document.body.classList.toggle('mode-focus');
+    const layout = document.getElementById('workspace-layout');
+    const icon = document.getElementById('expand-icon');
+    let isSwapped = layout.classList.contains('swapped');
+    if (!isSwapped) { layout.classList.add('swapped'); icon.setAttribute('data-lucide', 'minimize-2'); showToast("Focus Mode Active"); }
+    else { layout.classList.remove('swapped'); icon.setAttribute('data-lucide', 'maximize-2'); }
+    lucide.createIcons();
+}
+
+window.handleInput = function(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = (textarea.scrollHeight) + 'px';
+    if(textarea.value === '') textarea.style.height = 'auto';
+}
+
+window.togglePlusMenu = function() {
+    if(window.isModelMenuOpen) toggleModelMenu();
+    window.isPlusMenuOpen = !window.isPlusMenuOpen;
+    const menu = document.getElementById('plus-menu');
+    const icon = document.getElementById('plus-icon');
+    if(window.isPlusMenuOpen) {
+        menu.classList.add('active');
+        icon.style.transform = "rotate(45deg)";
+    } else {
+        menu.classList.remove('active');
+        icon.style.transform = "rotate(0deg)";
+    }
+}
+
+window.toggleModelMenu = function() {
+    if(window.isPlusMenuOpen) togglePlusMenu();
+    window.isModelMenuOpen = !window.isModelMenuOpen;
+    const menu = document.getElementById('model-menu');
+    if(window.isModelMenuOpen) menu.classList.add('active');
+    else menu.classList.remove('active');
+}
+
+window.handleFileSelect = function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        window.currentMediaBlob = file; 
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            window.currentMedia = e.target.result; 
+            window.currentMediaType = file.type.startsWith('video') ? 'video' : 'image';
+            const container = document.getElementById('media-preview-container');
+            container.classList.remove('hidden');
+            if(window.currentMediaType === 'video') {
+                const vid = document.getElementById('media-preview-video');
+                vid.src = window.currentMedia;
+                vid.classList.remove('hidden');
+                document.getElementById('media-preview-img').classList.add('hidden');
+            } else {
+                const img = document.getElementById('media-preview-img');
+                img.src = window.currentMedia;
+                img.classList.remove('hidden');
+                document.getElementById('media-preview-video').classList.add('hidden');
+            }
+            showToast("Media Uploaded");
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+window.removeMedia = function() {
+    window.currentMedia = null; window.currentMediaType = null; window.mediaVisionLog = ""; window.currentMediaBlob = null;
+    document.getElementById('media-preview-container').classList.add('hidden');
+    document.getElementById('media-input').value = "";
+}
+
+window.publishPost = async function() {
+    const textRaw = document.getElementById('compose-text').value;
+    const btn = document.getElementById('btn-publish');
+
+    if (!textRaw.trim() && !window.currentMedia) {
+        showToast("Empty post!", true);
+        return;
+    }
+
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`;
+    btn.disabled = true;
+    lucide.createIcons();
+
+    try {
+        let mediaUrl = window.currentMedia; 
+        if(window.currentMediaBlob) {
+            const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`);
+            await uploadBytes(mediaRef, window.currentMediaBlob);
+            mediaUrl = await getDownloadURL(mediaRef);
+        }
+
+        if(window.editingPostId) {
+            await updateDoc(doc(db, "posts", window.editingPostId), { content: textRaw });
+            showToast("Post Updated!");
+        } else {
+            await addDoc(collection(db, "posts"), {
+                authorId: currentUser.id,
+                content: textRaw,
+                media: mediaUrl,
+                timestamp: serverTimestamp(),
+                likes: [],
+                comments: []
+            });
+            showToast("Posted!");
+        }
+
+        closeCompose();
+        document.getElementById('compose-text').value = "";
+        removeMedia();
+
+    } catch (e) {
+        console.error(e);
+        showToast("Error posting", true);
+    } finally {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        lucide.createIcons();
+    }
+}
+
+// Helpers
+window.showToast = function(message, isError = false) {
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toast-msg');
+    const icon = document.getElementById('toast-icon');
+    toastMsg.innerText = message;
+    if (isError) { toast.style.backgroundColor = '#d93025'; icon.setAttribute('data-lucide', 'alert-circle'); icon.classList.remove('text-[#c4eed0]'); icon.classList.add('text-white'); }
+    else { toast.style.backgroundColor = '#303134'; icon.setAttribute('data-lucide', 'check-circle-2'); icon.classList.add('text-[#c4eed0]'); }
+    lucide.createIcons(); toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3000);
+}
+
+window.openLightbox = function(src, type = 'image') {
+    const wrapper = document.getElementById('lightbox-wrapper');
+    const lightbox = document.getElementById('lightbox');
+    
+    if (type === 'video' || src.includes('.mp4') || src.includes('data:video') || src.includes('.webm')) {
+         wrapper.innerHTML = `<video src="${src}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`;
+    } else {
+         wrapper.innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`;
+    }
+    
+    lightbox.classList.add('active');
+    lightbox.classList.remove('pointer-events-none');
+    lightbox.classList.remove('opacity-0');
+}
+
+window.closeLightbox = function() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.remove('active');
+    lightbox.classList.add('pointer-events-none');
+    lightbox.classList.add('opacity-0');
+    // Stop video if playing
+    const video = lightbox.querySelector('video');
+    if(video) video.pause();
+}
+
+// AI FUNCTIONS (RESTORED)
+window.resetChat = function() {
+    conversationHistory = [];
+    window.clearContext();
+    const chatContainer = document.getElementById('chat-history');
+    const modelData = models[activeModel];
+    let cls = "w-6 h-6 object-contain";
+    if(activeModel !== 'standard') cls = "w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100";
+    chatContainer.innerHTML = `<div class="chat-wrapper flex flex-col w-full mb-6 fade-in"><div class="flex items-center gap-2 mb-2"><img src="${modelData.avatar}" class="${cls}"></div><div class="chat-msg-ai"><p>${modelData.greeting}</p></div></div>`;
+}
+
+window.switchModel = function(modelKey) {
+    if(activeModel === modelKey) { window.toggleModelMenu(); return; }
+    activeModel = modelKey;
+    document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active-item'));
+    document.getElementById(`model-btn-${modelKey}`).classList.add('active-item');
+    document.getElementById('ai-header-name').innerText = models[modelKey].name;
+    const logo = document.getElementById('ai-header-logo');
+    logo.src = models[modelKey].avatar;
+    window.toggleModelMenu();
+    window.resetChat();
+    showToast(`Switched to ${models[modelKey].name}`);
+}
+
+window.sendMessageAction = async function() {
+    const inp = document.getElementById('ai-input'); const txt = inp.value.trim(); if(!txt) return;
+    addMessage(txt, true); inp.value = ""; window.handleInput(inp);
+    
+    stopGeneration = false; 
+    const thinkingId = 'thinking-' + Date.now();
+    const chatContainer = document.getElementById('chat-history');
+    const modelData = models[activeModel];
+    let cls = "w-6 h-6 object-contain";
+    if(activeModel !== 'standard') cls = "w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100";
+    
+    const thinkingHTML = `<div id="${thinkingId}" class="flex flex-col w-full mb-6 fade-in"><div class="flex items-center gap-4 mb-2"><img src="${modelData.avatar}" class="${cls} animate-pulse"><span class="text-sm text-[#444746] font-medium animate-pulse">Thinking...</span></div></div>`;
+    chatContainer.insertAdjacentHTML('beforeend', thinkingHTML); chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    const historyStr = conversationHistory.slice(0, -1).map(msg => `${msg.role === 'user' ? 'User' : 'Newton'}: ${msg.content}`).join('\n');
+    let system = models[activeModel].system;
+    let q = `${system} \n${window.currentContext ? "Current Context: " + window.currentContext : ""}\nConversation History:\n${historyStr}\nUser: ${txt}`;
+    
+    try {
+        const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(q)}?model=openai`);
+        const ans = await res.text();
+        if(document.getElementById(thinkingId)) document.getElementById(thinkingId).remove();
+        if(!stopGeneration) await addMessage(ans, false);
+    } catch(e) {
+        if(document.getElementById(thinkingId)) document.getElementById(thinkingId).remove();
+        addMessage("Connection error.", false);
+    }
+}
+
+async function addMessage(text, isUser) {
+    const h = document.getElementById('chat-history');
+    const d = document.createElement('div');
+    d.className = isUser ? 'chat-wrapper flex justify-end fade-in mb-6' : 'chat-wrapper flex flex-col fade-in w-full mb-6';
+    if(isUser) {
+        d.innerHTML = `<div class="chat-msg-user">${text}</div>`;
+        h.appendChild(d);
+        conversationHistory.push({ role: 'user', content: text });
+    } else {
+        const modelData = models[activeModel];
+        let cls = "w-6 h-6 object-contain";
+        if(activeModel !== 'standard') cls = "w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100";
+        d.innerHTML = `<div class="flex items-center gap-4 mb-2"><img src="${modelData.avatar}" class="${cls}"></div><div class="chat-msg-ai">${marked.parse(text)}</div>`;
+        h.appendChild(d);
+        conversationHistory.push({ role: 'assistant', content: text });
+        lucide.createIcons();
+    }
+    h.scrollTop = h.scrollHeight;
+}
+
+window.copyText = function(text, btn) {
+    navigator.clipboard.writeText(decodeURIComponent(text)).then(() => {
+        showToast("Copied to clipboard");
+    });
+};
+window.insertCodeSnippetAI = function() {
+    const inp = document.getElementById('ai-input');
+    inp.value += " ```javascript\nconsole.log('Hello');\n``` ";
+    inp.focus();
+    window.handleInput(inp);
+}
 window.insertCodeBlock = function() { const ta = document.getElementById('compose-text'); ta.value += "\n```javascript\n// Code here\n```\n"; ta.focus(); };
 window.toggleWebSearch = function() { showToast("Web search enabled (simulation)"); window.isWebSearchActive = !window.isWebSearchActive; };
 window.toggleIdeaMode = function() { showToast("Idea mode enabled"); window.isIdeaMode = !window.isIdeaMode; };
-window.pinPost = function(pid, author) { window.currentContext = `Context: Post by ${author}`; document.getElementById('ai-context-chip').classList.remove('hidden'); document.getElementById('ai-context-text').innerText = `Post by ${author}`; showToast("Added to Newton context"); };
+window.pinPost = function(pid, author) { 
+    window.currentContext = `Context: Post by ${author}`; 
+    document.getElementById('ai-context-chip').classList.remove('hidden'); 
+    document.getElementById('ai-context-text').innerText = `Post by ${author}`;
+    showToast("Added to Newton context");
+};
 window.clearContext = function() { window.currentContext = ""; document.getElementById('ai-context-chip').classList.add('hidden'); };
 
-refreshIcons();
+// Re-init icons
+lucide.createIcons();
+
 </script>
 </body>
 </html>

@@ -379,6 +379,7 @@
         display: flex; flex-direction: column; align-items: center;
         width: 100%; max-width: 900px;
         position: relative; z-index: 1;
+        margin-bottom: 80px; /* Space after community intro */
     }
 
     .community-headline { font-size: 40px; font-weight: 700; letter-spacing: -1px; margin-bottom: 16px; text-align: center; color: var(--text-main); }
@@ -451,7 +452,8 @@
     .team-timeline-section {
         width: 100%; max-width: 1200px;
         display: flex; flex-direction: column; align-items: center;
-        margin-bottom: 80px; z-index: 10; position: relative;
+        margin-bottom: 120px; /* Increased gap before premium */
+        z-index: 10; position: relative;
     }
     
     .team-headline { 
@@ -529,33 +531,64 @@
 
     .team-node:hover .team-quote-bubble { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(5px); }
 
-    /* Premium CTA Section */
-    .premium-cta-wrapper {
-        margin-top: 120px; /* INCREASED GAP */
-        margin-bottom: 40px;
+    /* --- PREMIUM CHAT SECTION (NEW) --- */
+    .premium-chat-section {
         display: flex;
         justify-content: center;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 120px; /* Increased gap before reviews */
+        position: relative;
         z-index: 10;
+        padding: 20px;
     }
+
+    .premium-chat-bubble-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        animation: float 4s ease-in-out infinite;
+    }
+
+    .premium-chat-bubble-container.right { animation-delay: 2s; }
+
+    .chat-av-small {
+        width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); background: #f0f0f0;
+    }
+
+    .chat-bubble-text {
+        background: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: 12px;
+        font-size: 13px; font-weight: 500; color: var(--text-main);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative;
+    }
+
+    .chat-bubble-text.left::after {
+        content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px;
+        border-width: 5px; border-style: solid; border-color: white transparent transparent transparent;
+    }
+    
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
     .premium-badge {
         background: white;
         border: 1px solid #E0E0E0;
-        padding: 8px 20px 8px 12px;
-        border-radius: 6px; /* Pill to soft rectangle */
+        padding: 10px 24px;
+        border-radius: 8px; 
         display: flex;
         align-items: center;
         gap: 12px;
         cursor: pointer;
         transition: all 0.2s ease;
         text-decoration: none;
-        box-shadow: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
     }
 
     .premium-badge:hover {
         transform: translateY(-2px);
         background: #F7F7F5;
         border-color: #D0D0D0;
+        box-shadow: 0 8px 30px rgba(35, 131, 226, 0.15);
     }
 
     .premium-mini-avatars {
@@ -574,16 +607,17 @@
     .mini-av:first-child { margin-left: 0; }
 
     .premium-text-cta {
-        font-weight: 500;
-        font-size: 14px;
+        font-weight: 600;
+        font-size: 15px;
         color: var(--text-main);
         display: flex;
         align-items: center;
         gap: 6px;
     }
     
-    .arrow-icon { width: 14px; height: 14px; color: var(--text-sub); transition: color 0.2s; }
-    .premium-badge:hover .arrow-icon { color: var(--text-main); transform: translateX(2px); }
+    .arrow-icon { width: 16px; height: 16px; color: var(--accent); transition: transform 0.2s; }
+    .premium-badge:hover .arrow-icon { transform: translateX(3px); }
+
 
     /* --- FOOTER --- */
     .footer {
@@ -662,6 +696,10 @@
         .team-quote-bubble { position: relative; top: 0; transform: none; margin-top: 10px; opacity: 1; visibility: visible; width: 100%; border: none; box-shadow: none; color: var(--text-sub); background: transparent; padding: 0; font-style: italic; }
         .team-quote-bubble::before { display: none; }
         .footer { flex-direction: column; gap: 16px; text-align: center; }
+        .premium-chat-section { flex-direction: column; gap: 20px; }
+        .premium-chat-bubble-container.left { order: 2; }
+        .premium-badge { order: 1; }
+        .premium-chat-bubble-container.right { order: 3; }
     }
     
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -854,6 +892,92 @@
         </div>
     </div>
 
+    <!-- MOVED UP: TEAM SECTION -->
+    <div class="team-timeline-section reveal-on-scroll">
+        <div class="team-headline">Meet the Team</div>
+        
+        <div class="timeline-container">
+            
+            <div class="team-node">
+                <div class="team-card-inner">
+                    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Joshua" 
+                         data-hover="https://i.imghippo.com/files/fxd9122lfA.png" 
+                         class="team-avatar" alt="Jigdral">
+                    <div class="team-name">Jigdral</div>
+                    <div class="team-role">Researcher</div>
+                </div>
+                <div class="team-quote-bubble">"Education is the only thing that can help you get out of struggles"</div>
+            </div>
+
+            <div class="team-node">
+                <div class="team-card-inner">
+                    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Sarah" 
+                         data-hover="https://i.imghippo.com/files/ysU7129TyE.jpg"
+                         class="team-avatar" alt="Ngawang">
+                    <div class="team-name">Ngawang</div>
+                    <div class="team-role">Founder</div>
+                </div>
+                <div class="team-quote-bubble">"Future of education is in your hand"</div>
+            </div>
+
+            <div class="team-node">
+                <div class="team-card-inner">
+                    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Sadie" 
+                         data-hover="https://i.imghippo.com/files/Nt9657Idk.jpeg"
+                         class="team-avatar" alt="Sonam">
+                    <div class="team-name">Sonam</div>
+                    <div class="team-role">Co-Founder</div>
+                </div>
+                <div class="team-quote-bubble">"All it takes is one person"</div>
+            </div>
+
+            <div class="team-node">
+                <div class="team-card-inner">
+                    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Robert" 
+                         data-hover="https://i.imghippo.com/files/WFP4901nE.png"
+                         class="team-avatar" alt="Jampel">
+                    <div class="team-name">Jampel</div>
+                    <div class="team-role">Researcher</div>
+                </div>
+                <div class="team-quote-bubble">"One ideology"</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- NEW REDESIGNED PREMIUM SECTION -->
+    <div class="premium-chat-section reveal-on-scroll">
+        <!-- Left Chatter -->
+        <div class="premium-chat-bubble-container left">
+            <div class="chat-bubble-text left">Unlock unlimited AI? 🤖</div>
+            <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Chat1" class="chat-av-small">
+        </div>
+
+        <!-- Center CTA -->
+        <a href="premium.html" class="premium-badge">
+            <div class="premium-mini-avatars">
+                <img src="https://api.dicebear.com/9.x/notionists/svg?seed=P1" class="mini-av">
+                <img src="https://api.dicebear.com/9.x/notionists/svg?seed=P2" class="mini-av">
+                <img src="https://api.dicebear.com/9.x/notionists/svg?seed=P3" class="mini-av">
+            </div>
+            <span class="premium-text-cta">
+                Purchase Premium
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+        </a>
+
+        <!-- Right Chatter -->
+        <div class="premium-chat-bubble-container right">
+            <div class="chat-bubble-text left">Yes! The workspace is amazing 🚀</div>
+            <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Chat2" class="chat-av-small">
+        </div>
+    </div>
+
+    <div class="central-image-container reveal-on-scroll" style="margin-top: 0px; margin-bottom: 60px; max-width: 700px; margin-left: auto; margin-right: auto;">
+        <img src="https://i.imghippo.com/files/Cq2498QQ.png" alt="Community Growth" class="central-work-img">
+    </div>
+
+    <!-- MOVED DOWN: REVIEWS -->
     <div class="reviews-wrapper reveal-on-scroll">
         <div class="reviews-track">
             
@@ -910,77 +1034,6 @@
                 <div class="stars">★★★★★</div>
                 <div class="review-text">Finally, a tool that looks good and actually works for studying. Love the updates feed!</div>
             </div>
-        </div>
-    </div>
-
-    <div class="team-timeline-section reveal-on-scroll">
-        <div class="team-headline">Meet the Team</div>
-        
-        <div class="timeline-container">
-            
-            <div class="team-node">
-                <div class="team-card-inner">
-                    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Joshua" 
-                         data-hover="https://i.imghippo.com/files/fxd9122lfA.png" 
-                         class="team-avatar" alt="Jigdral">
-                    <div class="team-name">Jigdral</div>
-                    <div class="team-role">Researcher</div>
-                </div>
-                <div class="team-quote-bubble">"Education is the only thing that can help you get out of struggles"</div>
-            </div>
-
-            <div class="team-node">
-                <div class="team-card-inner">
-                    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Sarah" 
-                         data-hover="https://i.imghippo.com/files/ysU7129TyE.jpg"
-                         class="team-avatar" alt="Ngawang">
-                    <div class="team-name">Ngawang</div>
-                    <div class="team-role">Founder</div>
-                </div>
-                <div class="team-quote-bubble">"Future of education is in your hand"</div>
-            </div>
-
-            <div class="team-node">
-                <div class="team-card-inner">
-                    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Sadie" 
-                         data-hover="https://i.imghippo.com/files/Nt9657Idk.jpeg"
-                         class="team-avatar" alt="Sonam">
-                    <div class="team-name">Sonam</div>
-                    <div class="team-role">Co-Founder</div>
-                </div>
-                <div class="team-quote-bubble">"All it takes is one person"</div>
-            </div>
-
-            <div class="team-node">
-                <div class="team-card-inner">
-                    <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Robert" 
-                         data-hover="https://i.imghippo.com/files/WFP4901nE.png"
-                         class="team-avatar" alt="Jampel">
-                    <div class="team-name">Jampel</div>
-                    <div class="team-role">Researcher</div>
-                </div>
-                <div class="team-quote-bubble">"One ideology"</div>
-            </div>
-
-        </div>
-        
-        <!-- Premium CTA -->
-        <div class="premium-cta-wrapper reveal-on-scroll">
-            <a href="premium.html" class="premium-badge">
-                <div class="premium-mini-avatars">
-                    <img src="https://api.dicebear.com/9.x/notionists/svg?seed=P1" class="mini-av">
-                    <img src="https://api.dicebear.com/9.x/notionists/svg?seed=P2" class="mini-av">
-                    <img src="https://api.dicebear.com/9.x/notionists/svg?seed=P3" class="mini-av">
-                </div>
-                <span class="premium-text-cta">
-                    Purchase Premium
-                    <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </span>
-            </a>
-        </div>
-
-        <div class="central-image-container reveal-on-scroll" style="margin-top: 40px; margin-bottom: 0; max-width: 700px; margin-left: auto; margin-right: auto;">
-            <img src="https://i.imghippo.com/files/Cq2498QQ.png" alt="Community Growth" class="central-work-img">
         </div>
     </div>
 

@@ -221,8 +221,8 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.like:hover { background-color: #fef2f2; color: #ef4444; } /* Red hover for heart */
 .action-btn.comment:hover { background-color: #eff6ff; color: #2563eb; }
 .action-btn.bookmark:hover { background-color: #f5f3ff; color: #7c3aed; }
-.action-btn.ai-pin { color: #0b57d0; background-color: #eff6ff; }
-.action-btn.ai-pin:hover { background-color: #dbeafe; }
+.action-btn.share-btn { color: #0b57d0; background-color: #eff6ff; }
+.action-btn.share-btn:hover { background-color: #dbeafe; }
 
 /* Comment Replies Styles */
 .reply-thread {
@@ -995,7 +995,7 @@ Change
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, addDoc, onSnapshot, query, orderBy, where, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, addDoc, onSnapshot, query, orderBy, where, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadString, getDownloadURL, uploadBytes } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -1079,6 +1079,10 @@ onAuthStateChanged(auth, async (user) => {
         window.currentUser = currentUser;
         savedPosts = currentUser.saved;
 
+        // Check for Deep Link (Shared Post)
+        const params = new URLSearchParams(window.location.search);
+        const sharedPostId = params.get('postId');
+        
         // Update UI with User Info
         updateUserInterface();
         
@@ -1092,6 +1096,13 @@ onAuthStateChanged(auth, async (user) => {
         // Hide loader
         if(loader) loader.style.opacity = '0';
         setTimeout(() => { if(loader) loader.remove(); }, 500);
+        
+        if(sharedPostId) {
+            setTimeout(() => {
+                openPostView(sharedPostId);
+                window.history.pushState({}, document.title, window.location.pathname);
+            }, 1000); // Small delay to allow posts to load
+        }
 
     } else {
         // Redirect to Login
@@ -1121,18 +1132,24 @@ function initRealtimeListeners() {
         const activeFeed = document.querySelector('#view-feed:not(.hidden)');
         if(activeFeed) renderFeed();
         
+        // IMPORTANT: Update open modal in realtime
         const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
-        if(activePostView && window.currentViewingPostId) renderCommentsInModal(window.currentViewingPostId);
+        if(activePostView && window.currentViewingPostId) {
+            renderCommentsInModal(window.currentViewingPostId);
+        }
     });
 
-    // Notifications Listener
-    const qNotifs = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id), orderBy("timestamp", "desc"));
+    // Notifications Listener - REMOVED ORDERBY to fix missing index issue
+    const qNotifs = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
     onSnapshot(qNotifs, (snapshot) => {
         notifications = snapshot.docs.map(doc => ({ 
             id: doc.id, 
             ...doc.data(),
             timestamp: doc.data().timestamp?.toDate()?.getTime() || Date.now()
         }));
+        
+        // Client-side sort
+        notifications.sort((a,b) => b.timestamp - a.timestamp);
         
         const badge = document.getElementById('notif-badge');
         const unread = notifications.some(n => !n.read);
@@ -1347,7 +1364,7 @@ function createPostElement(post) {
     </div>
     <div class="flex items-center gap-1">
     <button id="save-btn-${post.id}" class="action-btn bookmark" onclick="event.stopPropagation(); toggleSave('${post.id}')"><i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-current text-purple-600' : ''}"></i></button>
-    <button class="action-btn ai-pin" onclick="event.stopPropagation(); pinPost('${post.id}', '${author.name}')" title="Analyze with Newton"><i data-lucide="sparkles" class="w-5 h-5"></i></button>
+    <button class="action-btn share-btn" onclick="event.stopPropagation(); sharePost('${post.id}')" title="Share Post"><i data-lucide="share-2" class="w-5 h-5"></i></button>
     </div>
     </div>
     </div>
@@ -1410,6 +1427,13 @@ window.toggleSave = async function(postId) {
     }
 }
 
+window.sharePost = function(postId) {
+    const url = `${window.location.origin}${window.location.pathname}?postId=${postId}`;
+    navigator.clipboard.writeText(url).then(() => {
+        showToast("Link copied to clipboard!");
+    });
+}
+
 window.renderSaved = function() {
     const container = document.getElementById('saved-container');
     container.innerHTML = "";
@@ -1448,13 +1472,13 @@ window.renderNotifications = function() {
     const filtered = notifications.filter(n => {
         const sender = users.find(u => u.id === n.senderId) || { isOfficial: false, id: n.senderId };
         if (activeNotifTab === 'official') {
-            return sender && sender.isOfficial;
+            return n.type === 'official';
         } else if (activeNotifTab === 'friends') {
             // Renamed tab logic: Show notifications from people I follow
             return currentUser.following.includes(n.senderId);
         } else {
-            // Others
-            return !sender.isOfficial && !currentUser.following.includes(n.senderId);
+            // Others (not official, not following)
+            return n.type !== 'official' && !currentUser.following.includes(n.senderId);
         }
     });
 
@@ -1464,7 +1488,7 @@ window.renderNotifications = function() {
     }
 
     filtered.forEach(n => {
-        const sender = users.find(u => u.id === n.senderId) || { name: 'Unknown', avatar: '' };
+        const sender = users.find(u => u.id === n.senderId) || { name: 'Admin', avatar: '' };
         const div = document.createElement('div');
         div.className = "w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100 bg-white shadow-sm mb-2";
         let icon = "";
@@ -1472,7 +1496,7 @@ window.renderNotifications = function() {
         if(n.type === 'comment') icon = '<i data-lucide="message-circle" class="w-3 h-3 text-white"></i>';
         if(n.type === 'reply') icon = '<i data-lucide="corner-down-right" class="w-3 h-3 text-white"></i>';
         if(n.type === 'follow') icon = '<i data-lucide="user-plus" class="w-3 h-3 text-white"></i>';
-        if(n.type === 'official') icon = '<i data-lucide="badge-check" class="w-3 h-3 text-white"></i>';
+        if(n.type === 'official') icon = '<i data-lucide="megaphone" class="w-3 h-3 text-white"></i>';
 
         let colorClass = n.type === 'like' ? 'bg-red-500' : (n.type === 'official' ? 'bg-blue-600' : 'bg-indigo-500');
         if(n.type === 'reply') colorClass = 'bg-teal-500';
@@ -1680,9 +1704,10 @@ window.startChat = function(userId) {
         const msgs = [];
         snapshot.forEach(doc => {
             const m = doc.data();
+            // Filter locally for the active pair
             if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) || 
                 (m.senderId === activeChatUserId && m.receiverId === currentUser.id)) {
-                msgs.push(m);
+                msgs.push({ id: doc.id, ...m });
             }
         });
         renderMessages(msgs);
@@ -1727,10 +1752,23 @@ window.sendChatMessage = async function(e) {
     input.value = "";
 }
 
-window.deleteCurrentChat = function() {
-    if(confirm("This would clear the chat view locally.")) {
-        document.getElementById('chat-messages').innerHTML = '';
-        showToast("Chat cleared");
+window.deleteCurrentChat = async function() {
+    if(!activeChatUserId) return;
+    if(confirm("Permanently delete this conversation for everyone?")) {
+        const batch = writeBatch(db);
+        const qMsgs = query(collection(db, "messages"));
+        const snapshot = await getDocs(qMsgs);
+        
+        snapshot.forEach(doc => {
+            const m = doc.data();
+            if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) || 
+                (m.senderId === activeChatUserId && m.receiverId === currentUser.id)) {
+                batch.delete(doc.ref);
+            }
+        });
+        
+        await batch.commit();
+        showToast("Conversation deleted permanently");
     }
 }
 
@@ -1828,6 +1866,7 @@ function createCommentHTML(c, allComments, postId) {
     const cAuthor = users.find(u => u.id === c.authorId) || { name: 'Unknown', avatar: '' };
     const isLiked = c.likes && c.likes.includes(currentUser.id);
     const likeCount = c.likes ? c.likes.length : 0;
+    const isMyComment = c.authorId === currentUser.id;
     
     // Find replies to this comment
     const replies = allComments.filter(r => r.parentId === c.id);
@@ -1846,6 +1885,7 @@ function createCommentHTML(c, allComments, postId) {
                     <i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> ${likeCount || ''}
                 </button>
                 <button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>
+                ${isMyComment ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}
             </div>
     `;
     
@@ -1856,6 +1896,7 @@ function createCommentHTML(c, allComments, postId) {
             const rAuthor = users.find(u => u.id === r.authorId) || { name: 'Unknown', avatar: '' };
             const rLiked = r.likes && r.likes.includes(currentUser.id);
             const rLikeCount = r.likes ? r.likes.length : 0;
+            const isMyReply = r.authorId === currentUser.id;
             
             html += `
             <div class="flex gap-3 pt-3 mt-1 group">
@@ -1869,6 +1910,7 @@ function createCommentHTML(c, allComments, postId) {
                         <button onclick="toggleCommentLike('${postId}', '${r.id}')" class="text-xs font-medium flex items-center gap-1 ${rLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}">
                             <i data-lucide="heart" class="w-3 h-3 ${rLiked ? 'fill-red-500' : ''}"></i> ${rLikeCount || ''}
                         </button>
+                        ${isMyReply ? `<button onclick="deleteComment('${postId}', '${r.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}
                     </div>
                 </div>
             </div>
@@ -1879,6 +1921,18 @@ function createCommentHTML(c, allComments, postId) {
     
     html += `</div></div>`;
     return html;
+}
+
+window.deleteComment = async function(postId, commentId) {
+    if(!confirm("Delete this comment?")) return;
+    const postRef = doc(db, "posts", postId);
+    const post = posts.find(p => p.id === postId);
+    
+    // Remove comment and its children (replies)
+    const updatedComments = post.comments.filter(c => c.id !== commentId && c.parentId !== commentId);
+    
+    await updateDoc(postRef, { comments: updatedComments });
+    showToast("Comment deleted");
 }
 
 window.toggleCommentLike = async function(postId, commentId) {

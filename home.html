@@ -1075,7 +1075,7 @@ Change
 </div>
 <div class="flex-1 max-w-[600px] relative group hidden md:block">
 <i data-lucide="search" class="absolute left-5 top-3.5 w-5 h-5 text-[#667085] group-focus-within:text-[#0b57d0] transition-colors"></i>
-<input type="text" placeholder="Search EduLink" id="global-search" onkeyup="handleSearch(this.value)" class="w-full bg-[#f3f4f6] rounded-full py-3.5 pl-14 pr-6 outline-none focus:bg-[#ffffff] focus:shadow-sm focus:ring-1 focus:ring-gray-200 transition-all text-[#1f1f1f] text-[15px]">
+<input type="text" placeholder="Search EduLink" id="global-search" oninput="handleSearch(this.value)" class="w-full bg-[#f3f4f6] rounded-full py-3.5 pl-14 pr-6 outline-none focus:bg-[#ffffff] focus:shadow-sm focus:ring-1 focus:ring-gray-200 transition-all text-[#1f1f1f] text-[15px]">
 </div>
 <div class="flex items-center gap-3 pl-4">
 <button class="icon-btn relative" onclick="toggleNotifications()">
@@ -1186,7 +1186,7 @@ Change
         <div class="md:hidden px-4 mb-4">
              <div class="relative group">
                 <i data-lucide="search" class="absolute left-4 top-3.5 w-5 h-5 text-[#667085]"></i>
-                <input type="text" placeholder="Search users & posts..." onkeyup="handleSearch(this.value)" class="w-full bg-white rounded-full py-3 pl-12 pr-4 outline-none border border-gray-200 focus:border-blue-500 transition-all text-sm">
+                <input type="text" placeholder="Search users & posts..." oninput="handleSearch(this.value)" class="w-full bg-white rounded-full py-3 pl-12 pr-4 outline-none border border-gray-200 focus:border-blue-500 transition-all text-sm">
             </div>
         </div>
         <div id="explore-results" class="px-4 md:px-0 space-y-6">
@@ -1371,9 +1371,7 @@ let currentBannerBlob = null;
 // Helper: Reliable Icon Refresh
 function refreshIcons() {
     if(window.lucide) {
-        setTimeout(() => {
-            window.lucide.createIcons();
-        }, 100);
+        window.lucide.createIcons();
     }
 }
 
@@ -1812,7 +1810,8 @@ window.switchView = function(viewName) {
     } else if (viewName === 'announcements') {
         const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
     }
-    refreshIcons();
+    // Ensures icons re-render immediately after view switch
+    setTimeout(refreshIcons, 50);
 }
 
 window.switchNetworkTab = function(tab) {
@@ -1936,7 +1935,7 @@ function createPostElement(post) {
 
     const canViewLikeList = settings.allowLikeView === undefined || settings.allowLikeView === true || isAuthor || isAdmin;
     const likeCountDisplay = settings.showLikes 
-        ? `<span class="text-xs font-medium px-1 hover:underline cursor-pointer" onclick="${canViewLikeList ? `event.stopPropagation(); openLikes('${post.id}')` : 'event.stopPropagation()'}">${post.likes ? post.likes.length : 0}</span>` 
+        ? `<span id="like-count-${post.id}" class="text-xs font-medium px-1 hover:underline cursor-pointer" onclick="${canViewLikeList ? `event.stopPropagation(); openLikes('${post.id}')` : 'event.stopPropagation()'}">${post.likes ? post.likes.length : 0}</span>` 
         : '';
     const commentCountDisplay = settings.showComments ? `<span class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span>` : '';
 
@@ -1964,7 +1963,7 @@ function createPostElement(post) {
     </div>
     <div class="post-actions">
     <div class="flex items-center gap-1">
-    <button class="action-btn like" onclick="event.stopPropagation(); toggleLike('${post.id}')">
+    <button id="like-btn-${post.id}" class="action-btn like" onclick="event.stopPropagation(); toggleLike('${post.id}')">
         <i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i> 
     </button>
     ${likeCountDisplay}
@@ -1981,6 +1980,36 @@ function createPostElement(post) {
 }
 
 window.toggleLike = async function(postId) {
+    // 1. Optimistic UI Update (Immediate)
+    const btn = document.getElementById(`like-btn-${postId}`);
+    const countSpan = document.getElementById(`like-count-${postId}`);
+    
+    // Safety check if element exists (it should, but good practice)
+    if(btn) {
+        const icon = btn.querySelector('svg') || btn.querySelector('i');
+        let isLiked = false;
+        
+        if (icon.tagName === 'svg') isLiked = icon.classList.contains('text-red-500');
+        else isLiked = icon.classList.contains('text-red-500');
+
+        if (isLiked) {
+            // Unliking
+            icon.classList.remove('fill-red-500', 'text-red-500');
+            if(countSpan) {
+                const current = parseInt(countSpan.innerText);
+                countSpan.innerText = Math.max(0, current - 1);
+            }
+        } else {
+            // Liking
+            icon.classList.add('fill-red-500', 'text-red-500');
+            if(countSpan) {
+                const current = parseInt(countSpan.innerText);
+                countSpan.innerText = current + 1;
+            }
+        }
+    }
+
+    // 2. Database Update
     const postRef = doc(db, "posts", postId);
     const post = posts.find(p => p.id === postId);
     if(post.likes && post.likes.includes(currentUser.id)) {
@@ -2527,51 +2556,81 @@ window.closeUserList = function() {
 }
 
 window.handleSearch = function(query) {
-    switchView('explore');
-    // Ensure both search bars reflect the query
-    document.getElementById('global-search').value = query;
-    const mobileSearch = document.querySelector('#view-explore input');
-    if(mobileSearch) mobileSearch.value = query;
+    // 1. Ensure we are on the explore view
+    if(document.getElementById('view-explore').classList.contains('hidden')) {
+        switchView('explore');
+    }
+    
+    // 2. Sync Input Values (Header vs Mobile)
+    const headerInput = document.getElementById('global-search');
+    const mobileInput = document.querySelector('#view-explore input');
+    
+    if(headerInput && headerInput.value !== query) headerInput.value = query;
+    if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
 
     const view = document.getElementById('explore-results');
     
-    if(!query) { 
+    // 3. Handle Empty Query
+    if(!query || query.trim() === '') { 
         view.innerHTML = `<div class="text-center py-20 text-gray-400"><i data-lucide="compass" class="w-16 h-16 mx-auto mb-3 opacity-50"></i><p>Search for people, posts, and ideas.</p></div>`;
         refreshIcons();
         return; 
     }
 
-    const term = query.toLowerCase();
-    // Split query for "abit close" matching (substring match of any word)
-    const keywords = term.split(" ").filter(k => k.trim().length > 0);
+    const term = query.toLowerCase().trim();
+    // Split query for "close match" logic
+    const keywords = term.split(" ").filter(k => k.length > 0);
 
+    // 4. Filter Users
     const foundUsers = users.filter(u => {
-        const name = u.name.toLowerCase();
+        const name = (u.name || '').toLowerCase();
         const bio = (u.bio || "").toLowerCase();
-        // Check if any keyword is in name or bio
         return keywords.some(k => name.includes(k) || bio.includes(k));
     });
 
+    // 5. Filter Posts
     const foundPosts = posts.filter(p => {
-        const content = p.content.toLowerCase();
-        // Check if any keyword is in content
+        const content = (p.content || '').toLowerCase();
         return keywords.some(k => content.includes(k));
     });
     
-    let html = `<div class="font-bold mb-2">People</div>`;
+    // 6. Build Results HTML
+    let html = '';
+    
+    // People Section
+    html += `<div class="font-bold mb-2 text-gray-900">People</div>`;
     if(foundUsers.length) {
         foundUsers.forEach(u => {
-            html += `<div class="flex items-center gap-3 p-3 bg-white rounded-xl mb-2 cursor-pointer hover:shadow-sm" onclick="showProfile('${u.id}')"><img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover"><div><div class="font-bold text-sm">${u.name}</div><div class="text-xs text-gray-500">${u.bio}</div></div></div>`;
+            html += `
+            <div class="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-xl mb-2 cursor-pointer hover:shadow-sm transition-shadow" onclick="showProfile('${u.id}')">
+                <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover bg-gray-50">
+                <div>
+                    <div class="font-bold text-sm text-gray-900">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>' : ''}</div>
+                    <div class="text-xs text-gray-500 line-clamp-1">${u.bio || 'No bio'}</div>
+                </div>
+            </div>`;
         });
-    } else { html += `<div class="text-gray-400 text-sm mb-4">No people found</div>`; }
+    } else { 
+        html += `<div class="text-gray-400 text-sm mb-4 italic">No people found matching "${query}"</div>`; 
+    }
     
-    html += `<div class="font-bold mb-2 mt-4">Posts</div>`;
-    view.innerHTML = html;
+    // Posts Section
+    html += `<div class="font-bold mb-2 mt-4 text-gray-900">Posts</div>`;
+    
+    view.innerHTML = html; // Set the structure first
+    
     const postsDiv = document.createElement('div');
     postsDiv.className = "space-y-4";
-    if(foundPosts.length) foundPosts.forEach(p => postsDiv.appendChild(createPostElement(p)));
-    else postsDiv.innerHTML = `<div class="text-gray-400 text-sm">No posts found</div>`;
+    
+    if(foundPosts.length) {
+        foundPosts.forEach(p => postsDiv.appendChild(createPostElement(p)));
+    } else {
+        postsDiv.innerHTML = `<div class="text-gray-400 text-sm italic">No posts found matching "${query}"</div>`;
+    }
+    
     view.appendChild(postsDiv);
+    
+    // 7. Refresh Icons
     refreshIcons();
 }
 
@@ -2846,7 +2905,8 @@ function createCommentHTML(c, allComments, postId) {
     const canDelete = isMyComment || isAdmin;
     
     const replies = allComments.filter(r => r.parentId === c.id);
-    let html = `<div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group"><img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-gray-900">${cAuthor.name}</span><span class="text-xs text-gray-500">• Now</span></div><p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p><div class="flex items-center gap-4 mt-2"><button onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> ${likeCount || ''}</button><button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div>`;
+    // Added specific ID to comment like button for optimistic updates
+    let html = `<div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group"><img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-gray-900">${cAuthor.name}</span><span class="text-xs text-gray-500">• Now</span></div><p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p><div class="flex items-center gap-4 mt-2"><button id="comment-like-btn-${c.id}" onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> <span id="comment-like-count-${c.id}">${likeCount || ''}</span></button><button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div>`;
     if (replies.length > 0) {
         html += `<div class="reply-thread">`;
         replies.forEach(r => {
@@ -2855,7 +2915,8 @@ function createCommentHTML(c, allComments, postId) {
             const rLikeCount = r.likes ? r.likes.length : 0;
             const isMyReply = r.authorId === currentUser.id;
             const canDeleteReply = isMyReply || isAdmin;
-            html += `<div class="flex gap-3 pt-3 mt-1 group"><img src="${rAuthor.avatar}" class="w-6 h-6 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${r.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-xs text-gray-900">${rAuthor.name}</span></div><p class="text-[13px] text-gray-800 leading-relaxed">${r.content}</p><div class="flex items-center gap-4 mt-1"><button onclick="toggleCommentLike('${postId}', '${r.id}')" class="text-xs font-medium flex items-center gap-1 ${rLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${rLiked ? 'fill-red-500' : ''}"></i> ${rLikeCount || ''}</button>${canDeleteReply ? `<button onclick="deleteComment('${postId}', '${r.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div></div></div>`;
+            // Added specific ID to reply like button
+            html += `<div class="flex gap-3 pt-3 mt-1 group"><img src="${rAuthor.avatar}" class="w-6 h-6 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${r.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-xs text-gray-900">${rAuthor.name}</span></div><p class="text-[13px] text-gray-800 leading-relaxed">${r.content}</p><div class="flex items-center gap-4 mt-1"><button id="comment-like-btn-${r.id}" onclick="toggleCommentLike('${postId}', '${r.id}')" class="text-xs font-medium flex items-center gap-1 ${rLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${rLiked ? 'fill-red-500' : ''}"></i> <span id="comment-like-count-${r.id}">${rLikeCount || ''}</span></button>${canDeleteReply ? `<button onclick="deleteComment('${postId}', '${r.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div></div></div>`;
         });
         html += `</div>`;
     }
@@ -2874,6 +2935,39 @@ window.deleteComment = async function(postId, commentId) {
 }
 
 window.toggleCommentLike = async function(postId, commentId) {
+    // 1. Optimistic UI Update (Immediate)
+    const btn = document.getElementById(`comment-like-btn-${commentId}`);
+    const countSpan = document.getElementById(`comment-like-count-${commentId}`);
+    
+    if(btn) {
+        const icon = btn.querySelector('svg') || btn.querySelector('i');
+        let isLiked = false;
+        
+        if (icon.tagName === 'svg') isLiked = icon.classList.contains('text-red-500');
+        else isLiked = icon.classList.contains('text-red-500');
+        
+        // Toggle Styles
+        if (isLiked) {
+             btn.classList.remove('text-red-500');
+             btn.classList.add('text-gray-500');
+             icon.classList.remove('fill-red-500');
+             if(countSpan) {
+                const cur = parseInt(countSpan.innerText) || 0;
+                const next = Math.max(0, cur - 1);
+                countSpan.innerText = next === 0 ? '' : next;
+             }
+        } else {
+             btn.classList.add('text-red-500');
+             btn.classList.remove('text-gray-500');
+             icon.classList.add('fill-red-500');
+             if(countSpan) {
+                const cur = parseInt(countSpan.innerText) || 0;
+                countSpan.innerText = cur + 1;
+             }
+        }
+    }
+
+    // 2. DB Update
     const post = posts.find(p => p.id === postId);
     if(!post) return;
     const comments = post.comments || [];

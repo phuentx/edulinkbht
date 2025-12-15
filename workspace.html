@@ -55,13 +55,11 @@ shake: 'shake 0.5s ease-in-out'
 </script>
 <style>
 body { background-color: #FFFFFF; color: #37352F; height: 100vh; overflow: hidden; }
-code
-Code
+
 /* Hidden Scrollbars but Scrollable */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-code
-Code
+
 .tab-active { border-bottom: 2px solid #37352F; color: #37352F; font-weight: 600; }
 .tab-inactive { color: #9B9A97; }
 .tab-inactive:hover { color: #37352F; }
@@ -149,8 +147,7 @@ select { -webkit-appearance: none; appearance: none; background-image: url("data
 </style>
 </head>
 <body class="flex text-[15px]">
-code
-Code
+
 <div id="notification-toast-container" class="fixed top-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none w-80"></div>
 <div id="sidebar-context-menu" class="fixed hidden bg-white border border-gray-200 shadow-popover rounded-lg py-1 z-[150] w-48 text-sm"></div>
 <!-- SIDEBAR -->
@@ -168,8 +165,7 @@ Code
 </button>
 </div>
 </div>
-code
-Code
+
 <div class="px-4 py-3 text-xs font-semibold text-notion-textLight flex justify-between items-center group tracking-wide mt-2">
     <span>WORKSPACE</span>
     <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -187,7 +183,7 @@ Code
 </div>
 <div id="team-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar pb-4"></div>
 
-<div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.6</div>
+<div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.7</div>
 </div>
 <!-- MAIN AREA -->
 <div class="flex-1 flex flex-col h-full bg-white relative">
@@ -200,8 +196,7 @@ Code
 Create New Project
 </button>
 </div>
-code
-Code
+
 <div id="workspace-container" class="flex flex-col h-full hidden w-full">
     <div class="h-16 border-b border-notion-border flex items-center justify-between px-6 bg-white sticky top-0 z-40">
         <div class="flex items-center gap-3 flex-1 min-w-0 mr-6">
@@ -357,8 +352,6 @@ Delete for all
 <h3 class="text-lg font-bold text-notion-text">Share Folder</h3>
 </div>
 <p class="text-sm text-gray-500 mb-5 leading-relaxed">Inviting a user here will add them to <strong>every project</strong> currently inside this folder and give them access to the folder structure.</p>
-code
-Code
 <div class="mb-2">
         <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">User Email</label>
         <input id="folder-share-email" type="email" class="w-full p-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue transition-all" placeholder="colleague@example.com">
@@ -374,8 +367,6 @@ Code
 <h3 class="text-lg font-bold" id="bc-modal-title">Announcement</h3>
 </div>
 <p class="text-sm text-gray-500 mb-4">Send a message to project members.</p>
-code
-Code
 <div class="mb-4">
         <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Recipients</label>
         <div class="flex gap-4">
@@ -441,8 +432,6 @@ Code
 <h3 class="text-lg font-semibold text-notion-text" id="manage-team-title">Manage Team</h3>
 <button onclick="hideModal('manage-team-modal')" class="text-gray-400 hover:text-gray-600">&times;</button>
 </div>
-code
-Code
 <div class="space-y-4 mb-6">
         <div class="flex gap-2 items-end">
             <div class="flex-1">
@@ -469,6 +458,9 @@ Code
         <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-3">Members</div>
         <div id="team-members-list" class="flex flex-col gap-2 max-h-[150px] overflow-y-auto no-scrollbar bg-gray-50 rounded-lg p-2 min-h-[80px]"></div>
     </div>
+
+    <!-- Danger Zone for Team Actions -->
+    <div id="team-danger-zone" class="mt-6 pt-4 border-t border-gray-100"></div>
 </div>
 </div>
 <div id="profile-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
@@ -546,20 +538,20 @@ window.hideModal = (id) => { const m = document.getElementById(id); m.classList.
 window.toggleBcList = (show) => { document.getElementById('bc-user-list').style.display = show ? 'block' : 'none'; }
 window.playSound = () => { const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'); audio.volume = 0.5; audio.play().catch(e=>{}); }
 function linkify(text) {
-const urlRegex = /((https?://|www.)[^\s]+)/g;
+const urlRegex = /((https?:\/\/|www\.)[^\s]+)/g;
 return text.replace(urlRegex, (url) => {
 let href = url; if (!href.startsWith('http')) href = 'http://' + href;
-return <a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>;
+return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`;
 });
 }
 function notify(msg, type='info') {
 const container = document.getElementById('notification-toast-container');
 const el = document.createElement('div');
-let icon = <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>;
-if(type==='invite') icon = <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>;
-if(type==='success') icon = <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>;
+let icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+if(type==='invite') icon = `<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
+if(type==='success') icon = `<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
 el.className = "bg-white border border-gray-200 text-notion-text text-sm p-4 rounded-xl shadow-xl animate-slideIn pointer-events-auto flex items-start gap-4 w-full";
-el.innerHTML = <div class="mt-0.5 flex-shrink-0 text-notion-blue">${icon}</div><div class="flex-1"><div class="font-semibold text-gray-800">${type === 'invite' ? 'New Invitation' : (type === 'success' ? 'Success' : 'Notification')}</div><div class="text-xs text-gray-500 mt-1 leading-relaxed">${msg}</div></div>;
+el.innerHTML = `<div class="mt-0.5 flex-shrink-0 text-notion-blue">${icon}</div><div class="flex-1"><div class="font-semibold text-gray-800">${type === 'invite' ? 'New Invitation' : (type === 'success' ? 'Success' : 'Notification')}</div><div class="text-xs text-gray-500 mt-1 leading-relaxed">${msg}</div></div>`;
 container.appendChild(el);
 setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(100%)'; setTimeout(() => el.remove(), 300); }, 6000);
 }
@@ -614,7 +606,7 @@ document.getElementById('user-name').textContent = "Error Loading";
 });
 function updateUserUI() {
 document.getElementById('user-name').textContent = currentUser.displayName || currentUser.email;
-const avatarUrl = currentUser.photoURL && !currentUser.photoURL.includes('dicebear') ? currentUser.photoURL : https://api.dicebear.com/9.x/lorelei/svg?seed=${currentUser.email};
+const avatarUrl = currentUser.photoURL && !currentUser.photoURL.includes('dicebear') ? currentUser.photoURL : `https://api.dicebear.com/9.x/lorelei/svg?seed=${currentUser.email}`;
 document.getElementById('user-avatar').src = avatarUrl;
 document.getElementById('edit-profile-preview').src = avatarUrl;
 }
@@ -637,7 +629,7 @@ folderSelect.innerHTML = '<option value="">No Folder</option>';
 snap.forEach(d => {
 const fData = d.data();
 myFolders.push({id: d.id, ...fData});
-folderSelect.innerHTML += <option value="${d.id}">${fData.name} ${fData.ownerId !== currentUser.uid ? '(Shared)' : ''}</option>;
+folderSelect.innerHTML += `<option value="${d.id}">${fData.name} ${fData.ownerId !== currentUser.uid ? '(Shared)' : ''}</option>`;
 });
 loadProjects();
 });
@@ -664,8 +656,8 @@ myTeams.push({id: d.id, ...t});
 t.members.forEach(m => mentionableUsers.add(m)); // Add team members to mentions
 const div = document.createElement('div');
 div.className = "px-3 py-2 rounded-md cursor-pointer text-[14px] flex items-center gap-2.5 transition-colors text-notion-textLight hover:bg-[#EFEFEF] hover:text-notion-text";
-const img = t.logo ? <img src="${t.logo}" class="w-4 h-4 rounded-full object-cover"> : <span class="text-base">🛡️</span>;
-div.innerHTML = ${img} <span class="font-medium truncate">${t.name}</span>;
+const img = t.logo ? `<img src="${t.logo}" class="w-4 h-4 rounded-full object-cover">` : `<span class="text-base">🛡️</span>`;
+div.innerHTML = `${img} <span class="font-medium truncate">${t.name}</span>`;
 div.onclick = () => openManageTeam(d.id, t);
 list.appendChild(div);
 const opt = document.createElement('option');
@@ -685,21 +677,82 @@ window.hideModal('create-team-modal'); notify("Team created!", "success");
 });
 let managingTeamId = null;
 function openManageTeam(tid, data) {
-managingTeamId = tid;
-document.getElementById('manage-team-title').textContent = Manage ${data.name};
-document.getElementById('edit-team-name').value = data.name;
-document.getElementById('edit-team-logo').value = data.logo || "";
-const list = document.getElementById('team-members-list'); list.innerHTML = '';
-data.members.forEach(m => {
-list.innerHTML += <div class="flex justify-between p-2 text-sm text-gray-700 bg-white rounded border border-gray-100 mb-1"><span>${m}</span>${m===currentUser.email?'<span class="text-xs text-gray-400">(You)</span>':''}</div>;
-});
-if(data.pending) {
-data.pending.forEach(p => {
-list.innerHTML += <div class="flex justify-between p-2 text-sm text-gray-400 bg-white rounded border border-gray-100 border-dashed mb-1"><span>${p} (Pending)</span></div>;
-});
+    managingTeamId = tid;
+    document.getElementById('manage-team-title').textContent = `Manage ${data.name}`;
+    document.getElementById('edit-team-name').value = data.name;
+    document.getElementById('edit-team-logo').value = data.logo || "";
+    
+    const list = document.getElementById('team-members-list'); 
+    list.innerHTML = '';
+    
+    data.members.forEach(m => {
+        list.innerHTML += `<div class="flex justify-between p-2 text-sm text-gray-700 bg-white rounded border border-gray-100 mb-1"><span>${m}</span>${m===currentUser.email?'<span class="text-xs text-gray-400">(You)</span>':''}</div>`;
+    });
+    
+    if(data.pending) {
+        data.pending.forEach(p => {
+            list.innerHTML += `<div class="flex justify-between p-2 text-sm text-gray-400 bg-white rounded border border-gray-100 border-dashed mb-1"><span>${p} (Pending)</span></div>`;
+        });
+    }
+
+    // Populate Danger Zone based on role
+    const dangerZone = document.getElementById('team-danger-zone');
+    dangerZone.innerHTML = '';
+
+    if (data.ownerId === currentUser.uid) {
+        // Owner Actions: Delete (Primary) and Leave (Secondary)
+        dangerZone.innerHTML = `
+            <div class="flex justify-between items-center w-full">
+                <span class="text-xs text-red-500 font-medium uppercase tracking-wide">Danger Zone</span>
+                <div class="flex gap-2">
+                    <button onclick="window.leaveTeam('${tid}')" class="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded hover:bg-gray-200 transition-colors">Leave</button>
+                    <button onclick="window.deleteTeam('${tid}')" class="px-3 py-1.5 bg-red-50 text-red-600 text-xs font-medium rounded hover:bg-red-100 transition-colors border border-red-200">Delete Team</button>
+                </div>
+            </div>
+        `;
+    } else {
+        // Member Actions: Leave Team
+        dangerZone.innerHTML = `
+            <div class="flex justify-between items-center w-full">
+                <span class="text-xs text-gray-400 uppercase tracking-wide">Membership</span>
+                <button onclick="window.leaveTeam('${tid}')" class="px-3 py-1.5 bg-red-50 text-red-600 text-xs font-medium rounded hover:bg-red-100 transition-colors">Leave Team</button>
+            </div>
+        `;
+    }
+
+    window.showModal('manage-team-modal');
 }
-window.showModal('manage-team-modal');
+
+// New Team Action Handlers
+window.deleteTeam = async (tid) => {
+    if(confirm("Are you sure you want to delete this team? This action cannot be undone.")) {
+        try {
+            await deleteDoc(doc(db, "teams", tid));
+            window.hideModal('manage-team-modal');
+            notify("Team deleted successfully", "success");
+        } catch (e) {
+            console.error(e);
+            notify("Error deleting team", "error");
+        }
+    }
 }
+
+window.leaveTeam = async (tid) => {
+    const msg = "Are you sure you want to leave this team?";
+    if(confirm(msg)) {
+        try {
+            await updateDoc(doc(db, "teams", tid), {
+                members: arrayRemove(currentUser.email)
+            });
+            window.hideModal('manage-team-modal');
+            notify("You have left the team", "success");
+        } catch (e) {
+            console.error(e);
+            notify("Error leaving team", "error");
+        }
+    }
+}
+
 document.getElementById('btn-update-team-name').addEventListener('click', async () => {
 const newName = document.getElementById('edit-team-name').value.trim();
 if(managingTeamId && newName) { await updateDoc(doc(db, "teams", managingTeamId), { name: newName }); notify("Team name updated"); }
@@ -715,12 +768,12 @@ const ref = doc(db, "teams", managingTeamId);
 const snap = await getDoc(ref);
 if(snap.exists() && !snap.data().members.includes(email) && (!snap.data().pending || !snap.data().pending.includes(email))) {
 await updateDoc(ref, { pending: arrayUnion(email) });
-notify(Invite sent to ${email}, 'success');
+notify(`Invite sent to ${email}`, 'success');
 const uq = query(collection(db, "users"), where("email", "==", email));
 const usnap = await getDocs(uq);
 usnap.forEach(async u => {
-await addDoc(collection(db, users/${u.id}/notifications), {
-type: 'team_invite', teamId: managingTeamId, teamName: snap.data().name, title: "Team Invitation", text: You invited to team <strong>${snap.data().name}</strong>., timestamp: serverTimestamp(), read: false
+await addDoc(collection(db, `users/${u.id}/notifications`), {
+type: 'team_invite', teamId: managingTeamId, teamName: snap.data().name, title: "Team Invitation", text: `You invited to team <strong>${snap.data().name}</strong>.`, timestamp: serverTimestamp(), read: false
 });
 });
 document.getElementById('team-invite-email').value = '';
@@ -740,7 +793,7 @@ team.members.forEach(m => {
 if(!emails.includes(m)) { emails.push(m); access.push({email: m, role: 'editor'}); }
 });
 await updateDoc(ref, { memberEmails: emails, access: access });
-notify(Shared with team ${team.name}, 'success');
+notify(`Shared with team ${team.name}`, 'success');
 }
 });
 // --- PROJECTS SIDEBAR & CONTEXT MENU ---
@@ -782,14 +835,14 @@ list.appendChild(folderDiv);
 });
 // Render Unorganized
 unorganized.forEach(p => list.appendChild(createProjectEl(p)));
-if (currentProjectId) document.getElementById(proj-${currentProjectId})?.classList.add('bg-[#EFEFEF]', 'text-notion-text');
+if (currentProjectId) document.getElementById(`proj-${currentProjectId}`)?.classList.add('bg-[#EFEFEF]', 'text-notion-text');
 initialLoad = false;
 });
 }
 function createProjectEl(data) {
 const div = document.createElement('div');
-div.id = proj-${data.id};
-div.className = px-3 py-2 rounded-md cursor-pointer text-[14px] flex items-center justify-between transition-colors text-notion-textLight hover:bg-[#EFEFEF] hover:text-notion-text sidebar-item group;
+div.id = `proj-${data.id}`;
+div.className = `px-3 py-2 rounded-md cursor-pointer text-[14px] flex items-center justify-between transition-colors text-notion-textLight hover:bg-[#EFEFEF] hover:text-notion-text sidebar-item group`;
 div.innerHTML = `
 <div class="flex items-center gap-2.5 truncate" onclick="window.selectProject('${data.id}')">
 <span class="opacity-80 text-base">${data.icon || "📄"}</span>
@@ -809,16 +862,16 @@ menu.classList.remove('hidden');
 let folderOptions = '';
 myFolders.forEach(f => {
 if(f.id !== fid && f.owner === currentUser.uid) {
-folderOptions += <button onclick="window.moveProject('${pid}', '${f.id}')" class="w-full text-left px-3 py-2 hover:bg-gray-100">Move to ${f.name}</button>;
+folderOptions += `<button onclick="window.moveProject('${pid}', '${f.id}')" class="w-full text-left px-3 py-2 hover:bg-gray-100">Move to ${f.name}</button>`;
 }
 });
-if(fid) folderOptions += <button onclick="window.moveProject('${pid}', null)" class="w-full text-left px-3 py-2 hover:bg-gray-100 text-orange-600">Remove from Folder</button>;
+if(fid) folderOptions += `<button onclick="window.moveProject('${pid}', null)" class="w-full text-left px-3 py-2 hover:bg-gray-100 text-orange-600">Remove from Folder</button>`;
 let html = folderOptions;
-if(html) html += <div class="border-t border-gray-100 my-1"></div>;
+if(html) html += `<div class="border-t border-gray-100 my-1"></div>`;
 if(isOwner) {
-html += <button onclick="window.deleteProject('${pid}')" class="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600">Delete Project</button>;
+html += `<button onclick="window.deleteProject('${pid}')" class="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600">Delete Project</button>`;
 } else {
-html += <button onclick="window.leaveProject('${pid}')" class="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600">Leave Project</button>;
+html += `<button onclick="window.leaveProject('${pid}')" class="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600">Leave Project</button>`;
 }
 menu.innerHTML = html;
 };
@@ -865,7 +918,7 @@ count++;
 }
 });
 await Promise.all(updates);
-notify(Shared folder & ${count} projects with ${email}, 'success');
+notify(`Shared folder & ${count} projects with ${email}`, 'success');
 window.hideModal('share-folder-modal');
 });
 document.addEventListener('click', () => document.getElementById('sidebar-context-menu').classList.add('hidden'));
@@ -884,7 +937,7 @@ notify("Folder deleted");
 window.selectProject = async (id) => {
 if(currentProjectId === id) return;
 document.querySelectorAll('[id^="proj-"]').forEach(d => d.classList.remove('bg-[#EFEFEF]', 'text-notion-text'));
-document.getElementById(proj-${id})?.classList.add('bg-[#EFEFEF]', 'text-notion-text');
+document.getElementById(`proj-${id}`)?.classList.add('bg-[#EFEFEF]', 'text-notion-text');
 currentProjectId = id;
 document.getElementById('empty-state').classList.add('hidden');
 document.getElementById('workspace-container').classList.remove('hidden');
@@ -921,16 +974,16 @@ data.access.forEach(m => {
 mentionableUsers.add(m.email); // Ensure project members are in mentions
 if (data.access.indexOf(m) < 5) {
 const img = document.createElement('img');
-img.src = https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email};
+img.src = `https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}`;
 img.className = "w-8 h-8 rounded-full border-2 border-white bg-gray-100 -ml-2.5 first:ml-0 hover:z-10 relative transition-transform hover:scale-110";
-img.title = ${m.email} (${m.role});
+img.title = `${m.email} (${m.role})`;
 ac.appendChild(img);
 }
 if(m.email !== currentUser.email) {
 const opt = document.createElement('option');
 opt.value = m.email; opt.textContent = m.email.split('@')[0];
 recipientSelect.appendChild(opt);
-bcList.innerHTML += <label class="flex items-center gap-2 p-1 hover:bg-gray-100 rounded text-xs"><input type="checkbox" value="${m.email}" class="bc-target-user"> ${m.email}</label>;
+bcList.innerHTML += `<label class="flex items-center gap-2 p-1 hover:bg-gray-100 rounded text-xs"><input type="checkbox" value="${m.email}" class="bc-target-user"> ${m.email}</label>`;
 }
 });
 renderMembersList(data.access, data.ownerId === currentUser.uid);
@@ -949,7 +1002,7 @@ window.formatDoc = (cmd) => { document.execCommand(cmd, false, null); document.g
 window.openLinkModal = () => { const sel = window.getSelection().toString(); document.getElementById('link-text-input').value = sel || "Link"; document.getElementById('link-url-input').value = ""; window.showModal('link-modal'); };
 document.getElementById('btn-confirm-link').addEventListener('click', () => {
 const text = document.getElementById('link-text-input').value; const url = document.getElementById('link-url-input').value;
-if(text && url) { document.getElementById('doc-content').focus(); document.execCommand('insertHTML', false, <a href="${url}" target="_blank">${text}</a>); }
+if(text && url) { document.getElementById('doc-content').focus(); document.execCommand('insertHTML', false, `<a href="${url}" target="_blank">${text}</a>`); }
 window.hideModal('link-modal');
 });
 // --- SLASH COMMANDS LOGIC ---
@@ -961,8 +1014,8 @@ const sel = window.getSelection();
 if(sel.rangeCount > 0) {
 const range = sel.getRangeAt(0);
 const rect = range.getBoundingClientRect();
-slashMenu.style.left = ${rect.left}px;
-slashMenu.style.top = ${rect.bottom + 10}px;
+slashMenu.style.left = `${rect.left}px`;
+slashMenu.style.top = `${rect.bottom + 10}px`;
 slashMenu.classList.remove('hidden');
 }
 } else {
@@ -977,10 +1030,10 @@ contentInput.focus();
 document.execCommand('delete', false, null);
 document.getElementById('ai-indicator').classList.remove('hidden');
 const context = contentInput.innerText;
-const prompt = Act as a professional writing assistant. ${command}: ${context.substring(0, 1000)};
+const prompt = `Act as a professional writing assistant. ${command}: ${context.substring(0, 1000)}`;
 try {
 const result = await fetchAI(prompt, "");
-document.execCommand('insertHTML', false, ${result});
+document.execCommand('insertHTML', false, `${result}`);
 } catch(e) { notify("AI failed to respond", "error"); }
 document.getElementById('ai-indicator').classList.add('hidden');
 };
@@ -998,8 +1051,8 @@ const rect = range.getBoundingClientRect();
 if (rect.width === 0) return;
 // Store range so we can restore it when clicking the AI button
 currentSelectionRange = range.cloneRange();
-menu.style.left = ${rect.left + (rect.width / 2) - 100}px;
-menu.style.top = ${rect.top - 50}px;
+menu.style.left = `${rect.left + (rect.width / 2) - 100}px`;
+menu.style.top = `${rect.top - 50}px`;
 menu.classList.remove('hidden');
 });
 window.handleAIEdit = async () => {
@@ -1059,7 +1112,7 @@ const container = document.getElementById('editor-container');
 container.addEventListener('mousemove', throttle((e) => {}, 200));
 contentInput.addEventListener('keyup', updateMyPresence);
 contentInput.addEventListener('click', updateMyPresence);
-const presenceRef = collection(db, projects/${pid}/presence);
+const presenceRef = collection(db, `projects/${pid}/presence`);
 unsubscribePresence = onSnapshot(presenceRef, (snap) => {
 const layer = document.getElementById('remote-cursors-layer'); layer.innerHTML = '';
 snap.forEach(d => {
@@ -1079,7 +1132,7 @@ if(sel.rangeCount > 0) {
 const range = sel.getRangeAt(0); const rect = range.getBoundingClientRect(); const containerRect = document.getElementById('editor-container').getBoundingClientRect();
 const x = rect.left - containerRect.left + document.getElementById('editor-container').scrollLeft;
 const y = rect.top - containerRect.top + document.getElementById('editor-container').scrollTop;
-setDoc(doc(db, projects/${currentProjectId}/presence, currentUser.uid), { name: currentUser.displayName || "User", color: myColor, x: x, y: y, timestamp: Date.now() });
+setDoc(doc(db, `projects/${currentProjectId}/presence`, currentUser.uid), { name: currentUser.displayName || "User", color: myColor, x: x, y: y, timestamp: Date.now() });
 }
 }
 function throttle(func, limit) { let inThrottle; return function() { const args = arguments; const context = this; if (!inThrottle) { func.apply(context, args); inThrottle = true; setTimeout(() => inThrottle = false, limit); }}}
@@ -1109,7 +1162,7 @@ const batchPromises = recipients.map(async (email) => {
 const uq = query(collection(db, "users"), where("email", "==", email));
 const usnap = await getDocs(uq);
 usnap.forEach(async u => {
-await addDoc(collection(db, users/${u.id}/notifications), {
+await addDoc(collection(db, `users/${u.id}/notifications`), {
 type: 'broadcast',
 text: text,
 senderId: currentUser.uid,
@@ -1136,7 +1189,7 @@ if(lastWord.startsWith('@') && lastWord.length > 1) {
 const query = lastWord.substring(1).toLowerCase();
 const matches = Array.from(mentionableUsers).filter(m => m.toLowerCase().includes(query));
 if(matches.length > 0) {
-mentionBox.innerHTML = matches.map(m => <div class="p-2 hover:bg-gray-100 cursor-pointer text-xs" onclick="window.insertMention('${m}')">${m}</div>).join('');
+mentionBox.innerHTML = matches.map(m => `<div class="p-2 hover:bg-gray-100 cursor-pointer text-xs" onclick="window.insertMention('${m}')">${m}</div>`).join('');
 mentionBox.classList.remove('hidden');
 } else {
 mentionBox.classList.add('hidden');
@@ -1149,7 +1202,7 @@ window.insertMention = (email) => {
 const val = chatInput.value;
 const words = val.split(' ');
 words.pop();
-chatInput.value = words.join(' ') + @${email};
+chatInput.value = words.join(' ') + ` @${email} `;
 mentionBox.classList.add('hidden');
 chatInput.focus();
 };
@@ -1166,18 +1219,18 @@ document.getElementById('btn-delete-all').classList.toggle('hidden', !isSender);
 };
 document.getElementById('btn-delete-me').addEventListener('click', async () => {
 if(!selectedMsgId) return;
-await updateDoc(doc(db, projects/${currentProjectId}/messages, selectedMsgId), { hiddenBy: arrayUnion(currentUser.uid) });
+await updateDoc(doc(db, `projects/${currentProjectId}/messages`, selectedMsgId), { hiddenBy: arrayUnion(currentUser.uid) });
 document.getElementById('msg-context-menu').classList.add('hidden');
 });
 document.getElementById('btn-delete-all').addEventListener('click', async () => {
 if(!selectedMsgId) return;
-await deleteDoc(doc(db, projects/${currentProjectId}/messages, selectedMsgId));
+await deleteDoc(doc(db, `projects/${currentProjectId}/messages`, selectedMsgId));
 document.getElementById('msg-context-menu').classList.add('hidden');
 });
 document.addEventListener('click', () => { document.getElementById('msg-context-menu').classList.add('hidden'); });
 function loadChat(pid) {
 if(unsubscribeChat) unsubscribeChat();
-unsubscribeChat = onSnapshot(query(collection(db, projects/${pid}/messages), orderBy("timestamp", "asc")), (snap) => {
+unsubscribeChat = onSnapshot(query(collection(db, `projects/${pid}/messages`), orderBy("timestamp", "asc")), (snap) => {
 const div = document.getElementById('chat-messages'); div.innerHTML = '';
 snap.forEach(d => {
 const m = d.data();
@@ -1185,23 +1238,23 @@ if(m.hiddenBy && m.hiddenBy.includes(currentUser.uid)) return;
 if(m.to && m.to !== 'all') { if(m.to !== currentUser.email && m.senderId !== currentUser.uid) return; }
 const isMe = m.senderId === currentUser.uid;
 const wrap = document.createElement('div');
-wrap.className = flex flex-col ${isMe ? 'items-end' : 'items-start'} group relative chat-row mb-1;
+wrap.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} group relative chat-row mb-1`;
 let bubbleClass = isMe ? 'bg-[#EBF5FE] text-notion-text' : 'bg-white border border-gray-200 text-notion-text';
 let extraLabel = '';
-if(m.to && m.to !== 'all') { bubbleClass = 'bg-purple-50 text-purple-900 border border-purple-100'; extraLabel = <span class="text-[9px] bg-purple-200 text-purple-800 px-1 rounded ml-1">Private</span>; }
+if(m.to && m.to !== 'all') { bubbleClass = 'bg-purple-50 text-purple-900 border border-purple-100'; extraLabel = `<span class="text-[9px] bg-purple-200 text-purple-800 px-1 rounded ml-1">Private</span>`; }
 let content = linkify(m.text);
-const mentionRegex = new RegExp(@${currentUser.displayName}|@${currentUser.email}, 'gi');
+const mentionRegex = new RegExp(`@${currentUser.displayName}|@${currentUser.email}`, 'gi');
 if(!isMe && m.text.match(mentionRegex)) {
-content = content.replace(mentionRegex, (match) => <span class="mention-highlight">${match}</span>);
+content = content.replace(mentionRegex, (match) => `<span class="mention-highlight">${match}</span>`);
 const msgTime = m.timestamp ? m.timestamp.toDate() : new Date();
 if(new Date() - msgTime < 10000) {
 window.playSound();
-notify(You were mentioned by ${m.senderName}, 'info');
+notify(`You were mentioned by ${m.senderName}`, 'info');
 }
 }
 // Chat Actions Buttons (Three Dots Menu Style)
-const menuTrigger = <button onclick="window.openMsgMenu(event, '${d.id}', ${isMe})" class="absolute top-1/2 -translate-y-1/2 ${isMe ? '-left-6' : '-right-6'} chat-actions text-gray-400 hover:text-gray-600 px-1 text-lg leading-none">⋮</button>;
-wrap.innerHTML = ${menuTrigger}<div class="text-[10px] text-gray-400 ml-1 mb-0.5 flex items-center">${m.senderName} ${extraLabel}</div><div class="px-3.5 py-2.5 rounded-xl text-[14px] max-w-[90%] ${bubbleClass} shadow-sm leading-relaxed chat-content relative">${content}</div>;
+const menuTrigger = `<button onclick="window.openMsgMenu(event, '${d.id}', ${isMe})" class="absolute top-1/2 -translate-y-1/2 ${isMe ? '-left-6' : '-right-6'} chat-actions text-gray-400 hover:text-gray-600 px-1 text-lg leading-none">⋮</button>`;
+wrap.innerHTML = `${menuTrigger}<div class="text-[10px] text-gray-400 ml-1 mb-0.5 flex items-center">${m.senderName} ${extraLabel}</div><div class="px-3.5 py-2.5 rounded-xl text-[14px] max-w-[90%] ${bubbleClass} shadow-sm leading-relaxed chat-content relative">${content}</div>`;
 div.appendChild(wrap);
 });
 div.scrollTop = div.scrollHeight;
@@ -1212,7 +1265,7 @@ e.preventDefault();
 const inp = document.getElementById('chat-input');
 const recipient = document.getElementById('chat-recipient').value;
 if(!inp.value.trim()) return;
-addDoc(collection(db, projects/${currentProjectId}/messages), {
+addDoc(collection(db, `projects/${currentProjectId}/messages`), {
 text: inp.value.trim(),
 senderId: currentUser.uid,
 senderName: currentUser.displayName||"User",
@@ -1224,13 +1277,13 @@ inp.value = '';
 });
 function loadComments(pid) {
 if(unsubscribeComments) unsubscribeComments();
-unsubscribeComments = onSnapshot(query(collection(db, projects/${pid}/comments), orderBy("timestamp", "asc")), (snap) => { const div = document.getElementById('comments-list'); div.innerHTML = ''; snap.forEach(d => { const c = d.data(); const item = document.createElement('div'); item.className = "flex gap-3 items-start p-3 bg-gray-50/80 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"; item.innerHTML = <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=${c.senderEmail}" class="w-6 h-6 rounded-full mt-1 border border-black/5"><div class="flex-1 min-w-0"><div class="flex justify-between items-center"><span class="text-[12px] font-bold text-gray-800">${c.senderName}</span><span class="text-[10px] text-gray-400">${c.timestamp?.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) || ''}</span></div><div class="text-[14px] text-notion-text mt-1 chat-content break-words">${linkify(c.text)}</div></div>; div.appendChild(item); }); div.scrollTop = div.scrollHeight; });
+unsubscribeComments = onSnapshot(query(collection(db, `projects/${pid}/comments`), orderBy("timestamp", "asc")), (snap) => { const div = document.getElementById('comments-list'); div.innerHTML = ''; snap.forEach(d => { const c = d.data(); const item = document.createElement('div'); item.className = "flex gap-3 items-start p-3 bg-gray-50/80 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"; item.innerHTML = `<img src="https://api.dicebear.com/9.x/lorelei/svg?seed=${c.senderEmail}" class="w-6 h-6 rounded-full mt-1 border border-black/5"><div class="flex-1 min-w-0"><div class="flex justify-between items-center"><span class="text-[12px] font-bold text-gray-800">${c.senderName}</span><span class="text-[10px] text-gray-400">${c.timestamp?.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) || ''}</span></div><div class="text-[14px] text-notion-text mt-1 chat-content break-words">${linkify(c.text)}</div></div>`; div.appendChild(item); }); div.scrollTop = div.scrollHeight; });
 }
-document.getElementById('comments-form').addEventListener('submit', async (e) => { e.preventDefault(); const inp = document.getElementById('comment-input'); if(!inp.value.trim()) return; addDoc(collection(db, projects/${currentProjectId}/comments), { text: inp.value.trim(), senderId: currentUser.uid, senderEmail: currentUser.email, senderName: currentUser.displayName||"User", timestamp: serverTimestamp() }); inp.value = ''; });
+document.getElementById('comments-form').addEventListener('submit', async (e) => { e.preventDefault(); const inp = document.getElementById('comment-input'); if(!inp.value.trim()) return; addDoc(collection(db, `projects/${currentProjectId}/comments`), { text: inp.value.trim(), senderId: currentUser.uid, senderEmail: currentUser.email, senderName: currentUser.displayName||"User", timestamp: serverTimestamp() }); inp.value = ''; });
 // --- REMINDERS WITH OVERLAY & SYSTEM NOTIFICATION ---
 function loadReminders(pid) {
 if(unsubscribeReminders) unsubscribeReminders();
-unsubscribeReminders = onSnapshot(query(collection(db, projects/${pid}/reminders), orderBy("due", "asc")), (snap) => {
+unsubscribeReminders = onSnapshot(query(collection(db, `projects/${pid}/reminders`), orderBy("due", "asc")), (snap) => {
 const div = document.getElementById('reminder-list'); div.innerHTML = ''; activeReminders = [];
 if(snap.empty) div.innerHTML = '<div class="text-center text-xs text-gray-400 py-6">No upcoming events</div>';
 snap.forEach(d => {
@@ -1238,8 +1291,8 @@ const r = d.data(); const dateObj = r.due ? r.due.toDate() : new Date(); activeR
 const item = document.createElement('div');
 item.className = "flex items-center p-3 bg-blue-50/30 border border-blue-100 rounded-lg hover:bg-blue-50/60 transition relative group reminder-item";
 // reminder-actions for hover logic
-const del = document.createElement('button'); del.className="absolute top-1.5 right-1.5 text-gray-300 hover:text-red-500 reminder-actions p-1"; del.innerHTML = "×"; del.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, projects/${pid}/reminders, d.id)); };
-item.innerHTML = <div class="w-12 text-center leading-tight mr-4 border-r border-blue-100 pr-4"><div class="text-[10px] text-blue-600 uppercase font-bold tracking-wide">${dateObj.toLocaleString('default', {month:'short'})}</div><div class="text-xl font-bold text-gray-800">${dateObj.getDate()}</div></div><div class="flex-1"><div class="text-[14px] font-semibold text-notion-text">${r.title}</div><div class="text-[12px] text-gray-500 mt-0.5">${dateObj.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} • ${r.addedBy}</div></div>; item.appendChild(del); div.appendChild(item);
+const del = document.createElement('button'); del.className="absolute top-1.5 right-1.5 text-gray-300 hover:text-red-500 reminder-actions p-1"; del.innerHTML = "×"; del.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `projects/${pid}/reminders`, d.id)); };
+item.innerHTML = `<div class="w-12 text-center leading-tight mr-4 border-r border-blue-100 pr-4"><div class="text-[10px] text-blue-600 uppercase font-bold tracking-wide">${dateObj.toLocaleString('default', {month:'short'})}</div><div class="text-xl font-bold text-gray-800">${dateObj.getDate()}</div></div><div class="flex-1"><div class="text-[14px] font-semibold text-notion-text">${r.title}</div><div class="text-[12px] text-gray-500 mt-0.5">${dateObj.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} • ${r.addedBy}</div></div>`; item.appendChild(del); div.appendChild(item);
 });
 });
 }
@@ -1262,10 +1315,10 @@ notifiedReminders.add(r.id);
 }
 });
 }
-document.getElementById('reminder-form').addEventListener('submit', async (e) => { e.preventDefault(); const title = document.getElementById('rem-title').value; const date = document.getElementById('rem-date').value; const time = document.getElementById('rem-time').value; if(!title || !date || !time) return; const due = new Date(${date}T${time}); await addDoc(collection(db, projects/${currentProjectId}/reminders), { title, due, addedBy: currentUser.displayName || "User", timestamp: serverTimestamp() }); document.getElementById('reminder-form').reset(); });
+document.getElementById('reminder-form').addEventListener('submit', async (e) => { e.preventDefault(); const title = document.getElementById('rem-title').value; const date = document.getElementById('rem-date').value; const time = document.getElementById('rem-time').value; if(!title || !date || !time) return; const due = new Date(`${date}T${time}`); await addDoc(collection(db, `projects/${currentProjectId}/reminders`), { title, due, addedBy: currentUser.displayName || "User", timestamp: serverTimestamp() }); document.getElementById('reminder-form').reset(); });
 // --- AI ---
-async function fetchAI(prompt, context) { try { const clean = encodeURIComponent(Context: ${context.substring(0,500)}...\nQ: ${prompt}); const res = await fetch(https://text.pollinations.ai/${clean}); if(!res.ok) throw new Error(); return await res.text(); } catch(e) { return "AI Unavailable"; } }
-document.getElementById('ai-form').addEventListener('submit', async(e)=>{ e.preventDefault(); const inp = document.getElementById('ai-input'); const txt = inp.value.trim(); if(!txt) return; const div = document.getElementById('ai-messages'); div.innerHTML += <div class="flex flex-col items-end"><div class="bg-gray-100 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text shadow-sm">${txt}</div></div>; inp.value = ''; div.scrollTop = div.scrollHeight; const resp = await fetchAI(txt, document.getElementById('doc-content').innerText); div.innerHTML += <div class="flex flex-col items-start"><div class="bg-purple-50 border border-purple-100 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text leading-relaxed shadow-sm">${resp}</div></div>; div.scrollTop = div.scrollHeight; });
+async function fetchAI(prompt, context) { try { const clean = encodeURIComponent(`Context: ${context.substring(0,500)}...\nQ: ${prompt}`); const res = await fetch(`https://text.pollinations.ai/${clean}`); if(!res.ok) throw new Error(); return await res.text(); } catch(e) { return "AI Unavailable"; } }
+document.getElementById('ai-form').addEventListener('submit', async(e)=>{ e.preventDefault(); const inp = document.getElementById('ai-input'); const txt = inp.value.trim(); if(!txt) return; const div = document.getElementById('ai-messages'); div.innerHTML += `<div class="flex flex-col items-end"><div class="bg-gray-100 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text shadow-sm">${txt}</div></div>`; inp.value = ''; div.scrollTop = div.scrollHeight; const resp = await fetchAI(txt, document.getElementById('doc-content').innerText); div.innerHTML += `<div class="flex flex-col items-start"><div class="bg-purple-50 border border-purple-100 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text leading-relaxed shadow-sm">${resp}</div></div>`; div.scrollTop = div.scrollHeight; });
 // --- PROFILE ---
 const btnSettings = document.getElementById('btn-settings'); btnSettings.addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('edit-display-name').value = currentUser.displayName || ""; window.showModal('profile-modal'); });
 document.getElementById('btn-cancel-profile').addEventListener('click', () => window.hideModal('profile-modal'));
@@ -1274,7 +1327,7 @@ document.getElementById('btn-save-profile').addEventListener('click', async () =
 document.getElementById('btn-notifications').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('notification-popover').classList.toggle('hidden'); document.getElementById('notif-badge').classList.add('hidden'); });
 document.addEventListener('click', (e) => { if(!document.getElementById('btn-notifications').contains(e.target) && !document.getElementById('notification-popover').contains(e.target)) { document.getElementById('notification-popover').classList.add('hidden'); } });
 function loadUserNotifications() {
-const q = query(collection(db, users/${currentUser.uid}/notifications), orderBy('timestamp', 'desc'));
+const q = query(collection(db, `users/${currentUser.uid}/notifications`), orderBy('timestamp', 'desc'));
 unsubscribeNotifs = onSnapshot(q, (snap) => {
 const list = document.getElementById('notification-list');
 if(snap.empty) { list.innerHTML = '<div class="p-8 text-center text-gray-400 text-sm italic">No new notifications</div>'; return; }
@@ -1291,7 +1344,7 @@ document.getElementById('broadcast-receive-overlay').classList.remove('hidden');
 if (Notification.permission === "granted") {
 new Notification("Announcement", { body: n.text, icon: "https://i.imghippo.com/files/vgr8207c.png" });
 }
-updateDoc(doc(db, users/${currentUser.uid}/notifications, change.doc.id), { read: true });
+updateDoc(doc(db, `users/${currentUser.uid}/notifications`, change.doc.id), { read: true });
 }
 }
 });
@@ -1300,16 +1353,16 @@ const n = d.data();
 const item = document.createElement('div');
 item.className = "p-4 border-b border-gray-50 hover:bg-gray-50 text-sm flex gap-3 relative group transition-colors";
 const delBtn = document.createElement('button'); delBtn.className = "absolute top-2 right-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"; delBtn.innerHTML = "×";
-delBtn.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, users/${currentUser.uid}/notifications, d.id)); };
+delBtn.onclick = (e) => { e.stopPropagation(); deleteDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id)); };
 let icon = n.read ? '<div class="w-2.5 h-2.5 rounded-full bg-transparent mt-1.5 flex-shrink-0"></div>' : '<div class="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0 shadow-sm border border-white"></div>';
 if(!n.read) hasUnread = true;
 let actions = '';
 if(n.type === 'team_invite') {
-actions = <div class="mt-2 flex gap-2"><button onclick="window.acceptTeam('${n.teamId}', '${d.id}')" class="px-3 py-1 bg-blue-600 text-white rounded text-xs">Accept</button><button onclick="window.declineTeam('${d.id}')" class="px-3 py-1 bg-gray-200 text-gray-700 rounded text-xs">Decline</button></div>;
+actions = `<div class="mt-2 flex gap-2"><button onclick="window.acceptTeam('${n.teamId}', '${d.id}')" class="px-3 py-1 bg-blue-600 text-white rounded text-xs">Accept</button><button onclick="window.declineTeam('${d.id}')" class="px-3 py-1 bg-gray-200 text-gray-700 rounded text-xs">Decline</button></div>`;
 }
-item.innerHTML = ${icon}<div class="flex-1 pr-4"><div class="font-semibold text-notion-text leading-tight text-[14px]">${n.title || (n.type === 'broadcast' ? 'Announcement' : 'Notification')}</div><div class="text-gray-500 mt-1 leading-relaxed text-[13px]">${n.text}</div>${actions}<div class="text-[11px] text-gray-400 mt-2 font-medium">${n.timestamp?.toDate().toLocaleDateString() || ""}</div></div>;
+item.innerHTML = `${icon}<div class="flex-1 pr-4"><div class="font-semibold text-notion-text leading-tight text-[14px]">${n.title || (n.type === 'broadcast' ? 'Announcement' : 'Notification')}</div><div class="text-gray-500 mt-1 leading-relaxed text-[13px]">${n.text}</div>${actions}<div class="text-[11px] text-gray-400 mt-2 font-medium">${n.timestamp?.toDate().toLocaleDateString() || ""}</div></div>`;
 item.appendChild(delBtn); list.appendChild(item);
-if(!n.read && n.type !== 'broadcast') { updateDoc(doc(db, users/${currentUser.uid}/notifications, d.id), { read: true }); }
+if(!n.read && n.type !== 'broadcast') { updateDoc(doc(db, `users/${currentUser.uid}/notifications`, d.id), { read: true }); }
 });
 if(hasUnread) document.getElementById('notif-badge').classList.remove('hidden');
 });
@@ -1317,10 +1370,10 @@ if(hasUnread) document.getElementById('notif-badge').classList.remove('hidden');
 window.acceptTeam = async (tid, nid) => {
 const ref = doc(db, "teams", tid);
 await updateDoc(ref, { pending: arrayRemove(currentUser.email), members: arrayUnion(currentUser.email) });
-await deleteDoc(doc(db, users/${currentUser.uid}/notifications, nid));
+await deleteDoc(doc(db, `users/${currentUser.uid}/notifications`, nid));
 notify("Joined team!", "success");
 };
-window.declineTeam = async (nid) => { await deleteDoc(doc(db, users/${currentUser.uid}/notifications, nid)); notify("Invite declined"); };
+window.declineTeam = async (nid) => { await deleteDoc(doc(db, `users/${currentUser.uid}/notifications`, nid)); notify("Invite declined"); };
 // --- CREATE & SHARE ---
 [document.getElementById('trigger-create-project'), document.getElementById('btn-create-empty')].forEach(b => b.addEventListener('click', ()=>window.showModal('create-modal')));
 document.getElementById('btn-cancel-create').addEventListener('click', ()=>window.hideModal('create-modal'));
@@ -1344,13 +1397,13 @@ document.getElementById('btn-copy-link').addEventListener('click', () => { if(!c
 function renderMembersList(access, isOwner) {
 const d = document.getElementById('members-list'); d.innerHTML = '';
 access.forEach(m => {
-let roleDisplay = <span class="text-[11px] text-gray-400 capitalize font-medium">${m.role}</span>;
+let roleDisplay = `<span class="text-[11px] text-gray-400 capitalize font-medium">${m.role}</span>`;
 let actions = '';
 if(isOwner && m.email !== currentUser.email) {
-roleDisplay = <select onchange="window.updateMemberRole('${m.email}', this.value)" class="text-[11px] bg-transparent border-none outline-none text-gray-500 font-medium cursor-pointer hover:text-gray-800"><option value="editor" ${m.role==='editor'?'selected':''}>Editor</option><option value="commenter" ${m.role==='commenter'?'selected':''}>Commenter</option><option value="viewer" ${m.role==='viewer'?'selected':''}>Viewer</option></select>;
-actions = <button class="text-xs text-red-400 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors" onclick="window.removeMember('${m.email}', '${currentProjectId}')">Remove</button>;
-} else if(m.role === 'owner') roleDisplay = <span class="text-[11px] text-notion-blue font-bold uppercase tracking-wider">Owner</span>;
-d.innerHTML += <div class="flex justify-between items-center p-2.5 hover:bg-gray-50 rounded-lg border border-transparent hover:border-gray-100 transition-all group"><div class="flex items-center gap-3"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}" class="w-8 h-8 rounded-full bg-white border border-gray-200"><div class="flex flex-col"><span class="text-sm font-semibold text-notion-text">${m.email}</span>${roleDisplay}</div></div>${actions}</div>;
+roleDisplay = `<select onchange="window.updateMemberRole('${m.email}', this.value)" class="text-[11px] bg-transparent border-none outline-none text-gray-500 font-medium cursor-pointer hover:text-gray-800"><option value="editor" ${m.role==='editor'?'selected':''}>Editor</option><option value="commenter" ${m.role==='commenter'?'selected':''}>Commenter</option><option value="viewer" ${m.role==='viewer'?'selected':''}>Viewer</option></select>`;
+actions = `<button class="text-xs text-red-400 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors" onclick="window.removeMember('${m.email}', '${currentProjectId}')">Remove</button>`;
+} else if(m.role === 'owner') roleDisplay = `<span class="text-[11px] text-notion-blue font-bold uppercase tracking-wider">Owner</span>`;
+d.innerHTML += `<div class="flex justify-between items-center p-2.5 hover:bg-gray-50 rounded-lg border border-transparent hover:border-gray-100 transition-all group"><div class="flex items-center gap-3"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}" class="w-8 h-8 rounded-full bg-white border border-gray-200"><div class="flex flex-col"><span class="text-sm font-semibold text-notion-text">${m.email}</span>${roleDisplay}</div></div>${actions}</div>`;
 });
 }
 document.getElementById('btn-send-invite').addEventListener('click', async()=>{
@@ -1358,20 +1411,20 @@ const email = document.getElementById('invite-email').value; const role = docume
 const ref = doc(db, "projects", currentProjectId); const snap = await getDoc(ref);
 if(snap.exists() && !snap.data().access.find(a=>a.email===email)) {
 await updateDoc(ref, { memberEmails: arrayUnion(email), access: arrayUnion({email, role}) });
-notify(Invited ${email}, 'success');
+notify(`Invited ${email}`, 'success');
 const usersQ = query(collection(db, "users"), where("email", "==", email)); const userSnap = await getDocs(usersQ);
-if(!userSnap.empty) { userSnap.forEach(async (u) => { await addDoc(collection(db, users/${u.id}/notifications), { title: "Project Invitation", text: You were invited to join <strong>${snap.data().title || "a project"}</strong> as ${role}., timestamp: serverTimestamp(), read: false }); }); }
+if(!userSnap.empty) { userSnap.forEach(async (u) => { await addDoc(collection(db, `users/${u.id}/notifications`), { title: "Project Invitation", text: `You were invited to join <strong>${snap.data().title || "a project"}</strong> as ${role}.`, timestamp: serverTimestamp(), read: false }); }); }
 document.getElementById('invite-email').value = '';
 } else { notify("User already exists or error", "error"); }
 });
 window.updateMemberRole = async (email, newRole) => {
 const ref = doc(db, "projects", currentProjectId); const snap = await getDoc(ref); if(!snap.exists()) return;
 let access = snap.data().access; access = access.map(m => m.email === email ? { ...m, role: newRole } : m);
-await updateDoc(ref, { access }); notify(Updated ${email} to ${newRole}, 'success');
+await updateDoc(ref, { access }); notify(`Updated ${email} to ${newRole}`, 'success');
 };
 window.removeMember = async (email, pid) => {
 if(!pid) pid = currentProjectId;
-if(!confirm(Remove/Leave ${email}?)) return;
+if(!confirm(`Remove/Leave ${email}?`)) return;
 const ref = doc(db, "projects", pid); const snap = await getDoc(ref);
 const access = snap.data().access.filter(a=>a.email!==email); const emails = snap.data().memberEmails.filter(e=>e!==email);
 await updateDoc(ref, {access, memberEmails: emails});

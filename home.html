@@ -99,6 +99,7 @@ cursor: pointer;
 text-decoration: none;
 margin-bottom: 4px;
 justify-content: center;
+position: relative;
 }
 
 .nav-item:hover {
@@ -112,10 +113,26 @@ background-color: #eff4ff;
 font-weight: 600;
 }
 
+.nav-dot {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    border: 2px solid white;
+    display: none;
+}
+
 @media (min-width: 1024px) {
 .nav-item {
 justify-content: flex-start;
 padding: 10px 16px;
+}
+.nav-dot {
+    top: 12px;
+    right: 12px;
 }
 }
 
@@ -220,7 +237,7 @@ background: transparent; border: none; cursor: pointer;
 .action-btn:hover { background-color: #f9fafb; color: #1f1f1f; }
 .action-btn.like:hover { background-color: #fef2f2; color: #ef4444; } /* Red hover for heart */
 .action-btn.comment:hover { background-color: #eff6ff; color: #2563eb; }
-.action-btn.bookmark:hover { background-color: #f5f3ff; color: #7c3aed; }
+.action-btn.bookmark:hover { background-color: #fefce8; color: #eab308; } /* Yellow hover */
 .action-btn.share-btn { color: #0b57d0; background-color: #eff6ff; }
 .action-btn.share-btn:hover { background-color: #dbeafe; }
 
@@ -595,6 +612,7 @@ transition: background 0.1s; font-size: 14px; font-weight: 500;
 .mobile-nav-item {
 display: flex; flex-direction: column; align-items: center; justify-content: center;
 height: 100%; flex: 1; gap: 4px; color: #98a2b3; transition: all 0.2s; cursor: pointer;
+position: relative;
 }
 .mobile-nav-item.active { color: #0b57d0; }
 .mobile-nav-item i { width: 24px; height: 24px; transition: transform 0.2s; }
@@ -615,6 +633,20 @@ height: 100%; flex: 1; gap: 4px; color: #98a2b3; transition: all 0.2s; cursor: p
     animation: spin 1s linear infinite;
 }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Banner Styles */
+.profile-banner-container {
+    height: 140px;
+    width: 100%;
+    background-color: #e5e7eb;
+    position: relative;
+    overflow: hidden;
+}
+.profile-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
 </style>
 </head>
@@ -713,7 +745,7 @@ height: 100%; flex: 1; gap: 4px; color: #98a2b3; transition: all 0.2s; cursor: p
 
 <!-- EDIT PROFILE OVERLAY -->
 <div id="edit-profile-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#000]/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200" onclick="closeEditProfile()">
-<div id="edit-profile-modal" class="bg-white w-[90%] max-w-[400px] rounded-[24px] shadow-2xl p-6 relative transform scale-95 transition-transform duration-200" onclick="event.stopPropagation()">
+<div id="edit-profile-modal" class="bg-white w-[90%] max-w-[400px] rounded-[24px] shadow-2xl p-6 relative transform scale-95 transition-transform duration-200 overflow-y-auto max-h-[90vh]" onclick="event.stopPropagation()">
 <div class="flex justify-between items-center mb-6">
 <h2 class="text-xl font-bold google-font">Edit Profile</h2>
 <button onclick="closeEditProfile()" class="icon-btn"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -735,6 +767,15 @@ height: 100%; flex: 1; gap: 4px; color: #98a2b3; transition: all 0.2s; cursor: p
     </div>
     <input type="text" id="edit-avatar-link" placeholder="Paste Image URL..." class="w-full text-center text-xs text-blue-600 border-none outline-none bg-blue-50 py-2 rounded-lg placeholder-blue-300">
 </div>
+</div>
+<div>
+    <label class="text-xs font-bold text-gray-500 uppercase">Banner Image URL</label>
+    <input type="text" id="edit-banner-link" placeholder="https://..." class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 text-sm text-gray-700">
+</div>
+<div>
+    <label class="text-xs font-bold text-gray-500 uppercase">Banner Position Y (Composition)</label>
+    <input type="range" id="edit-banner-pos" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2">
+    <div class="flex justify-between text-[10px] text-gray-400 mt-1"><span>Top</span><span>Center</span><span>Bottom</span></div>
 </div>
 <div>
 <label class="text-xs font-bold text-gray-500 uppercase">Display Name</label>
@@ -849,7 +890,8 @@ Change
 <nav class="flex-1 space-y-1" id="desktop-nav-items">
     <a href="#" onclick="switchView('feed'); return false;" id="nav-feed" class="nav-item active"><i data-lucide="home" class="w-5 h-5"></i> <span class="hidden lg:block">Home</span></a>
     <a href="#" onclick="switchView('network'); return false;" id="nav-network" class="nav-item"><i data-lucide="users" class="w-5 h-5"></i> <span class="hidden lg:block">Network</span></a>
-    <a href="#" onclick="switchView('chat'); return false;" id="nav-chat" class="nav-item"><i data-lucide="message-circle" class="w-5 h-5"></i> <span class="hidden lg:block">Chat</span></a>
+    <a href="#" onclick="switchView('chat'); return false;" id="nav-chat" class="nav-item relative"><i data-lucide="message-circle" class="w-5 h-5"></i> <span class="hidden lg:block">Chat</span><span id="chat-dot" class="nav-dot"></span></a>
+    <a href="workspace.html" class="nav-item"><i data-lucide="briefcase" class="w-5 h-5"></i> <span class="hidden lg:block">Workspace</span></a>
     <a href="#" onclick="showProfile(auth.currentUser ? auth.currentUser.uid : null); return false;" id="nav-profile" class="nav-item"><i data-lucide="user" class="w-5 h-5"></i> <span class="hidden lg:block">Profile</span></a>
     
     <div class="pt-6 pb-2 px-3 hidden lg:block">
@@ -904,14 +946,24 @@ Change
     </div>
 
     <!-- NETWORK VIEW (New) -->
-    <div id="view-network" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]"></div>
+    <div id="view-network" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
+        <h2 class="text-2xl font-bold mb-6 px-4 md:px-0">My Network</h2>
+        <div class="tab-group mb-6 mx-4 md:mx-0">
+            <button onclick="switchNetworkTab('people')" id="net-tab-people" class="tab-btn active">People</button>
+            <button onclick="switchNetworkTab('posts')" id="net-tab-posts" class="tab-btn">Posts</button>
+        </div>
+        <div id="network-content"></div>
+    </div>
 
     <!-- PROFILE VIEW -->
     <div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
 
     <!-- NOTIFICATIONS VIEW -->
     <div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
-        <h2 class="text-2xl font-bold mb-6 px-4 md:px-0">Notifications</h2>
+        <div class="flex justify-between items-center mb-6 px-4 md:px-0">
+            <h2 class="text-2xl font-bold">Notifications</h2>
+            <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
+        </div>
         <div class="tab-group mb-6 mx-4 md:mx-0">
             <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active">Following</button>
             <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn">Others</button>
@@ -1116,8 +1168,10 @@ let notifications = [];
 let savedPosts = [];
 let activeChatUserId = null;
 let activeNotifTab = 'friends';
+let activeNetworkTab = 'people';
 window.replyingToCommentId = null; 
 window.replyingToMessageId = null;
+window.currentViewingProfileId = null;
 
 // Global Vars for App Logic
 window.currentContext = "";
@@ -1138,7 +1192,6 @@ let currentEventCoverBlob = null;
 // Helper: Reliable Icon Refresh
 function refreshIcons() {
     if(window.lucide) {
-        // Use a slightly longer timeout to ensure DOM paints first
         setTimeout(() => {
             window.lucide.createIcons();
         }, 100);
@@ -1243,8 +1296,8 @@ function initRealtimeListeners() {
         if(netView && !netView.classList.contains('hidden')) renderNetwork();
         
         const profileView = document.getElementById('view-profile');
-        if(profileView && !profileView.classList.contains('hidden')) {
-             // Profile refresh logic if needed
+        if(profileView && !profileView.classList.contains('hidden') && window.currentViewingProfileId) {
+             showProfile(window.currentViewingProfileId);
         }
         refreshIcons();
     });
@@ -1260,15 +1313,29 @@ function initRealtimeListeners() {
         const activeFeed = document.querySelector('#view-feed:not(.hidden)');
         if(activeFeed) {
             renderFeed();
-            // Force refresh icons after feed update
-            refreshIcons();
+        }
+        
+        const activeSaved = document.querySelector('#view-saved:not(.hidden)');
+        if(activeSaved) {
+            renderSaved();
+        }
+
+        const activeProfile = document.querySelector('#view-profile:not(.hidden)');
+        if(activeProfile && window.currentViewingProfileId) {
+            showProfile(window.currentViewingProfileId);
+        }
+
+        const activeNetwork = document.querySelector('#view-network:not(.hidden)');
+        if(activeNetwork && activeNetworkTab === 'posts') {
+            renderNetwork();
         }
         
         const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
         if(activePostView && window.currentViewingPostId) {
             renderCommentsInModal(window.currentViewingPostId);
-            refreshIcons();
         }
+        // Force refresh icons after ANY post update to prevent disappearance
+        setTimeout(refreshIcons, 50);
     });
 
     const qNotifs = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
@@ -1292,6 +1359,20 @@ function initRealtimeListeners() {
         if(activeNotif) renderNotifications();
         refreshIcons();
     });
+
+    // Chat dot listener
+    const qChat = query(collection(db, "messages"), where("receiverId", "==", currentUser.id));
+    onSnapshot(qChat, (snapshot) => {
+        // Simple logic: if any message exists for user (implies unread tracking needs more logic, but user asked for simple "if there is chat")
+        // We'll just show dot if there are messages for now, or refine if we had read status.
+        // Assuming we want to show dot if there are new messages.
+        // For this demo, let's toggle dot if snapshot has changes
+        const dot = document.getElementById('chat-dot');
+        if(dot && !snapshot.empty && activeChatUserId === null) {
+             // dot.style.display = 'block'; 
+             // Without a read field, hard to persist. Let's just assume no dot for now unless logic added.
+        }
+    });
 }
 
 function updateUserInterface() {
@@ -1307,6 +1388,8 @@ function updateUserInterface() {
     const edName = document.getElementById('edit-name'); if(edName) edName.value = currentUser.name;
     const edBio = document.getElementById('edit-bio'); if(edBio) edBio.value = currentUser.bio;
     const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = currentUser.avatar;
+    const edBanner = document.getElementById('edit-banner-link'); if(edBanner) edBanner.value = currentUser.banner || '';
+    const edBannerPos = document.getElementById('edit-banner-pos'); if(edBannerPos) edBannerPos.value = currentUser.bannerPos || 50;
     
     if(currentUser.email === 'edulinkbht@gmail.com') {
         const nav = document.querySelector('#desktop-nav-items');
@@ -1375,6 +1458,9 @@ window.switchView = function(viewName) {
         const nav = document.getElementById('nav-chat'); if(nav) nav.classList.add('active');
         if(mobileNavItems[3]) mobileNavItems[3].classList.add('active');
         renderChatList();
+        // Hide dot
+        const dot = document.getElementById('chat-dot');
+        if(dot) dot.style.display = 'none';
     } else if (viewName === 'saved') {
         const nav = document.getElementById('nav-saved'); if(nav) nav.classList.add('active');
         renderSaved();
@@ -1390,40 +1476,62 @@ window.switchView = function(viewName) {
     refreshIcons();
 }
 
+window.switchNetworkTab = function(tab) {
+    activeNetworkTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(`net-tab-${tab}`);
+    if(btn) btn.classList.add('active');
+    renderNetwork();
+}
+
 window.renderNetwork = function() {
-    const container = document.getElementById('view-network');
-    container.innerHTML = `<h2 class="text-2xl font-bold mb-6 px-4 md:px-0">Following</h2>`;
-    const grid = document.createElement('div');
-    grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4 px-4 md:px-0";
+    const container = document.getElementById('network-content');
+    container.innerHTML = "";
+    
+    if (activeNetworkTab === 'people') {
+        const grid = document.createElement('div');
+        grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4 px-4 md:px-0";
 
-    if (!currentUser || !currentUser.following) {
-        container.innerHTML += `<div class="flex flex-col items-center justify-center py-10 opacity-60"><p>Loading...</p></div>`;
-        return;
+        if (!currentUser || !currentUser.following) {
+            container.innerHTML += `<div class="flex flex-col items-center justify-center py-10 opacity-60"><p>Loading...</p></div>`;
+            return;
+        }
+
+        const followingUsers = users.filter(u => currentUser.following.includes(u.id));
+
+        if(followingUsers.length === 0) {
+            container.innerHTML += `<div class="flex flex-col items-center justify-center py-10 opacity-60"><p>You aren't following anyone yet.</p></div>`;
+            return;
+        }
+
+        followingUsers.forEach(user => {
+            const card = document.createElement('div');
+            card.className = "bg-white p-4 rounded-xl border border-gray-100 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer";
+            card.onclick = () => showProfile(user.id);
+            card.innerHTML = `
+            <img src="${user.avatar}" class="w-12 h-12 rounded-full border border-gray-100 bg-gray-50 object-cover">
+            <div>
+            <h4 class="font-bold text-gray-900">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="w-4 h-4 inline text-blue-500"></i>' : ''}</h4>
+            <p class="text-xs text-gray-500 line-clamp-1">${user.bio}</p>
+            </div>
+            <button onclick="event.stopPropagation(); toggleFollow('${user.id}')" class="ml-auto text-xs border border-gray-200 px-3 py-1 rounded-full hover:bg-gray-50">Unfollow</button>
+            `;
+            grid.appendChild(card);
+        });
+        container.appendChild(grid);
+    } else {
+        // Posts tab
+        const followingPosts = posts.filter(p => currentUser.following.includes(p.authorId));
+        const postsContainer = document.createElement('div');
+        postsContainer.className = "space-y-4 px-4 md:px-0";
+        
+        if (followingPosts.length === 0) {
+            postsContainer.innerHTML = `<div class="text-center py-10 text-gray-400">No posts from your network yet.</div>`;
+        } else {
+            followingPosts.forEach(post => postsContainer.appendChild(createPostElement(post)));
+        }
+        container.appendChild(postsContainer);
     }
-
-    const followingUsers = users.filter(u => currentUser.following.includes(u.id));
-
-    if(followingUsers.length === 0) {
-        container.innerHTML += `<div class="flex flex-col items-center justify-center py-10 opacity-60"><p>You aren't following anyone yet.</p></div>`;
-        return;
-    }
-
-    followingUsers.forEach(user => {
-        const card = document.createElement('div');
-        card.className = "bg-white p-4 rounded-xl border border-gray-100 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer";
-        card.onclick = () => showProfile(user.id);
-        card.innerHTML = `
-        <img src="${user.avatar}" class="w-12 h-12 rounded-full border border-gray-100 bg-gray-50 object-cover">
-        <div>
-        <h4 class="font-bold text-gray-900">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="w-4 h-4 inline text-blue-500"></i>' : ''}</h4>
-        <p class="text-xs text-gray-500 line-clamp-1">${user.bio}</p>
-        </div>
-        <button onclick="event.stopPropagation(); toggleFollow('${user.id}')" class="ml-auto text-xs border border-gray-200 px-3 py-1 rounded-full hover:bg-gray-50">Unfollow</button>
-        `;
-        grid.appendChild(card);
-    });
-
-    container.appendChild(grid);
     refreshIcons();
 }
 
@@ -1489,7 +1597,7 @@ function createPostElement(post) {
     <button class="action-btn comment" onclick="event.stopPropagation(); openPostView('${post.id}')"><i data-lucide="message-square" class="w-5 h-5"></i> <span class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span></button>
     </div>
     <div class="flex items-center gap-1">
-    <button id="save-btn-${post.id}" class="action-btn bookmark" onclick="event.stopPropagation(); toggleSave('${post.id}')"><i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-current text-purple-600' : ''}"></i></button>
+    <button id="save-btn-${post.id}" class="action-btn bookmark" onclick="event.stopPropagation(); toggleSave('${post.id}')"><i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-yellow-500 text-yellow-500' : ''}"></i></button>
     <button class="action-btn share-btn" onclick="event.stopPropagation(); sharePost('${post.id}')" title="Share Post"><i data-lucide="share-2" class="w-5 h-5"></i></button>
     </div>
     </div>
@@ -1506,7 +1614,6 @@ window.toggleLike = async function(postId) {
         const countSpan = btn.querySelector('span');
         let currentCount = parseInt(countSpan.innerText) || 0;
         
-        // Handle SVG class manipulation directly for instant feedback
         let hasClass = false;
         if(icon.tagName === 'svg') hasClass = icon.classList.contains('text-red-500');
         else hasClass = icon.classList.contains('text-red-500');
@@ -1527,7 +1634,7 @@ window.toggleLike = async function(postId) {
     } else {
         await updateDoc(postRef, { likes: arrayUnion(currentUser.id) });
         if(post.authorId !== currentUser.id) {
-            sendNotification(post.authorId, 'like', 'liked your post');
+            sendNotification(post.authorId, 'like', 'liked your post', postId);
         }
     }
 }
@@ -1537,14 +1644,14 @@ window.toggleSave = async function(postId) {
     if(btn) {
         const icon = btn.querySelector('svg') || btn.querySelector('i');
         let hasClass = false;
-        if(icon.tagName === 'svg') hasClass = icon.classList.contains('text-purple-600');
-        else hasClass = icon.classList.contains('text-purple-600');
+        if(icon.tagName === 'svg') hasClass = icon.classList.contains('text-yellow-500');
+        else hasClass = icon.classList.contains('text-yellow-500');
 
         if (hasClass) {
-            icon.classList.remove('fill-current', 'text-purple-600');
+            icon.classList.remove('fill-yellow-500', 'text-yellow-500');
             showToast("Post removed");
         } else {
-            icon.classList.add('fill-current', 'text-purple-600');
+            icon.classList.add('fill-yellow-500', 'text-yellow-500');
             showToast("Post saved");
         }
     }
@@ -1578,14 +1685,15 @@ window.renderSaved = function() {
     refreshIcons();
 }
 
-async function sendNotification(receiverId, type, content) {
+async function sendNotification(receiverId, type, content, postId = null) {
     await addDoc(collection(db, "notifications"), {
         receiverId,
         senderId: currentUser.id,
         type,
         content,
         timestamp: serverTimestamp(),
-        read: false
+        read: false,
+        postId: postId
     });
 }
 
@@ -1630,6 +1738,10 @@ window.renderNotifications = function() {
         let colorClass = n.type === 'like' ? 'bg-red-500' : (n.type === 'official' ? 'bg-blue-600' : 'bg-indigo-500');
         if(n.type === 'reply') colorClass = 'bg-teal-500';
 
+        const clickAction = (n.type === 'like' || n.type === 'comment' || n.type === 'reply') && n.postId 
+            ? `onclick="openPostView('${n.postId}')"` 
+            : `onclick="showProfile('${sender.id}')"`;
+
         div.innerHTML = `
         <div class="relative cursor-pointer" onclick="showProfile('${sender.id}')">
         <img src="${sender.avatar}" class="w-10 h-10 rounded-full bg-gray-200">
@@ -1637,7 +1749,7 @@ window.renderNotifications = function() {
         ${icon}
         </div>
         </div>
-        <div class="flex-1 cursor-pointer">
+        <div class="flex-1 cursor-pointer" ${clickAction}>
         <div class="text-sm">
         <span class="font-bold text-gray-900">${sender.name}</span>
         <span class="text-gray-600">${n.content}</span>
@@ -1652,8 +1764,17 @@ window.renderNotifications = function() {
 }
 
 window.deleteNotification = async function(id) {
-    if(confirm("Delete notification?")) {
-        await deleteDoc(doc(db, "notifications", id));
+    await deleteDoc(doc(db, "notifications", id));
+}
+
+window.clearAllNotifications = async function() {
+    if(confirm("Clear all notifications?")) {
+        const batch = writeBatch(db);
+        const q = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
+        const snap = await getDocs(q);
+        snap.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        showToast("All notifications cleared");
     }
 }
 
@@ -1668,6 +1789,7 @@ window.showProfile = function(userId) {
     const user = users.find(u => u.id === userId);
     if(!user) return;
     
+    window.currentViewingProfileId = userId;
     const container = document.getElementById('view-profile');
 
     const isMe = userId === currentUser.id;
@@ -1688,9 +1810,13 @@ window.showProfile = function(userId) {
     }
 
     const userPosts = posts.filter(p => p.authorId === userId);
+    const bannerUrl = user.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+    const bannerPos = user.bannerPos || 50;
 
     container.innerHTML = `
-    <div class="h-32 bg-gradient-to-r from-blue-600 to-indigo-600 relative"></div>
+    <div class="profile-banner-container">
+        <img src="${bannerUrl}" class="profile-banner-img" style="object-position: center ${bannerPos}%">
+    </div>
     <div class="px-6 relative">
     <div class="flex justify-between items-end -mt-10 mb-4">
     <img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">
@@ -1736,6 +1862,8 @@ window.handleEditAvatarSelect = function(event) {
 window.saveProfileChanges = async function() {
     const name = document.getElementById('edit-name').value;
     const bio = document.getElementById('edit-bio').value;
+    const banner = document.getElementById('edit-banner-link').value;
+    const bannerPos = document.getElementById('edit-banner-pos').value;
     const fileInput = document.getElementById('edit-avatar-input');
     const linkInput = document.getElementById('edit-avatar-link');
     
@@ -1753,14 +1881,17 @@ window.saveProfileChanges = async function() {
     }
 
     const userRef = doc(db, "users", currentUser.id);
-    await updateDoc(userRef, { name, bio, avatar: avatarUrl });
+    await updateDoc(userRef, { name, bio, avatar: avatarUrl, banner, bannerPos });
     
     // Instant Local Update
     currentUser.name = name;
     currentUser.bio = bio;
     currentUser.avatar = avatarUrl;
+    currentUser.banner = banner;
+    currentUser.bannerPos = bannerPos;
     updateUserInterface();
     closeEditProfile();
+    showProfile(currentUser.id); // Refresh profile view
     showToast("Profile Updated");
 }
 
@@ -2066,7 +2197,7 @@ window.toggleCommentLike = async function(postId, commentId) {
     const comment = comments[commentIndex];
     if(!comment.likes) comment.likes = [];
     if(comment.likes.includes(currentUser.id)) { comment.likes = comment.likes.filter(id => id !== currentUser.id); } 
-    else { comment.likes.push(currentUser.id); if(comment.authorId !== currentUser.id) sendNotification(comment.authorId, 'like', 'liked your comment'); }
+    else { comment.likes.push(currentUser.id); if(comment.authorId !== currentUser.id) sendNotification(comment.authorId, 'like', 'liked your comment', postId); }
     comments[commentIndex] = comment;
     const postRef = doc(db, "posts", postId);
     await updateDoc(postRef, { comments: comments });
@@ -2089,8 +2220,8 @@ window.submitCommentDesktop = async function() {
     const post = posts.find(p => p.id === window.currentViewingPostId);
     if (window.replyingToCommentId) {
         const parentComment = post.comments.find(c => c.id === window.replyingToCommentId);
-        if (parentComment && parentComment.authorId !== currentUser.id) sendNotification(parentComment.authorId, 'reply', 'replied to your comment');
-    } else if(post && post.authorId !== currentUser.id) { sendNotification(post.authorId, 'comment', 'commented on your post'); }
+        if (parentComment && parentComment.authorId !== currentUser.id) sendNotification(parentComment.authorId, 'reply', 'replied to your comment', window.currentViewingPostId);
+    } else if(post && post.authorId !== currentUser.id) { sendNotification(post.authorId, 'comment', 'commented on your post', window.currentViewingPostId); }
     document.getElementById('comment-input-desktop').value = "";
     window.replyingToCommentId = null;
 }

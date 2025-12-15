@@ -1165,11 +1165,8 @@ Change
             <textarea id="announcement-text" class="w-full h-32 border border-gray-300 rounded-lg p-3 outline-none focus:border-blue-500 mb-4" placeholder="Type your official announcement here..."></textarea>
             <div class="flex items-center justify-between">
                 <button id="send-announcement-btn" onclick="sendAnnouncement()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors">Send Broadcast</button>
-                <button id="cancel-edit-announcement" onclick="cancelEditAnnouncement()" class="hidden text-gray-500 font-bold hover:text-gray-800 text-sm">Cancel Edit</button>
             </div>
         </div>
-        <h3 class="text-lg font-bold mb-4 px-4 md:px-0 text-gray-800">History</h3>
-        <div id="announcement-history" class="space-y-4 max-w-2xl px-4 md:px-0"></div>
     </div>
 
     <!-- EVENTS VIEW -->
@@ -1352,7 +1349,6 @@ let chatPartners = new Set();
 window.replyingToCommentId = null; 
 window.replyingToMessageId = null;
 window.currentViewingProfileId = null;
-window.editingAnnouncementId = null;
 
 // Global Vars for App Logic
 window.currentContext = "";
@@ -1815,7 +1811,6 @@ window.switchView = function(viewName) {
         renderNotifications();
     } else if (viewName === 'announcements') {
         const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
-        renderAnnouncementHistory();
     }
     refreshIcons();
 }
@@ -2935,17 +2930,6 @@ window.sendAnnouncement = async function() {
     const text = document.getElementById('announcement-text').value.trim();
     if(!text) return;
     
-    // Check if editing
-    if(window.editingAnnouncementId) {
-        await updateDoc(doc(db, "notifications", window.editingAnnouncementId), {
-            content: text,
-            timestamp: serverTimestamp() // Optional: update time or keep original
-        });
-        showToast("Announcement Updated");
-        cancelEditAnnouncement();
-        return;
-    }
-
     showAlert("Send this announcement to all users?", async () => {
         let count = 0;
         for(const u of users) {
@@ -2956,118 +2940,6 @@ window.sendAnnouncement = async function() {
         }
         showToast(`Sent to ${count} users`);
         document.getElementById('announcement-text').value = "";
-    });
-}
-
-window.renderAnnouncementHistory = function() {
-    const container = document.getElementById('announcement-history');
-    if(!container) return;
-    container.innerHTML = "";
-    
-    // Filter notifications I sent that are official
-    // Note: In a real app, you might query 'announcements' collection instead of checking sent notifications to everyone
-    // But based on existing logic, we are creating individual notifications. 
-    // To simplify history management for the ADMIN, we should probably just query one type of notification sent to ANY user, distinct by content, OR better:
-    // query a separate 'announcements' collection if we had one. 
-    // Given the constraints, let's list notifications sent by ME with type 'official'. 
-    // Issue: I sent 100 notifications for 1 announcement. I don't want to list 100 lines.
-    // Fix: We'll list unique contents or just show the most recent ones. 
-    // Actually, for this specific request, the user wants to "edit or delete". 
-    // If we delete one notification, we should probably delete all matching that content batch.
-    // For simplicity in this single-file setup without batch tracking IDs:
-    // We will list notifications sent to a *specific placeholder* or just all distinct contents I sent.
-    
-    // Better approach for this limited scope: 
-    // Just show the distinct messages I've sent as 'official'.
-    // To allow edit/delete of the "Broadcast", we need to find all notifications with that content.
-    // This is expensive on read. 
-    // Alternative: Just show a list of unique message contents derived from 'notifications' collection where sender is Me.
-    
-    // Let's grab all my sent official notifications.
-    // Since we don't have a 'sent_announcements' collection, this is tricky.
-    // I'll implement a client-side distinct filter.
-    
-    // Wait, the request implies standard CRUD.
-    // Let's assume we want to manage the *latest* ones.
-    
-    // Correct Implementation for "Edit/Delete past announcement":
-    // 1. Fetch official notifications sent by current user.
-    // 2. Group by content + approximate time.
-    // 3. Render.
-    
-    // Since I can't change schema easily to add a "batchId", I'll group by Content string.
-    
-    const myAnnouncements = notifications.filter(n => n.senderId === currentUser.id && n.type === 'official');
-    // Deduplicate by content
-    const uniqueAnnouncements = [];
-    const seenContent = new Set();
-    
-    myAnnouncements.forEach(n => {
-        if(!seenContent.has(n.content)) {
-            seenContent.add(n.content);
-            uniqueAnnouncements.push(n);
-        }
-    });
-    
-    if(uniqueAnnouncements.length === 0) {
-        container.innerHTML = `<div class="text-gray-400 text-sm">No history found.</div>`;
-        return;
-    }
-    
-    uniqueAnnouncements.forEach(n => {
-        const div = document.createElement('div');
-        div.className = "bg-white p-4 rounded-lg border border-gray-200 shadow-sm";
-        div.innerHTML = `
-            <div class="text-sm font-medium text-gray-800 mb-2">${n.content}</div>
-            <div class="flex justify-between items-center text-xs text-gray-500">
-                <span>${formatDate(n.timestamp)}</span>
-                <div class="flex gap-2">
-                    <button onclick="editAnnouncement('${n.id}', '${n.content.replace(/'/g, "\\'")}')" class="text-blue-600 hover:underline">Edit</button>
-                    <button onclick="deleteAnnouncementContent('${n.content.replace(/'/g, "\\'")}')" class="text-red-500 hover:underline">Delete</button>
-                </div>
-            </div>
-        `;
-        container.appendChild(div);
-    });
-}
-
-window.editAnnouncement = function(id, content) {
-    document.getElementById('announcement-text').value = content;
-    document.getElementById('send-announcement-btn').innerText = "Update Broadcast";
-    document.getElementById('cancel-edit-announcement').classList.remove('hidden');
-    // We need to know which notifications to update. 
-    // We'll track the original content to find them, or just use the ID if we assume 1-to-1 (which isn't true for broadcast).
-    // I'll attach the 'originalContent' to the function scope or global to find matches.
-    window.editingAnnouncementContent = content; 
-    window.editingAnnouncementId = id; // This is just one ID, but we might need to update all matching content.
-}
-
-window.cancelEditAnnouncement = function() {
-    document.getElementById('announcement-text').value = "";
-    document.getElementById('send-announcement-btn').innerText = "Send Broadcast";
-    document.getElementById('cancel-edit-announcement').classList.add('hidden');
-    window.editingAnnouncementId = null;
-    window.editingAnnouncementContent = null;
-}
-
-// Special function to delete all notifications with specific content
-window.deleteAnnouncementContent = async function(content) {
-    showAlert("Delete this announcement from everyone?", async () => {
-        const batch = writeBatch(db);
-        // Find all notifications with this content sent by me
-        // We rely on local 'notifications' array for IDs since we have a listener on 'notifications' (Wait, listener is receiverId==me).
-        // We need to QUERY DB for senderId==me.
-        const q = query(collection(db, "notifications"), where("senderId", "==", currentUser.id), where("type", "==", "official"), where("content", "==", content));
-        const snap = await getDocs(q);
-        snap.forEach(doc => batch.delete(doc.ref));
-        await batch.commit();
-        showToast("Announcement Deleted");
-        renderAnnouncementHistory(); // Refresh might be delayed until snapshot? 
-        // Snapshot listener only listens to received notifications. 
-        // We might need to manually refresh the history view or add a listener for sent items.
-        // For now, UI update:
-        const container = document.getElementById('announcement-history');
-        // Simple reload or wait for next action.
     });
 }
 

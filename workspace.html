@@ -216,7 +216,7 @@
             <span id="user-name" class="font-medium truncate flex-1 text-notion-text dark:text-[#D4D4D4]">Loading...</span>
             <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 bg-notion-hover dark:bg-notion-dark-hover pl-2 shadow-sm rounded-lg border border-gray-200/50 dark:border-[#2F2F2F]">
                 <button id="btn-settings" class="p-1.5 hover:bg-white dark:hover:bg-[#2C2C2C] rounded-md text-gray-500 dark:text-[#9B9A97] hover:text-notion-text dark:hover:text-[#D4D4D4] transition-colors" title="Settings">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </button>
                 <button id="btn-logout" class="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md text-gray-400 dark:text-[#9B9A97] hover:text-red-500 dark:hover:text-red-400 transition-colors" title="Sign Out">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
@@ -241,7 +241,7 @@
         </div>
         <div id="team-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar pb-4"></div>
 
-        <div class="p-4 border-t border-notion-border dark:border-notion-dark-border text-notion-textLight dark:text-[#9B9A97] text-xs flex justify-center cursor-default">EduLink v3.1</div>
+        <div class="p-4 border-t border-notion-border dark:border-notion-dark-border text-notion-textLight dark:text-[#9B9A97] text-xs flex justify-center cursor-default">EduLink v3.2</div>
     </div>
 
     <!-- MAIN AREA -->
@@ -648,7 +648,7 @@
 
     let currentUser = null;
     let currentProjectId = null;
-    let currentTeamId = null; // Unused now, but kept for future ref
+    let currentTeamId = null; 
     let currentRole = 'editor'; 
     let unsubscribeDoc, unsubscribeChat, unsubscribeReminders, unsubscribeComments, unsubscribeNotifs, unsubscribeBroadcasts, unsubscribePresence, unsubscribeFolders, unsubscribeProjects;
     
@@ -666,6 +666,9 @@
     let currentSelectionRange = null;
     let pendingFavicon = null;
     let isDarkMode = false;
+    
+    // Track rendered access to prevent unnecessary header re-renders
+    let lastRenderedAccess = null;
 
     // --- GLOBAL HELPERS ---
     window.showModal = (id) => { const m = document.getElementById(id); m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); m.children[0].classList.remove('scale-95'); }, 10); }
@@ -852,7 +855,7 @@
                         ${img} <span class="font-medium truncate text-[14px]">${t.name}</span>
                     </div>
                     <button class="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-300 dark:hover:bg-[#3F3F3F] rounded text-gray-500 dark:text-[#9B9A97] transition-opacity" onclick="window.openManageTeam('${d.id}')">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     </button>
                 `;
                 list.appendChild(div);
@@ -1111,6 +1114,7 @@
         
         currentProjectId = id;
         currentTeamId = null;
+        lastRenderedAccess = null; // Reset access cache
 
         document.getElementById('empty-state').classList.add('hidden');
         document.getElementById('workspace-container').classList.remove('hidden');
@@ -1124,12 +1128,13 @@
         if(unsubscribeComments) unsubscribeComments();
         if(unsubscribePresence) unsubscribePresence();
 
-        unsubscribeDoc = onSnapshot(doc(db, "projects", id), (snap) => {
+        unsubscribeDoc = onSnapshot(doc(db, "projects", id), async (snap) => {
             if(!snap.exists()) return;
             const data = snap.data();
             const myAccess = data.access.find(a => a.email === currentUser.email);
             currentRole = myAccess ? myAccess.role : 'viewer';
 
+            // Document Content Updates (Always Run)
             document.getElementById('doc-title').value = data.title;
             document.getElementById('doc-icon').textContent = data.icon || "📄";
             const editor = document.getElementById('doc-content');
@@ -1144,40 +1149,76 @@
             if(currentRole === 'viewer') { editor.setAttribute('contenteditable', 'false'); document.getElementById('read-only-banner').classList.remove('hidden'); } 
             else { editor.setAttribute('contenteditable', 'true'); document.getElementById('read-only-banner').classList.add('hidden'); }
 
-            const ac = document.getElementById('member-avatars'); ac.innerHTML = '';
-            const recipientSelect = document.getElementById('chat-recipient');
-            recipientSelect.innerHTML = '<option value="all">Everyone</option>';
-            const bcList = document.getElementById('bc-user-list'); bcList.innerHTML = '';
-            
-            data.access.forEach(m => {
-                mentionableUsers.add(m.email); // Ensure project members are in mentions
-                if (data.access.indexOf(m) < 5) {
-                    const img = document.createElement('img');
-                    img.src = `https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}`;
-                    img.className = "w-8 h-8 rounded-full border-2 border-white dark:border-[#191919] bg-gray-100 -ml-2.5 first:ml-0 hover:z-10 relative transition-transform hover:scale-110";
-                    img.title = `${m.email} (${m.role})`;
-                    ac.appendChild(img);
-                }
+            // Member Updates (Run only on change)
+            if (JSON.stringify(data.access) !== JSON.stringify(lastRenderedAccess)) {
+                lastRenderedAccess = data.access;
                 
-                if(m.email !== currentUser.email) {
-                    const opt = document.createElement('option');
-                    opt.value = m.email; opt.textContent = m.email.split('@')[0];
-                    recipientSelect.appendChild(opt);
-                    bcList.innerHTML += `<label class="flex items-center gap-2 p-1 hover:bg-gray-100 dark:hover:bg-[#2C2C2C] rounded text-xs"><input type="checkbox" value="${m.email}" class="bc-target-user"> ${m.email}</label>`;
+                // Recipient Select & Broadcast List
+                const recipientSelect = document.getElementById('chat-recipient');
+                recipientSelect.innerHTML = '<option value="all">Everyone</option>';
+                const bcList = document.getElementById('bc-user-list'); bcList.innerHTML = '';
+                
+                data.access.forEach(m => {
+                    mentionableUsers.add(m.email);
+                    if(m.email !== currentUser.email) {
+                        const opt = document.createElement('option');
+                        opt.value = m.email; opt.textContent = m.email.split('@')[0];
+                        recipientSelect.appendChild(opt);
+                        bcList.innerHTML += `<label class="flex items-center gap-2 p-1 hover:bg-gray-100 dark:hover:bg-[#2C2C2C] rounded text-xs"><input type="checkbox" value="${m.email}" class="bc-target-user"> ${m.email}</label>`;
+                    }
+                });
+
+                // Header Avatars & Share List
+                await renderHeaderAvatars(data.access);
+                
+                // This call updates the share modal list async
+                renderMembersList(data.access, data.ownerId === currentUser.uid);
+                
+                // Show/Hide Broadcast buttons based on ownership
+                if(data.ownerId === currentUser.uid) {
+                    document.getElementById('btn-broadcast-create').classList.remove('hidden');
+                    document.getElementById('btn-announce-create').classList.add('hidden');
+                } else {
+                    document.getElementById('btn-broadcast-create').classList.add('hidden');
+                    document.getElementById('btn-announce-create').classList.remove('hidden');
                 }
-            });
-            renderMembersList(data.access, data.ownerId === currentUser.uid);
-            
-            if(data.ownerId === currentUser.uid) {
-                document.getElementById('btn-broadcast-create').classList.remove('hidden');
-                document.getElementById('btn-announce-create').classList.add('hidden');
-            } else {
-                document.getElementById('btn-broadcast-create').classList.add('hidden');
-                document.getElementById('btn-announce-create').classList.remove('hidden');
             }
         });
 
         loadChat(id); loadComments(id); loadReminders(id); setupPresence(id);
+    }
+
+    async function renderHeaderAvatars(access) {
+        const ac = document.getElementById('member-avatars'); ac.innerHTML = '';
+        const membersToShow = access.slice(0, 5);
+        
+        for (const m of membersToShow) {
+            const img = document.createElement('img');
+            img.className = "w-8 h-8 rounded-full border-2 border-white dark:border-[#191919] bg-gray-100 -ml-2.5 first:ml-0 hover:z-10 relative transition-transform hover:scale-110 object-cover";
+            img.title = `${m.email} (${m.role})`;
+            
+            // Default placeholder
+            img.src = `https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}`;
+            ac.appendChild(img);
+
+            // Fetch real avatar
+            const q = query(collection(db, "users"), where("email", "==", m.email));
+            getDocs(q).then(snap => {
+                if(!snap.empty) {
+                    const u = snap.docs[0].data();
+                    if(u.photoURL && !u.photoURL.includes('dicebear')) {
+                        img.src = u.photoURL;
+                    }
+                }
+            });
+        }
+        
+        if(access.length > 5) {
+             const more = document.createElement('div');
+             more.className = "w-8 h-8 rounded-full border-2 border-white dark:border-[#191919] bg-gray-100 -ml-2.5 flex items-center justify-center text-[10px] font-bold text-gray-500 relative z-0";
+             more.textContent = `+${access.length - 5}`;
+             ac.appendChild(more);
+        }
     }
 
     // --- EDITOR ---
@@ -1469,14 +1510,12 @@
                 // Read Receipt Icon
                 let checkIcon = '';
                 if(isMe) {
-                    const isRead = m.readBy && m.readBy.length > 1; // Assuming sender is in readBy initially or we check length
+                    // Assuming sender is in readBy initially or we check length
                     // Better check: is there anyone in readBy who is NOT me?
                     const readByOthers = m.readBy ? m.readBy.filter(id => id !== currentUser.uid).length > 0 : false;
                     
                     if(readByOthers) {
                         // Double Blue Check
-                        checkIcon = `<span class="ml-1.5 text-blue-500" title="Read"><svg class="w-3.5 h-3.5 inline-block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7M5 13l4 4L19 7" style="stroke-dasharray: 20; stroke-dashoffset: 0;"></path><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" transform="translate(-4, 0)"></path></svg></span>`;
-                        // Simplified SVG for double check look
                         checkIcon = `<span class="ml-1 text-blue-500 flex items-center" title="Read"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L7 17l-5-5"></path><path d="M22 10l-7.5 7.5L13 16"></path></svg></span>`;
 
                     } else {

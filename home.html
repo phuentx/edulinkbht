@@ -250,7 +250,7 @@ background: transparent; border: none; cursor: pointer;
 }
 
 /* --- COMPOSE & CREATE MENUS --- */
-#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal {
+#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid #eaecf0;
 }
@@ -719,6 +719,19 @@ position: relative;
 <i id="toast-icon" data-lucide="check-circle-2" class="w-5 h-5 text-[#c4eed0]"></i><span id="toast-msg">Action Completed</span>
 </div>
 
+<!-- USER LIST MODAL -->
+<div id="user-list-overlay" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm hidden" onclick="closeUserList()">
+<div class="bg-white w-[90%] max-w-[400px] rounded-[24px] shadow-2xl flex flex-col max-h-[80vh] overflow-hidden transform transition-all scale-100" onclick="event.stopPropagation()">
+<div class="flex justify-between items-center p-4 border-b border-gray-100">
+<h3 class="text-lg font-bold text-gray-900" id="user-list-title">Users</h3>
+<button onclick="closeUserList()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+</div>
+<div id="user-list-content" class="flex-1 overflow-y-auto p-2">
+<!-- User items injected here -->
+</div>
+</div>
+</div>
+
 <!-- CREATE SELECTION OVERLAY -->
 <div id="create-menu-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#000]/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200" onclick="closeCreateMenu()">
 <div id="create-menu-modal" class="bg-white w-[90%] max-w-[500px] rounded-[24px] shadow-2xl p-6 relative transform scale-95 transition-transform duration-200" onclick="event.stopPropagation()">
@@ -879,7 +892,7 @@ Change
 
 <!-- MAIN SIDEBAR -->
 <aside id="main-sidebar" class="hidden md:flex app-panel">
-<div class="h-12 flex items-center gap-3 mb-6 px-2">
+<div class="h-12 flex items-center gap-3 mb-6 px-2 cursor-pointer" onclick="switchView('feed')">
 <img src="https://i.imghippo.com/files/fRGt5603uII.png" class="w-8 h-8 object-contain">
 <h1 class="text-[20px] font-bold text-[#1f1f1f] hidden lg:block tracking-tight">EduLink</h1>
 </div>
@@ -889,6 +902,7 @@ Change
 
 <nav class="flex-1 space-y-1" id="desktop-nav-items">
     <a href="#" onclick="switchView('feed'); return false;" id="nav-feed" class="nav-item active"><i data-lucide="home" class="w-5 h-5"></i> <span class="hidden lg:block">Home</span></a>
+    <a href="#" onclick="switchView('explore'); return false;" id="nav-explore" class="nav-item"><i data-lucide="compass" class="w-5 h-5"></i> <span class="hidden lg:block">Explore</span></a>
     <a href="#" onclick="switchView('network'); return false;" id="nav-network" class="nav-item"><i data-lucide="users" class="w-5 h-5"></i> <span class="hidden lg:block">Network</span></a>
     <a href="#" onclick="switchView('chat'); return false;" id="nav-chat" class="nav-item relative"><i data-lucide="message-circle" class="w-5 h-5"></i> <span class="hidden lg:block">Chat</span><span id="chat-dot" class="nav-dot"></span></a>
     <a href="workspace.html" class="nav-item"><i data-lucide="briefcase" class="w-5 h-5"></i> <span class="hidden lg:block">Workspace</span></a>
@@ -913,7 +927,7 @@ Change
 <div id="workspace-layout" class="flex-1 flex min-w-0 gap-4 relative overflow-hidden transition-all duration-300">
 <main id="main-panel" class="flex-1 app-panel min-w-0 relative">
 <header class="h-16 md:h-20 flex items-center justify-between px-4 md:px-6 shrink-0 z-20 sticky top-0 bg-white/95 md:bg-white/90 backdrop-blur-md border-b border-[#f0f0f0]">
-<div class="md:hidden flex items-center gap-3">
+<div class="md:hidden flex items-center gap-3 cursor-pointer" onclick="switchView('feed')">
 <img src="https://i.imghippo.com/files/fRGt5603uII.png" class="w-8 h-8 object-contain">
 <h1 class="text-lg font-bold text-[#1f1f1f] tracking-tight">EduLink</h1>
 </div>
@@ -1018,8 +1032,23 @@ Change
             <!-- Events populated by JS/Firestore -->
         </div>
     </div>
-     <!-- SEARCH RESULTS VIEW -->
-    <div id="view-search-results" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]"></div>
+     <!-- SEARCH / EXPLORE VIEW -->
+    <div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
+        <h2 class="text-2xl font-bold mb-4 px-4 md:px-0">Explore</h2>
+        <!-- Mobile search bar for explore view specifically -->
+        <div class="md:hidden px-4 mb-4">
+             <div class="relative group">
+                <i data-lucide="search" class="absolute left-4 top-3.5 w-5 h-5 text-[#667085]"></i>
+                <input type="text" placeholder="Search users & posts..." onkeyup="handleSearch(this.value)" class="w-full bg-white rounded-full py-3 pl-12 pr-4 outline-none border border-gray-200 focus:border-blue-500 transition-all text-sm">
+            </div>
+        </div>
+        <div id="explore-results" class="px-4 md:px-0">
+            <div class="text-center py-20 text-gray-400">
+                <i data-lucide="compass" class="w-16 h-16 mx-auto mb-3 opacity-50"></i>
+                <p>Search for people, posts, and ideas.</p>
+            </div>
+        </div>
+    </div>
 
 </main>
 
@@ -1115,18 +1144,18 @@ Change
 <i data-lucide="home"></i>
 <span class="text-[10px] font-medium">Home</span>
 </div>
-<div class="mobile-nav-item" onclick="switchView('network')">
-<i data-lucide="users"></i>
-<span class="text-[10px] font-medium">Network</span>
+<div class="mobile-nav-item" onclick="switchView('explore')">
+<i data-lucide="compass"></i>
+<span class="text-[10px] font-medium">Explore</span>
 </div>
 <div class="mobile-nav-item" onclick="openCreateMenu()">
 <div class="w-10 h-10 bg-[#1f1f1f] rounded-full flex items-center justify-center text-white shadow-md mb-1">
 <i data-lucide="plus" style="width:20px;height:20px"></i>
 </div>
 </div>
-<div class="mobile-nav-item" onclick="switchView('ai')">
-<i data-lucide="sparkles"></i>
-<span class="text-[10px] font-medium">Newton</span>
+<div class="mobile-nav-item" onclick="switchView('chat')">
+<i data-lucide="message-circle"></i>
+<span class="text-[10px] font-medium">Chat</span>
 </div>
 <div class="mobile-nav-item" onclick="showProfile(auth.currentUser ? auth.currentUser.uid : null)">
 <img id="mobile-avatar" src="" class="w-6 h-6 rounded-full border border-gray-200">
@@ -1330,6 +1359,13 @@ function initRealtimeListeners() {
             renderNetwork();
         }
         
+        const activeExplore = document.querySelector('#view-explore:not(.hidden)');
+        if(activeExplore) {
+            // Re-run search if active to update results
+            const searchVal = document.getElementById('global-search').value;
+            if(searchVal) handleSearch(searchVal);
+        }
+        
         const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
         if(activePostView && window.currentViewingPostId) {
             renderCommentsInModal(window.currentViewingPostId);
@@ -1363,14 +1399,9 @@ function initRealtimeListeners() {
     // Chat dot listener
     const qChat = query(collection(db, "messages"), where("receiverId", "==", currentUser.id));
     onSnapshot(qChat, (snapshot) => {
-        // Simple logic: if any message exists for user (implies unread tracking needs more logic, but user asked for simple "if there is chat")
-        // We'll just show dot if there are messages for now, or refine if we had read status.
-        // Assuming we want to show dot if there are new messages.
-        // For this demo, let's toggle dot if snapshot has changes
         const dot = document.getElementById('chat-dot');
         if(dot && !snapshot.empty && activeChatUserId === null) {
-             // dot.style.display = 'block'; 
-             // Without a read field, hard to persist. Let's just assume no dot for now unless logic added.
+             // Logic to hide dot if all read would go here, simplified for now
         }
     });
 }
@@ -1407,7 +1438,7 @@ function updateUserInterface() {
 }
 
 window.switchView = function(viewName) {
-    const views = ['feed', 'events', 'saved', 'network', 'profile', 'chat', 'search-results', 'notifications', 'announcements'];
+    const views = ['feed', 'events', 'saved', 'network', 'profile', 'chat', 'explore', 'notifications', 'announcements'];
     views.forEach(v => {
         const el = document.getElementById(`view-${v}`);
         if(el) el.classList.add('hidden');
@@ -1450,9 +1481,13 @@ window.switchView = function(viewName) {
         const nav = document.getElementById('nav-feed'); if(nav) nav.classList.add('active');
         if(mobileNavItems[0]) mobileNavItems[0].classList.add('active');
         renderFeed();
+    } else if (viewName === 'explore') {
+        const nav = document.getElementById('nav-explore'); if(nav) nav.classList.add('active');
+        if(mobileNavItems[1]) mobileNavItems[1].classList.add('active');
+        // Clear previous search results if any, or leave as is
     } else if (viewName === 'network') {
         const nav = document.getElementById('nav-network'); if(nav) nav.classList.add('active');
-        if(mobileNavItems[1]) mobileNavItems[1].classList.add('active');
+        // Mobile nav adjustment if needed, using 2nd slot for explore now
         renderNetwork();
     } else if (viewName === 'chat') {
         const nav = document.getElementById('nav-chat'); if(nav) nav.classList.add('active');
@@ -1826,8 +1861,8 @@ window.showProfile = function(userId) {
     <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1>
     <p class="text-gray-600 mt-1">${user.bio}</p>
     <div class="flex gap-4 mt-3 text-sm text-gray-500">
-    <span><strong class="text-gray-900">${user.following ? user.following.length : 0}</strong> Following</span>
-    <span><strong class="text-gray-900">${user.followers ? user.followers.length : 0}</strong> Followers</span>
+    <span class="cursor-pointer hover:underline" onclick="openUserList('following', '${userId}')"><strong class="text-gray-900">${user.following ? user.following.length : 0}</strong> Following</span>
+    <span class="cursor-pointer hover:underline" onclick="openUserList('followers', '${userId}')"><strong class="text-gray-900">${user.followers ? user.followers.length : 0}</strong> Followers</span>
     </div>
     </div>
     <div class="border-t border-gray-100 pt-6">
@@ -1921,6 +1956,113 @@ window.toggleFollow = async function(userId) {
     
     const netView = document.getElementById('view-network');
     if(netView && !netView.classList.contains('hidden')) renderNetwork();
+    
+    const userListOverlay = document.getElementById('user-list-overlay');
+    if(!userListOverlay.classList.contains('hidden')) {
+        // Just refresh the whole list if open, simpler than targeting specific item
+        const title = document.getElementById('user-list-title').innerText;
+        // This is a bit hacky, but valid for quick refresh
+        const viewingUser = users.find(u => u.id === window.currentViewingProfileId);
+        if(viewingUser) {
+             const type = title.includes('Following') ? 'following' : 'followers';
+             openUserList(type, window.currentViewingProfileId);
+        }
+    }
+    refreshIcons();
+}
+
+window.openUserList = function(type, userId) {
+    const user = users.find(u => u.id === userId);
+    if(!user) return;
+    
+    const overlay = document.getElementById('user-list-overlay');
+    const title = document.getElementById('user-list-title');
+    const content = document.getElementById('user-list-content');
+    
+    title.innerText = type === 'following' ? 'Following' : 'Followers';
+    content.innerHTML = '';
+    
+    const targetIds = type === 'following' ? user.following : user.followers;
+    
+    if(!targetIds || targetIds.length === 0) {
+        content.innerHTML = `<div class="text-center text-gray-400 py-8">No users found.</div>`;
+    } else {
+        targetIds.forEach(tid => {
+            const targetUser = users.find(u => u.id === tid);
+            if(targetUser) {
+                const isMe = targetUser.id === currentUser.id;
+                const amFollowing = currentUser.following.includes(targetUser.id);
+                
+                let btn = '';
+                if(!isMe) {
+                    btn = `<button onclick="toggleFollow('${targetUser.id}')" class="text-xs px-3 py-1 rounded-full font-medium ${amFollowing ? 'bg-gray-100 text-gray-700' : 'bg-blue-600 text-white'}">${amFollowing ? 'Unfollow' : 'Follow'}</button>`;
+                }
+                
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
+                div.onclick = (e) => {
+                    if(e.target.tagName !== 'BUTTON') {
+                        closeUserList();
+                        showProfile(targetUser.id);
+                    }
+                };
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${targetUser.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover">
+                        <div>
+                            <div class="font-bold text-sm text-gray-900">${targetUser.name}</div>
+                            <div class="text-xs text-gray-500 truncate w-32">${targetUser.bio}</div>
+                        </div>
+                    </div>
+                    ${btn}
+                `;
+                content.appendChild(div);
+            }
+        });
+    }
+    
+    overlay.classList.remove('hidden');
+}
+
+window.closeUserList = function() {
+    document.getElementById('user-list-overlay').classList.add('hidden');
+}
+
+window.handleSearch = function(query) {
+    if(!query) { 
+        // If empty, just switch to explore but show default content
+        switchView('explore'); 
+        const results = document.getElementById('explore-results');
+        results.innerHTML = `<div class="text-center py-20 text-gray-400"><i data-lucide="compass" class="w-16 h-16 mx-auto mb-3 opacity-50"></i><p>Search for people, posts, and ideas.</p></div>`;
+        refreshIcons();
+        return; 
+    }
+    
+    switchView('explore');
+    // Ensure both search bars reflect the query
+    document.getElementById('global-search').value = query;
+    const mobileSearch = document.querySelector('#view-explore input');
+    if(mobileSearch) mobileSearch.value = query;
+
+    const view = document.getElementById('explore-results');
+    const term = query.toLowerCase();
+    const foundUsers = users.filter(u => u.name.toLowerCase().includes(term));
+    const foundPosts = posts.filter(p => p.content.toLowerCase().includes(term));
+    
+    let html = `<div class="font-bold mb-2">People</div>`;
+    if(foundUsers.length) {
+        foundUsers.forEach(u => {
+            html += `<div class="flex items-center gap-3 p-3 bg-white rounded-xl mb-2 cursor-pointer hover:shadow-sm" onclick="showProfile('${u.id}')"><img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover"><div><div class="font-bold text-sm">${u.name}</div><div class="text-xs text-gray-500">${u.bio}</div></div></div>`;
+        });
+    } else { html += `<div class="text-gray-400 text-sm mb-4">No people found</div>`; }
+    
+    html += `<div class="font-bold mb-2 mt-4">Posts</div>`;
+    view.innerHTML = html;
+    const postsDiv = document.createElement('div');
+    postsDiv.className = "space-y-4";
+    if(foundPosts.length) foundPosts.forEach(p => postsDiv.appendChild(createPostElement(p)));
+    else postsDiv.innerHTML = `<div class="text-gray-400 text-sm">No posts found</div>`;
+    view.appendChild(postsDiv);
     refreshIcons();
 }
 
@@ -2095,32 +2237,6 @@ window.deleteCurrentChat = async function() {
         await batch.commit();
         showToast("Conversation deleted");
     }
-}
-
-window.handleSearch = function(query) {
-    if(!query) { switchView('feed'); return; }
-    switchView('search-results');
-    const view = document.getElementById('view-search-results');
-    document.getElementById('global-search').value = query;
-    const term = query.toLowerCase();
-    const foundUsers = users.filter(u => u.name.toLowerCase().includes(term));
-    const foundPosts = posts.filter(p => p.content.toLowerCase().includes(term));
-    
-    let html = `<div class="font-bold mb-2">People</div>`;
-    if(foundUsers.length) {
-        foundUsers.forEach(u => {
-            html += `<div class="flex items-center gap-3 p-3 bg-white rounded-xl mb-2 cursor-pointer hover:shadow-sm" onclick="showProfile('${u.id}')"><img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover"><div><div class="font-bold text-sm">${u.name}</div><div class="text-xs text-gray-500">${u.bio}</div></div></div>`;
-        });
-    } else { html += `<div class="text-gray-400 text-sm mb-4">No people found</div>`; }
-    
-    html += `<div class="font-bold mb-2 mt-4">Posts</div>`;
-    view.innerHTML = html;
-    const postsDiv = document.createElement('div');
-    postsDiv.className = "space-y-4";
-    if(foundPosts.length) foundPosts.forEach(p => postsDiv.appendChild(createPostElement(p)));
-    else postsDiv.innerHTML = `<div class="text-gray-400 text-sm">No posts found</div>`;
-    view.appendChild(postsDiv);
-    refreshIcons();
 }
 
 window.openPostView = function(postId) {

@@ -513,11 +513,13 @@ transition: background 0.1s; font-size: 14px; font-weight: 500;
 
 .chat-date-divider { text-align: center; font-size: 11px; color: #9ca3af; margin: 16px 0; font-weight: 500; }
 
+/* Messenger Style Hover Actions */
 .chat-row {
     position: relative;
     display: flex;
     width: 100%;
     margin-bottom: 6px;
+    padding: 2px 0; /* Add target area for hover */
 }
 .chat-row.me { justify-content: flex-end; }
 .chat-row.them { justify-content: flex-start; }
@@ -530,17 +532,23 @@ transition: background 0.1s; font-size: 14px; font-weight: 500;
     border: 1px solid #eaecf0;
     border-radius: 20px;
     padding: 4px;
-    display: none; /* Hidden by default */
+    display: flex; /* Always display flex, handle visibility with opacity */
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     z-index: 10;
     gap: 4px;
+    opacity: 0; /* Hidden by default */
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
 }
 
-/* Hover logic: Show menu when hovering the ROW */
-.chat-row:hover .chat-actions-menu { display: flex; }
+/* Show menu when hovering the ROW */
+.chat-row:hover .chat-actions-menu { 
+    opacity: 1; 
+    pointer-events: auto;
+}
 
-.chat-row.me .chat-actions-menu { right: 100%; margin-right: 12px; }
-.chat-row.them .chat-actions-menu { left: 100%; margin-left: 12px; }
+.chat-row.me .chat-actions-menu { right: 100%; margin-right: 8px; }
+.chat-row.them .chat-actions-menu { left: 100%; margin-left: 8px; }
 
 .chat-action-btn {
     padding: 6px;
@@ -1126,9 +1134,10 @@ let currentEventCoverBlob = null;
 // Helper: Reliable Icon Refresh
 function refreshIcons() {
     if(window.lucide) {
+        // Use a slightly longer timeout to ensure DOM paints first
         setTimeout(() => {
             window.lucide.createIcons();
-        }, 50);
+        }, 100);
     }
 }
 
@@ -1369,6 +1378,8 @@ window.switchView = function(viewName) {
     } else if (viewName === 'announcements') {
         const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
     }
+    
+    // Crucial fix: Re-render icons after switching view to ensure they don't disappear
     refreshIcons();
 }
 
@@ -1488,6 +1499,7 @@ window.toggleLike = async function(postId) {
         const countSpan = btn.querySelector('span');
         let currentCount = parseInt(countSpan.innerText) || 0;
         
+        // Handle SVG class manipulation directly for instant feedback
         let hasClass = false;
         if(icon.tagName === 'svg') hasClass = icon.classList.contains('text-red-500');
         else hasClass = icon.classList.contains('text-red-500');

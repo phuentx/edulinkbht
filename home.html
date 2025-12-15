@@ -1243,9 +1243,8 @@ function initRealtimeListeners() {
         if(netView && !netView.classList.contains('hidden')) renderNetwork();
         
         const profileView = document.getElementById('view-profile');
-        // Refresh profile if looking at self or if generic update needed
         if(profileView && !profileView.classList.contains('hidden')) {
-             // We can check if we need to redraw specific profile but simple re-render of icons helps
+             // Profile refresh logic if needed
         }
         refreshIcons();
     });
@@ -1259,13 +1258,17 @@ function initRealtimeListeners() {
         }));
         
         const activeFeed = document.querySelector('#view-feed:not(.hidden)');
-        if(activeFeed) renderFeed();
+        if(activeFeed) {
+            renderFeed();
+            // Force refresh icons after feed update
+            refreshIcons();
+        }
         
         const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
         if(activePostView && window.currentViewingPostId) {
             renderCommentsInModal(window.currentViewingPostId);
+            refreshIcons();
         }
-        refreshIcons();
     });
 
     const qNotifs = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
@@ -1888,7 +1891,7 @@ function renderMessages(msgs) {
                 ${replyHTML}
                 <span>${linkifiedText}</span>
                 <span class="text-[9px] opacity-60 ml-2 align-bottom">${formatDate(m.timestamp)}</span>
-                ${m.reaction ? `<div class="absolute -bottom-2 ${isMe ? 'left-0' : 'right-0'} bg-white border rounded-full px-1 text-[10px] shadow-sm scale-75">${m.reaction}</div>` : ''}
+                ${m.reaction ? `<div class="absolute -bottom-2 ${isMe ? 'left-0' : 'right-0'} bg-white border rounded-full px-1 text-[10px] shadow-sm scale-75 cursor-pointer" onclick="reactToMessage('${m.id}', '${m.reaction}')">${m.reaction}</div>` : ''}
             </div>
         `;
         container.appendChild(div);
@@ -1911,7 +1914,15 @@ window.cancelReply = function() {
 
 window.reactToMessage = async function(msgId, emoji) {
     const msgRef = doc(db, "messages", msgId);
-    await updateDoc(msgRef, { reaction: emoji });
+    const msgSnap = await getDoc(msgRef);
+    if(msgSnap.exists()) {
+        const data = msgSnap.data();
+        if(data.reaction === emoji) {
+            await updateDoc(msgRef, { reaction: null });
+        } else {
+            await updateDoc(msgRef, { reaction: emoji });
+        }
+    }
 }
 
 window.deleteMessage = async function(msgId) {

@@ -1349,6 +1349,7 @@ let chatPartners = new Set();
 window.replyingToCommentId = null; 
 window.replyingToMessageId = null;
 window.currentViewingProfileId = null;
+window.activeExploreTab = 'people'; // New: Explore Tab State
 
 // Global Vars for App Logic
 window.currentContext = "";
@@ -1379,25 +1380,16 @@ function refreshIcons() {
 function formatDate(timestamp) {
     if (!timestamp) return '';
     let date;
-    // Handle Firestore Timestamp
     if (timestamp.toDate && typeof timestamp.toDate === 'function') {
         date = timestamp.toDate();
-    } 
-    // Handle milliseconds number
-    else if (typeof timestamp === 'number') {
+    } else if (typeof timestamp === 'number') {
         date = new Date(timestamp);
-    } 
-    // Handle Date object
-    else if (timestamp instanceof Date) {
+    } else if (timestamp instanceof Date) {
         date = timestamp;
-    }
-    // Fallback for string ISO dates or other
-    else {
+    } else {
         date = new Date(timestamp);
     }
-
-    if (isNaN(date.getTime())) return ''; // Invalid Date
-    
+    if (isNaN(date.getTime())) return ''; 
     return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 }
 
@@ -1407,11 +1399,8 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
-        
         let isOfficial = false;
-        if(user.email === 'edulinkbht@gmail.com') {
-            isOfficial = true;
-        }
+        if(user.email === 'edulinkbht@gmail.com') { isOfficial = true; }
 
         if (userSnap.exists()) {
             currentUser = { id: user.uid, ...userSnap.data() };
@@ -1431,14 +1420,11 @@ onAuthStateChanged(auth, async (user) => {
                 friends: [],
                 saved: [],
                 isOfficial: isOfficial,
-                settings: {
-                    privateNetwork: false
-                }
+                settings: { privateNetwork: false }
             };
             await setDoc(userRef, currentUser);
         }
         
-        // Ensure defaults
         currentUser.following = currentUser.following || [];
         currentUser.followers = currentUser.followers || [];
         currentUser.friends = currentUser.friends || [];
@@ -1482,65 +1468,42 @@ function initRealtimeListeners() {
         if(profileView && !profileView.classList.contains('hidden') && window.currentViewingProfileId) {
              showProfile(window.currentViewingProfileId);
         }
-        
-        // Refresh chat list if names change or follow status changes
-        if(!document.getElementById('view-chat').classList.contains('hidden')) {
-            renderChatList();
-        }
+        if(!document.getElementById('view-chat').classList.contains('hidden')) { renderChatList(); }
         refreshIcons();
     });
 
     const qPosts = query(collection(db, "posts"), orderBy("timestamp", "desc"));
     onSnapshot(qPosts, (snapshot) => {
-        posts = snapshot.docs.map(doc => ({ 
-            id: doc.id, 
-            ...doc.data(), 
-            timestamp: doc.data().timestamp 
-        }));
+        posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
         
+        // Only render if needed, but since snapshot implies data change, we should re-render to show new content
         const activeFeed = document.querySelector('#view-feed:not(.hidden)');
-        if(activeFeed) {
-            renderFeed();
-        }
+        if(activeFeed) renderFeed();
         
         const activeSaved = document.querySelector('#view-saved:not(.hidden)');
-        if(activeSaved) {
-            renderSaved();
-        }
+        if(activeSaved) renderSaved();
 
         const activeProfile = document.querySelector('#view-profile:not(.hidden)');
-        if(activeProfile && window.currentViewingProfileId) {
-            showProfile(window.currentViewingProfileId);
-        }
+        if(activeProfile && window.currentViewingProfileId) showProfile(window.currentViewingProfileId);
 
         const activeNetwork = document.querySelector('#view-network:not(.hidden)');
-        if(activeNetwork && activeNetworkTab === 'posts') {
-            renderNetwork();
-        }
+        if(activeNetwork && activeNetworkTab === 'posts') renderNetwork();
         
         const activeExplore = document.querySelector('#view-explore:not(.hidden)');
         if(activeExplore) {
-            // Re-run search if active to update results
             const searchVal = document.getElementById('global-search').value;
-            if(searchVal) handleSearch(searchVal);
+            handleSearch(searchVal);
         }
         
         const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
-        if(activePostView && window.currentViewingPostId) {
-            renderCommentsInModal(window.currentViewingPostId);
-        }
-        // Force refresh icons after ANY post update to prevent disappearance
+        if(activePostView && window.currentViewingPostId) renderCommentsInModal(window.currentViewingPostId);
+        
         setTimeout(refreshIcons, 50);
     });
 
     const qNotifs = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
     onSnapshot(qNotifs, (snapshot) => {
-        notifications = snapshot.docs.map(doc => ({ 
-            id: doc.id, 
-            ...doc.data(),
-            timestamp: doc.data().timestamp
-        }));
-        
+        notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
         notifications.sort((a,b) => (b.timestamp?.toDate ? b.timestamp.toDate() : 0) - (a.timestamp?.toDate ? a.timestamp.toDate() : 0));
         
         const badge = document.getElementById('notif-badge');
@@ -1555,29 +1518,22 @@ function initRealtimeListeners() {
         refreshIcons();
     });
 
-    // Message Listeners for Chat Partners & Red Dot
     const qSent = query(collection(db, "messages"), where("senderId", "==", currentUser.id));
     const qReceived = query(collection(db, "messages"), where("receiverId", "==", currentUser.id));
     
-    // Helper to update chat list
     const updateChatPartners = (snapshot, role) => {
         snapshot.docs.forEach(doc => {
             const data = doc.data();
             const partnerId = role === 'sender' ? data.receiverId : data.senderId;
             chatPartners.add(partnerId);
         });
-        if(!document.getElementById('view-chat').classList.contains('hidden')) {
-            renderChatList();
-        }
+        if(!document.getElementById('view-chat').classList.contains('hidden')) { renderChatList(); }
     };
 
     onSnapshot(qSent, (snapshot) => updateChatPartners(snapshot, 'sender'));
-    
     onSnapshot(qReceived, (snapshot) => {
         updateChatPartners(snapshot, 'receiver');
         const dot = document.getElementById('chat-dot');
-        // Simple logic: if any message exists where receiver is me, show dot. 
-        // In real app, check 'read' status per message or per conversation
         const hasMessages = !snapshot.empty;
         if(dot) {
             if(hasMessages && activeChatUserId === null) dot.style.display = 'block';
@@ -1601,15 +1557,12 @@ function updateUserInterface() {
     const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = currentUser.avatar;
     const edBanner = document.getElementById('edit-banner-link'); if(edBanner) edBanner.value = currentUser.banner || '';
     
-    // Banner Position Handling
     const bannerPos = currentUser.bannerPos || 50;
-    // Always load src even if drag isn't active
     const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
     document.getElementById('edit-banner-preview').src = bannerUrl;
     document.getElementById('edit-banner-preview').style.objectPosition = `center ${bannerPos}%`;
     document.getElementById('banner-pos-hint').innerText = `${bannerPos}%`;
     
-    // Settings Toggles
     const togglePrivacy = document.getElementById('toggle-privacy');
     if(togglePrivacy) {
         if(currentUser.settings?.privateNetwork) togglePrivacy.classList.add('active');
@@ -1631,39 +1584,27 @@ function updateUserInterface() {
     refreshIcons();
 }
 
-// --- ALERT LOGIC ---
 let alertCallback = null;
 window.showAlert = function(message, onConfirm) {
     document.getElementById('alert-msg').innerText = message;
     document.getElementById('custom-alert').classList.remove('hidden');
-    // small delay for transition
     setTimeout(() => {
         document.getElementById('custom-alert').classList.remove('opacity-0');
         document.getElementById('custom-alert-box').classList.remove('scale-95');
     }, 10);
-    
     alertCallback = onConfirm;
-    
     const confirmBtn = document.getElementById('alert-confirm-btn');
-    // Remove old listeners to avoid stacking
     const newBtn = confirmBtn.cloneNode(true);
     confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
-    
-    newBtn.onclick = () => {
-        if (alertCallback) alertCallback();
-        closeAlert(true);
-    };
+    newBtn.onclick = () => { if (alertCallback) alertCallback(); closeAlert(true); };
 }
 
 window.closeAlert = function(confirmed) {
     document.getElementById('custom-alert').classList.add('opacity-0');
     document.getElementById('custom-alert-box').classList.add('scale-95');
-    setTimeout(() => {
-        document.getElementById('custom-alert').classList.add('hidden');
-    }, 200);
+    setTimeout(() => { document.getElementById('custom-alert').classList.add('hidden'); }, 200);
 }
 
-// --- BANNER DRAG LOGIC ---
 let isDraggingBanner = false;
 let startY = 0;
 let initialBannerPos = 50;
@@ -1671,13 +1612,10 @@ let currentBannerPos = 50;
 
 function initBannerDrag() {
     const container = document.getElementById('banner-edit-area');
-    
     container.addEventListener('mousedown', startDrag);
     container.addEventListener('touchstart', startDrag, {passive: false});
-    
     window.addEventListener('mousemove', drag);
     window.addEventListener('touchmove', drag, {passive: false});
-    
     window.addEventListener('mouseup', endDrag);
     window.addEventListener('touchend', endDrag);
 }
@@ -1695,47 +1633,25 @@ function drag(e) {
     if(e.cancelable) e.preventDefault(); 
     const y = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
     const deltaY = startY - y;
-    
-    // Sensitivity factor
     const percentChange = (deltaY / 2); 
     let newPos = initialBannerPos + percentChange;
-    
-    // Clamp between 0 and 100
     newPos = Math.max(0, Math.min(100, newPos));
-    
     currentBannerPos = Math.round(newPos);
     document.getElementById('edit-banner-preview').style.objectPosition = `center ${currentBannerPos}%`;
     document.getElementById('banner-pos-hint').innerText = `${currentBannerPos}%`;
 }
 
-function endDrag() {
-    isDraggingBanner = false;
-}
+function endDrag() { isDraggingBanner = false; }
 
-function updateEditBannerPreview() {
-    const url = document.getElementById('edit-banner-link').value;
-    if(url) {
-        document.getElementById('edit-banner-preview').src = url;
-    }
-}
-
-// --- SETTINGS LOGIC ---
-window.openSettings = function() {
-    document.getElementById('settings-overlay').classList.remove('hidden');
-}
-window.closeSettings = function() {
-    document.getElementById('settings-overlay').classList.add('hidden');
-}
+window.openSettings = function() { document.getElementById('settings-overlay').classList.remove('hidden'); }
+window.closeSettings = function() { document.getElementById('settings-overlay').classList.add('hidden'); }
 
 window.togglePrivacy = async function() {
     const toggle = document.getElementById('toggle-privacy');
     const isPrivate = !toggle.classList.contains('active');
-    
     toggle.classList.toggle('active');
-    
     const settings = currentUser.settings || {};
     settings.privateNetwork = isPrivate;
-    
     const userRef = doc(db, "users", currentUser.id);
     await updateDoc(userRef, { settings: settings });
     currentUser.settings = settings;
@@ -1785,33 +1701,34 @@ window.switchView = function(viewName) {
     if(viewName === 'feed') {
         const nav = document.getElementById('nav-feed'); if(nav) nav.classList.add('active');
         if(mobileNavItems[0]) mobileNavItems[0].classList.add('active');
-        renderFeed();
+        // Initial render is handled by onSnapshot. We do NOT call renderFeed() here to prevent clearing/flicker.
+        // If it's the first load, onSnapshot runs anyway. If switching back, DOM is preserved.
+        if(document.getElementById('feed-container').children.length === 0) renderFeed(); 
     } else if (viewName === 'explore') {
         const nav = document.getElementById('nav-explore'); if(nav) nav.classList.add('active');
         if(mobileNavItems[1]) mobileNavItems[1].classList.add('active');
-        const searchVal = document.getElementById('global-search').value;
-        handleSearch(searchVal); 
+        // Don't auto-search here to avoid loops, let user input drive it or previous state persist
     } else if (viewName === 'network') {
         const nav = document.getElementById('nav-network'); if(nav) nav.classList.add('active');
-        renderNetwork();
+        if(document.getElementById('network-content').children.length === 0) renderNetwork();
     } else if (viewName === 'chat') {
         const nav = document.getElementById('nav-chat'); if(nav) nav.classList.add('active');
         if(mobileNavItems[3]) mobileNavItems[3].classList.add('active');
-        renderChatList();
+        renderChatList(); // Chat list needs to update highlight
         const dot = document.getElementById('chat-dot');
         if(dot) dot.style.display = 'none';
     } else if (viewName === 'saved') {
         const nav = document.getElementById('nav-saved'); if(nav) nav.classList.add('active');
-        renderSaved();
+        if(document.getElementById('saved-container').children.length === 0) renderSaved();
     } else if (viewName === 'ai') {
         if(mobileNavItems[3]) mobileNavItems[3].classList.add('active');
     } else if (viewName === 'notifications') {
-        renderNotifications();
+        if(document.getElementById('notification-list').children.length === 0) renderNotifications();
     } else if (viewName === 'announcements') {
         const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
     }
-    // Ensures icons re-render immediately after view switch
-    setTimeout(refreshIcons, 50);
+    // Ensures icons re-render immediately after view switch just in case
+    setTimeout(refreshIcons, 10);
 }
 
 window.switchNetworkTab = function(tab) {
@@ -1881,24 +1798,18 @@ window.renderFeed = function(filterTerm = "") {
         displayPosts = displayPosts.filter(p => p.content.toLowerCase().includes(term));
     }
     
-    // Privacy Logic: Show post if Author, Public, or Follower
-    // Enhanced for private accounts: if author is private, only followers can see
     displayPosts = displayPosts.filter(p => {
         const isAuthor = p.authorId === currentUser.id;
         const author = users.find(u => u.id === p.authorId);
-        
-        // Post-specific privacy setting
         const isPublicPost = !p.settings || p.settings.privacy === 'public';
-        
-        // Account-level privacy
         const isPrivateAccount = author?.settings?.privateNetwork;
         const amFollowing = currentUser.following.includes(p.authorId);
         
         if (isAuthor) return true;
-        if (isPrivateAccount) return amFollowing; // Must follow to see anything from private acc
-        if (!isPublicPost) return amFollowing; // Must follow to see private post from public acc
+        if (isPrivateAccount) return amFollowing; 
+        if (!isPublicPost) return amFollowing; 
         
-        return true; // Public post from public account
+        return true; 
     });
 
     displayPosts.forEach(post => container.appendChild(createPostElement(post)));
@@ -1911,10 +1822,6 @@ function createPostElement(post) {
     const isSaved = savedPosts.includes(post.id);
     const dateStr = formatDate(post.timestamp);
     const settings = post.settings || { privacy: 'public', showLikes: true, showComments: true, allowLikeView: true, allowComments: true };
-    const isAuthor = post.authorId === currentUser.id;
-    const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
-    const canDelete = isAuthor || isAdmin;
-
     const div = document.createElement('article');
     div.className = "post-card group overflow-hidden fade-in";
     div.onclick = () => openPostView(post.id);
@@ -1933,7 +1840,7 @@ function createPostElement(post) {
     let officialBadge = author.isOfficial ? `<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>` : '';
     let lockIcon = settings.privacy === 'private' || author?.settings?.privateNetwork ? `<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>` : '';
 
-    const canViewLikeList = settings.allowLikeView === undefined || settings.allowLikeView === true || isAuthor || isAdmin;
+    const canViewLikeList = settings.allowLikeView === undefined || settings.allowLikeView === true || author.id === currentUser.id || currentUser.email === 'edulinkbht@gmail.com';
     const likeCountDisplay = settings.showLikes 
         ? `<span id="like-count-${post.id}" class="text-xs font-medium px-1 hover:underline cursor-pointer" onclick="${canViewLikeList ? `event.stopPropagation(); openLikes('${post.id}')` : 'event.stopPropagation()'}">${post.likes ? post.likes.length : 0}</span>` 
         : '';
@@ -1980,11 +1887,9 @@ function createPostElement(post) {
 }
 
 window.toggleLike = async function(postId) {
-    // 1. Optimistic UI Update (Immediate)
     const btn = document.getElementById(`like-btn-${postId}`);
     const countSpan = document.getElementById(`like-count-${postId}`);
     
-    // Safety check if element exists (it should, but good practice)
     if(btn) {
         const icon = btn.querySelector('svg') || btn.querySelector('i');
         let isLiked = false;
@@ -1993,23 +1898,20 @@ window.toggleLike = async function(postId) {
         else isLiked = icon.classList.contains('text-red-500');
 
         if (isLiked) {
-            // Unliking
             icon.classList.remove('fill-red-500', 'text-red-500');
             if(countSpan) {
-                const current = parseInt(countSpan.innerText);
+                const current = parseInt(countSpan.innerText) || 0;
                 countSpan.innerText = Math.max(0, current - 1);
             }
         } else {
-            // Liking
             icon.classList.add('fill-red-500', 'text-red-500');
             if(countSpan) {
-                const current = parseInt(countSpan.innerText);
+                const current = parseInt(countSpan.innerText) || 0;
                 countSpan.innerText = current + 1;
             }
         }
     }
 
-    // 2. Database Update
     const postRef = doc(db, "posts", postId);
     const post = posts.find(p => p.id === postId);
     if(post.likes && post.likes.includes(currentUser.id)) {
@@ -2091,9 +1993,7 @@ window.toggleSave = async function(postId) {
 
 window.sharePost = function(postId) {
     const url = `${window.location.origin}${window.location.pathname}?postId=${postId}`;
-    navigator.clipboard.writeText(url).then(() => {
-        showToast("Link copied to clipboard!");
-    });
+    navigator.clipboard.writeText(url).then(() => { showToast("Link copied to clipboard!"); });
 }
 
 window.renderSaved = function() {
@@ -2132,11 +2032,9 @@ window.renderNotifications = function() {
     container.innerHTML = "";
 
     const filtered = notifications.filter(n => {
-        const sender = users.find(u => u.id === n.senderId) || { isOfficial: false, id: n.senderId };
         if (activeNotifTab === 'official') {
             return n.type === 'official';
         } else if (activeNotifTab === 'friends') {
-            // Show follow requests in friends tab or logic specific? Let's show all interaction based notifs here
             return currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request';
         } else {
             return n.type !== 'official' && !currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request';
@@ -2171,30 +2069,19 @@ window.renderNotifications = function() {
         
         let actionButtons = '';
         if(n.type === 'follow_request') {
-            actionButtons = `
-                <div class="flex gap-2 ml-auto">
-                    <button onclick="acceptFollow('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Accept</button>
-                    <button onclick="deleteNotification('${n.id}')" class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-bold">Delete</button>
-                </div>
-            `;
-            clickAction = ''; // disable main click
+            actionButtons = `<div class="flex gap-2 ml-auto"><button onclick="acceptFollow('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Accept</button><button onclick="deleteNotification('${n.id}')" class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-bold">Delete</button></div>`;
+            clickAction = ''; 
         }
         
         if(n.type === 'message_request') {
-             actionButtons = `
-                <div class="flex gap-2 ml-auto">
-                    <button onclick="acceptMessage('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Chat</button>
-                </div>
-            `;
+             actionButtons = `<div class="flex gap-2 ml-auto"><button onclick="acceptMessage('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Chat</button></div>`;
             clickAction = '';
         }
 
         div.innerHTML = `
         <div class="relative cursor-pointer" onclick="showProfile('${sender.id}')">
         <img src="${sender.avatar}" class="w-10 h-10 rounded-full bg-gray-200">
-        <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${colorClass} flex items-center justify-center border-2 border-white">
-        ${icon}
-        </div>
+        <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${colorClass} flex items-center justify-center border-2 border-white">${icon}</div>
         </div>
         <div class="flex-1 cursor-pointer" ${clickAction}>
         <div class="text-sm">
@@ -2217,24 +2104,16 @@ window.deleteNotification = async function(id) {
 }
 
 window.acceptFollow = async function(notifId, senderId) {
-    // Add to followers
     const meRef = doc(db, "users", currentUser.id);
     await updateDoc(meRef, { followers: arrayUnion(senderId) });
-    
-    // Add to sender's following
     const senderRef = doc(db, "users", senderId);
     await updateDoc(senderRef, { following: arrayUnion(currentUser.id) });
-    
-    // Delete notification
     await deleteDoc(doc(db, "notifications", notifId));
-    
-    // Notify sender
     await sendNotification(senderId, 'follow', 'accepted your follow request');
     showToast("Follow request accepted");
 }
 
 window.acceptMessage = async function(notifId, senderId) {
-    // Simply open chat, delete notification
     await deleteDoc(doc(db, "notifications", notifId));
     startChat(senderId);
 }
@@ -2271,12 +2150,9 @@ window.showProfile = function(userId) {
     if (isMe) {
         actionBtn = `<button onclick="openEditProfile()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200">Edit Profile</button>`;
     } else {
-        // Check if pending request exists (simplified: checking if we sent a notif previously is hard without new DB field, 
-        // so we just rely on UI state or assume 'Requested' if private and not following)
         const isPrivate = user.settings?.privateNetwork;
         let btnText = isFollowing ? 'Following' : (isPrivate ? 'Request' : 'Follow');
         
-        // Check if button text was set to Requested in this session (simple UI hack for immediate feedback)
         const existingBtn = document.getElementById('profile-follow-btn');
         if(existingBtn && existingBtn.innerText === 'Requested' && !isFollowing) {
             btnText = 'Requested';
@@ -2284,16 +2160,13 @@ window.showProfile = function(userId) {
 
         actionBtn = `
         <div class="flex gap-2">
-        <button id="profile-follow-btn" onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-700' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">
-        ${btnText}
-        </button>
+        <button id="profile-follow-btn" onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-700' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">${btnText}</button>
         <button onclick="startChat('${userId}')" class="border border-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
         </div>
         `;
     }
 
     const userPosts = posts.filter(p => p.authorId === userId);
-    // Filter out private posts if viewer shouldn't see them
     const visiblePosts = userPosts.filter(p => {
         const isAuthor = p.authorId === currentUser.id;
         const isPublic = !p.settings || p.settings.privacy === 'public';
@@ -2309,7 +2182,6 @@ window.showProfile = function(userId) {
     const bannerPos = user.bannerPos || 50;
 
     let networkStatsHTML = '';
-    // Privacy check for network stats
     const isPrivate = user.settings?.privateNetwork;
     if(isMe || !isPrivate || isFollowing) {
         networkStatsHTML = `
@@ -2322,23 +2194,11 @@ window.showProfile = function(userId) {
     }
 
     container.innerHTML = `
-    <div class="profile-banner-container">
-        <img src="${bannerUrl}" class="profile-banner-img" style="object-position: center ${bannerPos}%">
-    </div>
+    <div class="profile-banner-container"><img src="${bannerUrl}" class="profile-banner-img" style="object-position: center ${bannerPos}%"></div>
     <div class="px-6 relative">
-    <div class="flex justify-between items-end -mt-10 mb-4">
-    <img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">
-    ${actionBtn}
-    </div>
-    <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1>
-    <p class="text-gray-600 mt-1">${user.bio}</p>
-    ${networkStatsHTML}
-    </div>
-    <div class="border-t border-gray-100 pt-6">
-    <h3 class="font-bold text-lg mb-4">Posts</h3>
-    <div id="profile-posts-container"></div>
-    </div>
+    <div class="flex justify-between items-end -mt-10 mb-4"><img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">${actionBtn}</div>
+    <div class="mb-6"><h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1><p class="text-gray-600 mt-1">${user.bio}</p>${networkStatsHTML}</div>
+    <div class="border-t border-gray-100 pt-6"><h3 class="font-bold text-lg mb-4">Posts</h3><div id="profile-posts-container"></div></div>
     </div>
     `;
 
@@ -2353,18 +2213,13 @@ window.showProfile = function(userId) {
 }
 
 window.openEditProfile = function() { 
-    // Reset drag tracking when opening
     const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
     currentBannerPos = currentUser.bannerPos || 50;
     initialBannerPos = currentBannerPos;
-    
     document.getElementById('edit-banner-preview').src = bannerUrl;
     document.getElementById('edit-banner-preview').style.objectPosition = `center ${currentBannerPos}%`;
     document.getElementById('banner-pos-hint').innerText = `${currentBannerPos}%`;
-    
-    // Set Email
     document.getElementById('edit-email').value = currentUser.email || "";
-
     document.getElementById('edit-profile-overlay').classList.remove('pointer-events-none', 'opacity-0'); 
 }
 window.closeEditProfile = function() { document.getElementById('edit-profile-overlay').classList.add('pointer-events-none', 'opacity-0'); }
@@ -2397,55 +2252,31 @@ window.saveProfileChanges = async function() {
 
     const name = document.getElementById('edit-name').value;
     const bio = document.getElementById('edit-bio').value;
-    // Current banner pos tracked in currentBannerPos variable from drag logic
     const bannerPos = currentBannerPos;
     
-    if(!name) {
-        showToast("Name is required");
-        btn.innerText = originalText;
-        btn.disabled = false;
-        return;
-    }
+    if(!name) { showToast("Name is required"); btn.innerText = originalText; btn.disabled = false; return; }
     
     let avatarUrl = currentUser.avatar;
     let bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
 
     try {
-        if(currentAvatarBlob) {
-            avatarUrl = await uploadToImgHippo(currentAvatarBlob);
-        }
-        if(currentBannerBlob) {
-            bannerUrl = await uploadToImgHippo(currentBannerBlob);
-        }
+        if(currentAvatarBlob) { avatarUrl = await uploadToImgHippo(currentAvatarBlob); }
+        if(currentBannerBlob) { bannerUrl = await uploadToImgHippo(currentBannerBlob); }
     } catch (e) {
-        console.error("Upload failed", e);
-        showToast("Image upload failed");
-        btn.innerText = originalText;
-        btn.disabled = false;
-        return;
+        console.error("Upload failed", e); showToast("Image upload failed"); btn.innerText = originalText; btn.disabled = false; return;
     }
 
     const userRef = doc(db, "users", currentUser.id);
     await updateDoc(userRef, { name, bio, avatar: avatarUrl, banner: bannerUrl, bannerPos });
     
-    // Instant Local Update
-    currentUser.name = name;
-    currentUser.bio = bio;
-    currentUser.avatar = avatarUrl;
-    currentUser.banner = bannerUrl;
-    currentUser.bannerPos = bannerPos;
-    
-    // Clear blobs
-    currentAvatarBlob = null;
-    currentBannerBlob = null;
+    currentUser.name = name; currentUser.bio = bio; currentUser.avatar = avatarUrl; currentUser.banner = bannerUrl; currentUser.bannerPos = bannerPos;
+    currentAvatarBlob = null; currentBannerBlob = null;
 
     updateUserInterface();
     closeEditProfile();
-    showProfile(currentUser.id); // Refresh profile view
+    showProfile(currentUser.id); 
     showToast("Profile Updated");
-    
-    btn.innerText = originalText;
-    btn.disabled = false;
+    btn.innerText = originalText; btn.disabled = false;
 }
 
 window.doLogout = async function() { await signOut(auth); window.location.href = "index.html"; }
@@ -2454,44 +2285,34 @@ window.toggleFollow = async function(userId) {
     const meRef = doc(db, "users", currentUser.id);
     const targetRef = doc(db, "users", userId);
     
-    // Check if target is private
     const targetUser = users.find(u => u.id === userId);
     const isPrivate = targetUser?.settings?.privateNetwork;
 
     if(currentUser.following.includes(userId)) {
-        // Unfollow
         currentUser.following = currentUser.following.filter(id => id !== userId);
         showToast(`Unfollowed`);
         await updateDoc(meRef, { following: arrayRemove(userId) });
         await updateDoc(targetRef, { followers: arrayRemove(currentUser.id) });
-        // Update Button
         const btn = document.getElementById('profile-follow-btn');
         if(btn) btn.innerText = isPrivate ? 'Request' : 'Follow';
     } else {
-        // Follow Logic
         if(isPrivate) {
-            // Send Request
             showToast("Follow request sent");
             sendNotification(userId, 'follow_request', 'wants to follow you');
-            // Immediate Feedback
             const btn = document.getElementById('profile-follow-btn');
             if(btn) btn.innerText = "Requested";
         } else {
-            // Immediate Follow
             currentUser.following.push(userId);
             showToast(`Following`);
             await updateDoc(meRef, { following: arrayUnion(userId) });
             await updateDoc(targetRef, { followers: arrayUnion(currentUser.id) });
             sendNotification(userId, 'follow', 'started following you');
-            // Update Button
             const btn = document.getElementById('profile-follow-btn');
             if(btn) btn.innerText = "Following";
         }
     }
-    // Refresh active views (network gets updated via snapshot)
     const netView = document.getElementById('view-network');
     if(netView && !netView.classList.contains('hidden')) renderNetwork();
-    
     refreshIcons();
 }
 
@@ -2499,7 +2320,6 @@ window.openUserList = function(type, userId) {
     const user = users.find(u => u.id === userId);
     if(!user) return;
     
-    // Safety Check for privacy
     if(user.settings?.privateNetwork && user.id !== currentUser.id && !currentUser.following.includes(user.id)) return;
 
     const overlay = document.getElementById('user-list-overlay');
@@ -2519,49 +2339,37 @@ window.openUserList = function(type, userId) {
             if(targetUser) {
                 const isMe = targetUser.id === currentUser.id;
                 const amFollowing = currentUser.following.includes(targetUser.id);
-                
                 let btn = '';
                 if(!isMe) {
                     btn = `<button onclick="toggleFollow('${targetUser.id}')" class="text-xs px-3 py-1 rounded-full font-medium ${amFollowing ? 'bg-gray-100 text-gray-700' : 'bg-blue-600 text-white'}">${amFollowing ? 'Unfollow' : 'Follow'}</button>`;
                 }
-                
                 const div = document.createElement('div');
                 div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
                 div.onclick = (e) => {
-                    if(e.target.tagName !== 'BUTTON') {
-                        closeUserList();
-                        showProfile(targetUser.id);
-                    }
+                    if(e.target.tagName !== 'BUTTON') { closeUserList(); showProfile(targetUser.id); }
                 };
-                div.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <img src="${targetUser.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover">
-                        <div>
-                            <div class="font-bold text-sm text-gray-900">${targetUser.name}</div>
-                            <div class="text-xs text-gray-500 truncate w-32">${targetUser.bio}</div>
-                        </div>
-                    </div>
-                    ${btn}
-                `;
+                div.innerHTML = `<div class="flex items-center gap-3"><img src="${targetUser.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${targetUser.name}</div><div class="text-xs text-gray-500 truncate w-32">${targetUser.bio}</div></div></div>${btn}`;
                 content.appendChild(div);
             }
         });
     }
-    
     overlay.classList.remove('hidden');
 }
 
-window.closeUserList = function() {
-    document.getElementById('user-list-overlay').classList.add('hidden');
+window.closeUserList = function() { document.getElementById('user-list-overlay').classList.add('hidden'); }
+
+// Updated Switch Explore Tab Function
+window.switchExploreTab = function(tabName) {
+    window.activeExploreTab = tabName;
+    const searchVal = document.getElementById('global-search').value;
+    handleSearch(searchVal); // Re-run search with new tab state
 }
 
 window.handleSearch = function(query) {
-    // 1. Ensure we are on the explore view
     if(document.getElementById('view-explore').classList.contains('hidden')) {
         switchView('explore');
     }
     
-    // 2. Sync Input Values (Header vs Mobile)
     const headerInput = document.getElementById('global-search');
     const mobileInput = document.querySelector('#view-explore input');
     
@@ -2570,7 +2378,6 @@ window.handleSearch = function(query) {
 
     const view = document.getElementById('explore-results');
     
-    // 3. Handle Empty Query
     if(!query || query.trim() === '') { 
         view.innerHTML = `<div class="text-center py-20 text-gray-400"><i data-lucide="compass" class="w-16 h-16 mx-auto mb-3 opacity-50"></i><p>Search for people, posts, and ideas.</p></div>`;
         refreshIcons();
@@ -2578,27 +2385,30 @@ window.handleSearch = function(query) {
     }
 
     const term = query.toLowerCase().trim();
-    // Split query for "close match" logic
     const keywords = term.split(" ").filter(k => k.length > 0);
 
-    // 4. Filter Users
     const foundUsers = users.filter(u => {
         const name = (u.name || '').toLowerCase();
         const bio = (u.bio || "").toLowerCase();
         return keywords.some(k => name.includes(k) || bio.includes(k));
     });
 
-    // 5. Filter Posts
     const foundPosts = posts.filter(p => {
         const content = (p.content || '').toLowerCase();
         return keywords.some(k => content.includes(k));
     });
     
-    // 6. Build Results HTML
-    let html = '';
+    // Tab Interface
+    let html = `
+    <div class="tab-group mb-4">
+        <button onclick="switchExploreTab('people')" class="tab-btn ${window.activeExploreTab === 'people' ? 'active' : ''}">People</button>
+        <button onclick="switchExploreTab('posts')" class="tab-btn ${window.activeExploreTab === 'posts' ? 'active' : ''}">Posts</button>
+    </div>
+    `;
     
-    // People Section
-    html += `<div class="font-bold mb-2 text-gray-900">People</div>`;
+    // People Results
+    const hiddenPeople = window.activeExploreTab === 'posts' ? 'hidden' : '';
+    html += `<div id="results-people" class="${hiddenPeople}">`;
     if(foundUsers.length) {
         foundUsers.forEach(u => {
             html += `
@@ -2613,37 +2423,32 @@ window.handleSearch = function(query) {
     } else { 
         html += `<div class="text-gray-400 text-sm mb-4 italic">No people found matching "${query}"</div>`; 
     }
+    html += `</div>`;
     
-    // Posts Section
-    html += `<div class="font-bold mb-2 mt-4 text-gray-900">Posts</div>`;
+    // Posts Results Container (will fill via DOM appending to keep event listeners active)
+    const hiddenPosts = window.activeExploreTab === 'people' ? 'hidden' : '';
+    html += `<div id="results-posts" class="space-y-4 ${hiddenPosts}"></div>`;
     
-    view.innerHTML = html; // Set the structure first
+    view.innerHTML = html;
     
-    const postsDiv = document.createElement('div');
-    postsDiv.className = "space-y-4";
-    
+    // Append posts elements manually
+    const postsDiv = document.getElementById('results-posts');
     if(foundPosts.length) {
         foundPosts.forEach(p => postsDiv.appendChild(createPostElement(p)));
     } else {
         postsDiv.innerHTML = `<div class="text-gray-400 text-sm italic">No posts found matching "${query}"</div>`;
     }
     
-    view.appendChild(postsDiv);
-    
-    // 7. Refresh Icons
     refreshIcons();
 }
 
-// --- CHAT SYSTEM ---
 window.renderChatList = function(searchTerm = "") {
     const list = document.getElementById('chat-list');
     list.innerHTML = "";
     
-    // Combine Following List with Chat Partners
     const contactsSet = new Set([...currentUser.following, ...chatPartners]);
     let contacts = users.filter(u => contactsSet.has(u.id));
     
-    // Filter by search
     if(searchTerm) {
         const lower = searchTerm.toLowerCase();
         contacts = contacts.filter(u => u.name.toLowerCase().includes(lower));
@@ -2676,13 +2481,7 @@ window.startChat = function(userId) {
     const user = users.find(u => u.id === userId);
     if(!user) return;
 
-    document.getElementById('chat-header').innerHTML = `
-    <div class="flex items-center gap-3">
-    <img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover cursor-pointer" onclick="showProfile('${user.id}')">
-    <span class="font-semibold text-gray-800 cursor-pointer" onclick="showProfile('${user.id}')">${user.name}</span>
-    </div>
-    <button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
-    `;
+    document.getElementById('chat-header').innerHTML = `<div class="flex items-center gap-3"><img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover cursor-pointer" onclick="showProfile('${user.id}')"><span class="font-semibold text-gray-800 cursor-pointer" onclick="showProfile('${user.id}')">${user.name}</span></div><button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`;
     document.getElementById('chat-input-area').classList.remove('hidden');
     document.getElementById('chat-input-area').classList.add('flex');
     renderChatList(); 
@@ -2711,13 +2510,12 @@ window.deleteConversationHistory = function(targetId) {
         const snapshot = await getDocs(qMsgs);
         snapshot.forEach(doc => {
             const m = doc.data();
-            if ((m.senderId === currentUser.id && m.receiverId === targetId) || 
-                (m.senderId === targetId && m.receiverId === currentUser.id)) {
+            if ((m.senderId === currentUser.id && m.receiverId === targetId) || (m.senderId === targetId && m.receiverId === currentUser.id)) {
                 batch.delete(doc.ref);
             }
         });
         await batch.commit();
-        chatPartners.delete(targetId); // Remove from local set
+        chatPartners.delete(targetId);
         if(activeChatUserId === targetId) {
             document.getElementById('chat-messages').innerHTML = '';
             activeChatUserId = null;
@@ -2750,17 +2548,12 @@ function renderMessages(msgs) {
         const div = document.createElement('div');
         const isMe = m.senderId === currentUser.id;
         div.className = isMe ? 'chat-row me group' : 'chat-row them group';
-        
         let replyHTML = '';
         if(m.replyToId) {
             const parent = msgs.find(msg => msg.id === m.replyToId);
-            if(parent) {
-                replyHTML = `<div class="quoted-reply">${parent.text.substring(0, 30)}...</div>`;
-            }
+            if(parent) { replyHTML = `<div class="quoted-reply">${parent.text.substring(0, 30)}...</div>`; }
         }
-
         const linkifiedText = linkify(m.text);
-        
         const bubbleClass = isMe ? 'chat-bubble-me' : 'chat-bubble-them';
         
         div.innerHTML = `
@@ -2800,18 +2593,13 @@ window.reactToMessage = async function(msgId, emoji) {
     const msgSnap = await getDoc(msgRef);
     if(msgSnap.exists()) {
         const data = msgSnap.data();
-        if(data.reaction === emoji) {
-            await updateDoc(msgRef, { reaction: null });
-        } else {
-            await updateDoc(msgRef, { reaction: emoji });
-        }
+        if(data.reaction === emoji) { await updateDoc(msgRef, { reaction: null }); } 
+        else { await updateDoc(msgRef, { reaction: emoji }); }
     }
 }
 
 window.deleteMessage = async function(msgId) {
-    showAlert("Unsend this message?", async () => {
-        await deleteDoc(doc(db, "messages", msgId));
-    });
+    showAlert("Unsend this message?", async () => { await deleteDoc(doc(db, "messages", msgId)); });
 }
 
 window.sendChatMessage = async function(e) {
@@ -2820,30 +2608,15 @@ window.sendChatMessage = async function(e) {
     const text = input.value.trim();
     if(!text || !activeChatUserId) return;
 
-    // Check if this counts as a message request
-    // If I don't follow them, and they don't follow me (or even if I follow them but they don't follow me back)
-    // Actually simpler: If they don't follow me, they might not see it in a "standard" inbox in a real app.
-    // For this prompt: "if a user that u dont follow sends u a message in the notification send like message request"
-    
-    // Check if I follow the receiver. If I don't follow them, it's a request? 
-    // Usually it's: If Receiver doesn't follow Sender.
     const receiver = users.find(u => u.id === activeChatUserId);
     const receiverFollowsMe = receiver.following && receiver.following.includes(currentUser.id);
-    
-    if(!receiverFollowsMe) {
-        // Send a notification first/also
-        sendNotification(activeChatUserId, 'message_request', 'wants to chat with you');
-    }
+    if(!receiverFollowsMe) { sendNotification(activeChatUserId, 'message_request', 'wants to chat with you'); }
 
     await addDoc(collection(db, "messages"), {
-        senderId: currentUser.id,
-        receiverId: activeChatUserId,
-        text: text,
-        timestamp: serverTimestamp(),
-        replyToId: window.replyingToMessageId || null
+        senderId: currentUser.id, receiverId: activeChatUserId,
+        text: text, timestamp: serverTimestamp(), replyToId: window.replyingToMessageId || null
     });
-    input.value = "";
-    cancelReply();
+    input.value = ""; cancelReply();
 }
 
 window.deleteCurrentChat = async function() {
@@ -2860,8 +2633,7 @@ window.openPostView = function(postId) {
     overlayContent.innerHTML = `<div class="flex gap-4 items-center mb-6"><img src="${author.avatar}" class="w-12 h-12 rounded-full border border-gray-200 cursor-pointer object-cover" onclick="showProfile('${author.id}')"><div><h3 class="font-bold text-[#1f1f1f] text-[16px]">${author.name}</h3><div class="text-xs text-[#667085] font-medium">${formatDate(post.timestamp)}</div></div></div><div class="text-[#1f1f1f] text-[16px] leading-relaxed">${tagsHTML}</div><div class="flex gap-6 mt-6 pt-6 border-t border-gray-100 text-sm text-gray-500 font-medium select-none"><button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="heart" class="w-4 h-4"></i> ${post.likes ? post.likes.length : 0} Likes</button><button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="message-square" class="w-4 h-4"></i> ${post.comments ? post.comments.length : 0} Comments</button></div>`;
     window.currentViewingPostId = postId;
     
-    // Comments disabled logic
-    const allowComments = post.settings?.allowComments !== false; // default true
+    const allowComments = post.settings?.allowComments !== false; 
     if(allowComments) {
         document.querySelectorAll('.comment-input-area').forEach(el => el.classList.remove('hidden'));
         document.querySelectorAll('.comments-disabled-msg').forEach(el => el.classList.add('hidden'));
@@ -2905,7 +2677,6 @@ function createCommentHTML(c, allComments, postId) {
     const canDelete = isMyComment || isAdmin;
     
     const replies = allComments.filter(r => r.parentId === c.id);
-    // Added specific ID to comment like button for optimistic updates
     let html = `<div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group"><img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-gray-900">${cAuthor.name}</span><span class="text-xs text-gray-500">• Now</span></div><p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p><div class="flex items-center gap-4 mt-2"><button id="comment-like-btn-${c.id}" onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> <span id="comment-like-count-${c.id}">${likeCount || ''}</span></button><button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div>`;
     if (replies.length > 0) {
         html += `<div class="reply-thread">`;
@@ -2915,7 +2686,6 @@ function createCommentHTML(c, allComments, postId) {
             const rLikeCount = r.likes ? r.likes.length : 0;
             const isMyReply = r.authorId === currentUser.id;
             const canDeleteReply = isMyReply || isAdmin;
-            // Added specific ID to reply like button
             html += `<div class="flex gap-3 pt-3 mt-1 group"><img src="${rAuthor.avatar}" class="w-6 h-6 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${r.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-xs text-gray-900">${rAuthor.name}</span></div><p class="text-[13px] text-gray-800 leading-relaxed">${r.content}</p><div class="flex items-center gap-4 mt-1"><button id="comment-like-btn-${r.id}" onclick="toggleCommentLike('${postId}', '${r.id}')" class="text-xs font-medium flex items-center gap-1 ${rLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${rLiked ? 'fill-red-500' : ''}"></i> <span id="comment-like-count-${r.id}">${rLikeCount || ''}</span></button>${canDeleteReply ? `<button onclick="deleteComment('${postId}', '${r.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div></div></div>`;
         });
         html += `</div>`;
@@ -2935,39 +2705,26 @@ window.deleteComment = async function(postId, commentId) {
 }
 
 window.toggleCommentLike = async function(postId, commentId) {
-    // 1. Optimistic UI Update (Immediate)
     const btn = document.getElementById(`comment-like-btn-${commentId}`);
     const countSpan = document.getElementById(`comment-like-count-${commentId}`);
     
     if(btn) {
         const icon = btn.querySelector('svg') || btn.querySelector('i');
         let isLiked = false;
-        
         if (icon.tagName === 'svg') isLiked = icon.classList.contains('text-red-500');
         else isLiked = icon.classList.contains('text-red-500');
         
-        // Toggle Styles
         if (isLiked) {
-             btn.classList.remove('text-red-500');
-             btn.classList.add('text-gray-500');
+             btn.classList.remove('text-red-500'); btn.classList.add('text-gray-500');
              icon.classList.remove('fill-red-500');
-             if(countSpan) {
-                const cur = parseInt(countSpan.innerText) || 0;
-                const next = Math.max(0, cur - 1);
-                countSpan.innerText = next === 0 ? '' : next;
-             }
+             if(countSpan) { const cur = parseInt(countSpan.innerText) || 0; const next = Math.max(0, cur - 1); countSpan.innerText = next === 0 ? '' : next; }
         } else {
-             btn.classList.add('text-red-500');
-             btn.classList.remove('text-gray-500');
+             btn.classList.add('text-red-500'); btn.classList.remove('text-gray-500');
              icon.classList.add('fill-red-500');
-             if(countSpan) {
-                const cur = parseInt(countSpan.innerText) || 0;
-                countSpan.innerText = cur + 1;
-             }
+             if(countSpan) { const cur = parseInt(countSpan.innerText) || 0; countSpan.innerText = cur + 1; }
         }
     }
 
-    // 2. DB Update
     const post = posts.find(p => p.id === postId);
     if(!post) return;
     const comments = post.comments || [];
@@ -3060,15 +2817,9 @@ window.showPostOptions = function(event, postId, authorId) {
     const canDelete = isAuthor || isAdmin;
 
     let menuContent = '';
-    if(canEdit) {
-        menuContent += `<div class="post-option-item" onclick="editPost('${postId}')"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit</div>`;
-    }
-    if(canDelete) {
-        menuContent += `<div class="post-option-item danger" onclick="deletePost('${postId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>`;
-    }
-    if(!isAuthor) {
-        menuContent += `<div class="post-option-item" onclick="showToast('Post Saved')"><i data-lucide="bookmark" class="w-4 h-4"></i> Save</div><div class="post-option-item danger" onclick="showToast('Reported')"><i data-lucide="flag" class="w-4 h-4"></i> Report</div>`;
-    }
+    if(canEdit) { menuContent += `<div class="post-option-item" onclick="editPost('${postId}')"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit</div>`; }
+    if(canDelete) { menuContent += `<div class="post-option-item danger" onclick="deletePost('${postId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>`; }
+    if(!isAuthor) { menuContent += `<div class="post-option-item" onclick="showToast('Post Saved')"><i data-lucide="bookmark" class="w-4 h-4"></i> Save</div><div class="post-option-item danger" onclick="showToast('Reported')"><i data-lucide="flag" class="w-4 h-4"></i> Report</div>`; }
 
     menu.innerHTML = menuContent;
     refreshIcons();
@@ -3078,12 +2829,7 @@ window.showPostOptions = function(event, postId, authorId) {
 }
 window.hidePostMenu = function() { document.getElementById('global-post-menu').classList.remove('active'); }
 window.editPost = function(postId) { const post = posts.find(p => p.id === postId); if(!post) return; document.getElementById('compose-text').value = post.content; window.editingPostId = postId; document.getElementById('compose-title-text').innerText = "Edit Post"; document.getElementById('btn-publish').innerText = "Update"; openCompose(); }
-window.deletePost = async function(postId) { 
-    showAlert("Delete this post?", async () => {
-        await deleteDoc(doc(db, "posts", postId)); 
-        showToast("Post deleted"); 
-    });
-}
+window.deletePost = async function(postId) { showAlert("Delete this post?", async () => { await deleteDoc(doc(db, "posts", postId)); showToast("Post deleted"); }); }
 window.openCompose = function() { closeCreateMenu(); document.getElementById('compose-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('compose-modal').classList.remove('scale-95'); }
 window.closeCompose = function() { document.getElementById('compose-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('compose-modal').classList.add('scale-95'); setTimeout(() => { window.editingPostId = null; document.getElementById('compose-title-text').innerText = "Create Post"; document.getElementById('btn-publish').innerText = "Post"; document.getElementById('compose-text').value = ""; removeMedia(); }, 200); }
 
@@ -3111,20 +2857,11 @@ async function uploadToImgHippo(file) {
     formData.append('file', file);
 
     try {
-        const response = await fetch('https://api.imghippo.com/v1/upload', {
-            method: 'POST',
-            body: formData
-        });
+        const response = await fetch('https://api.imghippo.com/v1/upload', { method: 'POST', body: formData });
         const data = await response.json();
-        if (data.success) {
-            return data.data.url;
-        } else {
-            console.error("ImgHippo error", data);
-            throw new Error('Upload failed');
-        }
-    } catch (e) {
-        throw e;
-    }
+        if (data.success) { return data.data.url; } 
+        else { console.error("ImgHippo error", data); throw new Error('Upload failed'); }
+    } catch (e) { throw e; }
 }
 
 window.publishPost = async function() { 
@@ -3143,10 +2880,8 @@ window.publishPost = async function() {
     try { 
         let mediaUrl = window.currentMedia; 
         if(window.currentMediaBlob) { 
-            // Attempt ImgHippo upload
-            try {
-                mediaUrl = await uploadToImgHippo(window.currentMediaBlob);
-            } catch (err) {
+            try { mediaUrl = await uploadToImgHippo(window.currentMediaBlob); } 
+            catch (err) {
                 console.error("ImgHippo failed, falling back to Firebase Storage", err);
                 const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`); 
                 await uploadBytes(mediaRef, window.currentMediaBlob); 

@@ -26,35 +26,12 @@
 --primary: #0b57d0;
 }
 
-body.dark-theme {
---surface: #1e1e1e;
---background: #121212;
---on-surface: #e3e3e3;
---text-secondary: #a8c7fa;
---outline: #444746;
---hover-bg: #2f3033;
---primary: #a8c7fa;
-}
-
 body {
 font-family: 'Inter', sans-serif;
 background-color: var(--background);
 color: var(--on-surface);
 overflow: hidden;
-transition: background-color 0.3s, color 0.3s;
 }
-
-/* Dark mode specifics for Tailwind classes mapping */
-.dark-theme .bg-white { background-color: var(--surface) !important; }
-.dark-theme .bg-\[\#f9fafb\] { background-color: var(--background) !important; }
-.dark-theme .text-\[\#1f1f1f\] { color: var(--on-surface) !important; }
-.dark-theme .text-gray-900 { color: var(--on-surface) !important; }
-.dark-theme .text-gray-500 { color: #9ca3af !important; }
-.dark-theme .text-gray-700 { color: #d1d5db !important; }
-.dark-theme .border-gray-200 { border-color: var(--outline) !important; }
-.dark-theme .border-gray-100 { border-color: var(--outline) !important; }
-.dark-theme .hover\:bg-gray-50:hover { background-color: var(--hover-bg) !important; }
-.dark-theme input, .dark-theme textarea { color: var(--on-surface) !important; background-color: transparent !important; }
 
 h1, h2, h3, .google-font { font-family: 'Google Sans', 'Inter', sans-serif; }
 
@@ -136,7 +113,6 @@ color: var(--primary);
 background-color: #eff4ff;
 font-weight: 600;
 }
-.dark-theme .nav-item.active { background-color: #3c4043; color: #a8c7fa; }
 
 .nav-dot {
     position: absolute;
@@ -194,14 +170,12 @@ line-height: 1;
 min-width: 0;
 white-space: nowrap;
 }
-.dark-theme .create-btn { background: #a8c7fa; color: #000; }
 
 .create-btn:hover {
 background: #000;
 transform: translateY(-1px);
 box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
 }
-.dark-theme .create-btn:hover { background: #8ab4f8; }
 
 /* --- POST CARD DESIGN --- */
 .post-card {
@@ -263,17 +237,13 @@ background: transparent; border: none; cursor: pointer;
 }
 .action-btn:hover { background-color: var(--hover-bg); color: var(--on-surface); }
 .action-btn.like:hover { background-color: #fef2f2; color: #ef4444; } 
-.dark-theme .action-btn.like:hover { background-color: rgba(239, 68, 68, 0.1); }
 .action-btn.comment:hover { background-color: #eff6ff; color: #2563eb; }
-.dark-theme .action-btn.comment:hover { background-color: rgba(37, 99, 235, 0.1); }
 .action-btn.bookmark:hover { background-color: #fefce8; color: #eab308; }
-.dark-theme .action-btn.bookmark:hover { background-color: rgba(234, 179, 8, 0.1); }
 .action-btn.share-btn { color: var(--primary); background-color: #eff6ff; }
-.dark-theme .action-btn.share-btn { background-color: rgba(168, 199, 250, 0.1); }
 .action-btn.share-btn:hover { background-color: #dbeafe; }
 
 /* --- COMPOSE & CREATE MENUS --- */
-#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal {
+#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
 }
@@ -321,7 +291,6 @@ gap: 12px;
 border-color: var(--primary); background: #eff4ff; transform: translateY(-2px);
 box-shadow: 0 4px 12px rgba(11, 87, 208, 0.1);
 }
-.dark-theme .create-option-card:hover { background: #3c4043; }
 
 .create-icon-bg {
 width: 56px; height: 56px; border-radius: 50%; background: var(--hover-bg);
@@ -329,7 +298,6 @@ display: flex; align-items: center; justify-content: center; color: var(--on-sur
 margin-bottom: 8px; transition: background 0.2s;
 }
 .create-option-card:hover .create-icon-bg { background: #d3e3fd; color: #0b57d0; }
-.dark-theme .create-option-card:hover .create-icon-bg { background: #4a5568; color: #a8c7fa; }
 
 /* Notion Style Event Form */
 .notion-input-row {
@@ -410,7 +378,6 @@ z-index: 100; transform-origin: top right; transform: scale(0.95); opacity: 0; p
 .menu-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: var(--on-surface); font-size: 14px; font-weight: 500; transition: background 0.1s; }
 .menu-item:hover { background: var(--hover-bg); }
 .menu-item.active-item { background: #eff4ff; color: #0b57d0; }
-.dark-theme .menu-item.active-item { background: #3c4043; color: #a8c7fa; }
 
 .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.2); backdrop-filter: blur(2px); z-index: 90; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
 .backdrop.active { opacity: 1; pointer-events: auto; }
@@ -423,7 +390,6 @@ z-index: 100; transform-origin: top right; transform: scale(0.95); opacity: 0; p
 
 .hashtag { color: var(--primary); font-weight: 500; cursor: pointer; padding: 2px 6px; border-radius: 6px; }
 .hashtag:hover { background: #eff4ff; }
-.dark-theme .hashtag:hover { background: #3c4043; }
 
 /* --- POST MENU STYLES --- */
 .post-options-menu {
@@ -505,7 +471,6 @@ transition: background 0.1s; font-size: 14px; font-weight: 500;
 }
 .chat-sidebar-item:hover { background: var(--hover-bg); }
 .chat-sidebar-item.active { background: #e0e0e0; color: #1f1f1f; }
-.dark-theme .chat-sidebar-item.active { background: #3c4043; color: #fff; }
 
 .chat-bubble-me {
     background: var(--primary);
@@ -519,7 +484,6 @@ transition: background 0.1s; font-size: 14px; font-weight: 500;
     position: relative;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
-.dark-theme .chat-bubble-me { color: #000; }
 
 .chat-bubble-them {
     background: var(--hover-bg);
@@ -750,12 +714,15 @@ position: relative;
 </div>
 </div>
 </div>
-<div class="md:hidden border-t border-gray-100 p-3 bg-white shrink-0 sticky bottom-0 z-20">
+<div class="md:hidden border-t border-gray-100 p-3 bg-white shrink-0 sticky bottom-0 z-20 comment-input-area">
 <div class="flex gap-3 items-center">
 <img id="comment-input-avatar-mobile" src="" class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200">
 <div class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm text-gray-500">Add a comment...</div>
 <button class="text-[#0b57d0] font-bold text-sm">Post</button>
 </div>
+</div>
+<div class="md:hidden border-t border-gray-100 p-3 bg-white shrink-0 sticky bottom-0 z-20 comments-disabled-msg hidden">
+    <div class="text-center text-sm text-gray-500 italic py-2">Comments are turned off</div>
 </div>
 </div>
 <div class="hidden md:flex w-[40%] flex-col h-full bg-[#fff]">
@@ -764,7 +731,7 @@ position: relative;
 <button onclick="closePostView()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
 </div>
 <div id="comments-list-desktop" class="flex-1 overflow-y-auto p-0 bg-white"></div>
-<div class="p-4 border-t border-gray-100 bg-white shrink-0">
+<div class="p-4 border-t border-gray-100 bg-white shrink-0 comment-input-area">
 <div class="bg-gray-50 rounded-2xl p-3 border border-gray-200 focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all flex gap-3">
 <img id="comment-input-avatar" src="" class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 shrink-0 mt-1">
 <div class="flex-1">
@@ -778,6 +745,9 @@ position: relative;
 </div>
 </div>
 </div>
+<div class="p-6 border-t border-gray-100 bg-white shrink-0 text-center text-gray-500 italic comments-disabled-msg hidden">
+    Comments are turned off for this post.
+</div>
 </div>
 </div>
 </div>
@@ -789,6 +759,19 @@ position: relative;
 
 <div id="toast" class="toast">
 <i id="toast-icon" data-lucide="check-circle-2" class="w-5 h-5 text-[#c4eed0]"></i><span id="toast-msg">Action Completed</span>
+</div>
+
+<!-- LIKES OVERLAY -->
+<div id="likes-overlay" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm hidden" onclick="closeLikes()">
+    <div class="bg-white w-[90%] max-w-[400px] rounded-[24px] shadow-2xl flex flex-col max-h-[80vh] overflow-hidden transform transition-all scale-100" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center p-4 border-b border-gray-100">
+            <h3 class="text-lg font-bold text-gray-900">Likes</h3>
+            <button onclick="closeLikes()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div id="likes-list-content" class="flex-1 overflow-y-auto p-2">
+            <!-- Items injected via JS -->
+        </div>
+    </div>
 </div>
 
 <!-- SETTINGS MODAL -->
@@ -808,20 +791,6 @@ position: relative;
                         <div class="text-xs text-gray-500">Hide Following/Followers from others</div>
                     </div>
                     <div id="toggle-privacy" class="toggle-switch" onclick="togglePrivacy()">
-                        <div class="toggle-dot"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Appearance -->
-            <div>
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Appearance</h3>
-                <div class="flex items-center justify-between py-2">
-                    <div>
-                        <div class="font-medium text-gray-900">Dark Mode</div>
-                        <div class="text-xs text-gray-500">Easier on the eyes</div>
-                    </div>
-                    <div id="toggle-theme" class="toggle-switch" onclick="toggleTheme()">
                         <div class="toggle-dot"></div>
                     </div>
                 </div>
@@ -1039,6 +1008,16 @@ Change
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="message-square" class="w-4 h-4"></i> Show Comment Count</div>
                 <input type="checkbox" id="post-setting-comments" class="accent-blue-600 w-4 h-4 cursor-pointer" checked>
+            </div>
+            <!-- Allow View Likes -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="users" class="w-4 h-4"></i> Allow viewers to see who liked</div>
+                <input type="checkbox" id="post-setting-like-view" class="accent-blue-600 w-4 h-4 cursor-pointer" checked>
+            </div>
+            <!-- Allow Comments -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="message-circle" class="w-4 h-4"></i> Allow comments</div>
+                <input type="checkbox" id="post-setting-allow-comments" class="accent-blue-600 w-4 h-4 cursor-pointer" checked>
             </div>
         </div>
     </div>
@@ -1445,8 +1424,7 @@ onAuthStateChanged(auth, async (user) => {
                 saved: [],
                 isOfficial: isOfficial,
                 settings: {
-                    privateNetwork: false,
-                    theme: 'light'
+                    privateNetwork: false
                 }
             };
             await setDoc(userRef, currentUser);
@@ -1457,7 +1435,7 @@ onAuthStateChanged(auth, async (user) => {
         currentUser.followers = currentUser.followers || [];
         currentUser.friends = currentUser.friends || [];
         currentUser.saved = currentUser.saved || [];
-        currentUser.settings = currentUser.settings || { privateNetwork: false, theme: 'light' };
+        currentUser.settings = currentUser.settings || { privateNetwork: false };
 
         window.currentUser = currentUser;
         savedPosts = currentUser.saved;
@@ -1466,7 +1444,6 @@ onAuthStateChanged(auth, async (user) => {
         const sharedPostId = params.get('postId');
         
         updateUserInterface();
-        applyTheme(); // Apply saved theme
         initRealtimeListeners();
         setupClassifier();
         refreshIcons();
@@ -1604,11 +1581,6 @@ function updateUserInterface() {
         if(currentUser.settings?.privateNetwork) togglePrivacy.classList.add('active');
         else togglePrivacy.classList.remove('active');
     }
-    const toggleTheme = document.getElementById('toggle-theme');
-    if(toggleTheme) {
-        if(currentUser.settings?.theme === 'dark') toggleTheme.classList.add('active');
-        else toggleTheme.classList.remove('active');
-    }
 
     if(currentUser.email === 'edulinkbht@gmail.com') {
         const nav = document.querySelector('#desktop-nav-items');
@@ -1734,31 +1706,6 @@ window.togglePrivacy = async function() {
     await updateDoc(userRef, { settings: settings });
     currentUser.settings = settings;
     showToast(`Network visibility: ${isPrivate ? 'Private' : 'Public'}`);
-}
-
-window.toggleTheme = async function() {
-    const toggle = document.getElementById('toggle-theme');
-    const isDark = !toggle.classList.contains('active');
-    
-    toggle.classList.toggle('active');
-    
-    const settings = currentUser.settings || {};
-    settings.theme = isDark ? 'dark' : 'light';
-    
-    const userRef = doc(db, "users", currentUser.id);
-    await updateDoc(userRef, { settings: settings });
-    currentUser.settings = settings;
-    
-    applyTheme();
-}
-
-function applyTheme() {
-    const theme = currentUser?.settings?.theme || 'light';
-    if (theme === 'dark') {
-        document.body.classList.add('dark-theme');
-    } else {
-        document.body.classList.remove('dark-theme');
-    }
 }
 
 window.switchView = function(viewName) {
@@ -1917,7 +1864,10 @@ function createPostElement(post) {
     const isLiked = post.likes ? post.likes.includes(currentUser.id) : false;
     const isSaved = savedPosts.includes(post.id);
     const dateStr = formatDate(post.timestamp);
-    const settings = post.settings || { privacy: 'public', showLikes: true, showComments: true };
+    const settings = post.settings || { privacy: 'public', showLikes: true, showComments: true, allowLikeView: true, allowComments: true };
+    const isAuthor = post.authorId === currentUser.id;
+    const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
+    const canDelete = isAuthor || isAdmin;
 
     const div = document.createElement('article');
     div.className = "post-card group overflow-hidden fade-in";
@@ -1937,9 +1887,13 @@ function createPostElement(post) {
     let officialBadge = author.isOfficial ? `<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>` : '';
     let lockIcon = settings.privacy === 'private' ? `<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>` : '';
 
-    const likeCountDisplay = settings.showLikes ? `<span class="text-xs font-medium">${post.likes ? post.likes.length : 0}</span>` : '';
+    const canViewLikeList = settings.allowLikeView === undefined || settings.allowLikeView === true || isAuthor || isAdmin;
+    const likeCountDisplay = settings.showLikes 
+        ? `<span class="text-xs font-medium px-1 hover:underline cursor-pointer" onclick="${canViewLikeList ? `event.stopPropagation(); openLikes('${post.id}')` : 'event.stopPropagation()'}">${post.likes ? post.likes.length : 0}</span>` 
+        : '';
     const commentCountDisplay = settings.showComments ? `<span class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span>` : '';
 
+    // Pass canDelete to showPostOptions logic if needed, or handle inside showPostOptions
     div.innerHTML = `
     <div class="p-4 md:p-5">
     <div class="post-header">
@@ -1964,8 +1918,11 @@ function createPostElement(post) {
     </div>
     <div class="post-actions">
     <div class="flex items-center gap-1">
-    <button id="like-btn-${post.id}" class="action-btn like" onclick="event.stopPropagation(); toggleLike('${post.id}')"><i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i> ${likeCountDisplay}</button>
-    <button class="action-btn comment" onclick="event.stopPropagation(); openPostView('${post.id}')"><i data-lucide="message-square" class="w-5 h-5"></i> ${commentCountDisplay}</button>
+    <button class="action-btn like" onclick="event.stopPropagation(); toggleLike('${post.id}')">
+        <i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i> 
+    </button>
+    ${likeCountDisplay}
+    <button class="action-btn comment ml-2" onclick="event.stopPropagation(); openPostView('${post.id}')"><i data-lucide="message-square" class="w-5 h-5"></i> ${commentCountDisplay}</button>
     </div>
     <div class="flex items-center gap-1">
     <button id="save-btn-${post.id}" class="action-btn bookmark" onclick="event.stopPropagation(); toggleSave('${post.id}')"><i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-yellow-500 text-yellow-500' : ''}"></i></button>
@@ -1978,30 +1935,6 @@ function createPostElement(post) {
 }
 
 window.toggleLike = async function(postId) {
-    const btn = document.getElementById(`like-btn-${postId}`);
-    if (btn) {
-        const icon = btn.querySelector('svg') || btn.querySelector('i');
-        const countSpan = btn.querySelector('span');
-        
-        let hasClass = false;
-        if(icon.tagName === 'svg') hasClass = icon.classList.contains('text-red-500');
-        else hasClass = icon.classList.contains('text-red-500');
-
-        if (hasClass) {
-            icon.classList.remove('fill-red-500', 'text-red-500');
-            if(countSpan) {
-                let currentCount = parseInt(countSpan.innerText) || 0;
-                countSpan.innerText = Math.max(0, currentCount - 1);
-            }
-        } else {
-            icon.classList.add('fill-red-500', 'text-red-500');
-            if(countSpan) {
-                let currentCount = parseInt(countSpan.innerText) || 0;
-                countSpan.innerText = currentCount + 1;
-            }
-        }
-    }
-
     const postRef = doc(db, "posts", postId);
     const post = posts.find(p => p.id === postId);
     if(post.likes && post.likes.includes(currentUser.id)) {
@@ -2012,6 +1945,46 @@ window.toggleLike = async function(postId) {
             sendNotification(post.authorId, 'like', 'liked your post', postId);
         }
     }
+}
+
+window.openLikes = function(postId) {
+    const post = posts.find(p => p.id === postId);
+    if(!post) return;
+    
+    const overlay = document.getElementById('likes-overlay');
+    const content = document.getElementById('likes-list-content');
+    content.innerHTML = '';
+    
+    const likeIds = post.likes || [];
+    
+    if(likeIds.length === 0) {
+        content.innerHTML = `<div class="text-center text-gray-400 py-8">No likes yet.</div>`;
+    } else {
+        likeIds.forEach(uid => {
+            const user = users.find(u => u.id === uid);
+            if(user) {
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
+                div.onclick = () => {
+                    document.getElementById('likes-overlay').classList.add('hidden');
+                    showProfile(user.id);
+                };
+                div.innerHTML = `
+                    <img src="${user.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover">
+                    <div>
+                        <div class="font-bold text-sm text-gray-900">${user.name}</div>
+                        <div class="text-xs text-gray-500 truncate w-32">${user.bio}</div>
+                    </div>
+                `;
+                content.appendChild(div);
+            }
+        });
+    }
+    overlay.classList.remove('hidden');
+}
+
+window.closeLikes = function() {
+    document.getElementById('likes-overlay').classList.add('hidden');
 }
 
 window.toggleSave = async function(postId) {
@@ -2620,6 +2593,17 @@ window.openPostView = function(postId) {
     const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
     overlayContent.innerHTML = `<div class="flex gap-4 items-center mb-6"><img src="${author.avatar}" class="w-12 h-12 rounded-full border border-gray-200 cursor-pointer object-cover" onclick="showProfile('${author.id}')"><div><h3 class="font-bold text-[#1f1f1f] text-[16px]">${author.name}</h3><div class="text-xs text-[#667085] font-medium">${formatDate(post.timestamp)}</div></div></div><div class="text-[#1f1f1f] text-[16px] leading-relaxed">${tagsHTML}</div><div class="flex gap-6 mt-6 pt-6 border-t border-gray-100 text-sm text-gray-500 font-medium select-none"><button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="heart" class="w-4 h-4"></i> ${post.likes ? post.likes.length : 0} Likes</button><button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="message-square" class="w-4 h-4"></i> ${post.comments ? post.comments.length : 0} Comments</button></div>`;
     window.currentViewingPostId = postId;
+    
+    // Comments disabled logic
+    const allowComments = post.settings?.allowComments !== false; // default true
+    if(allowComments) {
+        document.querySelectorAll('.comment-input-area').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('.comments-disabled-msg').forEach(el => el.classList.add('hidden'));
+    } else {
+        document.querySelectorAll('.comment-input-area').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.comments-disabled-msg').forEach(el => el.classList.remove('hidden'));
+    }
+
     renderCommentsInModal(postId);
     document.getElementById('post-view-overlay').classList.remove('hidden');
     refreshIcons();
@@ -2651,8 +2635,11 @@ function createCommentHTML(c, allComments, postId) {
     const isLiked = c.likes && c.likes.includes(currentUser.id);
     const likeCount = c.likes ? c.likes.length : 0;
     const isMyComment = c.authorId === currentUser.id;
+    const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
+    const canDelete = isMyComment || isAdmin;
+    
     const replies = allComments.filter(r => r.parentId === c.id);
-    let html = `<div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group"><img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-gray-900">${cAuthor.name}</span><span class="text-xs text-gray-500">• Now</span></div><p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p><div class="flex items-center gap-4 mt-2"><button onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> ${likeCount || ''}</button><button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>${isMyComment ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div>`;
+    let html = `<div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group"><img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-gray-900">${cAuthor.name}</span><span class="text-xs text-gray-500">• Now</span></div><p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p><div class="flex items-center gap-4 mt-2"><button onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> ${likeCount || ''}</button><button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div>`;
     if (replies.length > 0) {
         html += `<div class="reply-thread">`;
         replies.forEach(r => {
@@ -2660,7 +2647,8 @@ function createCommentHTML(c, allComments, postId) {
             const rLiked = r.likes && r.likes.includes(currentUser.id);
             const rLikeCount = r.likes ? r.likes.length : 0;
             const isMyReply = r.authorId === currentUser.id;
-            html += `<div class="flex gap-3 pt-3 mt-1 group"><img src="${rAuthor.avatar}" class="w-6 h-6 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${r.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-xs text-gray-900">${rAuthor.name}</span></div><p class="text-[13px] text-gray-800 leading-relaxed">${r.content}</p><div class="flex items-center gap-4 mt-1"><button onclick="toggleCommentLike('${postId}', '${r.id}')" class="text-xs font-medium flex items-center gap-1 ${rLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${rLiked ? 'fill-red-500' : ''}"></i> ${rLikeCount || ''}</button>${isMyReply ? `<button onclick="deleteComment('${postId}', '${r.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div></div></div>`;
+            const canDeleteReply = isMyReply || isAdmin;
+            html += `<div class="flex gap-3 pt-3 mt-1 group"><img src="${rAuthor.avatar}" class="w-6 h-6 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${r.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-xs text-gray-900">${rAuthor.name}</span></div><p class="text-[13px] text-gray-800 leading-relaxed">${r.content}</p><div class="flex items-center gap-4 mt-1"><button onclick="toggleCommentLike('${postId}', '${r.id}')" class="text-xs font-medium flex items-center gap-1 ${rLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${rLiked ? 'fill-red-500' : ''}"></i> ${rLikeCount || ''}</button>${canDeleteReply ? `<button onclick="deleteComment('${postId}', '${r.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div></div></div>`;
         });
         html += `</div>`;
     }
@@ -2765,7 +2753,21 @@ window.showPostOptions = function(event, postId, authorId) {
     const btn = event.currentTarget;
     const rect = btn.getBoundingClientRect();
     const isAuthor = authorId === currentUser.id;
-    let menuContent = isAuthor ? `<div class="post-option-item" onclick="editPost('${postId}')"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit</div><div class="post-option-item danger" onclick="deletePost('${postId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>` : `<div class="post-option-item" onclick="showToast('Post Saved')"><i data-lucide="bookmark" class="w-4 h-4"></i> Save</div><div class="post-option-item danger" onclick="showToast('Reported')"><i data-lucide="flag" class="w-4 h-4"></i> Report</div>`;
+    const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
+    const canEdit = isAuthor; 
+    const canDelete = isAuthor || isAdmin;
+
+    let menuContent = '';
+    if(canEdit) {
+        menuContent += `<div class="post-option-item" onclick="editPost('${postId}')"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit</div>`;
+    }
+    if(canDelete) {
+        menuContent += `<div class="post-option-item danger" onclick="deletePost('${postId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>`;
+    }
+    if(!isAuthor) {
+        menuContent += `<div class="post-option-item" onclick="showToast('Post Saved')"><i data-lucide="bookmark" class="w-4 h-4"></i> Save</div><div class="post-option-item danger" onclick="showToast('Reported')"><i data-lucide="flag" class="w-4 h-4"></i> Report</div>`;
+    }
+
     menu.innerHTML = menuContent;
     refreshIcons();
     menu.style.top = (rect.bottom + window.scrollY) + 'px';
@@ -2807,6 +2809,8 @@ window.publishPost = async function() {
     const isPrivate = document.getElementById('post-setting-privacy').checked;
     const showLikes = document.getElementById('post-setting-likes').checked;
     const showComments = document.getElementById('post-setting-comments').checked;
+    const allowLikeView = document.getElementById('post-setting-like-view').checked;
+    const allowComments = document.getElementById('post-setting-allow-comments').checked;
     
     if (!textRaw.trim() && !window.currentMedia) { showToast("Empty post!", true); return; } 
     const originalHtml = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`; btn.disabled = true; refreshIcons(); try { let mediaUrl = window.currentMedia; if(window.currentMediaBlob) { const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`); await uploadBytes(mediaRef, window.currentMediaBlob); mediaUrl = await getDownloadURL(mediaRef); } 
@@ -2821,7 +2825,9 @@ window.publishPost = async function() {
         settings: {
             privacy: isPrivate ? 'private' : 'public',
             showLikes: showLikes,
-            showComments: showComments
+            showComments: showComments,
+            allowLikeView: allowLikeView,
+            allowComments: allowComments
         }
     };
 

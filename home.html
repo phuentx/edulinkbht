@@ -45,32 +45,6 @@ i[data-lucide], svg { flex-shrink: 0; }
 .fade-in { animation: fadeUp 0.4s cubic-bezier(0.2, 0, 0, 1) forwards; opacity: 0; transform: translateY(10px); }
 @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-/* --- Like Animation & State --- */
-@keyframes like-bounce {
-  0% { transform: scale(1); }
-  40% { transform: scale(1.35); }
-  100% { transform: scale(1); }
-}
-
-.action-btn.liked svg {
-    fill: #ef4444;
-    stroke: #ef4444;
-    animation: like-bounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.action-btn.liked {
-    color: #ef4444;
-}
-
-.action-btn.saved svg {
-    fill: #eab308;
-    stroke: #eab308;
-    animation: like-bounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.action-btn.saved {
-    color: #ca8a04;
-}
-
 /* --- UNIFIED PANEL STYLES --- */
 .app-panel {
 background: var(--surface);
@@ -254,19 +228,22 @@ margin-bottom: 16px;
 
 .post-actions {
 display: flex; align-items: center; justify-content: space-between;
-padding-top: 12px; border-top: 1px solid var(--outline);
+padding-top: 14px; border-top: 1px solid var(--outline);
 }
 
 .action-btn {
-display: flex; align-items: center; gap: 8px;
+display: flex; align-items: center; gap: 6px;
 padding: 8px 12px; border-radius: 10px;
 color: var(--text-secondary); font-size: 13px; font-weight: 600;
-transition: background-color 0.2s, color 0.2s;
+transition: all 0.2s;
 background: transparent; border: none; cursor: pointer;
 }
 .action-btn:hover { background-color: var(--hover-bg); color: var(--on-surface); }
-.action-btn.share-btn { color: var(--text-secondary); }
-.action-btn.share-btn:hover { background-color: #eff6ff; color: var(--primary); }
+.action-btn.like:hover { background-color: #fef2f2; color: #ef4444; } 
+.action-btn.comment:hover { background-color: #eff6ff; color: #2563eb; }
+.action-btn.bookmark:hover { background-color: #fefce8; color: #eab308; }
+.action-btn.share-btn { color: var(--primary); background-color: #eff6ff; }
+.action-btn.share-btn:hover { background-color: #dbeafe; }
 
 /* --- COMPOSE & CREATE MENUS --- */
 #compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay {
@@ -1340,17 +1317,6 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
 import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, addDoc, onSnapshot, query, orderBy, where, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadString, getDownloadURL, uploadBytes } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-// --- GLOBAL SVG ICONS (Static, no flicker) ---
-const SVGs = {
-    heart: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5 4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`,
-    message: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
-    bookmark: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bookmark"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>`,
-    share: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-share-2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>`,
-    more: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-more-horizontal"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`,
-    lock: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
-    check: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.78 4.78 4 4 0 0 1-6.74 0 4 4 0 0 1-4.78-4.77 2 2 0 0 1 0-2.82l.06-.06a2 2 0 0 1 2.82 0Z"/></svg>`
-};
-
 const firebaseConfig = {
     apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
     authDomain: "edulinki.firebaseapp.com",
@@ -1415,16 +1381,25 @@ function refreshIcons() {
 function formatDate(timestamp) {
     if (!timestamp) return '';
     let date;
+    // Handle Firestore Timestamp
     if (timestamp.toDate && typeof timestamp.toDate === 'function') {
         date = timestamp.toDate();
-    } else if (typeof timestamp === 'number') {
+    } 
+    // Handle milliseconds number
+    else if (typeof timestamp === 'number') {
         date = new Date(timestamp);
-    } else if (timestamp instanceof Date) {
+    } 
+    // Handle Date object
+    else if (timestamp instanceof Date) {
         date = timestamp;
-    } else {
+    }
+    // Fallback for string ISO dates or other
+    else {
         date = new Date(timestamp);
     }
-    if (isNaN(date.getTime())) return '';
+
+    if (isNaN(date.getTime())) return ''; // Invalid Date
+    
     return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 }
 
@@ -1458,11 +1433,14 @@ onAuthStateChanged(auth, async (user) => {
                 friends: [],
                 saved: [],
                 isOfficial: isOfficial,
-                settings: { privateNetwork: false }
+                settings: {
+                    privateNetwork: false
+                }
             };
             await setDoc(userRef, currentUser);
         }
         
+        // Ensure defaults
         currentUser.following = currentUser.following || [];
         currentUser.followers = currentUser.followers || [];
         currentUser.friends = currentUser.friends || [];
@@ -1501,10 +1479,13 @@ function initRealtimeListeners() {
         users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const netView = document.getElementById('view-network');
         if(netView && !netView.classList.contains('hidden')) renderNetwork();
+        
         const profileView = document.getElementById('view-profile');
         if(profileView && !profileView.classList.contains('hidden') && window.currentViewingProfileId) {
              showProfile(window.currentViewingProfileId);
         }
+        
+        // Refresh chat list if names change or follow status changes
         if(!document.getElementById('view-chat').classList.contains('hidden')) {
             renderChatList();
         }
@@ -1513,43 +1494,74 @@ function initRealtimeListeners() {
 
     const qPosts = query(collection(db, "posts"), orderBy("timestamp", "desc"));
     onSnapshot(qPosts, (snapshot) => {
-        posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
+        posts = snapshot.docs.map(doc => ({ 
+            id: doc.id, 
+            ...doc.data(), 
+            timestamp: doc.data().timestamp 
+        }));
+        
         const activeFeed = document.querySelector('#view-feed:not(.hidden)');
-        if(activeFeed) renderFeed();
+        if(activeFeed) {
+            renderFeed();
+        }
+        
         const activeSaved = document.querySelector('#view-saved:not(.hidden)');
-        if(activeSaved) renderSaved();
+        if(activeSaved) {
+            renderSaved();
+        }
+
         const activeProfile = document.querySelector('#view-profile:not(.hidden)');
-        if(activeProfile && window.currentViewingProfileId) showProfile(window.currentViewingProfileId);
+        if(activeProfile && window.currentViewingProfileId) {
+            showProfile(window.currentViewingProfileId);
+        }
+
         const activeNetwork = document.querySelector('#view-network:not(.hidden)');
-        if(activeNetwork && activeNetworkTab === 'posts') renderNetwork();
+        if(activeNetwork && activeNetworkTab === 'posts') {
+            renderNetwork();
+        }
+        
         const activeExplore = document.querySelector('#view-explore:not(.hidden)');
         if(activeExplore) {
+            // Re-run search if active to update results
             const searchVal = document.getElementById('global-search').value;
             if(searchVal) handleSearch(searchVal);
         }
+        
         const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
-        if(activePostView && window.currentViewingPostId) renderCommentsInModal(window.currentViewingPostId);
+        if(activePostView && window.currentViewingPostId) {
+            renderCommentsInModal(window.currentViewingPostId);
+        }
+        // Force refresh icons after ANY post update to prevent disappearance
         setTimeout(refreshIcons, 50);
     });
 
     const qNotifs = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
     onSnapshot(qNotifs, (snapshot) => {
-        notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
+        notifications = snapshot.docs.map(doc => ({ 
+            id: doc.id, 
+            ...doc.data(),
+            timestamp: doc.data().timestamp
+        }));
+        
         notifications.sort((a,b) => (b.timestamp?.toDate ? b.timestamp.toDate() : 0) - (a.timestamp?.toDate ? a.timestamp.toDate() : 0));
+        
         const badge = document.getElementById('notif-badge');
         const unread = notifications.some(n => !n.read);
         if(badge) {
             if(unread) badge.classList.remove('hidden');
             else badge.classList.add('hidden');
         }
+        
         const activeNotif = document.querySelector('#view-notifications:not(.hidden)');
         if(activeNotif) renderNotifications();
         refreshIcons();
     });
 
+    // Message Listeners for Chat Partners & Red Dot
     const qSent = query(collection(db, "messages"), where("senderId", "==", currentUser.id));
     const qReceived = query(collection(db, "messages"), where("receiverId", "==", currentUser.id));
     
+    // Helper to update chat list
     const updateChatPartners = (snapshot, role) => {
         snapshot.docs.forEach(doc => {
             const data = doc.data();
@@ -1562,9 +1574,12 @@ function initRealtimeListeners() {
     };
 
     onSnapshot(qSent, (snapshot) => updateChatPartners(snapshot, 'sender'));
+    
     onSnapshot(qReceived, (snapshot) => {
         updateChatPartners(snapshot, 'receiver');
         const dot = document.getElementById('chat-dot');
+        // Simple logic: if any message exists where receiver is me, show dot. 
+        // In real app, check 'read' status per message or per conversation
         const hasMessages = !snapshot.empty;
         if(dot) {
             if(hasMessages && activeChatUserId === null) dot.style.display = 'block';
@@ -1588,12 +1603,15 @@ function updateUserInterface() {
     const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = currentUser.avatar;
     const edBanner = document.getElementById('edit-banner-link'); if(edBanner) edBanner.value = currentUser.banner || '';
     
+    // Banner Position Handling
     const bannerPos = currentUser.bannerPos || 50;
+    // Always load src even if drag isn't active
     const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
     document.getElementById('edit-banner-preview').src = bannerUrl;
     document.getElementById('edit-banner-preview').style.objectPosition = `center ${bannerPos}%`;
     document.getElementById('banner-pos-hint').innerText = `${bannerPos}%`;
     
+    // Settings Toggles
     const togglePrivacy = document.getElementById('toggle-privacy');
     if(togglePrivacy) {
         if(currentUser.settings?.privateNetwork) togglePrivacy.classList.add('active');
@@ -1620,21 +1638,31 @@ let alertCallback = null;
 window.showAlert = function(message, onConfirm) {
     document.getElementById('alert-msg').innerText = message;
     document.getElementById('custom-alert').classList.remove('hidden');
+    // small delay for transition
     setTimeout(() => {
         document.getElementById('custom-alert').classList.remove('opacity-0');
         document.getElementById('custom-alert-box').classList.remove('scale-95');
     }, 10);
+    
     alertCallback = onConfirm;
+    
     const confirmBtn = document.getElementById('alert-confirm-btn');
+    // Remove old listeners to avoid stacking
     const newBtn = confirmBtn.cloneNode(true);
     confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
-    newBtn.onclick = () => { if (alertCallback) alertCallback(); closeAlert(true); };
+    
+    newBtn.onclick = () => {
+        if (alertCallback) alertCallback();
+        closeAlert(true);
+    };
 }
 
 window.closeAlert = function(confirmed) {
     document.getElementById('custom-alert').classList.add('opacity-0');
     document.getElementById('custom-alert-box').classList.add('scale-95');
-    setTimeout(() => { document.getElementById('custom-alert').classList.add('hidden'); }, 200);
+    setTimeout(() => {
+        document.getElementById('custom-alert').classList.add('hidden');
+    }, 200);
 }
 
 // --- BANNER DRAG LOGIC ---
@@ -1645,10 +1673,13 @@ let currentBannerPos = 50;
 
 function initBannerDrag() {
     const container = document.getElementById('banner-edit-area');
+    
     container.addEventListener('mousedown', startDrag);
     container.addEventListener('touchstart', startDrag, {passive: false});
+    
     window.addEventListener('mousemove', drag);
     window.addEventListener('touchmove', drag, {passive: false});
+    
     window.addEventListener('mouseup', endDrag);
     window.addEventListener('touchend', endDrag);
 }
@@ -1666,26 +1697,47 @@ function drag(e) {
     if(e.cancelable) e.preventDefault(); 
     const y = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
     const deltaY = startY - y;
+    
+    // Sensitivity factor
     const percentChange = (deltaY / 2); 
     let newPos = initialBannerPos + percentChange;
+    
+    // Clamp between 0 and 100
     newPos = Math.max(0, Math.min(100, newPos));
+    
     currentBannerPos = Math.round(newPos);
     document.getElementById('edit-banner-preview').style.objectPosition = `center ${currentBannerPos}%`;
     document.getElementById('banner-pos-hint').innerText = `${currentBannerPos}%`;
 }
 
-function endDrag() { isDraggingBanner = false; }
+function endDrag() {
+    isDraggingBanner = false;
+}
+
+function updateEditBannerPreview() {
+    const url = document.getElementById('edit-banner-link').value;
+    if(url) {
+        document.getElementById('edit-banner-preview').src = url;
+    }
+}
 
 // --- SETTINGS LOGIC ---
-window.openSettings = function() { document.getElementById('settings-overlay').classList.remove('hidden'); }
-window.closeSettings = function() { document.getElementById('settings-overlay').classList.add('hidden'); }
+window.openSettings = function() {
+    document.getElementById('settings-overlay').classList.remove('hidden');
+}
+window.closeSettings = function() {
+    document.getElementById('settings-overlay').classList.add('hidden');
+}
 
 window.togglePrivacy = async function() {
     const toggle = document.getElementById('toggle-privacy');
     const isPrivate = !toggle.classList.contains('active');
+    
     toggle.classList.toggle('active');
+    
     const settings = currentUser.settings || {};
     settings.privateNetwork = isPrivate;
+    
     const userRef = doc(db, "users", currentUser.id);
     await updateDoc(userRef, { settings: settings });
     currentUser.settings = settings;
@@ -1810,6 +1862,7 @@ window.renderNetwork = function() {
         const followingPosts = posts.filter(p => currentUser.following.includes(p.authorId));
         const postsContainer = document.createElement('div');
         postsContainer.className = "space-y-4 px-4 md:px-0";
+        
         if (followingPosts.length === 0) {
             postsContainer.innerHTML = `<div class="text-center py-10 text-gray-400">No posts from your network yet.</div>`;
         } else {
@@ -1828,18 +1881,29 @@ window.renderFeed = function(filterTerm = "") {
         const term = filterTerm.toLowerCase();
         displayPosts = displayPosts.filter(p => p.content.toLowerCase().includes(term));
     }
+    
+    // Privacy Logic: Show post if Author, Public, or Follower
+    // Enhanced for private accounts: if author is private, only followers can see
     displayPosts = displayPosts.filter(p => {
         const isAuthor = p.authorId === currentUser.id;
         const author = users.find(u => u.id === p.authorId);
+        
+        // Post-specific privacy setting
         const isPublicPost = !p.settings || p.settings.privacy === 'public';
+        
+        // Account-level privacy
         const isPrivateAccount = author?.settings?.privateNetwork;
         const amFollowing = currentUser.following.includes(p.authorId);
+        
         if (isAuthor) return true;
-        if (isPrivateAccount) return amFollowing; 
-        if (!isPublicPost) return amFollowing; 
-        return true; 
+        if (isPrivateAccount) return amFollowing; // Must follow to see anything from private acc
+        if (!isPublicPost) return amFollowing; // Must follow to see private post from public acc
+        
+        return true; // Public post from public account
     });
+
     displayPosts.forEach(post => container.appendChild(createPostElement(post)));
+    refreshIcons();
 }
 
 function createPostElement(post) {
@@ -1848,7 +1912,10 @@ function createPostElement(post) {
     const isSaved = savedPosts.includes(post.id);
     const dateStr = formatDate(post.timestamp);
     const settings = post.settings || { privacy: 'public', showLikes: true, showComments: true, allowLikeView: true, allowComments: true };
-    
+    const isAuthor = post.authorId === currentUser.id;
+    const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
+    const canDelete = isAuthor || isAdmin;
+
     const div = document.createElement('article');
     div.className = "post-card group overflow-hidden fade-in";
     div.onclick = () => openPostView(post.id);
@@ -1867,7 +1934,7 @@ function createPostElement(post) {
     let officialBadge = author.isOfficial ? `<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>` : '';
     let lockIcon = settings.privacy === 'private' || author?.settings?.privateNetwork ? `<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>` : '';
 
-    const canViewLikeList = settings.allowLikeView === undefined || settings.allowLikeView === true || author.id === currentUser.id || currentUser.email === 'edulinkbht@gmail.com';
+    const canViewLikeList = settings.allowLikeView === undefined || settings.allowLikeView === true || isAuthor || isAdmin;
     const likeCountDisplay = settings.showLikes 
         ? `<span class="text-xs font-medium px-1 hover:underline cursor-pointer" onclick="${canViewLikeList ? `event.stopPropagation(); openLikes('${post.id}')` : 'event.stopPropagation()'}">${post.likes ? post.likes.length : 0}</span>` 
         : '';
@@ -1889,7 +1956,7 @@ function createPostElement(post) {
     <div class="post-meta flex items-center">${dateStr}</div>
     </div>
     </div>
-    <button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event, '${post.id}', '${author.id}')">${SVGs.more}</button>
+    <button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event, '${post.id}', '${author.id}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
     </div>
     <div class="post-content">
     <div class="post-body" data-raw-text="${post.content.replace(/"/g, '&quot;')}">${tagsHTML}</div>
@@ -1897,17 +1964,15 @@ function createPostElement(post) {
     </div>
     <div class="post-actions">
     <div class="flex items-center gap-1">
-    <button class="action-btn like ${isLiked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike(this, '${post.id}')">
-        ${SVGs.heart}
+    <button class="action-btn like" onclick="event.stopPropagation(); toggleLike('${post.id}')">
+        <i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i> 
     </button>
     ${likeCountDisplay}
-    <button class="action-btn comment ml-2" onclick="event.stopPropagation(); openPostView('${post.id}')">${SVGs.message} <span class="ml-1">${commentCountDisplay}</span></button>
+    <button class="action-btn comment ml-2" onclick="event.stopPropagation(); openPostView('${post.id}')"><i data-lucide="message-square" class="w-5 h-5"></i> ${commentCountDisplay}</button>
     </div>
     <div class="flex items-center gap-1">
-    <button id="save-btn-${post.id}" class="action-btn bookmark ${isSaved ? 'saved' : ''}" onclick="event.stopPropagation(); toggleSave(this, '${post.id}')">
-        ${SVGs.bookmark}
-    </button>
-    <button class="action-btn share-btn" onclick="event.stopPropagation(); sharePost('${post.id}')" title="Share Post">${SVGs.share}</button>
+    <button id="save-btn-${post.id}" class="action-btn bookmark" onclick="event.stopPropagation(); toggleSave('${post.id}')"><i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-yellow-500 text-yellow-500' : ''}"></i></button>
+    <button class="action-btn share-btn" onclick="event.stopPropagation(); sharePost('${post.id}')" title="Share Post"><i data-lucide="share-2" class="w-5 h-5"></i></button>
     </div>
     </div>
     </div>
@@ -1915,9 +1980,7 @@ function createPostElement(post) {
     return div;
 }
 
-window.toggleLike = async function(btn, postId) {
-    if(btn) btn.classList.toggle('liked'); // Optimistic UI
-    
+window.toggleLike = async function(postId) {
     const postRef = doc(db, "posts", postId);
     const post = posts.find(p => p.id === postId);
     if(post.likes && post.likes.includes(currentUser.id)) {
@@ -1933,10 +1996,13 @@ window.toggleLike = async function(btn, postId) {
 window.openLikes = function(postId) {
     const post = posts.find(p => p.id === postId);
     if(!post) return;
+    
     const overlay = document.getElementById('likes-overlay');
     const content = document.getElementById('likes-list-content');
     content.innerHTML = '';
+    
     const likeIds = post.likes || [];
+    
     if(likeIds.length === 0) {
         content.innerHTML = `<div class="text-center text-gray-400 py-8">No likes yet.</div>`;
     } else {
@@ -1945,8 +2011,17 @@ window.openLikes = function(postId) {
             if(user) {
                 const div = document.createElement('div');
                 div.className = "flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
-                div.onclick = () => { document.getElementById('likes-overlay').classList.add('hidden'); showProfile(user.id); };
-                div.innerHTML = `<img src="${user.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${user.name}</div><div class="text-xs text-gray-500 truncate w-32">${user.bio}</div></div>`;
+                div.onclick = () => {
+                    document.getElementById('likes-overlay').classList.add('hidden');
+                    showProfile(user.id);
+                };
+                div.innerHTML = `
+                    <img src="${user.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover">
+                    <div>
+                        <div class="font-bold text-sm text-gray-900">${user.name}</div>
+                        <div class="text-xs text-gray-500 truncate w-32">${user.bio}</div>
+                    </div>
+                `;
                 content.appendChild(div);
             }
         });
@@ -1954,13 +2029,25 @@ window.openLikes = function(postId) {
     overlay.classList.remove('hidden');
 }
 
-window.closeLikes = function() { document.getElementById('likes-overlay').classList.add('hidden'); }
+window.closeLikes = function() {
+    document.getElementById('likes-overlay').classList.add('hidden');
+}
 
-window.toggleSave = async function(btn, postId) {
+window.toggleSave = async function(postId) {
+    const btn = document.getElementById(`save-btn-${postId}`);
     if(btn) {
-        btn.classList.toggle('saved');
-        if(btn.classList.contains('saved')) showToast("Post saved");
-        else showToast("Post removed");
+        const icon = btn.querySelector('svg') || btn.querySelector('i');
+        let hasClass = false;
+        if(icon.tagName === 'svg') hasClass = icon.classList.contains('text-yellow-500');
+        else hasClass = icon.classList.contains('text-yellow-500');
+
+        if (hasClass) {
+            icon.classList.remove('fill-yellow-500', 'text-yellow-500');
+            showToast("Post removed");
+        } else {
+            icon.classList.add('fill-yellow-500', 'text-yellow-500');
+            showToast("Post saved");
+        }
     }
 
     const userRef = doc(db, "users", currentUser.id);
@@ -1975,7 +2062,9 @@ window.toggleSave = async function(btn, postId) {
 
 window.sharePost = function(postId) {
     const url = `${window.location.origin}${window.location.pathname}?postId=${postId}`;
-    navigator.clipboard.writeText(url).then(() => { showToast("Link copied to clipboard!"); });
+    navigator.clipboard.writeText(url).then(() => {
+        showToast("Link copied to clipboard!");
+    });
 }
 
 window.renderSaved = function() {
@@ -1987,6 +2076,7 @@ window.renderSaved = function() {
         const saved = posts.filter(p => savedPosts.includes(p.id));
         saved.forEach(post => container.appendChild(createPostElement(post)));
     }
+    refreshIcons();
 }
 
 async function sendNotification(receiverId, type, content, postId = null) {
@@ -2011,10 +2101,17 @@ window.switchNotifTab = function(tab) {
 window.renderNotifications = function() {
     const container = document.getElementById('notification-list');
     container.innerHTML = "";
+
     const filtered = notifications.filter(n => {
-        if (activeNotifTab === 'official') return n.type === 'official';
-        else if (activeNotifTab === 'friends') return currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request';
-        else return n.type !== 'official' && !currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request';
+        const sender = users.find(u => u.id === n.senderId) || { isOfficial: false, id: n.senderId };
+        if (activeNotifTab === 'official') {
+            return n.type === 'official';
+        } else if (activeNotifTab === 'friends') {
+            // Show follow requests in friends tab or logic specific? Let's show all interaction based notifs here
+            return currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request';
+        } else {
+            return n.type !== 'official' && !currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request';
+        }
     });
 
     if (filtered.length === 0) {
@@ -2045,51 +2142,135 @@ window.renderNotifications = function() {
         
         let actionButtons = '';
         if(n.type === 'follow_request') {
-            actionButtons = `<div class="flex gap-2 ml-auto"><button onclick="acceptFollow('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Accept</button><button onclick="deleteNotification('${n.id}')" class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-bold">Delete</button></div>`;
-            clickAction = ''; 
+            actionButtons = `
+                <div class="flex gap-2 ml-auto">
+                    <button onclick="acceptFollow('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Accept</button>
+                    <button onclick="deleteNotification('${n.id}')" class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-bold">Delete</button>
+                </div>
+            `;
+            clickAction = ''; // disable main click
         }
+        
         if(n.type === 'message_request') {
-             actionButtons = `<div class="flex gap-2 ml-auto"><button onclick="acceptMessage('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Chat</button></div>`;
+             actionButtons = `
+                <div class="flex gap-2 ml-auto">
+                    <button onclick="acceptMessage('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Chat</button>
+                </div>
+            `;
             clickAction = '';
         }
 
-        div.innerHTML = `<div class="relative cursor-pointer" onclick="showProfile('${sender.id}')"><img src="${sender.avatar}" class="w-10 h-10 rounded-full bg-gray-200"><div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${colorClass} flex items-center justify-center border-2 border-white">${icon}</div></div><div class="flex-1 cursor-pointer" ${clickAction}><div class="text-sm"><span class="font-bold text-gray-900">${sender.name}</span> <span class="text-gray-600">${n.content}</span></div><div class="text-xs text-gray-400 mt-0.5">${formatDate(n.timestamp)}</div></div>${actionButtons ? actionButtons : `<button onclick="deleteNotification('${n.id}')" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`}`;
+        div.innerHTML = `
+        <div class="relative cursor-pointer" onclick="showProfile('${sender.id}')">
+        <img src="${sender.avatar}" class="w-10 h-10 rounded-full bg-gray-200">
+        <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${colorClass} flex items-center justify-center border-2 border-white">
+        ${icon}
+        </div>
+        </div>
+        <div class="flex-1 cursor-pointer" ${clickAction}>
+        <div class="text-sm">
+        <span class="font-bold text-gray-900">${sender.name}</span>
+        <span class="text-gray-600">${n.content}</span>
+        </div>
+        <div class="text-xs text-gray-400 mt-0.5">${formatDate(n.timestamp)}</div>
+        </div>
+        ${actionButtons ? actionButtons : `<button onclick="deleteNotification('${n.id}')" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`}
+        `;
         container.appendChild(div);
     });
     refreshIcons();
 }
 
-window.deleteNotification = async function(id) { showAlert("Delete this notification?", async () => { await deleteDoc(doc(db, "notifications", id)); }); }
-window.acceptFollow = async function(notifId, senderId) { const meRef = doc(db, "users", currentUser.id); await updateDoc(meRef, { followers: arrayUnion(senderId) }); const senderRef = doc(db, "users", senderId); await updateDoc(senderRef, { following: arrayUnion(currentUser.id) }); await deleteDoc(doc(db, "notifications", notifId)); await sendNotification(senderId, 'follow', 'accepted your follow request'); showToast("Follow request accepted"); }
-window.acceptMessage = async function(notifId, senderId) { await deleteDoc(doc(db, "notifications", notifId)); startChat(senderId); }
-window.clearAllNotifications = async function() { showAlert("Clear all notifications?", async () => { const batch = writeBatch(db); const q = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id)); const snap = await getDocs(q); snap.forEach(d => batch.delete(d.ref)); await batch.commit(); showToast("All notifications cleared"); }); }
-window.toggleNotifications = function() { switchView('notifications'); const badge = document.getElementById('notif-badge'); if(badge) badge.classList.add('hidden'); }
+window.deleteNotification = async function(id) {
+    showAlert("Delete this notification?", async () => {
+        await deleteDoc(doc(db, "notifications", id));
+    });
+}
+
+window.acceptFollow = async function(notifId, senderId) {
+    // Add to followers
+    const meRef = doc(db, "users", currentUser.id);
+    await updateDoc(meRef, { followers: arrayUnion(senderId) });
+    
+    // Add to sender's following
+    const senderRef = doc(db, "users", senderId);
+    await updateDoc(senderRef, { following: arrayUnion(currentUser.id) });
+    
+    // Delete notification
+    await deleteDoc(doc(db, "notifications", notifId));
+    
+    // Notify sender
+    await sendNotification(senderId, 'follow', 'accepted your follow request');
+    showToast("Follow request accepted");
+}
+
+window.acceptMessage = async function(notifId, senderId) {
+    // Simply open chat, delete notification
+    await deleteDoc(doc(db, "notifications", notifId));
+    startChat(senderId);
+}
+
+window.clearAllNotifications = async function() {
+    showAlert("Clear all notifications?", async () => {
+        const batch = writeBatch(db);
+        const q = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
+        const snap = await getDocs(q);
+        snap.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        showToast("All notifications cleared");
+    });
+}
+
+window.toggleNotifications = function() {
+    switchView('notifications');
+    const badge = document.getElementById('notif-badge');
+    if(badge) badge.classList.add('hidden');
+}
 
 window.showProfile = function(userId) {
     if(!userId) userId = currentUser.id;
     const user = users.find(u => u.id === userId);
     if(!user) return;
+    
     window.currentViewingProfileId = userId;
     const container = document.getElementById('view-profile');
+
     const isMe = userId === currentUser.id;
     const isFollowing = currentUser.following ? currentUser.following.includes(userId) : false;
+    
     let actionBtn = "";
     if (isMe) {
         actionBtn = `<button onclick="openEditProfile()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200">Edit Profile</button>`;
     } else {
+        // Check if pending request exists (simplified: checking if we sent a notif previously is hard without new DB field, 
+        // so we just rely on UI state or assume 'Requested' if private and not following)
         const isPrivate = user.settings?.privateNetwork;
         let btnText = isFollowing ? 'Following' : (isPrivate ? 'Request' : 'Follow');
+        
+        // Check if button text was set to Requested in this session (simple UI hack for immediate feedback)
         const existingBtn = document.getElementById('profile-follow-btn');
-        if(existingBtn && existingBtn.innerText === 'Requested' && !isFollowing) { btnText = 'Requested'; }
-        actionBtn = `<div class="flex gap-2"><button id="profile-follow-btn" onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-700' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">${btnText}</button><button onclick="startChat('${userId}')" class="border border-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50"><i data-lucide="message-circle" class="w-5 h-5"></i></button></div>`;
+        if(existingBtn && existingBtn.innerText === 'Requested' && !isFollowing) {
+            btnText = 'Requested';
+        }
+
+        actionBtn = `
+        <div class="flex gap-2">
+        <button id="profile-follow-btn" onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-700' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">
+        ${btnText}
+        </button>
+        <button onclick="startChat('${userId}')" class="border border-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
+        </div>
+        `;
     }
 
     const userPosts = posts.filter(p => p.authorId === userId);
+    // Filter out private posts if viewer shouldn't see them
     const visiblePosts = userPosts.filter(p => {
         const isAuthor = p.authorId === currentUser.id;
         const isPublic = !p.settings || p.settings.privacy === 'public';
         const amFollowing = currentUser.following.includes(p.authorId);
         const isPrivateAcc = user.settings?.privateNetwork;
+        
         if (isAuthor) return true;
         if (isPrivateAcc && !amFollowing) return false;
         return isPublic || amFollowing;
@@ -2097,61 +2278,143 @@ window.showProfile = function(userId) {
 
     const bannerUrl = user.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
     const bannerPos = user.bannerPos || 50;
+
     let networkStatsHTML = '';
+    // Privacy check for network stats
     const isPrivate = user.settings?.privateNetwork;
     if(isMe || !isPrivate || isFollowing) {
-        networkStatsHTML = `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="cursor-pointer hover:underline" onclick="openUserList('following', '${userId}')"><strong class="text-gray-900">${user.following ? user.following.length : 0}</strong> Following</span><span class="cursor-pointer hover:underline" onclick="openUserList('followers', '${userId}')"><strong class="text-gray-900">${user.followers ? user.followers.length : 0}</strong> Followers</span></div>`;
+        networkStatsHTML = `
+        <div class="flex gap-4 mt-3 text-sm text-gray-500">
+        <span class="cursor-pointer hover:underline" onclick="openUserList('following', '${userId}')"><strong class="text-gray-900">${user.following ? user.following.length : 0}</strong> Following</span>
+        <span class="cursor-pointer hover:underline" onclick="openUserList('followers', '${userId}')"><strong class="text-gray-900">${user.followers ? user.followers.length : 0}</strong> Followers</span>
+        </div>`;
     } else {
         networkStatsHTML = `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="italic"><i data-lucide="lock" class="w-3 h-3 inline"></i> Private Account</span></div>`;
     }
 
-    container.innerHTML = `<div class="profile-banner-container"><img src="${bannerUrl}" class="profile-banner-img" style="object-position: center ${bannerPos}%"></div><div class="px-6 relative"><div class="flex justify-between items-end -mt-10 mb-4"><img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">${actionBtn}</div><div class="mb-6"><h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1><p class="text-gray-600 mt-1">${user.bio}</p>${networkStatsHTML}</div><div class="border-t border-gray-100 pt-6"><h3 class="font-bold text-lg mb-4">Posts</h3><div id="profile-posts-container"></div></div></div>`;
+    container.innerHTML = `
+    <div class="profile-banner-container">
+        <img src="${bannerUrl}" class="profile-banner-img" style="object-position: center ${bannerPos}%">
+    </div>
+    <div class="px-6 relative">
+    <div class="flex justify-between items-end -mt-10 mb-4">
+    <img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">
+    ${actionBtn}
+    </div>
+    <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1>
+    <p class="text-gray-600 mt-1">${user.bio}</p>
+    ${networkStatsHTML}
+    </div>
+    <div class="border-t border-gray-100 pt-6">
+    <h3 class="font-bold text-lg mb-4">Posts</h3>
+    <div id="profile-posts-container"></div>
+    </div>
+    </div>
+    `;
 
     switchView('profile');
     const postsContainer = document.getElementById('profile-posts-container');
-    if(visiblePosts.length > 0) { visiblePosts.forEach(p => postsContainer.appendChild(createPostElement(p))); } 
-    else { postsContainer.innerHTML = '<div class="text-center py-10 text-gray-400">No posts yet</div>'; }
+    if(visiblePosts.length > 0) {
+        visiblePosts.forEach(p => postsContainer.appendChild(createPostElement(p)));
+    } else {
+        postsContainer.innerHTML = '<div class="text-center py-10 text-gray-400">No posts yet</div>';
+    }
     refreshIcons();
 }
 
 window.openEditProfile = function() { 
+    // Reset drag tracking when opening
     const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
     currentBannerPos = currentUser.bannerPos || 50;
     initialBannerPos = currentBannerPos;
+    
     document.getElementById('edit-banner-preview').src = bannerUrl;
     document.getElementById('edit-banner-preview').style.objectPosition = `center ${currentBannerPos}%`;
     document.getElementById('banner-pos-hint').innerText = `${currentBannerPos}%`;
+    
+    // Set Email
     document.getElementById('edit-email').value = currentUser.email || "";
+
     document.getElementById('edit-profile-overlay').classList.remove('pointer-events-none', 'opacity-0'); 
 }
 window.closeEditProfile = function() { document.getElementById('edit-profile-overlay').classList.add('pointer-events-none', 'opacity-0'); }
 
-window.handleEditAvatarSelect = function(event) { const file = event.target.files[0]; if (file) { currentAvatarBlob = file; const reader = new FileReader(); reader.onload = function(e) { document.getElementById('edit-avatar-preview').src = e.target.result; }; reader.readAsDataURL(file); } }
-window.handleEditBannerSelect = function(event) { const file = event.target.files[0]; if (file) { currentBannerBlob = file; const reader = new FileReader(); reader.onload = function(e) { document.getElementById('edit-banner-preview').src = e.target.result; }; reader.readAsDataURL(file); } }
+window.handleEditAvatarSelect = function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        currentAvatarBlob = file;
+        const reader = new FileReader();
+        reader.onload = function(e) { document.getElementById('edit-avatar-preview').src = e.target.result; };
+        reader.readAsDataURL(file);
+    }
+}
+
+window.handleEditBannerSelect = function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        currentBannerBlob = file;
+        const reader = new FileReader();
+        reader.onload = function(e) { document.getElementById('edit-banner-preview').src = e.target.result; };
+        reader.readAsDataURL(file);
+    }
+}
 
 window.saveProfileChanges = async function() {
     const btn = document.getElementById('save-profile-btn');
     const originalText = btn.innerText;
     btn.innerText = "Saving...";
     btn.disabled = true;
+
     const name = document.getElementById('edit-name').value;
     const bio = document.getElementById('edit-bio').value;
+    // Current banner pos tracked in currentBannerPos variable from drag logic
     const bannerPos = currentBannerPos;
-    if(!name) { showToast("Name is required"); btn.innerText = originalText; btn.disabled = false; return; }
+    
+    if(!name) {
+        showToast("Name is required");
+        btn.innerText = originalText;
+        btn.disabled = false;
+        return;
+    }
+    
     let avatarUrl = currentUser.avatar;
     let bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+
     try {
-        if(currentAvatarBlob) avatarUrl = await uploadToImgHippo(currentAvatarBlob);
-        if(currentBannerBlob) bannerUrl = await uploadToImgHippo(currentBannerBlob);
-    } catch (e) { console.error("Upload failed", e); showToast("Image upload failed"); btn.innerText = originalText; btn.disabled = false; return; }
+        if(currentAvatarBlob) {
+            avatarUrl = await uploadToImgHippo(currentAvatarBlob);
+        }
+        if(currentBannerBlob) {
+            bannerUrl = await uploadToImgHippo(currentBannerBlob);
+        }
+    } catch (e) {
+        console.error("Upload failed", e);
+        showToast("Image upload failed");
+        btn.innerText = originalText;
+        btn.disabled = false;
+        return;
+    }
+
     const userRef = doc(db, "users", currentUser.id);
     await updateDoc(userRef, { name, bio, avatar: avatarUrl, banner: bannerUrl, bannerPos });
-    currentUser.name = name; currentUser.bio = bio; currentUser.avatar = avatarUrl; currentUser.banner = bannerUrl; currentUser.bannerPos = bannerPos;
-    currentAvatarBlob = null; currentBannerBlob = null;
+    
+    // Instant Local Update
+    currentUser.name = name;
+    currentUser.bio = bio;
+    currentUser.avatar = avatarUrl;
+    currentUser.banner = bannerUrl;
+    currentUser.bannerPos = bannerPos;
+    
+    // Clear blobs
+    currentAvatarBlob = null;
+    currentBannerBlob = null;
+
     updateUserInterface();
     closeEditProfile();
-    showProfile(currentUser.id); 
+    showProfile(currentUser.id); // Refresh profile view
     showToast("Profile Updated");
+    
     btn.innerText = originalText;
     btn.disabled = false;
 }
@@ -2161,46 +2424,64 @@ window.doLogout = async function() { await signOut(auth); window.location.href =
 window.toggleFollow = async function(userId) {
     const meRef = doc(db, "users", currentUser.id);
     const targetRef = doc(db, "users", userId);
+    
+    // Check if target is private
     const targetUser = users.find(u => u.id === userId);
     const isPrivate = targetUser?.settings?.privateNetwork;
+
     if(currentUser.following.includes(userId)) {
+        // Unfollow
         currentUser.following = currentUser.following.filter(id => id !== userId);
         showToast(`Unfollowed`);
         await updateDoc(meRef, { following: arrayRemove(userId) });
         await updateDoc(targetRef, { followers: arrayRemove(currentUser.id) });
+        // Update Button
         const btn = document.getElementById('profile-follow-btn');
         if(btn) btn.innerText = isPrivate ? 'Request' : 'Follow';
     } else {
+        // Follow Logic
         if(isPrivate) {
+            // Send Request
             showToast("Follow request sent");
             sendNotification(userId, 'follow_request', 'wants to follow you');
+            // Immediate Feedback
             const btn = document.getElementById('profile-follow-btn');
             if(btn) btn.innerText = "Requested";
         } else {
+            // Immediate Follow
             currentUser.following.push(userId);
             showToast(`Following`);
             await updateDoc(meRef, { following: arrayUnion(userId) });
             await updateDoc(targetRef, { followers: arrayUnion(currentUser.id) });
             sendNotification(userId, 'follow', 'started following you');
+            // Update Button
             const btn = document.getElementById('profile-follow-btn');
             if(btn) btn.innerText = "Following";
         }
     }
+    // Refresh active views (network gets updated via snapshot)
     const netView = document.getElementById('view-network');
     if(netView && !netView.classList.contains('hidden')) renderNetwork();
+    
     refreshIcons();
 }
 
 window.openUserList = function(type, userId) {
     const user = users.find(u => u.id === userId);
     if(!user) return;
+    
+    // Safety Check for privacy
     if(user.settings?.privateNetwork && user.id !== currentUser.id && !currentUser.following.includes(user.id)) return;
+
     const overlay = document.getElementById('user-list-overlay');
     const title = document.getElementById('user-list-title');
     const content = document.getElementById('user-list-content');
+    
     title.innerText = type === 'following' ? 'Following' : 'Followers';
     content.innerHTML = '';
+    
     const targetIds = type === 'following' ? user.following : user.followers;
+    
     if(!targetIds || targetIds.length === 0) {
         content.innerHTML = `<div class="text-center text-gray-400 py-8">No users found.</div>`;
     } else {
@@ -2209,134 +2490,460 @@ window.openUserList = function(type, userId) {
             if(targetUser) {
                 const isMe = targetUser.id === currentUser.id;
                 const amFollowing = currentUser.following.includes(targetUser.id);
+                
                 let btn = '';
-                if(!isMe) { btn = `<button onclick="toggleFollow('${targetUser.id}')" class="text-xs px-3 py-1 rounded-full font-medium ${amFollowing ? 'bg-gray-100 text-gray-700' : 'bg-blue-600 text-white'}">${amFollowing ? 'Unfollow' : 'Follow'}</button>`; }
+                if(!isMe) {
+                    btn = `<button onclick="toggleFollow('${targetUser.id}')" class="text-xs px-3 py-1 rounded-full font-medium ${amFollowing ? 'bg-gray-100 text-gray-700' : 'bg-blue-600 text-white'}">${amFollowing ? 'Unfollow' : 'Follow'}</button>`;
+                }
+                
                 const div = document.createElement('div');
                 div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
-                div.onclick = (e) => { if(e.target.tagName !== 'BUTTON') { closeUserList(); showProfile(targetUser.id); } };
-                div.innerHTML = `<div class="flex items-center gap-3"><img src="${targetUser.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${targetUser.name}</div><div class="text-xs text-gray-500 truncate w-32">${targetUser.bio}</div></div></div>${btn}`;
+                div.onclick = (e) => {
+                    if(e.target.tagName !== 'BUTTON') {
+                        closeUserList();
+                        showProfile(targetUser.id);
+                    }
+                };
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${targetUser.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover">
+                        <div>
+                            <div class="font-bold text-sm text-gray-900">${targetUser.name}</div>
+                            <div class="text-xs text-gray-500 truncate w-32">${targetUser.bio}</div>
+                        </div>
+                    </div>
+                    ${btn}
+                `;
                 content.appendChild(div);
             }
         });
     }
+    
     overlay.classList.remove('hidden');
 }
 
-window.closeUserList = function() { document.getElementById('user-list-overlay').classList.add('hidden'); }
+window.closeUserList = function() {
+    document.getElementById('user-list-overlay').classList.add('hidden');
+}
 
 window.handleSearch = function(query) {
     switchView('explore');
+    // Ensure both search bars reflect the query
     document.getElementById('global-search').value = query;
     const mobileSearch = document.querySelector('#view-explore input');
     if(mobileSearch) mobileSearch.value = query;
+
     const view = document.getElementById('explore-results');
     
-    if(!query || query.trim() === "") { 
+    if(!query) { 
         view.innerHTML = `<div class="text-center py-20 text-gray-400"><i data-lucide="compass" class="w-16 h-16 mx-auto mb-3 opacity-50"></i><p>Search for people, posts, and ideas.</p></div>`;
         refreshIcons();
         return; 
     }
 
-    const term = query.toLowerCase().trim();
-    const keywords = term.split(/\s+/).filter(k => k.length > 0);
+    const term = query.toLowerCase();
+    // Split query for "abit close" matching (substring match of any word)
+    const keywords = term.split(" ").filter(k => k.trim().length > 0);
 
     const foundUsers = users.filter(u => {
-        const text = (u.name + " " + (u.bio || "")).toLowerCase();
-        return keywords.some(k => text.includes(k));
+        const name = u.name.toLowerCase();
+        const bio = (u.bio || "").toLowerCase();
+        // Check if any keyword is in name or bio
+        return keywords.some(k => name.includes(k) || bio.includes(k));
     });
 
     const foundPosts = posts.filter(p => {
-        const text = (p.content || "").toLowerCase();
-        return keywords.some(k => text.includes(k));
+        const content = p.content.toLowerCase();
+        // Check if any keyword is in content
+        return keywords.some(k => content.includes(k));
     });
     
-    let html = '';
-    if(foundUsers.length > 0) {
-        html += `<div class="font-bold text-lg mb-3 px-2 text-[#1f1f1f]">People</div><div class="grid gap-2 mb-6">`;
+    let html = `<div class="font-bold mb-2">People</div>`;
+    if(foundUsers.length) {
         foundUsers.forEach(u => {
-            html += `<div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 cursor-pointer hover:shadow-md transition-all" onclick="showProfile('${u.id}')"><img src="${u.avatar}" class="w-12 h-12 rounded-full object-cover border border-gray-100 bg-gray-50"><div class="overflow-hidden"><div class="font-bold text-[#1f1f1f] truncate">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>' : ''}</div><div class="text-xs text-gray-500 truncate">${u.bio || 'No bio'}</div></div></div>`;
+            html += `<div class="flex items-center gap-3 p-3 bg-white rounded-xl mb-2 cursor-pointer hover:shadow-sm" onclick="showProfile('${u.id}')"><img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover"><div><div class="font-bold text-sm">${u.name}</div><div class="text-xs text-gray-500">${u.bio}</div></div></div>`;
         });
-        html += `</div>`;
-    } else { html += `<div class="font-bold text-lg mb-2 px-2 text-gray-400">People</div><div class="text-sm text-gray-400 px-2 mb-6">No matching people found</div>`; }
-    html += `<div class="font-bold text-lg mb-3 px-2 text-[#1f1f1f]">Posts</div>`;
+    } else { html += `<div class="text-gray-400 text-sm mb-4">No people found</div>`; }
+    
+    html += `<div class="font-bold mb-2 mt-4">Posts</div>`;
     view.innerHTML = html;
-    if(foundPosts.length > 0) {
-        const postsWrapper = document.createElement('div');
-        postsWrapper.className = "space-y-4";
-        foundPosts.forEach(p => { postsWrapper.appendChild(createPostElement(p)); });
-        view.appendChild(postsWrapper);
-    } else { view.innerHTML += `<div class="text-sm text-gray-400 px-2">No matching posts found</div>`; }
-    // No need to refresh icons for posts as they are static SVGs now
+    const postsDiv = document.createElement('div');
+    postsDiv.className = "space-y-4";
+    if(foundPosts.length) foundPosts.forEach(p => postsDiv.appendChild(createPostElement(p)));
+    else postsDiv.innerHTML = `<div class="text-gray-400 text-sm">No posts found</div>`;
+    view.appendChild(postsDiv);
+    refreshIcons();
 }
 
-// ... (Rest of chat and helper functions remain similar) ...
-// (I will retain the rest of the existing code structure)
-
+// --- CHAT SYSTEM ---
 window.renderChatList = function(searchTerm = "") {
     const list = document.getElementById('chat-list');
     list.innerHTML = "";
+    
+    // Combine Following List with Chat Partners
     const contactsSet = new Set([...currentUser.following, ...chatPartners]);
     let contacts = users.filter(u => contactsSet.has(u.id));
+    
+    // Filter by search
     if(searchTerm) {
         const lower = searchTerm.toLowerCase();
         contacts = contacts.filter(u => u.name.toLowerCase().includes(lower));
     }
+
     if(contacts.length === 0) { list.innerHTML = `<div class="p-4 text-xs text-gray-400 text-center">No conversations found</div>`; return; }
+
     contacts.forEach(f => {
         const div = document.createElement('div');
         div.className = "chat-sidebar-item group";
         if(activeChatUserId === f.id) div.classList.add('active');
         div.onclick = () => startChat(f.id);
-        div.innerHTML = `<div class="flex items-center gap-3 overflow-hidden"><img src="${f.avatar}" class="w-8 h-8 rounded-full object-cover border border-gray-200 shrink-0"><span class="truncate font-medium text-gray-700">${f.name}</span></div><button onclick="event.stopPropagation(); deleteConversationHistory('${f.id}')" class="opacity-0 group-hover:opacity-100 hover:text-red-500 text-gray-400 transition-opacity p-1" title="Delete conversation"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+        div.innerHTML = `
+            <div class="flex items-center gap-3 overflow-hidden">
+                <img src="${f.avatar}" class="w-8 h-8 rounded-full object-cover border border-gray-200 shrink-0">
+                <span class="truncate font-medium text-gray-700">${f.name}</span>
+            </div>
+            <button onclick="event.stopPropagation(); deleteConversationHistory('${f.id}')" class="opacity-0 group-hover:opacity-100 hover:text-red-500 text-gray-400 transition-opacity p-1" title="Delete conversation"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+        `;
         list.appendChild(div);
     });
     refreshIcons();
 }
 
-// ... (Continuing ensuring all functions are present and correct) ...
+let messageUnsubscribe = null;
 
 window.startChat = function(userId) {
     activeChatUserId = userId;
     switchView('chat');
     const user = users.find(u => u.id === userId);
     if(!user) return;
-    document.getElementById('chat-header').innerHTML = `<div class="flex items-center gap-3"><img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover cursor-pointer" onclick="showProfile('${user.id}')"><span class="font-semibold text-gray-800 cursor-pointer" onclick="showProfile('${user.id}')">${user.name}</span></div><button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`;
+
+    document.getElementById('chat-header').innerHTML = `
+    <div class="flex items-center gap-3">
+    <img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover cursor-pointer" onclick="showProfile('${user.id}')">
+    <span class="font-semibold text-gray-800 cursor-pointer" onclick="showProfile('${user.id}')">${user.name}</span>
+    </div>
+    <button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+    `;
     document.getElementById('chat-input-area').classList.remove('hidden');
     document.getElementById('chat-input-area').classList.add('flex');
     renderChatList(); 
+
     if(messageUnsubscribe) messageUnsubscribe();
     const qMsgs = query(collection(db, "messages"), orderBy("timestamp", "asc"));
+    
     messageUnsubscribe = onSnapshot(qMsgs, (snapshot) => {
         const msgs = [];
         snapshot.forEach(doc => {
             const m = doc.data();
-            if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) || (m.senderId === activeChatUserId && m.receiverId === currentUser.id)) { msgs.push({ id: doc.id, ...m }); }
+            if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) || 
+                (m.senderId === activeChatUserId && m.receiverId === currentUser.id)) {
+                msgs.push({ id: doc.id, ...m });
+            }
         });
         renderMessages(msgs);
     });
     refreshIcons();
 }
 
-window.deleteConversationHistory = function(targetId) { showAlert("Permanently delete conversation history with this user?", async () => { const batch = writeBatch(db); const qMsgs = query(collection(db, "messages")); const snapshot = await getDocs(qMsgs); snapshot.forEach(doc => { const m = doc.data(); if ((m.senderId === currentUser.id && m.receiverId === targetId) || (m.senderId === targetId && m.receiverId === currentUser.id)) { batch.delete(doc.ref); } }); await batch.commit(); chatPartners.delete(targetId); if(activeChatUserId === targetId) { document.getElementById('chat-messages').innerHTML = ''; activeChatUserId = null; document.getElementById('chat-header').innerText = 'Select a friend to chat'; document.getElementById('chat-input-area').classList.add('hidden'); } renderChatList(); showToast("Conversation deleted"); }); }
-function linkify(text) { var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig; return text.replace(urlRegex, function(url) { return '<a href="' + url + '" target="_blank" class="text-blue-200 underline hover:text-white" onclick="event.stopPropagation()">' + url + '</a>'; }); }
-function renderMessages(msgs) { const container = document.getElementById('chat-messages'); container.innerHTML = ""; const dateDiv = document.createElement('div'); dateDiv.className = 'chat-date-divider'; dateDiv.innerText = 'Conversation Started'; container.appendChild(dateDiv); if(msgs.length === 0) container.innerHTML += `<div class="text-center text-xs text-gray-400 mt-10">Say hi!</div>`; msgs.forEach(m => { const div = document.createElement('div'); const isMe = m.senderId === currentUser.id; div.className = isMe ? 'chat-row me group' : 'chat-row them group'; let replyHTML = ''; if(m.replyToId) { const parent = msgs.find(msg => msg.id === m.replyToId); if(parent) { replyHTML = `<div class="quoted-reply">${parent.text.substring(0, 30)}...</div>`; } } const linkifiedText = linkify(m.text); const bubbleClass = isMe ? 'chat-bubble-me' : 'chat-bubble-them'; div.innerHTML = `<div class="chat-actions-menu"><div class="chat-action-btn" onclick="setReply('${m.id}', '${m.text}')" title="Reply"><i data-lucide="reply" class="w-3 h-3"></i></div><div class="chat-action-btn" onclick="reactToMessage('${m.id}', '❤️')" title="Love"><i data-lucide="heart" class="w-3 h-3"></i></div><div class="chat-action-btn" onclick="reactToMessage('${m.id}', '👍')" title="Like"><i data-lucide="thumbs-up" class="w-3 h-3"></i></div>${isMe ? `<div class="chat-action-btn delete" onclick="deleteMessage('${m.id}')" title="Delete"><i data-lucide="trash-2" class="w-3 h-3"></i></div>` : ''}</div><div class="${bubbleClass}">${replyHTML}<span>${linkifiedText}</span><span class="text-[9px] opacity-60 ml-2 align-bottom">${formatDate(m.timestamp)}</span>${m.reaction ? `<div class="absolute -bottom-2 ${isMe ? 'left-0' : 'right-0'} bg-white border rounded-full px-1 text-[10px] shadow-sm scale-75 cursor-pointer" onclick="reactToMessage('${m.id}', '${m.reaction}')">${m.reaction}</div>` : ''}</div>`; container.appendChild(div); }); container.scrollTop = container.scrollHeight; refreshIcons(); }
-window.setReply = function(msgId, text) { window.replyingToMessageId = msgId; document.getElementById('reply-preview').classList.remove('hidden'); document.getElementById('reply-to-text').innerText = `Replying to: "${text.substring(0, 20)}..."`; document.getElementById('message-input').focus(); }
-window.cancelReply = function() { window.replyingToMessageId = null; document.getElementById('reply-preview').classList.add('hidden'); }
-window.reactToMessage = async function(msgId, emoji) { const msgRef = doc(db, "messages", msgId); const msgSnap = await getDoc(msgRef); if(msgSnap.exists()) { const data = msgSnap.data(); if(data.reaction === emoji) { await updateDoc(msgRef, { reaction: null }); } else { await updateDoc(msgRef, { reaction: emoji }); } } }
-window.deleteMessage = async function(msgId) { showAlert("Unsend this message?", async () => { await deleteDoc(doc(db, "messages", msgId)); }); }
-window.sendChatMessage = async function(e) { e.preventDefault(); const input = document.getElementById('message-input'); const text = input.value.trim(); if(!text || !activeChatUserId) return; const receiver = users.find(u => u.id === activeChatUserId); const receiverFollowsMe = receiver.following && receiver.following.includes(currentUser.id); if(!receiverFollowsMe) { sendNotification(activeChatUserId, 'message_request', 'wants to chat with you'); } await addDoc(collection(db, "messages"), { senderId: currentUser.id, receiverId: activeChatUserId, text: text, timestamp: serverTimestamp(), replyToId: window.replyingToMessageId || null }); input.value = ""; cancelReply(); }
-window.deleteCurrentChat = async function() { if(!activeChatUserId) return; deleteConversationHistory(activeChatUserId); }
+window.deleteConversationHistory = function(targetId) {
+    showAlert("Permanently delete conversation history with this user?", async () => {
+        const batch = writeBatch(db);
+        const qMsgs = query(collection(db, "messages"));
+        const snapshot = await getDocs(qMsgs);
+        snapshot.forEach(doc => {
+            const m = doc.data();
+            if ((m.senderId === currentUser.id && m.receiverId === targetId) || 
+                (m.senderId === targetId && m.receiverId === currentUser.id)) {
+                batch.delete(doc.ref);
+            }
+        });
+        await batch.commit();
+        chatPartners.delete(targetId); // Remove from local set
+        if(activeChatUserId === targetId) {
+            document.getElementById('chat-messages').innerHTML = '';
+            activeChatUserId = null;
+            document.getElementById('chat-header').innerText = 'Select a friend to chat';
+            document.getElementById('chat-input-area').classList.add('hidden');
+        }
+        renderChatList();
+        showToast("Conversation deleted");
+    });
+}
 
-// ... (Remaining AI and utility functions) ...
-window.closePostView = function() { document.getElementById('post-view-overlay').classList.add('hidden'); window.currentViewingPostId = null; window.replyingToCommentId = null; }
-function renderCommentsInModal(postId) { const post = posts.find(p => p.id === postId); if(!post) return; const containerDesktop = document.getElementById('comments-list-desktop'); const containerMobile = document.getElementById('comments-list-mobile'); let html = ''; if(post.comments) { const topLevel = post.comments.filter(c => !c.parentId); topLevel.forEach(c => { html += createCommentHTML(c, post.comments, postId); }); } containerDesktop.innerHTML = html; containerMobile.innerHTML = html; refreshIcons(); }
-function createCommentHTML(c, allComments, postId) { const cAuthor = users.find(u => u.id === c.authorId) || { name: 'Unknown', avatar: '' }; const isLiked = c.likes && c.likes.includes(currentUser.id); const likeCount = c.likes ? c.likes.length : 0; const isMyComment = c.authorId === currentUser.id; const isAdmin = currentUser.email === 'edulinkbht@gmail.com'; const canDelete = isMyComment || isAdmin; const replies = allComments.filter(r => r.parentId === c.id); let html = `<div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group"><img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-gray-900">${cAuthor.name}</span><span class="text-xs text-gray-500">• Now</span></div><p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p><div class="flex items-center gap-4 mt-2"><button onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> ${likeCount || ''}</button><button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div>`; if (replies.length > 0) { html += `<div class="reply-thread">`; replies.forEach(r => { const rAuthor = users.find(u => u.id === r.authorId) || { name: 'Unknown', avatar: '' }; const rLiked = r.likes && r.likes.includes(currentUser.id); const rLikeCount = r.likes ? r.likes.length : 0; const isMyReply = r.authorId === currentUser.id; const canDeleteReply = isMyReply || isAdmin; html += `<div class="flex gap-3 pt-3 mt-1 group"><img src="${rAuthor.avatar}" class="w-6 h-6 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${r.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-xs text-gray-900">${rAuthor.name}</span></div><p class="text-[13px] text-gray-800 leading-relaxed">${r.content}</p><div class="flex items-center gap-4 mt-1"><button onclick="toggleCommentLike('${postId}', '${r.id}')" class="text-xs font-medium flex items-center gap-1 ${rLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${rLiked ? 'fill-red-500' : ''}"></i> ${rLikeCount || ''}</button>${canDeleteReply ? `<button onclick="deleteComment('${postId}', '${r.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div></div></div>`; }); html += `</div>`; } html += `</div></div>`; return html; }
-window.deleteComment = async function(postId, commentId) { showAlert("Delete this comment?", async () => { const postRef = doc(db, "posts", postId); const post = posts.find(p => p.id === postId); const updatedComments = post.comments.filter(c => c.id !== commentId && c.parentId !== commentId); await updateDoc(postRef, { comments: updatedComments }); showToast("Comment deleted"); }); }
-window.toggleCommentLike = async function(postId, commentId) { const post = posts.find(p => p.id === postId); if(!post) return; const comments = post.comments || []; const commentIndex = comments.findIndex(c => c.id === commentId); if(commentIndex === -1) return; const comment = comments[commentIndex]; if(!comment.likes) comment.likes = []; if(comment.likes.includes(currentUser.id)) { comment.likes = comment.likes.filter(id => id !== currentUser.id); } else { comment.likes.push(currentUser.id); if(comment.authorId !== currentUser.id) sendNotification(comment.authorId, 'like', 'liked your comment', postId); } comments[commentIndex] = comment; const postRef = doc(db, "posts", postId); await updateDoc(postRef, { comments: comments }); }
-window.replyToComment = function(commentId, username) { const input = document.getElementById('comment-input-desktop'); input.value = `@${username} `; input.focus(); window.replyingToCommentId = commentId; }
-window.submitCommentDesktop = async function() { const txt = document.getElementById('comment-input-desktop').value.trim(); if(!txt || !window.currentViewingPostId) return; const postRef = doc(db, "posts", window.currentViewingPostId); const commentId = "c-" + Date.now() + "-" + Math.floor(Math.random() * 1000); const newComment = { id: commentId, authorId: currentUser.id, content: txt, timestamp: Date.now(), likes: [], parentId: window.replyingToCommentId }; await updateDoc(postRef, { comments: arrayUnion(newComment) }); const post = posts.find(p => p.id === window.currentViewingPostId); if (window.replyingToCommentId) { const parentComment = post.comments.find(c => c.id === window.replyingToCommentId); if (parentComment && parentComment.authorId !== currentUser.id) sendNotification(parentComment.authorId, 'reply', 'replied to your comment', window.currentViewingPostId); } else if(post && post.authorId !== currentUser.id) { sendNotification(post.authorId, 'comment', 'commented on your post', window.currentViewingPostId); } document.getElementById('comment-input-desktop').value = ""; window.replyingToCommentId = null; }
-window.promptForImageLink = function() { const url = prompt("Enter Image URL:"); if(url && (url.startsWith('http') || url.startsWith('data:'))) { window.currentMedia = url; window.currentMediaType = 'image'; const container = document.getElementById('media-preview-container'); container.classList.remove('hidden'); const img = document.getElementById('media-preview-img'); img.src = window.currentMedia; img.classList.remove('hidden'); document.getElementById('media-preview-video').classList.add('hidden'); showToast("Image link added"); } }
-window.sendAnnouncement = async function() { const text = document.getElementById('announcement-text').value.trim(); if(!text) return; showAlert("Send this announcement to all users?", async () => { let count = 0; for(const u of users) { if(u.id !== currentUser.id) { await addDoc(collection(db, "notifications"), { receiverId: u.id, senderId: currentUser.id, type: 'official', content: text, timestamp: serverTimestamp(), read: false }); count++; } } showToast(`Sent to ${count} users`); document.getElementById('announcement-text').value = ""; }); }
+function linkify(text) {
+    var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.replace(urlRegex, function(url) {
+        return '<a href="' + url + '" target="_blank" class="text-blue-200 underline hover:text-white" onclick="event.stopPropagation()">' + url + '</a>';
+    });
+}
+
+function renderMessages(msgs) {
+    const container = document.getElementById('chat-messages');
+    container.innerHTML = "";
+    const dateDiv = document.createElement('div');
+    dateDiv.className = 'chat-date-divider';
+    dateDiv.innerText = 'Conversation Started';
+    container.appendChild(dateDiv);
+
+    if(msgs.length === 0) container.innerHTML += `<div class="text-center text-xs text-gray-400 mt-10">Say hi!</div>`;
+
+    msgs.forEach(m => {
+        const div = document.createElement('div');
+        const isMe = m.senderId === currentUser.id;
+        div.className = isMe ? 'chat-row me group' : 'chat-row them group';
+        
+        let replyHTML = '';
+        if(m.replyToId) {
+            const parent = msgs.find(msg => msg.id === m.replyToId);
+            if(parent) {
+                replyHTML = `<div class="quoted-reply">${parent.text.substring(0, 30)}...</div>`;
+            }
+        }
+
+        const linkifiedText = linkify(m.text);
+        
+        const bubbleClass = isMe ? 'chat-bubble-me' : 'chat-bubble-them';
+        
+        div.innerHTML = `
+            <div class="chat-actions-menu">
+                <div class="chat-action-btn" onclick="setReply('${m.id}', '${m.text}')" title="Reply"><i data-lucide="reply" class="w-3 h-3"></i></div>
+                <div class="chat-action-btn" onclick="reactToMessage('${m.id}', '❤️')" title="Love"><i data-lucide="heart" class="w-3 h-3"></i></div>
+                <div class="chat-action-btn" onclick="reactToMessage('${m.id}', '👍')" title="Like"><i data-lucide="thumbs-up" class="w-3 h-3"></i></div>
+                ${isMe ? `<div class="chat-action-btn delete" onclick="deleteMessage('${m.id}')" title="Delete"><i data-lucide="trash-2" class="w-3 h-3"></i></div>` : ''}
+            </div>
+            <div class="${bubbleClass}">
+                ${replyHTML}
+                <span>${linkifiedText}</span>
+                <span class="text-[9px] opacity-60 ml-2 align-bottom">${formatDate(m.timestamp)}</span>
+                ${m.reaction ? `<div class="absolute -bottom-2 ${isMe ? 'left-0' : 'right-0'} bg-white border rounded-full px-1 text-[10px] shadow-sm scale-75 cursor-pointer" onclick="reactToMessage('${m.id}', '${m.reaction}')">${m.reaction}</div>` : ''}
+            </div>
+        `;
+        container.appendChild(div);
+    });
+    container.scrollTop = container.scrollHeight;
+    refreshIcons();
+}
+
+window.setReply = function(msgId, text) {
+    window.replyingToMessageId = msgId;
+    document.getElementById('reply-preview').classList.remove('hidden');
+    document.getElementById('reply-to-text').innerText = `Replying to: "${text.substring(0, 20)}..."`;
+    document.getElementById('message-input').focus();
+}
+
+window.cancelReply = function() {
+    window.replyingToMessageId = null;
+    document.getElementById('reply-preview').classList.add('hidden');
+}
+
+window.reactToMessage = async function(msgId, emoji) {
+    const msgRef = doc(db, "messages", msgId);
+    const msgSnap = await getDoc(msgRef);
+    if(msgSnap.exists()) {
+        const data = msgSnap.data();
+        if(data.reaction === emoji) {
+            await updateDoc(msgRef, { reaction: null });
+        } else {
+            await updateDoc(msgRef, { reaction: emoji });
+        }
+    }
+}
+
+window.deleteMessage = async function(msgId) {
+    showAlert("Unsend this message?", async () => {
+        await deleteDoc(doc(db, "messages", msgId));
+    });
+}
+
+window.sendChatMessage = async function(e) {
+    e.preventDefault();
+    const input = document.getElementById('message-input');
+    const text = input.value.trim();
+    if(!text || !activeChatUserId) return;
+
+    // Check if this counts as a message request
+    // If I don't follow them, and they don't follow me (or even if I follow them but they don't follow me back)
+    // Actually simpler: If they don't follow me, they might not see it in a "standard" inbox in a real app.
+    // For this prompt: "if a user that u dont follow sends u a message in the notification send like message request"
+    
+    // Check if I follow the receiver. If I don't follow them, it's a request? 
+    // Usually it's: If Receiver doesn't follow Sender.
+    const receiver = users.find(u => u.id === activeChatUserId);
+    const receiverFollowsMe = receiver.following && receiver.following.includes(currentUser.id);
+    
+    if(!receiverFollowsMe) {
+        // Send a notification first/also
+        sendNotification(activeChatUserId, 'message_request', 'wants to chat with you');
+    }
+
+    await addDoc(collection(db, "messages"), {
+        senderId: currentUser.id,
+        receiverId: activeChatUserId,
+        text: text,
+        timestamp: serverTimestamp(),
+        replyToId: window.replyingToMessageId || null
+    });
+    input.value = "";
+    cancelReply();
+}
+
+window.deleteCurrentChat = async function() {
+    if(!activeChatUserId) return;
+    deleteConversationHistory(activeChatUserId);
+}
+
+window.openPostView = function(postId) {
+    const post = posts.find(p => p.id === postId);
+    if(!post) return;
+    const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
+    const overlayContent = document.getElementById('injected-post');
+    const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
+    overlayContent.innerHTML = `<div class="flex gap-4 items-center mb-6"><img src="${author.avatar}" class="w-12 h-12 rounded-full border border-gray-200 cursor-pointer object-cover" onclick="showProfile('${author.id}')"><div><h3 class="font-bold text-[#1f1f1f] text-[16px]">${author.name}</h3><div class="text-xs text-[#667085] font-medium">${formatDate(post.timestamp)}</div></div></div><div class="text-[#1f1f1f] text-[16px] leading-relaxed">${tagsHTML}</div><div class="flex gap-6 mt-6 pt-6 border-t border-gray-100 text-sm text-gray-500 font-medium select-none"><button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="heart" class="w-4 h-4"></i> ${post.likes ? post.likes.length : 0} Likes</button><button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="message-square" class="w-4 h-4"></i> ${post.comments ? post.comments.length : 0} Comments</button></div>`;
+    window.currentViewingPostId = postId;
+    
+    // Comments disabled logic
+    const allowComments = post.settings?.allowComments !== false; // default true
+    if(allowComments) {
+        document.querySelectorAll('.comment-input-area').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('.comments-disabled-msg').forEach(el => el.classList.add('hidden'));
+    } else {
+        document.querySelectorAll('.comment-input-area').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.comments-disabled-msg').forEach(el => el.classList.remove('hidden'));
+    }
+
+    renderCommentsInModal(postId);
+    document.getElementById('post-view-overlay').classList.remove('hidden');
+    refreshIcons();
+}
+
+window.closePostView = function() {
+    document.getElementById('post-view-overlay').classList.add('hidden');
+    window.currentViewingPostId = null;
+    window.replyingToCommentId = null;
+}
+
+function renderCommentsInModal(postId) {
+    const post = posts.find(p => p.id === postId);
+    if(!post) return;
+    const containerDesktop = document.getElementById('comments-list-desktop');
+    const containerMobile = document.getElementById('comments-list-mobile');
+    let html = '';
+    if(post.comments) {
+        const topLevel = post.comments.filter(c => !c.parentId);
+        topLevel.forEach(c => { html += createCommentHTML(c, post.comments, postId); });
+    }
+    containerDesktop.innerHTML = html;
+    containerMobile.innerHTML = html;
+    refreshIcons();
+}
+
+function createCommentHTML(c, allComments, postId) {
+    const cAuthor = users.find(u => u.id === c.authorId) || { name: 'Unknown', avatar: '' };
+    const isLiked = c.likes && c.likes.includes(currentUser.id);
+    const likeCount = c.likes ? c.likes.length : 0;
+    const isMyComment = c.authorId === currentUser.id;
+    const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
+    const canDelete = isMyComment || isAdmin;
+    
+    const replies = allComments.filter(r => r.parentId === c.id);
+    let html = `<div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group"><img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-gray-900">${cAuthor.name}</span><span class="text-xs text-gray-500">• Now</span></div><p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p><div class="flex items-center gap-4 mt-2"><button onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> ${likeCount || ''}</button><button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div>`;
+    if (replies.length > 0) {
+        html += `<div class="reply-thread">`;
+        replies.forEach(r => {
+            const rAuthor = users.find(u => u.id === r.authorId) || { name: 'Unknown', avatar: '' };
+            const rLiked = r.likes && r.likes.includes(currentUser.id);
+            const rLikeCount = r.likes ? r.likes.length : 0;
+            const isMyReply = r.authorId === currentUser.id;
+            const canDeleteReply = isMyReply || isAdmin;
+            html += `<div class="flex gap-3 pt-3 mt-1 group"><img src="${rAuthor.avatar}" class="w-6 h-6 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${r.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-xs text-gray-900">${rAuthor.name}</span></div><p class="text-[13px] text-gray-800 leading-relaxed">${r.content}</p><div class="flex items-center gap-4 mt-1"><button onclick="toggleCommentLike('${postId}', '${r.id}')" class="text-xs font-medium flex items-center gap-1 ${rLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${rLiked ? 'fill-red-500' : ''}"></i> ${rLikeCount || ''}</button>${canDeleteReply ? `<button onclick="deleteComment('${postId}', '${r.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div></div></div>`;
+        });
+        html += `</div>`;
+    }
+    html += `</div></div>`;
+    return html;
+}
+
+window.deleteComment = async function(postId, commentId) {
+    showAlert("Delete this comment?", async () => {
+        const postRef = doc(db, "posts", postId);
+        const post = posts.find(p => p.id === postId);
+        const updatedComments = post.comments.filter(c => c.id !== commentId && c.parentId !== commentId);
+        await updateDoc(postRef, { comments: updatedComments });
+        showToast("Comment deleted");
+    });
+}
+
+window.toggleCommentLike = async function(postId, commentId) {
+    const post = posts.find(p => p.id === postId);
+    if(!post) return;
+    const comments = post.comments || [];
+    const commentIndex = comments.findIndex(c => c.id === commentId);
+    if(commentIndex === -1) return;
+    const comment = comments[commentIndex];
+    if(!comment.likes) comment.likes = [];
+    if(comment.likes.includes(currentUser.id)) { comment.likes = comment.likes.filter(id => id !== currentUser.id); } 
+    else { comment.likes.push(currentUser.id); if(comment.authorId !== currentUser.id) sendNotification(comment.authorId, 'like', 'liked your comment', postId); }
+    comments[commentIndex] = comment;
+    const postRef = doc(db, "posts", postId);
+    await updateDoc(postRef, { comments: comments });
+}
+
+window.replyToComment = function(commentId, username) {
+    const input = document.getElementById('comment-input-desktop');
+    input.value = `@${username} `;
+    input.focus();
+    window.replyingToCommentId = commentId;
+}
+
+window.submitCommentDesktop = async function() {
+    const txt = document.getElementById('comment-input-desktop').value.trim();
+    if(!txt || !window.currentViewingPostId) return;
+    const postRef = doc(db, "posts", window.currentViewingPostId);
+    const commentId = "c-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
+    const newComment = { id: commentId, authorId: currentUser.id, content: txt, timestamp: Date.now(), likes: [], parentId: window.replyingToCommentId };
+    await updateDoc(postRef, { comments: arrayUnion(newComment) });
+    const post = posts.find(p => p.id === window.currentViewingPostId);
+    if (window.replyingToCommentId) {
+        const parentComment = post.comments.find(c => c.id === window.replyingToCommentId);
+        if (parentComment && parentComment.authorId !== currentUser.id) sendNotification(parentComment.authorId, 'reply', 'replied to your comment', window.currentViewingPostId);
+    } else if(post && post.authorId !== currentUser.id) { sendNotification(post.authorId, 'comment', 'commented on your post', window.currentViewingPostId); }
+    document.getElementById('comment-input-desktop').value = "";
+    window.replyingToCommentId = null;
+}
+
+window.promptForImageLink = function() {
+    const url = prompt("Enter Image URL:");
+    if(url && (url.startsWith('http') || url.startsWith('data:'))) {
+        window.currentMedia = url;
+        window.currentMediaType = 'image';
+        const container = document.getElementById('media-preview-container');
+        container.classList.remove('hidden');
+        const img = document.getElementById('media-preview-img');
+        img.src = window.currentMedia;
+        img.classList.remove('hidden');
+        document.getElementById('media-preview-video').classList.add('hidden');
+        showToast("Image link added");
+    }
+}
+
+window.sendAnnouncement = async function() {
+    const text = document.getElementById('announcement-text').value.trim();
+    if(!text) return;
+    
+    showAlert("Send this announcement to all users?", async () => {
+        let count = 0;
+        for(const u of users) {
+            if(u.id !== currentUser.id) {
+                await addDoc(collection(db, "notifications"), { receiverId: u.id, senderId: currentUser.id, type: 'official', content: text, timestamp: serverTimestamp(), read: false });
+                count++;
+            }
+        }
+        showToast(`Sent to ${count} users`);
+        document.getElementById('announcement-text').value = "";
+    });
+}
+
+// Menu Functions
 window.openCreateMenu = function() { document.getElementById('create-menu-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('create-menu-modal').classList.remove('scale-95'); }
 window.closeCreateMenu = function() { document.getElementById('create-menu-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('create-menu-modal').classList.add('scale-95'); }
 window.openMentorship = function() { closeCreateMenu(); document.getElementById('mentorship-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('mentorship-modal-box').classList.remove('scale-95'); }
@@ -2346,13 +2953,55 @@ window.closeEventComposer = function() { document.getElementById('event-overlay'
 window.handleEventCoverSelect = function(event) { const file = event.target.files[0]; if (file) { currentEventCoverBlob = file; const reader = new FileReader(); reader.onload = function(e) { window.currentEventCover = e.target.result; document.getElementById('event-cover-preview').src = window.currentEventCover; document.getElementById('event-cover-preview-container').classList.remove('hidden'); document.getElementById('add-cover-btn').classList.add('hidden'); }; reader.readAsDataURL(file); } }
 window.removeEventCover = function() { window.currentEventCover = null; currentEventCoverBlob = null; document.getElementById('event-cover-preview').src = ""; document.getElementById('event-cover-preview-container').classList.add('hidden'); document.getElementById('add-cover-btn').classList.remove('hidden'); document.getElementById('event-cover-input').value = ""; }
 window.publishEvent = function() { showToast("Events feature connected to backend soon!", false); closeEventComposer(); }
-window.showPostOptions = function(event, postId, authorId) { event.stopPropagation(); const menu = document.getElementById('global-post-menu'); const btn = event.currentTarget; const rect = btn.getBoundingClientRect(); const isAuthor = authorId === currentUser.id; const isAdmin = currentUser.email === 'edulinkbht@gmail.com'; const canEdit = isAuthor; const canDelete = isAuthor || isAdmin; let menuContent = ''; if(canEdit) { menuContent += `<div class="post-option-item" onclick="editPost('${postId}')"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit</div>`; } if(canDelete) { menuContent += `<div class="post-option-item danger" onclick="deletePost('${postId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>`; } if(!isAuthor) { menuContent += `<div class="post-option-item" onclick="showToast('Post Saved')"><i data-lucide="bookmark" class="w-4 h-4"></i> Save</div><div class="post-option-item danger" onclick="showToast('Reported')"><i data-lucide="flag" class="w-4 h-4"></i> Report</div>`; } menu.innerHTML = menuContent; refreshIcons(); menu.style.top = (rect.bottom + window.scrollY) + 'px'; menu.style.left = (rect.right - 160) + 'px'; menu.classList.add('active'); }
+
+// Post Logic
+window.showPostOptions = function(event, postId, authorId) {
+    event.stopPropagation();
+    const menu = document.getElementById('global-post-menu');
+    const btn = event.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const isAuthor = authorId === currentUser.id;
+    const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
+    const canEdit = isAuthor; 
+    const canDelete = isAuthor || isAdmin;
+
+    let menuContent = '';
+    if(canEdit) {
+        menuContent += `<div class="post-option-item" onclick="editPost('${postId}')"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit</div>`;
+    }
+    if(canDelete) {
+        menuContent += `<div class="post-option-item danger" onclick="deletePost('${postId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>`;
+    }
+    if(!isAuthor) {
+        menuContent += `<div class="post-option-item" onclick="showToast('Post Saved')"><i data-lucide="bookmark" class="w-4 h-4"></i> Save</div><div class="post-option-item danger" onclick="showToast('Reported')"><i data-lucide="flag" class="w-4 h-4"></i> Report</div>`;
+    }
+
+    menu.innerHTML = menuContent;
+    refreshIcons();
+    menu.style.top = (rect.bottom + window.scrollY) + 'px';
+    menu.style.left = (rect.right - 160) + 'px';
+    menu.classList.add('active');
+}
 window.hidePostMenu = function() { document.getElementById('global-post-menu').classList.remove('active'); }
 window.editPost = function(postId) { const post = posts.find(p => p.id === postId); if(!post) return; document.getElementById('compose-text').value = post.content; window.editingPostId = postId; document.getElementById('compose-title-text').innerText = "Edit Post"; document.getElementById('btn-publish').innerText = "Update"; openCompose(); }
-window.deletePost = async function(postId) { showAlert("Delete this post?", async () => { await deleteDoc(doc(db, "posts", postId)); showToast("Post deleted"); }); }
+window.deletePost = async function(postId) { 
+    showAlert("Delete this post?", async () => {
+        await deleteDoc(doc(db, "posts", postId)); 
+        showToast("Post deleted"); 
+    });
+}
 window.openCompose = function() { closeCreateMenu(); document.getElementById('compose-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('compose-modal').classList.remove('scale-95'); }
 window.closeCompose = function() { document.getElementById('compose-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('compose-modal').classList.add('scale-95'); setTimeout(() => { window.editingPostId = null; document.getElementById('compose-title-text').innerText = "Create Post"; document.getElementById('btn-publish').innerText = "Post"; document.getElementById('compose-text').value = ""; removeMedia(); }, 200); }
-window.toggleComposeSettings = function() { const area = document.getElementById('compose-settings-area'); const arrow = document.getElementById('compose-settings-arrow'); area.classList.toggle('hidden'); if(area.classList.contains('hidden')) arrow.style.transform = 'rotate(0deg)'; else arrow.style.transform = 'rotate(180deg)'; }
+
+window.toggleComposeSettings = function() {
+    const area = document.getElementById('compose-settings-area');
+    const arrow = document.getElementById('compose-settings-arrow');
+    area.classList.toggle('hidden');
+    if(area.classList.contains('hidden')) arrow.style.transform = 'rotate(0deg)';
+    else arrow.style.transform = 'rotate(180deg)';
+}
+
+// AI Stuff
 function setupClassifier() { if(typeof ml5 !== 'undefined') classifier = ml5.imageClassifier('MobileNet', () => console.log("MobileNet Ready")); }
 window.toggleNewtonExpand = function() { document.body.classList.toggle('mode-focus'); const layout = document.getElementById('workspace-layout'); const icon = document.getElementById('expand-icon'); let isSwapped = layout.classList.contains('swapped'); if (!isSwapped) { layout.classList.add('swapped'); icon.setAttribute('data-lucide', 'minimize-2'); showToast("Focus Mode Active"); } else { layout.classList.remove('swapped'); icon.setAttribute('data-lucide', 'maximize-2'); } refreshIcons(); }
 window.handleInput = function(textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight) + 'px'; if(textarea.value === '') textarea.style.height = 'auto'; }
@@ -2360,11 +3009,82 @@ window.togglePlusMenu = function() { if(window.isModelMenuOpen) toggleModelMenu(
 window.toggleModelMenu = function() { if(window.isPlusMenuOpen) togglePlusMenu(); window.isModelMenuOpen = !window.isModelMenuOpen; const menu = document.getElementById('model-menu'); if(window.isModelMenuOpen) menu.classList.add('active'); else menu.classList.remove('active'); }
 window.handleFileSelect = function(event) { const file = event.target.files[0]; if (file) { window.currentMediaBlob = file; const reader = new FileReader(); reader.onload = function(e) { window.currentMedia = e.target.result; window.currentMediaType = file.type.startsWith('video') ? 'video' : 'image'; const container = document.getElementById('media-preview-container'); container.classList.remove('hidden'); if(window.currentMediaType === 'video') { const vid = document.getElementById('media-preview-video'); vid.src = window.currentMedia; vid.classList.remove('hidden'); document.getElementById('media-preview-img').classList.add('hidden'); } else { const img = document.getElementById('media-preview-img'); img.src = window.currentMedia; img.classList.remove('hidden'); document.getElementById('media-preview-video').classList.add('hidden'); } showToast("Media Uploaded"); }; reader.readAsDataURL(file); } }
 window.removeMedia = function() { window.currentMedia = null; window.currentMediaType = null; window.mediaVisionLog = ""; window.currentMediaBlob = null; document.getElementById('media-preview-container').classList.add('hidden'); document.getElementById('media-input').value = ""; }
-async function uploadToImgHippo(file) { const formData = new FormData(); formData.append('api_key', 'd28bf3c492ad07b53dc4e3f9ce99b072'); formData.append('file', file); try { const response = await fetch('https://api.imghippo.com/v1/upload', { method: 'POST', body: formData }); const data = await response.json(); if (data.success) { return data.data.url; } else { throw new Error('Upload failed'); } } catch (e) { throw e; } }
-window.publishPost = async function() { const textRaw = document.getElementById('compose-text').value; const btn = document.getElementById('btn-publish'); const isPrivate = document.getElementById('post-setting-privacy').checked; const showLikes = document.getElementById('post-setting-likes').checked; const showComments = document.getElementById('post-setting-comments').checked; const allowLikeView = document.getElementById('post-setting-like-view').checked; const allowComments = document.getElementById('post-setting-allow-comments').checked; if (!textRaw.trim() && !window.currentMedia) { showToast("Empty post!", true); return; } const originalHtml = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`; btn.disabled = true; refreshIcons(); try { let mediaUrl = window.currentMedia; if(window.currentMediaBlob) { try { mediaUrl = await uploadToImgHippo(window.currentMediaBlob); } catch (err) { const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`); await uploadBytes(mediaRef, window.currentMediaBlob); mediaUrl = await getDownloadURL(mediaRef); } } const postData = { authorId: currentUser.id, content: textRaw, media: mediaUrl, timestamp: serverTimestamp(), likes: [], comments: [], settings: { privacy: isPrivate ? 'private' : 'public', showLikes: showLikes, showComments: showComments, allowLikeView: allowLikeView, allowComments: allowComments } }; if(window.editingPostId) { await updateDoc(doc(db, "posts", window.editingPostId), { content: textRaw, settings: postData.settings }); showToast("Post Updated!"); } else { await addDoc(collection(db, "posts"), postData); showToast("Posted!"); } closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; refreshIcons(); } }
+
+// ImgHippo Upload
+async function uploadToImgHippo(file) {
+    const formData = new FormData();
+    formData.append('api_key', 'd28bf3c492ad07b53dc4e3f9ce99b072');
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('https://api.imghippo.com/v1/upload', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (data.success) {
+            return data.data.url;
+        } else {
+            console.error("ImgHippo error", data);
+            throw new Error('Upload failed');
+        }
+    } catch (e) {
+        throw e;
+    }
+}
+
+window.publishPost = async function() { 
+    const textRaw = document.getElementById('compose-text').value; 
+    const btn = document.getElementById('btn-publish'); 
+    
+    // Get Settings
+    const isPrivate = document.getElementById('post-setting-privacy').checked;
+    const showLikes = document.getElementById('post-setting-likes').checked;
+    const showComments = document.getElementById('post-setting-comments').checked;
+    const allowLikeView = document.getElementById('post-setting-like-view').checked;
+    const allowComments = document.getElementById('post-setting-allow-comments').checked;
+    
+    if (!textRaw.trim() && !window.currentMedia) { showToast("Empty post!", true); return; } 
+    const originalHtml = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`; btn.disabled = true; refreshIcons(); 
+    try { 
+        let mediaUrl = window.currentMedia; 
+        if(window.currentMediaBlob) { 
+            // Attempt ImgHippo upload
+            try {
+                mediaUrl = await uploadToImgHippo(window.currentMediaBlob);
+            } catch (err) {
+                console.error("ImgHippo failed, falling back to Firebase Storage", err);
+                const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`); 
+                await uploadBytes(mediaRef, window.currentMediaBlob); 
+                mediaUrl = await getDownloadURL(mediaRef); 
+            }
+        } 
+    
+    const postData = { 
+        authorId: currentUser.id, 
+        content: textRaw, 
+        media: mediaUrl, 
+        timestamp: serverTimestamp(), 
+        likes: [], 
+        comments: [],
+        settings: {
+            privacy: isPrivate ? 'private' : 'public',
+            showLikes: showLikes,
+            showComments: showComments,
+            allowLikeView: allowLikeView,
+            allowComments: allowComments
+        }
+    };
+
+    if(window.editingPostId) { await updateDoc(doc(db, "posts", window.editingPostId), { content: textRaw, settings: postData.settings }); showToast("Post Updated!"); } else { await addDoc(collection(db, "posts"), postData); showToast("Posted!"); } closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; refreshIcons(); } }
 window.showToast = function(message, isError = false) { const toast = document.getElementById('toast'); const toastMsg = document.getElementById('toast-msg'); const icon = document.getElementById('toast-icon'); toastMsg.innerText = message; if (isError) { toast.style.backgroundColor = '#d93025'; icon.setAttribute('data-lucide', 'alert-circle'); icon.classList.remove('text-[#c4eed0]'); icon.classList.add('text-white'); } else { toast.style.backgroundColor = '#303134'; icon.setAttribute('data-lucide', 'check-circle-2'); icon.classList.add('text-[#c4eed0]'); } refreshIcons(); toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3000); }
 window.openLightbox = function(src, type = 'image') { const wrapper = document.getElementById('lightbox-wrapper'); const lightbox = document.getElementById('lightbox'); if (type === 'video' || src.includes('.mp4') || src.includes('data:video') || src.includes('.webm')) { wrapper.innerHTML = `<video src="${src}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`; } else { wrapper.innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; } lightbox.classList.add('active'); lightbox.classList.remove('pointer-events-none'); lightbox.classList.remove('opacity-0'); }
 window.closeLightbox = function() { const lightbox = document.getElementById('lightbox'); lightbox.classList.remove('active'); lightbox.classList.add('pointer-events-none'); lightbox.classList.add('opacity-0'); const video = lightbox.querySelector('video'); if(video) video.pause(); }
+
+// AI - Restored
+let conversationHistory = [];
+const models = { standard: { name: "Newton", avatar: "https://i.imghippo.com/files/XEEq5247S.png", system: "You are Newton, an AI tutor.", greeting: "Hello! I'm Newton. What are you working on?" }, friendly: { name: "Tutor Chase", avatar: "https://api.dicebear.com/9.x/lorelei/svg?seed=Chase", system: "You are Chase, friendly tutor.", greeting: "Hi there! I'm Chase!" } };
+let activeModel = 'standard';
 window.resetChat = function() { conversationHistory = []; window.clearContext(); const chatContainer = document.getElementById('chat-history'); const modelData = models[activeModel]; let cls = "w-6 h-6 object-contain"; if(activeModel !== 'standard') cls = "w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100"; chatContainer.innerHTML = `<div class="chat-wrapper flex flex-col w-full mb-6 fade-in"><div class="flex items-center gap-2 mb-2"><img src="${modelData.avatar}" class="${cls}"></div><div class="chat-msg-ai"><p>${modelData.greeting}</p></div></div>`; }
 window.switchModel = function(modelKey) { if(activeModel === modelKey) { window.toggleModelMenu(); return; } activeModel = modelKey; document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active-item')); document.getElementById(`model-btn-${modelKey}`).classList.add('active-item'); document.getElementById('ai-header-name').innerText = models[modelKey].name; const logo = document.getElementById('ai-header-logo'); logo.src = models[modelKey].avatar; window.toggleModelMenu(); window.resetChat(); showToast(`Switched to ${models[modelKey].name}`); }
 window.sendMessageAction = async function() { const inp = document.getElementById('ai-input'); const txt = inp.value.trim(); if(!txt) return; addMessage(txt, true); inp.value = ""; window.handleInput(inp); stopGeneration = false; const thinkingId = 'thinking-' + Date.now(); const chatContainer = document.getElementById('chat-history'); const modelData = models[activeModel]; let cls = "w-6 h-6 object-contain"; if(activeModel !== 'standard') cls = "w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100"; const thinkingHTML = `<div id="${thinkingId}" class="flex flex-col w-full mb-6 fade-in"><div class="flex items-center gap-4 mb-2"><img src="${modelData.avatar}" class="${cls} animate-pulse"><span class="text-sm text-[#444746] font-medium animate-pulse">Thinking...</span></div></div>`; chatContainer.insertAdjacentHTML('beforeend', thinkingHTML); chatContainer.scrollTop = chatContainer.scrollHeight; const historyStr = conversationHistory.slice(0, -1).map(msg => `${msg.role === 'user' ? 'User' : 'Newton'}: ${msg.content}`).join('\n'); let system = models[activeModel].system; let q = `${system} \n${window.currentContext ? "Current Context: " + window.currentContext : ""}\nConversation History:\n${historyStr}\nUser: ${txt}`; try { const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(q)}?model=openai`); const ans = await res.text(); if(document.getElementById(thinkingId)) document.getElementById(thinkingId).remove(); if(!stopGeneration) await addMessage(ans, false); } catch(e) { if(document.getElementById(thinkingId)) document.getElementById(thinkingId).remove(); addMessage("Connection error.", false); } }

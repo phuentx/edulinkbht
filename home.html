@@ -520,25 +520,25 @@ transition: background 0.1s; font-size: 14px; font-weight: 500;
     width: 100%;
     margin-bottom: 6px;
     padding: 2px 0; /* Add target area for hover */
+    align-items: center; /* Center actions vertically */
 }
 .chat-row.me { justify-content: flex-end; }
 .chat-row.them { justify-content: flex-start; }
 
 .chat-actions-menu {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
+    /* Removed absolute positioning */
     background: white;
     border: 1px solid #eaecf0;
     border-radius: 20px;
     padding: 4px;
-    display: flex; /* Always display flex, handle visibility with opacity */
+    display: flex; 
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     z-index: 10;
     gap: 4px;
-    opacity: 0; /* Hidden by default */
+    opacity: 0; 
     pointer-events: none;
     transition: opacity 0.2s ease-in-out;
+    margin: 0 8px; /* Spacing */
 }
 
 /* Show menu when hovering the ROW */
@@ -547,8 +547,12 @@ transition: background 0.1s; font-size: 14px; font-weight: 500;
     pointer-events: auto;
 }
 
-.chat-row.me .chat-actions-menu { right: 100%; margin-right: 8px; }
-.chat-row.them .chat-actions-menu { left: 100%; margin-left: 8px; }
+/* Order manipulation for placement */
+.chat-row.me .chat-actions-menu { order: 1; }
+.chat-row.me .chat-bubble-me { order: 2; }
+
+.chat-row.them .chat-bubble-them { order: 1; }
+.chat-row.them .chat-actions-menu { order: 2; }
 
 .chat-action-btn {
     padding: 6px;

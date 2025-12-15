@@ -241,7 +241,7 @@
         </div>
         <div id="team-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar pb-4"></div>
 
-        <div class="p-4 border-t border-notion-border dark:border-notion-dark-border text-notion-textLight dark:text-[#9B9A97] text-xs flex justify-center cursor-default">EduLink v2.9</div>
+        <div class="p-4 border-t border-notion-border dark:border-notion-dark-border text-notion-textLight dark:text-[#9B9A97] text-xs flex justify-center cursor-default">EduLink v3.1</div>
     </div>
 
     <!-- MAIN AREA -->
@@ -1103,7 +1103,6 @@
     };
     
     // --- MAIN NAVIGATION: PROJECTS ---
-    // (Team Chat Logic Removed)
 
     window.selectProject = async (id) => {
         if(currentProjectId === id) return;
@@ -1426,6 +1425,19 @@
         if(unsubscribeChat) unsubscribeChat();
         unsubscribeChat = onSnapshot(query(collection(db, `projects/${pid}/messages`), orderBy("timestamp", "asc")), (snap) => { 
             const div = document.getElementById('chat-messages'); div.innerHTML = ''; 
+            
+            // Auto Read Receipt Update Logic
+            const updates = [];
+            snap.forEach(d => {
+                const m = d.data();
+                if(m.senderId !== currentUser.uid && (!m.readBy || !m.readBy.includes(currentUser.uid))) {
+                    updates.push(updateDoc(doc(db, `projects/${pid}/messages`, d.id), {
+                        readBy: arrayUnion(currentUser.uid)
+                    }));
+                }
+            });
+            Promise.all(updates).catch(console.error);
+
             snap.forEach(d => { 
                 const m = d.data();
                 if(m.hiddenBy && m.hiddenBy.includes(currentUser.uid)) return;
@@ -1454,7 +1466,26 @@
                 // Chat Actions Buttons (Messenger Style: To the side)
                 const menuTrigger = `<button onclick="window.openMsgMenu(event, '${d.id}', ${isMe})" class="absolute top-1/2 -translate-y-1/2 ${isMe ? 'left-0' : 'right-0'} chat-actions text-gray-300 hover:text-gray-500 p-1 text-lg leading-none rounded-full hover:bg-gray-100 dark:hover:bg-[#2C2C2C] transition-colors">⋮</button>`;
 
-                wrap.innerHTML = `<div class="relative max-w-[90%]">${menuTrigger}<div class="text-[10px] text-gray-400 dark:text-[#6B6B6B] ml-1 mb-0.5 flex items-center ${isMe ? 'justify-end' : 'justify-start'}">${m.senderName} ${extraLabel}</div><div class="px-3.5 py-2.5 rounded-xl text-[14px] ${bubbleClass} shadow-sm leading-relaxed chat-content">${content}</div></div>`; 
+                // Read Receipt Icon
+                let checkIcon = '';
+                if(isMe) {
+                    const isRead = m.readBy && m.readBy.length > 1; // Assuming sender is in readBy initially or we check length
+                    // Better check: is there anyone in readBy who is NOT me?
+                    const readByOthers = m.readBy ? m.readBy.filter(id => id !== currentUser.uid).length > 0 : false;
+                    
+                    if(readByOthers) {
+                        // Double Blue Check
+                        checkIcon = `<span class="ml-1.5 text-blue-500" title="Read"><svg class="w-3.5 h-3.5 inline-block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7M5 13l4 4L19 7" style="stroke-dasharray: 20; stroke-dashoffset: 0;"></path><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" transform="translate(-4, 0)"></path></svg></span>`;
+                        // Simplified SVG for double check look
+                        checkIcon = `<span class="ml-1 text-blue-500 flex items-center" title="Read"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L7 17l-5-5"></path><path d="M22 10l-7.5 7.5L13 16"></path></svg></span>`;
+
+                    } else {
+                        // Single Grey Check
+                        checkIcon = `<span class="ml-1 text-gray-400" title="Sent"><svg class="w-3.5 h-3.5 inline-block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>`;
+                    }
+                }
+
+                wrap.innerHTML = `<div class="relative max-w-[90%]">${menuTrigger}<div class="text-[10px] text-gray-400 dark:text-[#6B6B6B] ml-1 mb-0.5 flex items-center ${isMe ? 'justify-end' : 'justify-start'}">${m.senderName} ${extraLabel}</div><div class="px-3.5 py-2.5 rounded-xl text-[14px] ${bubbleClass} shadow-sm leading-relaxed chat-content flex items-end flex-wrap gap-1">${content} ${checkIcon}</div></div>`; 
                 div.appendChild(wrap); 
             }); 
             div.scrollTop = div.scrollHeight; 
@@ -1471,7 +1502,8 @@
             senderName: currentUser.displayName||"User", 
             to: recipient,
             timestamp: serverTimestamp(),
-            hiddenBy: []
+            hiddenBy: [],
+            readBy: [currentUser.uid] // Initialize readBy with sender
         }); 
         inp.value = ''; 
     });
@@ -1668,18 +1700,33 @@
     });
     document.getElementById('btn-open-share').addEventListener('click', ()=>window.showModal('share-modal'));
     document.getElementById('btn-copy-link').addEventListener('click', () => { if(!currentProjectId) return; const url = window.location.protocol + "//" + window.location.host + window.location.pathname + '?project=' + currentProjectId; navigator.clipboard.writeText(url).then(() => notify("Link copied to clipboard!", "success")).catch(err => notify("Failed to copy link", "error")); });
-    function renderMembersList(access, isOwner) {
+    
+    // Updated renderMembersList to fetch avatars async
+    async function renderMembersList(access, isOwner) {
         const d = document.getElementById('members-list'); d.innerHTML = '';
-        access.forEach(m => { 
-            let roleDisplay = `<span class="text-[11px] text-gray-400 dark:text-[#9B9A97] capitalize font-medium">${m.role}</span>`;
+        
+        // Parallel fetch for avatars might be better but for simplicity we will render placeholders then update or fetch one by one
+        for (const m of access) {
+             let roleDisplay = `<span class="text-[11px] text-gray-400 dark:text-[#9B9A97] capitalize font-medium">${m.role}</span>`;
             let actions = '';
             if(isOwner && m.email !== currentUser.email) {
                 roleDisplay = `<select onchange="window.updateMemberRole('${m.email}', this.value)" class="text-[11px] bg-transparent border-none outline-none text-gray-500 font-medium cursor-pointer hover:text-gray-800 dark:text-[#9B9A97] dark:hover:text-[#D4D4D4]"><option value="editor" ${m.role==='editor'?'selected':''}>Editor</option><option value="commenter" ${m.role==='commenter'?'selected':''}>Commenter</option><option value="viewer" ${m.role==='viewer'?'selected':''}>Viewer</option></select>`;
                 actions = `<button class="text-xs text-red-400 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" onclick="window.removeMember('${m.email}', '${currentProjectId}')">Remove</button>`;
             } else if(m.role === 'owner') roleDisplay = `<span class="text-[11px] text-notion-blue font-bold uppercase tracking-wider">Owner</span>`;
-            d.innerHTML += `<div class="flex justify-between items-center p-2.5 hover:bg-gray-50 dark:hover:bg-[#2C2C2C] rounded-lg border border-transparent hover:border-gray-100 dark:hover:border-[#2F2F2F] transition-all group"><div class="flex items-center gap-3"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}" class="w-8 h-8 rounded-full bg-white border border-gray-200 dark:border-[#2F2F2F]"><div class="flex flex-col"><span class="text-sm font-semibold text-notion-text dark:text-[#D4D4D4]">${m.email}</span>${roleDisplay}</div></div>${actions}</div>`; 
-        });
+            
+            // Try to find user doc for avatar
+            const q = query(collection(db, "users"), where("email", "==", m.email));
+            const snap = await getDocs(q);
+            let avatarSrc = `https://api.dicebear.com/9.x/lorelei/svg?seed=${m.email}`;
+            if(!snap.empty) {
+                const uData = snap.docs[0].data();
+                if(uData.photoURL && !uData.photoURL.includes('dicebear')) avatarSrc = uData.photoURL;
+            }
+
+            d.innerHTML += `<div class="flex justify-between items-center p-2.5 hover:bg-gray-50 dark:hover:bg-[#2C2C2C] rounded-lg border border-transparent hover:border-gray-100 dark:hover:border-[#2F2F2F] transition-all group"><div class="flex items-center gap-3"><img src="${avatarSrc}" class="w-8 h-8 rounded-full bg-white border border-gray-200 dark:border-[#2F2F2F] object-cover"><div class="flex flex-col"><span class="text-sm font-semibold text-notion-text dark:text-[#D4D4D4]">${m.email}</span>${roleDisplay}</div></div>${actions}</div>`; 
+        }
     }
+
     document.getElementById('btn-send-invite').addEventListener('click', async()=>{
         const email = document.getElementById('invite-email').value; const role = document.getElementById('invite-role').value; if(!email) return;
         const ref = doc(db, "projects", currentProjectId); const snap = await getDoc(ref);

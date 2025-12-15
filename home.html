@@ -1473,23 +1473,55 @@ function initRealtimeListeners() {
     });
 
     const qPosts = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-    // FIX: Include metadata changes to detect local pending writes
+    // FIX: Optimized rendering to prevent disappearing icons on interaction
     onSnapshot(qPosts, { includeMetadataChanges: true }, (snapshot) => {
+        // Update global posts data
         posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
         
-        // CRITICAL FIX: If we have pending writes (local update from like/unlike), 
-        // DO NOT re-render the feed. This prevents the button from disappearing/flickering
-        // while the user is interacting with it.
+        // If there are pending writes (local changes like "Like"), skip re-render completely to avoid flicker
         if (snapshot.metadata.hasPendingWrites) {
             return;
         }
         
-        // Only render if needed, but since snapshot implies data change, we should re-render to show new content
+        // Targeted Update Logic: Check what changed
+        const changes = snapshot.docChanges();
+        let shouldFullRender = false;
+
+        // If it's the very first load or empty container, force render
+        if (document.getElementById('feed-container').children.length === 0) {
+            shouldFullRender = true;
+        } else {
+            changes.forEach(change => {
+                if (change.type === "added" || change.type === "removed") {
+                    shouldFullRender = true;
+                } else if (change.type === "modified") {
+                    // It's a modification (likely a like or comment). Update DOM in place.
+                    const p = change.doc.data();
+                    const pid = change.doc.id;
+                    
+                    // Update Like Count Text
+                    const likeCountEl = document.getElementById(`like-count-${pid}`);
+                    if(likeCountEl) {
+                        likeCountEl.innerText = p.likes ? p.likes.length : 0;
+                    }
+                    
+                    // Update Comment Count Text
+                    const commentCountEl = document.getElementById(`comment-count-${pid}`);
+                    if(commentCountEl) {
+                        commentCountEl.innerText = p.comments ? p.comments.length : 0;
+                    }
+                    // Do NOT set shouldFullRender to true here.
+                }
+            });
+        }
+
         const activeFeed = document.querySelector('#view-feed:not(.hidden)');
-        if(activeFeed) renderFeed();
+        if(activeFeed && shouldFullRender) {
+            renderFeed();
+        }
         
         const activeSaved = document.querySelector('#view-saved:not(.hidden)');
-        if(activeSaved) renderSaved();
+        if(activeSaved) renderSaved(); // Saved usually re-renders fully as it's less frequent
 
         const activeProfile = document.querySelector('#view-profile:not(.hidden)');
         if(activeProfile && window.currentViewingProfileId) showProfile(window.currentViewingProfileId);
@@ -1852,7 +1884,7 @@ function createPostElement(post) {
     const likeCountDisplay = settings.showLikes 
         ? `<span id="like-count-${post.id}" class="text-xs font-medium px-1 hover:underline cursor-pointer" onclick="${canViewLikeList ? `event.stopPropagation(); openLikes('${post.id}')` : 'event.stopPropagation()'}">${post.likes ? post.likes.length : 0}</span>` 
         : '';
-    const commentCountDisplay = settings.showComments ? `<span class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span>` : '';
+    const commentCountDisplay = settings.showComments ? `<span id="comment-count-${post.id}" class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span>` : '';
 
     div.innerHTML = `
     <div class="p-4 md:p-5">

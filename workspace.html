@@ -136,9 +136,19 @@
         .sidebar-item .item-actions { opacity: 0; transition: opacity 0.2s; }
         .sidebar-item:hover .item-actions { opacity: 1; }
         
-        /* Chat Row Hover Logic */
-        .chat-row .chat-actions { opacity: 0; transition: all 0.2s ease; pointer-events: none; transform: scale(0.9); }
-        .chat-row:hover .chat-actions { opacity: 1; pointer-events: auto; transform: scale(1); }
+        /* Chat Row Hover Logic - Messenger Style */
+        .chat-row .chat-actions { 
+            opacity: 0; 
+            transition: all 0.2s ease; 
+            pointer-events: none; 
+            transform: scale(0.9); 
+        }
+        /* Show on hover OR if the menu is currently open (actions-open class) */
+        .chat-row:hover .chat-actions, .chat-row.actions-open .chat-actions { 
+            opacity: 1; 
+            pointer-events: auto; 
+            transform: scale(1); 
+        }
 
         .reminder-item .reminder-actions { opacity: 0; transition: opacity 0.2s; }
         .reminder-item:hover .reminder-actions { opacity: 1; }
@@ -256,31 +266,35 @@
                     </div>
                 </div>
 
-                <!-- AI Selection Menu -->
-                <div id="ai-selection-menu" class="fixed hidden bg-white border border-gray-200 shadow-xl rounded-full p-1.5 z-[200] flex gap-2 items-center animate-popIn">
-                    <div class="flex items-center gap-1.5 pl-2">
-                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        <input id="ai-selection-input" type="text" class="text-sm outline-none w-48 text-gray-700 placeholder-gray-400 bg-transparent" placeholder="Ask AI to edit...">
-                    </div>
-                    <button id="btn-ai-submit" class="p-1.5 rounded-full hover:bg-gray-100 text-notion-blue transition-colors" onclick="window.handleAIEdit()"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg></button>
-                </div>
-
-                <!-- Slash AI Menu -->
+                <!-- Slash AI Menu (Consolidated) -->
                 <div id="slash-menu" class="fixed hidden bg-white border border-gray-200 rounded-xl shadow-menu z-[100] w-64 overflow-hidden animate-popIn">
-                    <div class="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide bg-gray-50 border-b border-gray-100">AI Assistant</div>
-                    <div class="p-1">
-                        <button onclick="executeAICommand('Continue writing')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg> Continue writing
-                        </button>
-                        <button onclick="executeAICommand('Summarize')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg> Summarize
-                        </button>
-                        <button onclick="executeAICommand('Fix grammar and spelling')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Fix grammar
-                        </button>
-                        <button onclick="executeAICommand('Translate to Spanish')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg> Translate to Spanish
-                        </button>
+                    <div id="slash-main-content">
+                        <div class="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide bg-gray-50 border-b border-gray-100">AI Assistant</div>
+                        <div class="p-1">
+                            <button onclick="window.showSlashAIInput()" class="w-full text-left px-3 py-2 text-sm text-notion-text hover:bg-purple-50 hover:text-purple-600 rounded-lg flex items-center gap-2.5 font-medium">
+                                <span class="ai-shimmer">✨</span> Ask AI...
+                            </button>
+                            <div class="h-[1px] bg-gray-100 my-1 mx-2"></div>
+                            <button onclick="executeAICommand('Continue writing')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg> Continue writing
+                            </button>
+                            <button onclick="executeAICommand('Summarize')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg> Summarize
+                            </button>
+                            <button onclick="executeAICommand('Fix grammar and spelling')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Fix grammar
+                            </button>
+                            <button onclick="executeAICommand('Translate to Spanish')" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg> Translate to Spanish
+                            </button>
+                        </div>
+                    </div>
+                    <div id="slash-ai-input-container" class="hidden p-2">
+                        <div class="flex items-center gap-2 bg-gray-50 rounded-lg p-1.5 border border-gray-200">
+                             <span class="ai-shimmer text-lg">✨</span>
+                             <input id="slash-ai-custom-input" type="text" class="bg-transparent outline-none text-sm w-full text-gray-700" placeholder="What should AI write?">
+                        </div>
+                        <div class="text-[10px] text-gray-400 mt-1 px-1">Press Enter to generate</div>
                     </div>
                 </div>
 
@@ -1029,25 +1043,56 @@
                 const range = sel.getRangeAt(0);
                 const rect = range.getBoundingClientRect();
                 
+                // Reset slash menu state
+                document.getElementById('slash-main-content').classList.remove('hidden');
+                document.getElementById('slash-ai-input-container').classList.add('hidden');
+
                 slashMenu.style.left = `${rect.left}px`;
                 slashMenu.style.top = `${rect.bottom + 10}px`;
                 slashMenu.classList.remove('hidden');
             }
         } else {
-            if(e.key === 'Escape' || e.key === ' ') {
+            if(e.key === 'Escape') {
                 slashMenu.classList.add('hidden');
             }
+        }
+    });
+
+    // Custom AI Command Logic
+    window.showSlashAIInput = () => {
+        document.getElementById('slash-main-content').classList.add('hidden');
+        document.getElementById('slash-ai-input-container').classList.remove('hidden');
+        const input = document.getElementById('slash-ai-custom-input');
+        input.value = "";
+        setTimeout(() => input.focus(), 50);
+    }
+
+    document.getElementById('slash-ai-custom-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const val = e.target.value.trim();
+            if (val) executeAICommand(val);
         }
     });
 
     window.executeAICommand = async (command) => {
         slashMenu.classList.add('hidden');
         contentInput.focus();
-        document.execCommand('delete', false, null); 
+        // Remove the '/' character if it exists
+        const sel = window.getSelection();
+        if (sel.rangeCount) {
+             const range = sel.getRangeAt(0);
+             // Basic attempt to delete the slash if it's right before cursor, or just proceed
+             document.execCommand('delete', false, null); 
+        }
+
         document.getElementById('ai-indicator').classList.remove('hidden');
         
         const context = contentInput.innerText;
-        const prompt = `Act as a professional writing assistant. ${command}: ${context.substring(0, 1000)}`;
+        // Use the selected text if available, otherwise use whole doc context
+        let activeSelection = "";
+        if (sel.rangeCount && !sel.isCollapsed) activeSelection = sel.toString();
+
+        const prompt = `Act as a professional writing assistant. ${command}. ${activeSelection ? 'Focus on this text: "' + activeSelection + '"' : 'Context: ' + context.substring(0, 500)}`;
         
         try {
             const result = await fetchAI(prompt, "");
@@ -1056,76 +1101,8 @@
         document.getElementById('ai-indicator').classList.add('hidden');
     };
 
-    // --- CONTEXTUAL AI EDIT MENU ---
-    document.addEventListener('selectionchange', () => {
-        const sel = window.getSelection();
-        const menu = document.getElementById('ai-selection-menu');
-        const editor = document.getElementById('editor-container');
-        
-        if (!sel.rangeCount || sel.isCollapsed || !editor.contains(sel.anchorNode)) {
-            menu.classList.add('hidden');
-            return;
-        }
-
-        const range = sel.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
-        
-        if (rect.width === 0) return;
-
-        // Store range so we can restore it when clicking the AI button
-        currentSelectionRange = range.cloneRange();
-
-        menu.style.left = `${rect.left + (rect.width / 2) - 100}px`;
-        menu.style.top = `${rect.top - 50}px`;
-        menu.classList.remove('hidden');
-    });
-
-    window.handleAIEdit = async () => {
-        const input = document.getElementById('ai-selection-input');
-        const prompt = input.value.toLowerCase().trim();
-        const menu = document.getElementById('ai-selection-menu');
-        
-        if (!prompt) return;
-
-        // Restore selection if lost
-        if (currentSelectionRange) {
-            const sel = window.getSelection();
-            sel.removeAllRanges();
-            sel.addRange(currentSelectionRange);
-        }
-
-        // Smart Styling Heuristics
-        if (prompt.includes('red')) document.execCommand('foreColor', false, 'red');
-        else if (prompt.includes('blue')) document.execCommand('foreColor', false, 'blue');
-        else if (prompt.includes('green')) document.execCommand('foreColor', false, 'green');
-        else if (prompt.includes('bold')) document.execCommand('bold');
-        else if (prompt.includes('italic')) document.execCommand('italic');
-        else if (prompt.includes('underline')) document.execCommand('underline');
-        else if (prompt.includes('times')) document.execCommand('fontName', false, 'Times New Roman');
-        else if (prompt.includes('serif')) document.execCommand('fontName', false, 'serif');
-        else if (prompt.includes('sans')) document.execCommand('fontName', false, 'sans-serif');
-        else {
-            // Generative AI Edit
-            const sel = window.getSelection();
-            if (sel.rangeCount) {
-                const selectedText = sel.toString();
-                menu.classList.add('hidden'); 
-                document.getElementById('ai-indicator').classList.remove('hidden');
-                const newText = await fetchAI(prompt, selectedText);
-                document.execCommand('insertHTML', false, newText);
-                document.getElementById('ai-indicator').classList.add('hidden');
-            }
-        }
-        
-        input.value = '';
-        menu.classList.add('hidden');
-        currentSelectionRange = null;
-    };
+    // Removed the selectionchange listener that triggered #ai-selection-menu
     
-    document.getElementById('ai-selection-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') window.handleAIEdit();
-    });
-
     document.addEventListener('click', (e) => {
         if(!slashMenu.contains(e.target) && e.target !== contentInput) slashMenu.classList.add('hidden');
     });
@@ -1255,6 +1232,12 @@
     window.openMsgMenu = (e, mid, isSender) => {
         e.stopPropagation();
         selectedMsgId = mid;
+        
+        // Remove actions-open from all other rows
+        document.querySelectorAll('.chat-row').forEach(row => row.classList.remove('actions-open'));
+        // Add to current row to keep dots visible
+        e.target.closest('.chat-row').classList.add('actions-open');
+
         const menu = document.getElementById('msg-context-menu');
         menu.style.left = (e.clientX - 140) + 'px'; 
         menu.style.top = (e.clientY + 5) + 'px';
@@ -1272,7 +1255,14 @@
         await deleteDoc(doc(db, `projects/${currentProjectId}/messages`, selectedMsgId));
         document.getElementById('msg-context-menu').classList.add('hidden');
     });
-    document.addEventListener('click', () => { document.getElementById('msg-context-menu').classList.add('hidden'); });
+    document.addEventListener('click', (e) => { 
+        const menu = document.getElementById('msg-context-menu');
+        if (!menu.contains(e.target) && !e.target.classList.contains('chat-actions')) {
+            menu.classList.add('hidden');
+            // Reset visible dots
+            document.querySelectorAll('.chat-row').forEach(row => row.classList.remove('actions-open'));
+        }
+    });
 
     function loadChat(pid) { 
         if(unsubscribeChat) unsubscribeChat();
@@ -1286,7 +1276,7 @@
 
                 const isMe = m.senderId === currentUser.uid;
                 const wrap = document.createElement('div'); 
-                wrap.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} group relative chat-row mb-1`; 
+                wrap.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} group relative chat-row mb-1 px-4`; 
                 
                 let bubbleClass = isMe ? 'bg-[#EBF5FE] text-notion-text' : 'bg-white border border-gray-200 text-notion-text';
                 let extraLabel = '';
@@ -1303,10 +1293,11 @@
                     }
                 }
 
-                // Chat Actions Buttons (Three Dots Menu Style)
-                const menuTrigger = `<button onclick="window.openMsgMenu(event, '${d.id}', ${isMe})" class="absolute top-1/2 -translate-y-1/2 ${isMe ? '-left-6' : '-right-6'} chat-actions text-gray-400 hover:text-gray-600 px-1 text-lg leading-none">⋮</button>`;
+                // Chat Actions Buttons (Messenger Style: To the side)
+                // Positioned absolute relative to row, shifted left/right
+                const menuTrigger = `<button onclick="window.openMsgMenu(event, '${d.id}', ${isMe})" class="absolute top-1/2 -translate-y-1/2 ${isMe ? 'left-0' : 'right-0'} chat-actions text-gray-300 hover:text-gray-500 p-1 text-lg leading-none rounded-full hover:bg-gray-100 transition-colors">⋮</button>`;
 
-                wrap.innerHTML = `${menuTrigger}<div class="text-[10px] text-gray-400 ml-1 mb-0.5 flex items-center">${m.senderName} ${extraLabel}</div><div class="px-3.5 py-2.5 rounded-xl text-[14px] max-w-[90%] ${bubbleClass} shadow-sm leading-relaxed chat-content relative">${content}</div>`; 
+                wrap.innerHTML = `<div class="relative max-w-[90%]">${menuTrigger}<div class="text-[10px] text-gray-400 ml-1 mb-0.5 flex items-center ${isMe ? 'justify-end' : 'justify-start'}">${m.senderName} ${extraLabel}</div><div class="px-3.5 py-2.5 rounded-xl text-[14px] ${bubbleClass} shadow-sm leading-relaxed chat-content">${content}</div></div>`; 
                 div.appendChild(wrap); 
             }); 
             div.scrollTop = div.scrollHeight; 

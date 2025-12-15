@@ -465,7 +465,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 
 /* --- CHAT STYLES --- */
 .chat-sidebar-item {
-display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px;
 margin: 2px 8px; border-radius: 6px; cursor: pointer; color: var(--text-secondary);
 transition: background 0.1s; font-size: 14px; font-weight: 500;
 }
@@ -1125,7 +1125,10 @@ Change
     <div id="view-chat" class="flex-1 h-full hidden flex flex-col bg-white overflow-hidden">
         <div class="flex h-full">
             <div class="w-1/4 min-w-[260px] border-r border-gray-100 flex flex-col bg-[#fbfbfa]">
-                <div class="p-4 border-b border-gray-100 font-medium text-xs text-gray-500 uppercase tracking-wide">Direct Messages</div>
+                <div class="p-4 border-b border-gray-100">
+                    <div class="font-medium text-xs text-gray-500 uppercase tracking-wide mb-2">Direct Messages</div>
+                    <input type="text" placeholder="Search chats..." onkeyup="renderChatList(this.value)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-blue-500 transition-colors">
+                </div>
                 <div id="chat-list" class="flex-1 overflow-y-auto pt-2"></div>
             </div>
             <div class="flex-1 flex flex-col relative bg-white h-full overflow-hidden">
@@ -1333,6 +1336,7 @@ let savedPosts = [];
 let activeChatUserId = null;
 let activeNotifTab = 'friends';
 let activeNetworkTab = 'people';
+let chatPartners = new Set();
 window.replyingToCommentId = null; 
 window.replyingToMessageId = null;
 window.currentViewingProfileId = null;
@@ -1471,6 +1475,11 @@ function initRealtimeListeners() {
         if(profileView && !profileView.classList.contains('hidden') && window.currentViewingProfileId) {
              showProfile(window.currentViewingProfileId);
         }
+        
+        // Refresh chat list if names change or follow status changes
+        if(!document.getElementById('view-chat').classList.contains('hidden')) {
+            renderChatList();
+        }
         refreshIcons();
     });
 
@@ -1539,13 +1548,29 @@ function initRealtimeListeners() {
         refreshIcons();
     });
 
-    // Chat dot listener
-    const qChat = query(collection(db, "messages"), where("receiverId", "==", currentUser.id));
-    onSnapshot(qChat, (snapshot) => {
+    // Message Listeners for Chat Partners & Red Dot
+    const qSent = query(collection(db, "messages"), where("senderId", "==", currentUser.id));
+    const qReceived = query(collection(db, "messages"), where("receiverId", "==", currentUser.id));
+    
+    // Helper to update chat list
+    const updateChatPartners = (snapshot, role) => {
+        snapshot.docs.forEach(doc => {
+            const data = doc.data();
+            const partnerId = role === 'sender' ? data.receiverId : data.senderId;
+            chatPartners.add(partnerId);
+        });
+        if(!document.getElementById('view-chat').classList.contains('hidden')) {
+            renderChatList();
+        }
+    };
+
+    onSnapshot(qSent, (snapshot) => updateChatPartners(snapshot, 'sender'));
+    
+    onSnapshot(qReceived, (snapshot) => {
+        updateChatPartners(snapshot, 'receiver');
         const dot = document.getElementById('chat-dot');
         // Simple logic: if any message exists where receiver is me, show dot. 
         // In real app, check 'read' status per message or per conversation
-        // For this single file, we'll just check if there are messages for me and if the chat view is NOT active
         const hasMessages = !snapshot.empty;
         if(dot) {
             if(hasMessages && activeChatUserId === null) dot.style.display = 'block';
@@ -2213,9 +2238,15 @@ window.showProfile = function(userId) {
         const isPrivate = user.settings?.privateNetwork;
         let btnText = isFollowing ? 'Following' : (isPrivate ? 'Request' : 'Follow');
         
+        // Check if button text was set to Requested in this session (simple UI hack for immediate feedback)
+        const existingBtn = document.getElementById('profile-follow-btn');
+        if(existingBtn && existingBtn.innerText === 'Requested' && !isFollowing) {
+            btnText = 'Requested';
+        }
+
         actionBtn = `
         <div class="flex gap-2">
-        <button onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-700' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">
+        <button id="profile-follow-btn" onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-700' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">
         ${btnText}
         </button>
         <button onclick="startChat('${userId}')" class="border border-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
@@ -2392,12 +2423,18 @@ window.toggleFollow = async function(userId) {
         showToast(`Unfollowed`);
         await updateDoc(meRef, { following: arrayRemove(userId) });
         await updateDoc(targetRef, { followers: arrayRemove(currentUser.id) });
+        // Update Button
+        const btn = document.getElementById('profile-follow-btn');
+        if(btn) btn.innerText = isPrivate ? 'Request' : 'Follow';
     } else {
         // Follow Logic
         if(isPrivate) {
             // Send Request
             showToast("Follow request sent");
             sendNotification(userId, 'follow_request', 'wants to follow you');
+            // Immediate Feedback
+            const btn = document.getElementById('profile-follow-btn');
+            if(btn) btn.innerText = "Requested";
         } else {
             // Immediate Follow
             currentUser.following.push(userId);
@@ -2405,12 +2442,12 @@ window.toggleFollow = async function(userId) {
             await updateDoc(meRef, { following: arrayUnion(userId) });
             await updateDoc(targetRef, { followers: arrayUnion(currentUser.id) });
             sendNotification(userId, 'follow', 'started following you');
+            // Update Button
+            const btn = document.getElementById('profile-follow-btn');
+            if(btn) btn.innerText = "Following";
         }
     }
-    // Refresh active views
-    const profileView = document.getElementById('view-profile');
-    if(!profileView.classList.contains('hidden')) showProfile(userId);
-    
+    // Refresh active views (network gets updated via snapshot)
     const netView = document.getElementById('view-network');
     if(netView && !netView.classList.contains('hidden')) renderNetwork();
     
@@ -2527,20 +2564,37 @@ window.handleSearch = function(query) {
 }
 
 // --- CHAT SYSTEM ---
-window.renderChatList = function() {
+window.renderChatList = function(searchTerm = "") {
     const list = document.getElementById('chat-list');
     list.innerHTML = "";
-    const contacts = users.filter(u => currentUser.following.includes(u.id));
-    if(contacts.length === 0) { list.innerHTML = `<div class="p-4 text-xs text-gray-400 text-center">Follow people to chat</div>`; return; }
+    
+    // Combine Following List with Chat Partners
+    const contactsSet = new Set([...currentUser.following, ...chatPartners]);
+    let contacts = users.filter(u => contactsSet.has(u.id));
+    
+    // Filter by search
+    if(searchTerm) {
+        const lower = searchTerm.toLowerCase();
+        contacts = contacts.filter(u => u.name.toLowerCase().includes(lower));
+    }
+
+    if(contacts.length === 0) { list.innerHTML = `<div class="p-4 text-xs text-gray-400 text-center">No conversations found</div>`; return; }
 
     contacts.forEach(f => {
         const div = document.createElement('div');
-        div.className = "chat-sidebar-item";
+        div.className = "chat-sidebar-item group";
         if(activeChatUserId === f.id) div.classList.add('active');
         div.onclick = () => startChat(f.id);
-        div.innerHTML = `<img src="${f.avatar}" class="w-6 h-6 rounded-full object-cover border border-gray-200"><span class="truncate">${f.name}</span>`;
+        div.innerHTML = `
+            <div class="flex items-center gap-3 overflow-hidden">
+                <img src="${f.avatar}" class="w-8 h-8 rounded-full object-cover border border-gray-200 shrink-0">
+                <span class="truncate font-medium text-gray-700">${f.name}</span>
+            </div>
+            <button onclick="event.stopPropagation(); deleteConversationHistory('${f.id}')" class="opacity-0 group-hover:opacity-100 hover:text-red-500 text-gray-400 transition-opacity p-1" title="Delete conversation"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+        `;
         list.appendChild(div);
     });
+    refreshIcons();
 }
 
 let messageUnsubscribe = null;
@@ -2553,8 +2607,8 @@ window.startChat = function(userId) {
 
     document.getElementById('chat-header').innerHTML = `
     <div class="flex items-center gap-3">
-    <img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover">
-    <span class="font-semibold text-gray-800">${user.name}</span>
+    <img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover cursor-pointer" onclick="showProfile('${user.id}')">
+    <span class="font-semibold text-gray-800 cursor-pointer" onclick="showProfile('${user.id}')">${user.name}</span>
     </div>
     <button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
     `;
@@ -2577,6 +2631,31 @@ window.startChat = function(userId) {
         renderMessages(msgs);
     });
     refreshIcons();
+}
+
+window.deleteConversationHistory = function(targetId) {
+    showAlert("Permanently delete conversation history with this user?", async () => {
+        const batch = writeBatch(db);
+        const qMsgs = query(collection(db, "messages"));
+        const snapshot = await getDocs(qMsgs);
+        snapshot.forEach(doc => {
+            const m = doc.data();
+            if ((m.senderId === currentUser.id && m.receiverId === targetId) || 
+                (m.senderId === targetId && m.receiverId === currentUser.id)) {
+                batch.delete(doc.ref);
+            }
+        });
+        await batch.commit();
+        chatPartners.delete(targetId); // Remove from local set
+        if(activeChatUserId === targetId) {
+            document.getElementById('chat-messages').innerHTML = '';
+            activeChatUserId = null;
+            document.getElementById('chat-header').innerText = 'Select a friend to chat';
+            document.getElementById('chat-input-area').classList.add('hidden');
+        }
+        renderChatList();
+        showToast("Conversation deleted");
+    });
 }
 
 function linkify(text) {
@@ -2698,20 +2777,7 @@ window.sendChatMessage = async function(e) {
 
 window.deleteCurrentChat = async function() {
     if(!activeChatUserId) return;
-    showAlert("Permanently delete conversation?", async () => {
-        const batch = writeBatch(db);
-        const qMsgs = query(collection(db, "messages"));
-        const snapshot = await getDocs(qMsgs);
-        snapshot.forEach(doc => {
-            const m = doc.data();
-            if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) || 
-                (m.senderId === activeChatUserId && m.receiverId === currentUser.id)) {
-                batch.delete(doc.ref);
-            }
-        });
-        await batch.commit();
-        showToast("Conversation deleted");
-    });
+    deleteConversationHistory(activeChatUserId);
 }
 
 window.openPostView = function(postId) {

@@ -33,7 +33,7 @@ body.dark-theme {
 --text-secondary: #a8c7fa;
 --outline: #444746;
 --hover-bg: #2f3033;
---primary: #a8c7fa; /* Lighter blue for dark mode */
+--primary: #a8c7fa;
 }
 
 body {
@@ -50,6 +50,7 @@ transition: background-color 0.3s, color 0.3s;
 .dark-theme .text-\[\#1f1f1f\] { color: var(--on-surface) !important; }
 .dark-theme .text-gray-900 { color: var(--on-surface) !important; }
 .dark-theme .text-gray-500 { color: #9ca3af !important; }
+.dark-theme .text-gray-700 { color: #d1d5db !important; }
 .dark-theme .border-gray-200 { border-color: var(--outline) !important; }
 .dark-theme .border-gray-100 { border-color: var(--outline) !important; }
 .dark-theme .hover\:bg-gray-50:hover { background-color: var(--hover-bg) !important; }
@@ -132,7 +133,7 @@ background-color: var(--hover-bg);
 
 .nav-item.active {
 color: var(--primary);
-background-color: #eff4ff; /* Keep light blue for active state in light mode, override in JS for dark if needed or use var */
+background-color: #eff4ff;
 font-weight: 600;
 }
 .dark-theme .nav-item.active { background-color: #3c4043; color: #a8c7fa; }
@@ -714,6 +715,18 @@ position: relative;
 <!-- LOADING OVERLAY -->
 <div id="app-loader"><div class="loader-spinner"></div></div>
 
+<!-- CUSTOM ALERT MODAL -->
+<div id="custom-alert" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-white rounded-2xl p-6 shadow-2xl max-w-sm w-[90%] transform scale-95 transition-transform duration-200" id="custom-alert-box">
+        <h3 class="text-lg font-bold text-[#1f1f1f] mb-2" id="alert-title">Confirm</h3>
+        <p class="text-gray-600 mb-6 text-sm" id="alert-msg">Are you sure?</p>
+        <div class="flex justify-end gap-3">
+            <button class="px-4 py-2 text-gray-600 font-bold text-sm hover:bg-gray-100 rounded-lg transition-colors" onclick="closeAlert(false)">Cancel</button>
+            <button class="px-4 py-2 bg-[#0b57d0] text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition-colors" id="alert-confirm-btn">Confirm</button>
+        </div>
+    </div>
+</div>
+
 <!-- Post Options Global Menu -->
 <div id="global-post-menu" class="post-options-menu"></div>
 
@@ -1004,6 +1017,30 @@ Change
             <button class="tool-btn" title="More"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
         </div>
         <button id="btn-publish" onclick="publishPost()" class="bg-[#0b57d0] text-white px-6 py-2 rounded-full font-bold text-[15px] hover:bg-[#0b57d0]/90 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed">Post</button>
+    </div>
+    
+    <div class="border-t border-gray-100 pt-3 mt-2">
+        <div class="flex items-center justify-between cursor-pointer p-1" onclick="toggleComposeSettings()">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Post Settings</span>
+            <i data-lucide="chevron-down" id="compose-settings-arrow" class="w-4 h-4 text-gray-400 transition-transform"></i>
+        </div>
+        <div id="compose-settings-area" class="hidden mt-3 space-y-3 px-1">
+            <!-- Privacy -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="lock" class="w-4 h-4"></i> Private (Followers Only)</div>
+                <input type="checkbox" id="post-setting-privacy" class="accent-blue-600 w-4 h-4 cursor-pointer">
+            </div>
+            <!-- Show Likes -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="heart" class="w-4 h-4"></i> Show Like Count</div>
+                <input type="checkbox" id="post-setting-likes" class="accent-blue-600 w-4 h-4 cursor-pointer" checked>
+            </div>
+            <!-- Show Comments -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="message-square" class="w-4 h-4"></i> Show Comment Count</div>
+                <input type="checkbox" id="post-setting-comments" class="accent-blue-600 w-4 h-4 cursor-pointer" checked>
+            </div>
+        </div>
     </div>
 </div>
 </div>
@@ -1555,9 +1592,11 @@ function updateUserInterface() {
     
     // Banner Position Handling
     const bannerPos = currentUser.bannerPos || 50;
+    // Always load src even if drag isn't active
+    const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+    document.getElementById('edit-banner-preview').src = bannerUrl;
     document.getElementById('edit-banner-preview').style.objectPosition = `center ${bannerPos}%`;
     document.getElementById('banner-pos-hint').innerText = `${bannerPos}%`;
-    // Removed range input update as we are using drag now
     
     // Settings Toggles
     const togglePrivacy = document.getElementById('toggle-privacy');
@@ -1586,6 +1625,38 @@ function updateUserInterface() {
     refreshIcons();
 }
 
+// --- ALERT LOGIC ---
+let alertCallback = null;
+window.showAlert = function(message, onConfirm) {
+    document.getElementById('alert-msg').innerText = message;
+    document.getElementById('custom-alert').classList.remove('hidden');
+    // small delay for transition
+    setTimeout(() => {
+        document.getElementById('custom-alert').classList.remove('opacity-0');
+        document.getElementById('custom-alert-box').classList.remove('scale-95');
+    }, 10);
+    
+    alertCallback = onConfirm;
+    
+    const confirmBtn = document.getElementById('alert-confirm-btn');
+    // Remove old listeners to avoid stacking
+    const newBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+    
+    newBtn.onclick = () => {
+        if (alertCallback) alertCallback();
+        closeAlert(true);
+    };
+}
+
+window.closeAlert = function(confirmed) {
+    document.getElementById('custom-alert').classList.add('opacity-0');
+    document.getElementById('custom-alert-box').classList.add('scale-95');
+    setTimeout(() => {
+        document.getElementById('custom-alert').classList.add('hidden');
+    }, 200);
+}
+
 // --- BANNER DRAG LOGIC ---
 let isDraggingBanner = false;
 let startY = 0;
@@ -1594,7 +1665,6 @@ let currentBannerPos = 50;
 
 function initBannerDrag() {
     const container = document.getElementById('banner-edit-area');
-    const img = document.getElementById('edit-banner-preview');
     
     container.addEventListener('mousedown', startDrag);
     container.addEventListener('touchstart', startDrag, {passive: false});
@@ -1607,19 +1677,20 @@ function initBannerDrag() {
 }
 
 function startDrag(e) {
-    isDraggingBanner = true;
-    startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-    // Get current percentage value
-    initialBannerPos = currentBannerPos;
+    if(e.target.closest('#banner-edit-area')) {
+        isDraggingBanner = true;
+        startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+        initialBannerPos = currentBannerPos;
+    }
 }
 
 function drag(e) {
     if (!isDraggingBanner) return;
-    e.preventDefault(); 
+    if(e.cancelable) e.preventDefault(); 
     const y = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
     const deltaY = startY - y;
     
-    // Sensitivity factor - 100 pixels moves it 50%
+    // Sensitivity factor
     const percentChange = (deltaY / 2); 
     let newPos = initialBannerPos + percentChange;
     
@@ -1737,7 +1808,6 @@ window.switchView = function(viewName) {
     } else if (viewName === 'explore') {
         const nav = document.getElementById('nav-explore'); if(nav) nav.classList.add('active');
         if(mobileNavItems[1]) mobileNavItems[1].classList.add('active');
-        // Initial generic explore content if search is empty
         const searchVal = document.getElementById('global-search').value;
         handleSearch(searchVal); 
     } else if (viewName === 'network') {
@@ -1759,8 +1829,6 @@ window.switchView = function(viewName) {
     } else if (viewName === 'announcements') {
         const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
     }
-    
-    // Crucial fix: Re-render icons after switching view to ensure they don't disappear
     refreshIcons();
 }
 
@@ -1808,7 +1876,6 @@ window.renderNetwork = function() {
         });
         container.appendChild(grid);
     } else {
-        // Posts tab
         const followingPosts = posts.filter(p => currentUser.following.includes(p.authorId));
         const postsContainer = document.createElement('div');
         postsContainer.className = "space-y-4 px-4 md:px-0";
@@ -1831,6 +1898,16 @@ window.renderFeed = function(filterTerm = "") {
         const term = filterTerm.toLowerCase();
         displayPosts = displayPosts.filter(p => p.content.toLowerCase().includes(term));
     }
+    
+    // Filter private posts if user is not author or follower
+    // Client-side simulation of privacy logic (in real app, use Firestore security rules)
+    displayPosts = displayPosts.filter(p => {
+        const isAuthor = p.authorId === currentUser.id;
+        const isPublic = !p.settings || p.settings.privacy === 'public';
+        const amFollowing = currentUser.following.includes(p.authorId);
+        return isAuthor || isPublic || amFollowing;
+    });
+
     displayPosts.forEach(post => container.appendChild(createPostElement(post)));
     refreshIcons();
 }
@@ -1840,6 +1917,7 @@ function createPostElement(post) {
     const isLiked = post.likes ? post.likes.includes(currentUser.id) : false;
     const isSaved = savedPosts.includes(post.id);
     const dateStr = formatDate(post.timestamp);
+    const settings = post.settings || { privacy: 'public', showLikes: true, showComments: true };
 
     const div = document.createElement('article');
     div.className = "post-card group overflow-hidden fade-in";
@@ -1857,6 +1935,10 @@ function createPostElement(post) {
 
     let tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
     let officialBadge = author.isOfficial ? `<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>` : '';
+    let lockIcon = settings.privacy === 'private' ? `<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>` : '';
+
+    const likeCountDisplay = settings.showLikes ? `<span class="text-xs font-medium">${post.likes ? post.likes.length : 0}</span>` : '';
+    const commentCountDisplay = settings.showComments ? `<span class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span>` : '';
 
     div.innerHTML = `
     <div class="p-4 md:p-5">
@@ -1869,6 +1951,7 @@ function createPostElement(post) {
     <div class="flex items-center">
     <span class="post-author-name" onclick="event.stopPropagation(); showProfile('${author.id}')">${author.name}</span>
     ${officialBadge}
+    ${lockIcon}
     </div>
     <div class="post-meta flex items-center">${dateStr}</div>
     </div>
@@ -1881,8 +1964,8 @@ function createPostElement(post) {
     </div>
     <div class="post-actions">
     <div class="flex items-center gap-1">
-    <button id="like-btn-${post.id}" class="action-btn like" onclick="event.stopPropagation(); toggleLike('${post.id}')"><i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i> <span class="text-xs font-medium">${post.likes ? post.likes.length : 0}</span></button>
-    <button class="action-btn comment" onclick="event.stopPropagation(); openPostView('${post.id}')"><i data-lucide="message-square" class="w-5 h-5"></i> <span class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span></button>
+    <button id="like-btn-${post.id}" class="action-btn like" onclick="event.stopPropagation(); toggleLike('${post.id}')"><i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i> ${likeCountDisplay}</button>
+    <button class="action-btn comment" onclick="event.stopPropagation(); openPostView('${post.id}')"><i data-lucide="message-square" class="w-5 h-5"></i> ${commentCountDisplay}</button>
     </div>
     <div class="flex items-center gap-1">
     <button id="save-btn-${post.id}" class="action-btn bookmark" onclick="event.stopPropagation(); toggleSave('${post.id}')"><i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-yellow-500 text-yellow-500' : ''}"></i></button>
@@ -1897,10 +1980,8 @@ function createPostElement(post) {
 window.toggleLike = async function(postId) {
     const btn = document.getElementById(`like-btn-${postId}`);
     if (btn) {
-        // Look for SVG or I
         const icon = btn.querySelector('svg') || btn.querySelector('i');
         const countSpan = btn.querySelector('span');
-        let currentCount = parseInt(countSpan.innerText) || 0;
         
         let hasClass = false;
         if(icon.tagName === 'svg') hasClass = icon.classList.contains('text-red-500');
@@ -1908,10 +1989,16 @@ window.toggleLike = async function(postId) {
 
         if (hasClass) {
             icon.classList.remove('fill-red-500', 'text-red-500');
-            countSpan.innerText = Math.max(0, currentCount - 1);
+            if(countSpan) {
+                let currentCount = parseInt(countSpan.innerText) || 0;
+                countSpan.innerText = Math.max(0, currentCount - 1);
+            }
         } else {
             icon.classList.add('fill-red-500', 'text-red-500');
-            countSpan.innerText = currentCount + 1;
+            if(countSpan) {
+                let currentCount = parseInt(countSpan.innerText) || 0;
+                countSpan.innerText = currentCount + 1;
+            }
         }
     }
 
@@ -2052,18 +2139,20 @@ window.renderNotifications = function() {
 }
 
 window.deleteNotification = async function(id) {
-    await deleteDoc(doc(db, "notifications", id));
+    showAlert("Delete this notification?", async () => {
+        await deleteDoc(doc(db, "notifications", id));
+    });
 }
 
 window.clearAllNotifications = async function() {
-    if(confirm("Clear all notifications?")) {
+    showAlert("Clear all notifications?", async () => {
         const batch = writeBatch(db);
         const q = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
         const snap = await getDocs(q);
         snap.forEach(d => batch.delete(d.ref));
         await batch.commit();
         showToast("All notifications cleared");
-    }
+    });
 }
 
 window.toggleNotifications = function() {
@@ -2098,6 +2187,14 @@ window.showProfile = function(userId) {
     }
 
     const userPosts = posts.filter(p => p.authorId === userId);
+    // Filter out private posts if viewer shouldn't see them
+    const visiblePosts = userPosts.filter(p => {
+        const isAuthor = p.authorId === currentUser.id;
+        const isPublic = !p.settings || p.settings.privacy === 'public';
+        const amFollowing = currentUser.following.includes(p.authorId);
+        return isAuthor || isPublic || amFollowing;
+    });
+
     const bannerUrl = user.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
     const bannerPos = user.bannerPos || 50;
 
@@ -2137,15 +2234,26 @@ window.showProfile = function(userId) {
 
     switchView('profile');
     const postsContainer = document.getElementById('profile-posts-container');
-    if(userPosts.length > 0) {
-        userPosts.forEach(p => postsContainer.appendChild(createPostElement(p)));
+    if(visiblePosts.length > 0) {
+        visiblePosts.forEach(p => postsContainer.appendChild(createPostElement(p)));
     } else {
         postsContainer.innerHTML = '<div class="text-center py-10 text-gray-400">No posts yet</div>';
     }
     refreshIcons();
 }
 
-window.openEditProfile = function() { document.getElementById('edit-profile-overlay').classList.remove('pointer-events-none', 'opacity-0'); }
+window.openEditProfile = function() { 
+    // Reset drag tracking when opening
+    const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+    currentBannerPos = currentUser.bannerPos || 50;
+    initialBannerPos = currentBannerPos;
+    
+    document.getElementById('edit-banner-preview').src = bannerUrl;
+    document.getElementById('edit-banner-preview').style.objectPosition = `center ${currentBannerPos}%`;
+    document.getElementById('banner-pos-hint').innerText = `${currentBannerPos}%`;
+    
+    document.getElementById('edit-profile-overlay').classList.remove('pointer-events-none', 'opacity-0'); 
+}
 window.closeEditProfile = function() { document.getElementById('edit-profile-overlay').classList.add('pointer-events-none', 'opacity-0'); }
 
 window.handleEditAvatarSelect = function(event) {
@@ -2464,9 +2572,9 @@ window.reactToMessage = async function(msgId, emoji) {
 }
 
 window.deleteMessage = async function(msgId) {
-    if(confirm("Unsend this message?")) {
+    showAlert("Unsend this message?", async () => {
         await deleteDoc(doc(db, "messages", msgId));
-    }
+    });
 }
 
 window.sendChatMessage = async function(e) {
@@ -2488,7 +2596,7 @@ window.sendChatMessage = async function(e) {
 
 window.deleteCurrentChat = async function() {
     if(!activeChatUserId) return;
-    if(confirm("Permanently delete conversation?")) {
+    showAlert("Permanently delete conversation?", async () => {
         const batch = writeBatch(db);
         const qMsgs = query(collection(db, "messages"));
         const snapshot = await getDocs(qMsgs);
@@ -2501,7 +2609,7 @@ window.deleteCurrentChat = async function() {
         });
         await batch.commit();
         showToast("Conversation deleted");
-    }
+    });
 }
 
 window.openPostView = function(postId) {
@@ -2561,12 +2669,13 @@ function createCommentHTML(c, allComments, postId) {
 }
 
 window.deleteComment = async function(postId, commentId) {
-    if(!confirm("Delete this comment?")) return;
-    const postRef = doc(db, "posts", postId);
-    const post = posts.find(p => p.id === postId);
-    const updatedComments = post.comments.filter(c => c.id !== commentId && c.parentId !== commentId);
-    await updateDoc(postRef, { comments: updatedComments });
-    showToast("Comment deleted");
+    showAlert("Delete this comment?", async () => {
+        const postRef = doc(db, "posts", postId);
+        const post = posts.find(p => p.id === postId);
+        const updatedComments = post.comments.filter(c => c.id !== commentId && c.parentId !== commentId);
+        await updateDoc(postRef, { comments: updatedComments });
+        showToast("Comment deleted");
+    });
 }
 
 window.toggleCommentLike = async function(postId, commentId) {
@@ -2625,7 +2734,7 @@ window.promptForImageLink = function() {
 window.sendAnnouncement = async function() {
     const text = document.getElementById('announcement-text').value.trim();
     if(!text) return;
-    if(confirm("Send this announcement to all users?")) {
+    showAlert("Send this announcement to all users?", async () => {
         let count = 0;
         for(const u of users) {
             if(u.id !== currentUser.id) {
@@ -2635,7 +2744,7 @@ window.sendAnnouncement = async function() {
         }
         showToast(`Sent to ${count} users`);
         document.getElementById('announcement-text').value = "";
-    }
+    });
 }
 
 // Menu Functions
@@ -2665,9 +2774,22 @@ window.showPostOptions = function(event, postId, authorId) {
 }
 window.hidePostMenu = function() { document.getElementById('global-post-menu').classList.remove('active'); }
 window.editPost = function(postId) { const post = posts.find(p => p.id === postId); if(!post) return; document.getElementById('compose-text').value = post.content; window.editingPostId = postId; document.getElementById('compose-title-text').innerText = "Edit Post"; document.getElementById('btn-publish').innerText = "Update"; openCompose(); }
-window.deletePost = async function(postId) { if(confirm("Delete this post?")) { await deleteDoc(doc(db, "posts", postId)); showToast("Post deleted"); } }
+window.deletePost = async function(postId) { 
+    showAlert("Delete this post?", async () => {
+        await deleteDoc(doc(db, "posts", postId)); 
+        showToast("Post deleted"); 
+    });
+}
 window.openCompose = function() { closeCreateMenu(); document.getElementById('compose-overlay').classList.remove('opacity-0', 'pointer-events-none'); document.getElementById('compose-modal').classList.remove('scale-95'); }
 window.closeCompose = function() { document.getElementById('compose-overlay').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('compose-modal').classList.add('scale-95'); setTimeout(() => { window.editingPostId = null; document.getElementById('compose-title-text').innerText = "Create Post"; document.getElementById('btn-publish').innerText = "Post"; document.getElementById('compose-text').value = ""; removeMedia(); }, 200); }
+
+window.toggleComposeSettings = function() {
+    const area = document.getElementById('compose-settings-area');
+    const arrow = document.getElementById('compose-settings-arrow');
+    area.classList.toggle('hidden');
+    if(area.classList.contains('hidden')) arrow.style.transform = 'rotate(0deg)';
+    else arrow.style.transform = 'rotate(180deg)';
+}
 
 // AI Stuff
 function setupClassifier() { if(typeof ml5 !== 'undefined') classifier = ml5.imageClassifier('MobileNet', () => console.log("MobileNet Ready")); }
@@ -2677,7 +2799,33 @@ window.togglePlusMenu = function() { if(window.isModelMenuOpen) toggleModelMenu(
 window.toggleModelMenu = function() { if(window.isPlusMenuOpen) togglePlusMenu(); window.isModelMenuOpen = !window.isModelMenuOpen; const menu = document.getElementById('model-menu'); if(window.isModelMenuOpen) menu.classList.add('active'); else menu.classList.remove('active'); }
 window.handleFileSelect = function(event) { const file = event.target.files[0]; if (file) { window.currentMediaBlob = file; const reader = new FileReader(); reader.onload = function(e) { window.currentMedia = e.target.result; window.currentMediaType = file.type.startsWith('video') ? 'video' : 'image'; const container = document.getElementById('media-preview-container'); container.classList.remove('hidden'); if(window.currentMediaType === 'video') { const vid = document.getElementById('media-preview-video'); vid.src = window.currentMedia; vid.classList.remove('hidden'); document.getElementById('media-preview-img').classList.add('hidden'); } else { const img = document.getElementById('media-preview-img'); img.src = window.currentMedia; img.classList.remove('hidden'); document.getElementById('media-preview-video').classList.add('hidden'); } showToast("Media Uploaded"); }; reader.readAsDataURL(file); } }
 window.removeMedia = function() { window.currentMedia = null; window.currentMediaType = null; window.mediaVisionLog = ""; window.currentMediaBlob = null; document.getElementById('media-preview-container').classList.add('hidden'); document.getElementById('media-input').value = ""; }
-window.publishPost = async function() { const textRaw = document.getElementById('compose-text').value; const btn = document.getElementById('btn-publish'); if (!textRaw.trim() && !window.currentMedia) { showToast("Empty post!", true); return; } const originalHtml = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`; btn.disabled = true; refreshIcons(); try { let mediaUrl = window.currentMedia; if(window.currentMediaBlob) { const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`); await uploadBytes(mediaRef, window.currentMediaBlob); mediaUrl = await getDownloadURL(mediaRef); } if(window.editingPostId) { await updateDoc(doc(db, "posts", window.editingPostId), { content: textRaw }); showToast("Post Updated!"); } else { await addDoc(collection(db, "posts"), { authorId: currentUser.id, content: textRaw, media: mediaUrl, timestamp: serverTimestamp(), likes: [], comments: [] }); showToast("Posted!"); } closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; refreshIcons(); } }
+window.publishPost = async function() { 
+    const textRaw = document.getElementById('compose-text').value; 
+    const btn = document.getElementById('btn-publish'); 
+    
+    // Get Settings
+    const isPrivate = document.getElementById('post-setting-privacy').checked;
+    const showLikes = document.getElementById('post-setting-likes').checked;
+    const showComments = document.getElementById('post-setting-comments').checked;
+    
+    if (!textRaw.trim() && !window.currentMedia) { showToast("Empty post!", true); return; } 
+    const originalHtml = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`; btn.disabled = true; refreshIcons(); try { let mediaUrl = window.currentMedia; if(window.currentMediaBlob) { const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`); await uploadBytes(mediaRef, window.currentMediaBlob); mediaUrl = await getDownloadURL(mediaRef); } 
+    
+    const postData = { 
+        authorId: currentUser.id, 
+        content: textRaw, 
+        media: mediaUrl, 
+        timestamp: serverTimestamp(), 
+        likes: [], 
+        comments: [],
+        settings: {
+            privacy: isPrivate ? 'private' : 'public',
+            showLikes: showLikes,
+            showComments: showComments
+        }
+    };
+
+    if(window.editingPostId) { await updateDoc(doc(db, "posts", window.editingPostId), { content: textRaw, settings: postData.settings }); showToast("Post Updated!"); } else { await addDoc(collection(db, "posts"), postData); showToast("Posted!"); } closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; refreshIcons(); } }
 window.showToast = function(message, isError = false) { const toast = document.getElementById('toast'); const toastMsg = document.getElementById('toast-msg'); const icon = document.getElementById('toast-icon'); toastMsg.innerText = message; if (isError) { toast.style.backgroundColor = '#d93025'; icon.setAttribute('data-lucide', 'alert-circle'); icon.classList.remove('text-[#c4eed0]'); icon.classList.add('text-white'); } else { toast.style.backgroundColor = '#303134'; icon.setAttribute('data-lucide', 'check-circle-2'); icon.classList.add('text-[#c4eed0]'); } refreshIcons(); toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3000); }
 window.openLightbox = function(src, type = 'image') { const wrapper = document.getElementById('lightbox-wrapper'); const lightbox = document.getElementById('lightbox'); if (type === 'video' || src.includes('.mp4') || src.includes('data:video') || src.includes('.webm')) { wrapper.innerHTML = `<video src="${src}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`; } else { wrapper.innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; } lightbox.classList.add('active'); lightbox.classList.remove('pointer-events-none'); lightbox.classList.remove('opacity-0'); }
 window.closeLightbox = function() { const lightbox = document.getElementById('lightbox'); lightbox.classList.remove('active'); lightbox.classList.add('pointer-events-none'); lightbox.classList.add('opacity-0'); const video = lightbox.querySelector('video'); if(video) video.pause(); }

@@ -241,7 +241,7 @@
         </div>
         <div id="team-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar pb-4"></div>
 
-        <div class="p-4 border-t border-notion-border dark:border-notion-dark-border text-notion-textLight dark:text-[#9B9A97] text-xs flex justify-center cursor-default">EduLink v3.3</div>
+        <div class="p-4 border-t border-notion-border dark:border-notion-dark-border text-notion-textLight dark:text-[#9B9A97] text-xs flex justify-center cursor-default">EduLink v3.4</div>
     </div>
 
     <!-- MAIN AREA -->
@@ -558,6 +558,9 @@
                 <div class="text-[11px] font-bold text-gray-400 dark:text-[#9B9A97] uppercase tracking-wide mb-3">Members</div>
                 <div id="team-members-list" class="flex flex-col gap-2 max-h-[150px] overflow-y-auto no-scrollbar bg-gray-50 dark:bg-[#262626] rounded-lg p-2 min-h-[80px]"></div>
             </div>
+
+            <!-- Danger Zone for Team Actions -->
+            <div id="team-danger-zone" class="mt-6 pt-4 border-t border-gray-100 dark:border-[#2F2F2F]"></div>
         </div>
     </div>
 
@@ -919,7 +922,63 @@
                  list.innerHTML += `<div class="flex justify-between p-2 text-sm text-gray-400 dark:text-[#9B9A97] bg-white dark:bg-[#262626] rounded border border-gray-100 dark:border-[#2F2F2F] border-dashed mb-1"><span>${p} (Pending)</span></div>`;
             });
         }
+
+        // Add Danger Zone for Owner / Leave for Member
+        const dangerZone = document.getElementById('team-danger-zone');
+        dangerZone.innerHTML = '';
+
+        if (data.ownerId === currentUser.uid) {
+            // Owner Actions: Delete (Primary) and Leave (Secondary)
+            dangerZone.innerHTML = `
+                <div class="flex justify-between items-center w-full">
+                    <span class="text-xs text-red-500 font-medium">Danger Zone</span>
+                    <div class="flex gap-2">
+                        <button onclick="window.leaveTeam('${tid}')" class="px-3 py-1.5 bg-gray-100 dark:bg-[#3F3F3F] text-gray-600 dark:text-gray-300 text-xs font-medium rounded hover:bg-gray-200 dark:hover:bg-[#4F4F4F] transition-colors">Leave</button>
+                        <button onclick="window.deleteTeam('${tid}')" class="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-medium rounded hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors border border-red-200 dark:border-red-900/30">Delete Team</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Member Actions: Leave Team
+            dangerZone.innerHTML = `
+                <div class="flex justify-between items-center w-full">
+                    <span class="text-xs text-gray-400">Membership</span>
+                    <button onclick="window.leaveTeam('${tid}')" class="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-medium rounded hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">Leave Team</button>
+                </div>
+            `;
+        }
+
         window.showModal('manage-team-modal');
+    }
+
+    // New Team Action Handlers
+    window.deleteTeam = async (tid) => {
+        if(confirm("Are you sure you want to delete this team? This action cannot be undone.")) {
+            try {
+                await deleteDoc(doc(db, "teams", tid));
+                window.hideModal('manage-team-modal');
+                notify("Team deleted successfully", "success");
+            } catch (e) {
+                console.error(e);
+                notify("Error deleting team", "error");
+            }
+        }
+    }
+
+    window.leaveTeam = async (tid) => {
+        const msg = "Are you sure you want to leave this team?";
+        if(confirm(msg)) {
+            try {
+                await updateDoc(doc(db, "teams", tid), {
+                    members: arrayRemove(currentUser.email)
+                });
+                window.hideModal('manage-team-modal');
+                notify("You have left the team", "success");
+            } catch (e) {
+                console.error(e);
+                notify("Error leaving team", "error");
+            }
+        }
     }
 
     document.getElementById('btn-update-team-name').addEventListener('click', async () => {

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduLink - Workspace</title>
-    <link rel="icon" type="image/png" href="https://i.imghippo.com/files/vgr8207c.png">
+    <link id="dynamic-favicon" rel="icon" type="image/png" href="https://i.imghippo.com/files/vgr8207c.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -168,8 +168,8 @@
             <img id="user-avatar" src="" class="w-8 h-8 rounded-full bg-white object-cover mr-3 shadow-sm border border-gray-200">
             <span id="user-name" class="font-medium truncate flex-1 text-notion-text">Loading...</span>
             <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 bg-notion-hover pl-2 shadow-sm rounded-lg border border-gray-200/50">
-                <button id="btn-settings" class="p-1.5 hover:bg-white rounded-md text-gray-500 hover:text-notion-text transition-colors" title="Edit Profile">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                <button id="btn-settings" class="p-1.5 hover:bg-white rounded-md text-gray-500 hover:text-notion-text transition-colors" title="Settings">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </button>
                 <button id="btn-logout" class="p-1.5 hover:bg-red-50 rounded-md text-gray-400 hover:text-red-500 transition-colors" title="Sign Out">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
@@ -194,11 +194,12 @@
         </div>
         <div id="team-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar pb-4"></div>
 
-        <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.6</div>
+        <div class="p-4 border-t border-notion-border text-notion-textLight text-xs flex justify-center cursor-default">EduLink v2.7</div>
     </div>
 
     <!-- MAIN AREA -->
     <div class="flex-1 flex flex-col h-full bg-white relative">
+        <!-- EMPTY STATE -->
         <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-10">
             <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6 text-5xl shadow-sm border border-gray-100 animate-pulse">👋</div>
             <h2 class="text-2xl font-semibold text-notion-text">Welcome to EduLink</h2>
@@ -209,6 +210,32 @@
             </button>
         </div>
 
+        <!-- TEAM CHAT VIEW -->
+        <div id="team-container" class="flex flex-col h-full hidden w-full bg-white absolute inset-0 z-30">
+            <div class="h-16 border-b border-notion-border flex items-center justify-between px-6 bg-white sticky top-0 z-40">
+                <div class="flex items-center gap-3">
+                    <img id="team-view-logo" src="" class="w-8 h-8 rounded-md object-cover bg-gray-100 border border-gray-200">
+                    <h2 id="team-view-name" class="text-lg font-bold text-notion-text">Team Name</h2>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div id="team-view-members" class="flex -space-x-2 overflow-hidden py-1 px-1"></div>
+                    <button id="btn-team-settings" class="p-2 text-gray-400 hover:bg-gray-100 rounded-lg transition-colors" title="Team Settings">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="team-chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar bg-[#F9F9F8]"></div>
+            
+            <div class="p-6 bg-white border-t border-notion-border">
+                <form id="team-chat-form" class="relative max-w-4xl mx-auto">
+                    <input id="team-chat-input" type="text" autocomplete="off" class="w-full text-[15px] p-3.5 pr-12 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-gray-300 transition-all placeholder-gray-400 shadow-sm" placeholder="Message team...">
+                    <button type="submit" class="absolute right-3 top-3.5 text-notion-blue hover:text-blue-700 p-1"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg></button>
+                </form>
+            </div>
+        </div>
+
+        <!-- PROJECT WORKSPACE -->
         <div id="workspace-container" class="flex flex-col h-full hidden w-full">
             <div class="h-16 border-b border-notion-border flex items-center justify-between px-6 bg-white sticky top-0 z-40">
                 <div class="flex items-center gap-3 flex-1 min-w-0 mr-6">
@@ -490,12 +517,38 @@
         </div>
     </div>
 
+    <!-- PROFILE MODAL UPDATED -->
     <div id="profile-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
-        <div class="bg-white rounded-xl shadow-modal w-[380px] p-6 scale-95 transition-transform duration-200 transform">
-            <h3 class="text-lg font-semibold text-notion-text mb-6">Edit Profile</h3>
+        <div class="bg-white rounded-xl shadow-modal w-[400px] p-6 scale-95 transition-transform duration-200 transform">
+            <h3 class="text-lg font-semibold text-notion-text mb-6">Settings</h3>
             <div class="space-y-6">
-                <div class="flex flex-col items-center"><img id="edit-profile-preview" src="" class="w-24 h-24 rounded-full border-4 border-gray-50 mb-3 object-cover shadow-sm bg-gray-100"><span class="text-xs text-gray-400">Preview</span></div>
-                <div><label class="block text-xs font-semibold text-notion-textLight mb-1.5 uppercase tracking-wide">Display Name</label><input id="edit-display-name" type="text" class="w-full p-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue" placeholder="Your Name"></div>
+                <div class="flex flex-col items-center"><img id="edit-profile-preview" src="" class="w-24 h-24 rounded-full border-4 border-gray-50 mb-3 object-cover shadow-sm bg-gray-100"><span class="text-xs text-gray-400">Profile Preview</span></div>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-notion-textLight mb-1.5 uppercase tracking-wide">Display Name</label>
+                    <input id="edit-display-name" type="text" class="w-full p-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue" placeholder="Your Name">
+                </div>
+
+                <div class="pt-4 border-t border-gray-100">
+                    <h4 class="text-sm font-medium text-gray-800 mb-3">Workspace Customization</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-notion-textLight mb-1.5 uppercase tracking-wide">App Title</label>
+                            <input id="edit-app-title" type="text" class="w-full p-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-notion-blue" placeholder="EduLink - Workspace">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-notion-textLight mb-1.5 uppercase tracking-wide">Favicon</label>
+                            <div class="flex items-center gap-2">
+                                <label class="flex-1 cursor-pointer bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg p-2 text-sm text-gray-600 flex items-center justify-center gap-2 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                    <span>Upload Image</span>
+                                    <input type="file" id="edit-app-favicon" class="hidden" accept="image/*">
+                                </label>
+                                <div id="favicon-preview" class="w-10 h-10 rounded border border-gray-200 bg-white flex items-center justify-center overflow-hidden"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="flex justify-end gap-3 mt-8"><button id="btn-cancel-profile" class="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors">Cancel</button><button id="btn-save-profile" class="px-4 py-2 text-sm bg-notion-blue text-white rounded-lg hover:bg-blue-600 shadow-sm font-medium transition-colors">Save Changes</button></div>
         </div>
@@ -550,8 +603,9 @@
 
     let currentUser = null;
     let currentProjectId = null;
+    let currentTeamId = null;
     let currentRole = 'editor'; 
-    let unsubscribeDoc, unsubscribeChat, unsubscribeReminders, unsubscribeComments, unsubscribeNotifs, unsubscribeBroadcasts, unsubscribePresence, unsubscribeFolders, unsubscribeProjects;
+    let unsubscribeDoc, unsubscribeChat, unsubscribeReminders, unsubscribeComments, unsubscribeNotifs, unsubscribeBroadcasts, unsubscribePresence, unsubscribeFolders, unsubscribeProjects, unsubscribeTeamChat;
     
     // Global State
     let initialLoad = true;
@@ -565,8 +619,9 @@
     let myFolders = [];
     let mentionableUsers = new Set();
     let currentSelectionRange = null;
+    let pendingFavicon = null;
 
-    // --- GLOBAL HELPERS (Attached to window for HTML events) ---
+    // --- GLOBAL HELPERS ---
     window.showModal = (id) => { const m = document.getElementById(id); m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); m.children[0].classList.remove('scale-95'); }, 10); }
     window.hideModal = (id) => { const m = document.getElementById(id); m.classList.add('opacity-0'); m.children[0].classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 200); }
     window.toggleBcList = (show) => { document.getElementById('bc-user-list').style.display = show ? 'block' : 'none'; }
@@ -626,7 +681,17 @@
         else {
             try {
                 currentUser = user; 
-                updateUserUI();
+                
+                // Fetch user data for custom settings
+                const uDoc = await getDoc(doc(db, "users", user.uid));
+                let uData = {};
+                if(uDoc.exists()) {
+                    uData = uDoc.data();
+                    if(uData.appTitle) document.title = uData.appTitle;
+                    if(uData.appFavicon) document.getElementById('dynamic-favicon').href = uData.appFavicon;
+                }
+
+                updateUserUI(uData);
                 await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName||"", photoURL: user.photoURL||"", lastLogin: serverTimestamp() }, { merge: true });
                 
                 // Request Notification Permission
@@ -634,11 +699,14 @@
 
                 const urlParams = new URLSearchParams(window.location.search); 
                 const pid = urlParams.get('project');
+                const tid = urlParams.get('team');
                 
                 loadFolders();
                 loadTeams(); 
                 loadUserNotifications(); 
+                
                 if(pid) selectProject(pid); 
+                else if(tid) selectTeam(tid);
                 
                 setInterval(checkReminders, 10000);
             } catch (error) {
@@ -648,18 +716,20 @@
         }
     });
 
-    function updateUserUI() {
+    function updateUserUI(data = {}) {
         document.getElementById('user-name').textContent = currentUser.displayName || currentUser.email;
         const avatarUrl = currentUser.photoURL && !currentUser.photoURL.includes('dicebear') ? currentUser.photoURL : `https://api.dicebear.com/9.x/lorelei/svg?seed=${currentUser.email}`;
         document.getElementById('user-avatar').src = avatarUrl;
         document.getElementById('edit-profile-preview').src = avatarUrl;
+        document.getElementById('edit-display-name').value = currentUser.displayName || "";
+        document.getElementById('edit-app-title').value = data.appTitle || document.title;
+        if(data.appFavicon) document.getElementById('favicon-preview').innerHTML = `<img src="${data.appFavicon}" class="w-full h-full object-cover">`;
     }
     document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-    // --- FOLDERS & PROJECT ORGANIZATION ---
+    // --- FOLDERS ---
     function loadFolders() {
         if(unsubscribeFolders) unsubscribeFolders();
-        // Query folders where I am owner OR sharedWith contains my email
         const q = query(
             collection(db, "folders"), 
             or(
@@ -701,12 +771,24 @@
             snap.forEach(d => {
                 const t = d.data();
                 myTeams.push({id: d.id, ...t});
-                t.members.forEach(m => mentionableUsers.add(m)); // Add team members to mentions
+                t.members.forEach(m => mentionableUsers.add(m)); 
+                
+                // Sidebar Item
                 const div = document.createElement('div');
-                div.className = "px-3 py-2 rounded-md cursor-pointer text-[14px] flex items-center gap-2.5 transition-colors text-notion-textLight hover:bg-[#EFEFEF] hover:text-notion-text";
+                div.className = "group flex items-center justify-between px-3 py-2 rounded-md hover:bg-[#EFEFEF] transition-colors relative cursor-pointer";
+                if(currentTeamId === d.id) div.classList.add('bg-[#EFEFEF]', 'text-notion-text');
+                else div.classList.add('text-notion-textLight');
+
                 const img = t.logo ? `<img src="${t.logo}" class="w-4 h-4 rounded-full object-cover">` : `<span class="text-base">🛡️</span>`;
-                div.innerHTML = `${img} <span class="font-medium truncate">${t.name}</span>`;
-                div.onclick = () => openManageTeam(d.id, t);
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-2.5 flex-1 min-w-0" onclick="window.selectTeam('${d.id}')">
+                        ${img} <span class="font-medium truncate text-[14px]">${t.name}</span>
+                    </div>
+                    <button class="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-300 rounded text-gray-500 transition-opacity" onclick="window.openManageTeam('${d.id}')">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </button>
+                `;
                 list.appendChild(div);
 
                 const opt = document.createElement('option');
@@ -727,8 +809,12 @@
     });
 
     let managingTeamId = null;
-    function openManageTeam(tid, data) {
+    window.openManageTeam = async (tid) => {
         managingTeamId = tid;
+        const snap = await getDoc(doc(db, "teams", tid));
+        if(!snap.exists()) return;
+        const data = snap.data();
+
         document.getElementById('manage-team-title').textContent = `Manage ${data.name}`;
         document.getElementById('edit-team-name').value = data.name;
         document.getElementById('edit-team-logo').value = data.logo || "";
@@ -774,6 +860,10 @@
         }
     });
 
+    document.getElementById('btn-team-settings').addEventListener('click', () => {
+        if(currentTeamId) window.openManageTeam(currentTeamId);
+    });
+
     document.getElementById('btn-share-team').addEventListener('click', async () => {
         const teamId = document.getElementById('share-team-select').value;
         if(!teamId || !currentProjectId) return;
@@ -791,7 +881,7 @@
         }
     });
 
-    // --- PROJECTS SIDEBAR & CONTEXT MENU ---
+    // --- PROJECTS ---
     function loadProjects() {
         if(unsubscribeProjects) unsubscribeProjects(); 
         const q = query(collection(db, "projects"), where("memberEmails", "array-contains", currentUser.email));
@@ -804,7 +894,7 @@
 
             snap.forEach((doc) => {
                 const p = { id: doc.id, ...doc.data() };
-                p.memberEmails.forEach(e => mentionableUsers.add(e)); // Add all project peers to mentions
+                p.memberEmails.forEach(e => mentionableUsers.add(e)); 
                 if (p.folderId && organized[p.folderId]) {
                     organized[p.folderId].projects.push(p);
                 } else {
@@ -950,12 +1040,109 @@
         }
     };
     
+    // --- MAIN NAVIGATION: PROJECTS VS TEAMS ---
+    window.selectTeam = async (tid) => {
+        if(currentTeamId === tid) return;
+        currentTeamId = tid;
+        currentProjectId = null;
+
+        // UI Toggles
+        document.getElementById('empty-state').classList.add('hidden');
+        document.getElementById('workspace-container').classList.add('hidden');
+        document.getElementById('team-container').classList.remove('hidden');
+
+        // Sidebar Styling
+        document.querySelectorAll('[id^="proj-"]').forEach(d => d.classList.remove('bg-[#EFEFEF]', 'text-notion-text'));
+        // We re-render teams to update active state, but simplified here:
+        loadTeams(); 
+
+        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?team=' + tid;
+        window.history.pushState({path:newUrl},'',newUrl);
+
+        // Load Header Data
+        const docRef = doc(db, "teams", tid);
+        const snap = await getDoc(docRef);
+        if(snap.exists()) {
+            const data = snap.data();
+            document.getElementById('team-view-name').textContent = data.name;
+            const logoUrl = data.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random`;
+            document.getElementById('team-view-logo').src = logoUrl;
+            
+            const membersContainer = document.getElementById('team-view-members');
+            membersContainer.innerHTML = '';
+            data.members.slice(0, 5).forEach(m => {
+                const img = document.createElement('img');
+                img.src = `https://api.dicebear.com/9.x/lorelei/svg?seed=${m}`;
+                img.className = "w-8 h-8 rounded-full border-2 border-white bg-gray-100 hover:z-10 relative";
+                img.title = m;
+                membersContainer.appendChild(img);
+            });
+        }
+
+        loadTeamChat(tid);
+    }
+
+    function loadTeamChat(tid) {
+        if(unsubscribeTeamChat) unsubscribeTeamChat();
+        const q = query(collection(db, `teams/${tid}/messages`), orderBy("timestamp", "asc"));
+        unsubscribeTeamChat = onSnapshot(q, (snap) => {
+            const div = document.getElementById('team-chat-messages'); 
+            div.innerHTML = '';
+            
+            snap.forEach(d => {
+                const m = d.data();
+                const isMe = m.senderId === currentUser.uid;
+                const wrap = document.createElement('div');
+                wrap.className = `flex gap-3 ${isMe ? 'flex-row-reverse' : ''} mb-4`;
+                
+                const avatar = `<img src="https://api.dicebear.com/9.x/lorelei/svg?seed=${m.senderEmail}" class="w-8 h-8 rounded-full bg-white flex-shrink-0 border border-gray-200">`;
+                
+                const bubbleClass = isMe ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none shadow-sm';
+                
+                wrap.innerHTML = `
+                    ${avatar}
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[70%]">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-bold ${isMe?'text-gray-400':'text-gray-600'}">${m.senderName}</span>
+                            <span class="text-[10px] text-gray-400">${m.timestamp ? m.timestamp.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''}</span>
+                        </div>
+                        <div class="px-4 py-2.5 rounded-2xl ${bubbleClass} text-[15px] leading-relaxed break-words">
+                            ${linkify(m.text)}
+                        </div>
+                    </div>
+                `;
+                div.appendChild(wrap);
+            });
+            div.scrollTop = div.scrollHeight;
+        });
+    }
+
+    document.getElementById('team-chat-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const inp = document.getElementById('team-chat-input');
+        const text = inp.value.trim();
+        if(!text || !currentTeamId) return;
+        
+        await addDoc(collection(db, `teams/${currentTeamId}/messages`), {
+            text,
+            senderId: currentUser.uid,
+            senderName: currentUser.displayName || "User",
+            senderEmail: currentUser.email,
+            timestamp: serverTimestamp()
+        });
+        inp.value = '';
+    });
+
     window.selectProject = async (id) => {
         if(currentProjectId === id) return;
         document.querySelectorAll('[id^="proj-"]').forEach(d => d.classList.remove('bg-[#EFEFEF]', 'text-notion-text'));
         document.getElementById(`proj-${id}`)?.classList.add('bg-[#EFEFEF]', 'text-notion-text');
+        
         currentProjectId = id;
+        currentTeamId = null;
+
         document.getElementById('empty-state').classList.add('hidden');
+        document.getElementById('team-container').classList.add('hidden');
         document.getElementById('workspace-container').classList.remove('hidden');
         
         const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?project=' + id;
@@ -1369,9 +1556,61 @@
     document.getElementById('ai-form').addEventListener('submit', async(e)=>{ e.preventDefault(); const inp = document.getElementById('ai-input'); const txt = inp.value.trim(); if(!txt) return; const div = document.getElementById('ai-messages'); div.innerHTML += `<div class="flex flex-col items-end"><div class="bg-gray-100 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text shadow-sm">${txt}</div></div>`; inp.value = ''; div.scrollTop = div.scrollHeight; const resp = await fetchAI(txt, document.getElementById('doc-content').innerText); div.innerHTML += `<div class="flex flex-col items-start"><div class="bg-purple-50 border border-purple-100 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text leading-relaxed shadow-sm">${resp}</div></div>`; div.scrollTop = div.scrollHeight; });
 
     // --- PROFILE ---
-    const btnSettings = document.getElementById('btn-settings'); btnSettings.addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('edit-display-name').value = currentUser.displayName || ""; window.showModal('profile-modal'); });
-    document.getElementById('btn-cancel-profile').addEventListener('click', () => window.hideModal('profile-modal'));
-    document.getElementById('btn-save-profile').addEventListener('click', async () => { const newName = document.getElementById('edit-display-name').value.trim(); if(!newName) return; try { await updateProfile(currentUser, { displayName: newName }); await updateDoc(doc(db, "users", currentUser.uid), { displayName: newName }); updateUserUI(); notify("Profile updated successfully", "success"); window.hideModal('profile-modal'); } catch(e) { notify("Failed to update profile", "error"); } });
+    const btnSettings = document.getElementById('btn-settings'); 
+    btnSettings.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        document.getElementById('edit-display-name').value = currentUser.displayName || ""; 
+        window.showModal('profile-modal'); 
+    });
+    
+    // Favicon Upload Logic
+    document.getElementById('edit-app-favicon').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                pendingFavicon = e.target.result;
+                document.getElementById('favicon-preview').innerHTML = `<img src="${pendingFavicon}" class="w-full h-full object-cover">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('btn-cancel-profile').addEventListener('click', () => {
+        window.hideModal('profile-modal');
+        pendingFavicon = null;
+    });
+
+    document.getElementById('btn-save-profile').addEventListener('click', async () => { 
+        const newName = document.getElementById('edit-display-name').value.trim(); 
+        if(!newName) return; 
+        
+        try { 
+            await updateProfile(currentUser, { displayName: newName }); 
+            const updates = { displayName: newName };
+            
+            const appTitle = document.getElementById('edit-app-title').value.trim();
+            if(appTitle) {
+                updates.appTitle = appTitle;
+                document.title = appTitle;
+            }
+            
+            if(pendingFavicon) {
+                updates.appFavicon = pendingFavicon;
+                document.getElementById('dynamic-favicon').href = pendingFavicon;
+            }
+
+            await updateDoc(doc(db, "users", currentUser.uid), updates); 
+            
+            updateUserUI({appTitle, appFavicon: pendingFavicon}); 
+            notify("Settings saved successfully", "success"); 
+            window.hideModal('profile-modal'); 
+            pendingFavicon = null;
+        } catch(e) { 
+            console.error(e);
+            notify("Failed to save settings", "error"); 
+        } 
+    });
     
     // --- NOTIFICATIONS & INVITES & GLOBAL BROADCASTS ---
     document.getElementById('btn-notifications').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('notification-popover').classList.toggle('hidden'); document.getElementById('notif-badge').classList.add('hidden'); });

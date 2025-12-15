@@ -45,6 +45,16 @@ i[data-lucide], svg { flex-shrink: 0; }
 .fade-in { animation: fadeUp 0.4s cubic-bezier(0.2, 0, 0, 1) forwards; opacity: 0; transform: translateY(10px); }
 @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
+/* Like Animation */
+@keyframes like-bounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.5); }
+  100% { transform: scale(1); }
+}
+.like-animate {
+  animation: like-bounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
 /* --- UNIFIED PANEL STYLES --- */
 .app-panel {
 background: var(--surface);
@@ -1981,6 +1991,22 @@ function createPostElement(post) {
 }
 
 window.toggleLike = async function(postId) {
+    // Animation Logic - find icon and animate
+    const btn = document.querySelector(`button[onclick*="toggleLike('${postId}')"]`);
+    if(btn) {
+        const icon = btn.querySelector('svg') || btn.querySelector('i');
+        if(icon) {
+            icon.classList.add('like-animate');
+            // Toggle visual state immediately for responsiveness
+            if(icon.classList.contains('text-red-500')) {
+                icon.classList.remove('fill-red-500', 'text-red-500');
+            } else {
+                icon.classList.add('fill-red-500', 'text-red-500');
+            }
+            setTimeout(() => icon.classList.remove('like-animate'), 400);
+        }
+    }
+
     const postRef = doc(db, "posts", postId);
     const post = posts.find(p => p.id === postId);
     if(post.likes && post.likes.includes(currentUser.id)) {
@@ -2535,43 +2561,54 @@ window.handleSearch = function(query) {
 
     const view = document.getElementById('explore-results');
     
-    if(!query) { 
+    if(!query || query.trim() === "") { 
         view.innerHTML = `<div class="text-center py-20 text-gray-400"><i data-lucide="compass" class="w-16 h-16 mx-auto mb-3 opacity-50"></i><p>Search for people, posts, and ideas.</p></div>`;
         refreshIcons();
         return; 
     }
 
-    const term = query.toLowerCase();
-    // Split query for "abit close" matching (substring match of any word)
-    const keywords = term.split(" ").filter(k => k.trim().length > 0);
+    const term = query.toLowerCase().trim();
+    // Use word matching for better results
+    const keywords = term.split(/\s+/).filter(k => k.length > 0);
 
     const foundUsers = users.filter(u => {
-        const name = u.name.toLowerCase();
-        const bio = (u.bio || "").toLowerCase();
-        // Check if any keyword is in name or bio
-        return keywords.some(k => name.includes(k) || bio.includes(k));
+        const text = (u.name + " " + (u.bio || "")).toLowerCase();
+        return keywords.some(k => text.includes(k));
     });
 
     const foundPosts = posts.filter(p => {
-        const content = p.content.toLowerCase();
-        // Check if any keyword is in content
-        return keywords.some(k => content.includes(k));
+        const text = (p.content || "").toLowerCase();
+        return keywords.some(k => text.includes(k));
     });
     
-    let html = `<div class="font-bold mb-2">People</div>`;
-    if(foundUsers.length) {
-        foundUsers.forEach(u => {
-            html += `<div class="flex items-center gap-3 p-3 bg-white rounded-xl mb-2 cursor-pointer hover:shadow-sm" onclick="showProfile('${u.id}')"><img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover"><div><div class="font-bold text-sm">${u.name}</div><div class="text-xs text-gray-500">${u.bio}</div></div></div>`;
-        });
-    } else { html += `<div class="text-gray-400 text-sm mb-4">No people found</div>`; }
+    let html = '';
     
-    html += `<div class="font-bold mb-2 mt-4">Posts</div>`;
+    // Users Section
+    if(foundUsers.length > 0) {
+        html += `<div class="font-bold text-lg mb-3 px-2 text-[#1f1f1f]">People</div><div class="grid gap-2 mb-6">`;
+        foundUsers.forEach(u => {
+            html += `<div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 cursor-pointer hover:shadow-md transition-all" onclick="showProfile('${u.id}')"><img src="${u.avatar}" class="w-12 h-12 rounded-full object-cover border border-gray-100 bg-gray-50"><div class="overflow-hidden"><div class="font-bold text-[#1f1f1f] truncate">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>' : ''}</div><div class="text-xs text-gray-500 truncate">${u.bio || 'No bio'}</div></div></div>`;
+        });
+        html += `</div>`;
+    } else { 
+        html += `<div class="font-bold text-lg mb-2 px-2 text-gray-400">People</div><div class="text-sm text-gray-400 px-2 mb-6">No matching people found</div>`; 
+    }
+    
+    // Posts Section
+    html += `<div class="font-bold text-lg mb-3 px-2 text-[#1f1f1f]">Posts</div>`;
+    
     view.innerHTML = html;
-    const postsDiv = document.createElement('div');
-    postsDiv.className = "space-y-4";
-    if(foundPosts.length) foundPosts.forEach(p => postsDiv.appendChild(createPostElement(p)));
-    else postsDiv.innerHTML = `<div class="text-gray-400 text-sm">No posts found</div>`;
-    view.appendChild(postsDiv);
+    
+    if(foundPosts.length > 0) {
+        const postsWrapper = document.createElement('div');
+        postsWrapper.className = "space-y-4";
+        foundPosts.forEach(p => {
+            postsWrapper.appendChild(createPostElement(p));
+        });
+        view.appendChild(postsWrapper);
+    } else {
+        view.innerHTML += `<div class="text-sm text-gray-400 px-2">No matching posts found</div>`;
+    }
     refreshIcons();
 }
 

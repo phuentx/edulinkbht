@@ -1473,8 +1473,16 @@ function initRealtimeListeners() {
     });
 
     const qPosts = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-    onSnapshot(qPosts, (snapshot) => {
+    // FIX: Include metadata changes to detect local pending writes
+    onSnapshot(qPosts, { includeMetadataChanges: true }, (snapshot) => {
         posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
+        
+        // CRITICAL FIX: If we have pending writes (local update from like/unlike), 
+        // DO NOT re-render the feed. This prevents the button from disappearing/flickering
+        // while the user is interacting with it.
+        if (snapshot.metadata.hasPendingWrites) {
+            return;
+        }
         
         // Only render if needed, but since snapshot implies data change, we should re-render to show new content
         const activeFeed = document.querySelector('#view-feed:not(.hidden)');

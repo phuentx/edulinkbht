@@ -1085,6 +1085,13 @@ Change
 </header>
 <!-- FEED VIEW -->
     <div id="view-feed" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 bg-white">
+        <!-- Quick Compose Box -->
+        <div class="bg-white border-b border-gray-200 p-4 mb-2 flex gap-3 items-center cursor-text" onclick="openCompose()">
+            <img id="feed-compose-avatar" src="" class="w-10 h-10 rounded-full bg-gray-100 object-cover border border-gray-200">
+            <div class="flex-1 bg-gray-100 hover:bg-gray-200 transition-colors rounded-full px-4 py-2.5 text-gray-500 text-sm font-medium">What's on your mind?</div>
+            <button class="icon-btn hover:bg-gray-100 text-gray-500"><i data-lucide="image" class="w-5 h-5"></i></button>
+        </div>
+        
         <div id="feed-container"></div>
         <div class="flex flex-col items-center justify-center py-10 opacity-60">
             <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase" class="w-24 h-24 mb-4 opacity-80 grayscale hover:grayscale-0 transition-all duration-500">
@@ -1562,6 +1569,7 @@ function updateUserInterface() {
     const compAv = document.getElementById('compose-avatar'); if(compAv) compAv.src = currentUser.avatar;
     const commAv = document.getElementById('comment-input-avatar'); if(commAv) commAv.src = currentUser.avatar;
     const commAvMob = document.getElementById('comment-input-avatar-mobile'); if(commAvMob) commAvMob.src = currentUser.avatar;
+    const feedAv = document.getElementById('feed-compose-avatar'); if(feedAv) feedAv.src = currentUser.avatar;
     const edName = document.getElementById('edit-name'); if(edName) edName.value = currentUser.name;
     const edBio = document.getElementById('edit-bio'); if(edBio) edBio.value = currentUser.bio;
     const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = currentUser.avatar;
@@ -2801,6 +2809,30 @@ window.togglePlusMenu = function() { if(window.isModelMenuOpen) toggleModelMenu(
 window.toggleModelMenu = function() { if(window.isPlusMenuOpen) togglePlusMenu(); window.isModelMenuOpen = !window.isModelMenuOpen; const menu = document.getElementById('model-menu'); if(window.isModelMenuOpen) menu.classList.add('active'); else menu.classList.remove('active'); }
 window.handleFileSelect = function(event) { const file = event.target.files[0]; if (file) { window.currentMediaBlob = file; const reader = new FileReader(); reader.onload = function(e) { window.currentMedia = e.target.result; window.currentMediaType = file.type.startsWith('video') ? 'video' : 'image'; const container = document.getElementById('media-preview-container'); container.classList.remove('hidden'); if(window.currentMediaType === 'video') { const vid = document.getElementById('media-preview-video'); vid.src = window.currentMedia; vid.classList.remove('hidden'); document.getElementById('media-preview-img').classList.add('hidden'); } else { const img = document.getElementById('media-preview-img'); img.src = window.currentMedia; img.classList.remove('hidden'); document.getElementById('media-preview-video').classList.add('hidden'); } showToast("Media Uploaded"); }; reader.readAsDataURL(file); } }
 window.removeMedia = function() { window.currentMedia = null; window.currentMediaType = null; window.mediaVisionLog = ""; window.currentMediaBlob = null; document.getElementById('media-preview-container').classList.add('hidden'); document.getElementById('media-input').value = ""; }
+
+// ImgHippo Upload
+async function uploadToImgHippo(file) {
+    const formData = new FormData();
+    formData.append('api_key', 'd28bf3c492ad07b53dc4e3f9ce99b072');
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('https://api.imghippo.com/v1/upload', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (data.success) {
+            return data.data.url;
+        } else {
+            console.error("ImgHippo error", data);
+            throw new Error('Upload failed');
+        }
+    } catch (e) {
+        throw e;
+    }
+}
+
 window.publishPost = async function() { 
     const textRaw = document.getElementById('compose-text').value; 
     const btn = document.getElementById('btn-publish'); 
@@ -2813,7 +2845,20 @@ window.publishPost = async function() {
     const allowComments = document.getElementById('post-setting-allow-comments').checked;
     
     if (!textRaw.trim() && !window.currentMedia) { showToast("Empty post!", true); return; } 
-    const originalHtml = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`; btn.disabled = true; refreshIcons(); try { let mediaUrl = window.currentMedia; if(window.currentMediaBlob) { const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`); await uploadBytes(mediaRef, window.currentMediaBlob); mediaUrl = await getDownloadURL(mediaRef); } 
+    const originalHtml = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`; btn.disabled = true; refreshIcons(); 
+    try { 
+        let mediaUrl = window.currentMedia; 
+        if(window.currentMediaBlob) { 
+            // Attempt ImgHippo upload
+            try {
+                mediaUrl = await uploadToImgHippo(window.currentMediaBlob);
+            } catch (err) {
+                console.error("ImgHippo failed, falling back to Firebase Storage", err);
+                const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`); 
+                await uploadBytes(mediaRef, window.currentMediaBlob); 
+                mediaUrl = await getDownloadURL(mediaRef); 
+            }
+        } 
     
     const postData = { 
         authorId: currentUser.id, 

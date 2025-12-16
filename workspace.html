@@ -68,6 +68,13 @@
         }
       }
     </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.run/@google/genai"
+        }
+      }
+    </script>
     <style>
         body { background-color: #FFFFFF; color: #37352F; height: 100vh; overflow: hidden; }
         
@@ -203,185 +210,201 @@
         }
     </style>
 </head>
-<body class="flex text-[15px]">
+<body class="flex flex-col text-[15px] h-full">
 
     <div id="notification-toast-container" class="fixed top-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none w-80"></div>
     <div id="sidebar-context-menu" class="fixed hidden bg-white dark:bg-[#202020] border border-gray-200 dark:border-[#2F2F2F] shadow-popover rounded-lg py-1 z-[150] w-48 text-sm dark:text-[#D4D4D4]"></div>
 
-    <!-- SIDEBAR -->
-    <div class="w-[260px] bg-notion-sidebar dark:bg-notion-dark-sidebar border-r border-notion-border dark:border-notion-dark-border flex flex-col h-full flex-shrink-0 transition-all duration-300">
-        <!-- User Profile -->
-        <div class="h-14 flex items-center px-3 hover:bg-notion-hover dark:hover:bg-notion-dark-hover cursor-pointer m-2 rounded-md transition-colors group relative">
-            <img id="user-avatar" src="" class="w-8 h-8 rounded-full bg-white object-cover mr-3 shadow-sm border border-gray-200 dark:border-[#2F2F2F]">
-            <span id="user-name" class="font-medium truncate flex-1 text-notion-text dark:text-[#D4D4D4]">Loading...</span>
-            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 bg-notion-hover dark:bg-notion-dark-hover pl-2 shadow-sm rounded-lg border border-gray-200/50 dark:border-[#2F2F2F]">
-                <button id="btn-settings" class="p-1.5 hover:bg-white dark:hover:bg-[#2C2C2C] rounded-md text-gray-500 dark:text-[#9B9A97] hover:text-notion-text dark:hover:text-[#D4D4D4] transition-colors" title="Settings">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </button>
-                <button id="btn-logout" class="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md text-gray-400 dark:text-[#9B9A97] hover:text-red-500 dark:hover:text-red-400 transition-colors" title="Sign Out">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                </button>
-            </div>
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 bg-white dark:bg-[#191919] z-[200] flex flex-col items-center justify-center">
+        <div class="mb-8 p-4 bg-gray-50 dark:bg-[#262626] rounded-full">
+            <div class="text-6xl">🎓</div>
         </div>
-
-        <div class="px-4 py-3 text-xs font-semibold text-notion-textLight dark:text-[#9B9A97] flex justify-between items-center group tracking-wide mt-2">
-            <span>WORKSPACE</span>
-            <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button id="trigger-create-folder" class="hover:bg-gray-200 dark:hover:bg-[#2C2C2C] rounded p-1" title="New Folder"><svg class="w-3.5 h-3.5 text-gray-600 dark:text-[#9B9A97]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></button>
-                <button id="trigger-create-project" class="hover:bg-gray-200 dark:hover:bg-[#2C2C2C] rounded p-1" title="New Project"><svg class="w-3.5 h-3.5 text-gray-600 dark:text-[#9B9A97]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg></button>
-            </div>
-        </div>
-        <div id="project-list" class="flex-shrink-0 overflow-y-auto px-2 space-y-1 no-scrollbar max-h-[40vh]"></div>
-
-        <div class="px-4 py-3 text-xs font-semibold text-notion-textLight dark:text-[#9B9A97] flex justify-between items-center group tracking-wide mt-4 border-t border-gray-200/50 dark:border-[#2F2F2F] pt-4">
-            <span>TEAMS</span>
-            <button id="trigger-create-team" class="hover:bg-gray-200 dark:hover:bg-[#2C2C2C] rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity" title="Create Team">
-                <svg class="w-4 h-4 text-gray-600 dark:text-[#9B9A97]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-            </button>
-        </div>
-        <div id="team-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar pb-4"></div>
-
-        <div class="p-4 border-t border-notion-border dark:border-notion-dark-border text-notion-textLight dark:text-[#9B9A97] text-xs flex justify-center cursor-default">EduLink v4.0</div>
+        <h1 class="text-3xl font-bold mb-2 text-notion-text dark:text-[#D4D4D4]">EduLink Workspace</h1>
+        <p class="text-gray-500 mb-8 dark:text-[#9B9A97]">Sign in to access your projects</p>
+        <button id="btn-login" class="px-6 py-3 bg-notion-blue text-white font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-lg flex items-center gap-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
+            Sign in with Google
+        </button>
     </div>
 
-    <!-- MAIN AREA -->
-    <div class="flex-1 flex flex-col h-full bg-white dark:bg-notion-dark-bg relative transition-colors duration-200">
-        <!-- EMPTY STATE -->
-        <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-notion-dark-bg z-10 transition-colors">
-            <div class="w-24 h-24 bg-gray-50 dark:bg-[#262626] rounded-full flex items-center justify-center mb-6 text-5xl shadow-sm border border-gray-100 dark:border-[#2F2F2F] animate-pulse">👋</div>
-            <h2 class="text-2xl font-semibold text-notion-text dark:text-[#D4D4D4]">Welcome to EduLink</h2>
-            <p class="text-notion-textLight dark:text-[#9B9A97] mt-2 text-base">Select a project from the sidebar.</p>
-            <button id="btn-create-empty" class="mt-8 px-6 py-3 bg-notion-blue text-white rounded-lg shadow-sm hover:bg-blue-600 transition text-sm font-medium flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-                Create New Project
-            </button>
-        </div>
-
-        <!-- PROJECT WORKSPACE -->
-        <div id="workspace-container" class="flex flex-col h-full hidden w-full">
-            <div class="h-16 border-b border-notion-border dark:border-notion-dark-border flex items-center justify-between px-6 bg-white dark:bg-notion-dark-bg sticky top-0 z-40 transition-colors">
-                <div class="flex items-center gap-3 flex-1 min-w-0 mr-6">
-                    <span class="text-2xl cursor-default select-none" id="doc-icon">📄</span>
-                    <input id="doc-title" type="text" class="text-lg font-semibold text-notion-text dark:text-[#D4D4D4] outline-none hover:bg-notion-sidebar dark:hover:bg-[#2C2C2C] px-2 py-1.5 rounded w-full max-w-md transition-colors bg-transparent placeholder-gray-400" placeholder="Untitled">
-                    <div id="save-indicator" class="text-xs text-notion-textLight hidden whitespace-nowrap bg-gray-50 dark:bg-[#262626] px-2 py-1 rounded border border-gray-100 dark:border-[#2F2F2F]">Saving...</div>
-                </div>
-
-                <div class="flex items-center gap-3 relative">
-                    <button id="btn-broadcast-create" class="hidden text-sm font-medium text-notion-text dark:text-[#D4D4D4] hover:bg-notion-sidebar dark:hover:bg-[#2C2C2C] px-4 py-2 rounded-lg transition-colors border border-gray-200 dark:border-[#2F2F2F] hover:border-gray-300 dark:hover:border-[#3F3F3F] flex items-center gap-2 animate-slideIn">
-                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg> <span>Broadcast</span>
+    <!-- MAIN APP CONTAINER (Hidden until login) -->
+    <div id="app-container" class="flex h-full hidden">
+        <!-- SIDEBAR -->
+        <div class="w-[260px] bg-notion-sidebar dark:bg-notion-dark-sidebar border-r border-notion-border dark:border-notion-dark-border flex flex-col h-full flex-shrink-0 transition-all duration-300">
+            <!-- User Profile -->
+            <div class="h-14 flex items-center px-3 hover:bg-notion-hover dark:hover:bg-notion-dark-hover cursor-pointer m-2 rounded-md transition-colors group relative">
+                <img id="user-avatar" src="" class="w-8 h-8 rounded-full bg-white object-cover mr-3 shadow-sm border border-gray-200 dark:border-[#2F2F2F]">
+                <span id="user-name" class="font-medium truncate flex-1 text-notion-text dark:text-[#D4D4D4]">Loading...</span>
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 bg-notion-hover dark:bg-notion-dark-hover pl-2 shadow-sm rounded-lg border border-gray-200/50 dark:border-[#2F2F2F]">
+                    <button id="btn-settings" class="p-1.5 hover:bg-white dark:hover:bg-[#2C2C2C] rounded-md text-gray-500 dark:text-[#9B9A97] hover:text-notion-text dark:hover:text-[#D4D4D4] transition-colors" title="Settings">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     </button>
-                    <button id="btn-announce-create" class="hidden text-sm font-medium text-notion-text dark:text-[#D4D4D4] hover:bg-notion-sidebar dark:hover:bg-[#2C2C2C] px-4 py-2 rounded-lg transition-colors border border-gray-200 dark:border-[#2F2F2F] hover:border-gray-300 dark:hover:border-[#3F3F3F] flex items-center gap-2 animate-slideIn">
-                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6"/></svg> <span>Announce</span>
+                    <button id="btn-logout" class="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md text-gray-400 dark:text-[#9B9A97] hover:text-red-500 dark:hover:text-red-400 transition-colors" title="Sign Out">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                     </button>
-
-                    <button id="btn-open-share" class="text-sm font-medium text-notion-text dark:text-[#D4D4D4] hover:bg-notion-sidebar dark:hover:bg-[#2C2C2C] px-4 py-2 rounded-lg transition-colors border border-gray-200 dark:border-[#2F2F2F] hover:border-gray-300 dark:hover:border-[#3F3F3F] flex items-center gap-2">
-                        <span>Share</span>
-                    </button>
-
-                    <span class="h-6 w-[1px] bg-gray-200 dark:bg-[#2F2F2F] mx-1"></span>
-                    <div class="flex -space-x-3 overflow-hidden cursor-pointer hover:opacity-100 opacity-90 transition py-1 px-1" id="member-avatars" onclick="document.getElementById('share-modal').classList.remove('hidden')" title="Manage Members"></div>
-
-                    <div class="relative">
-                        <button id="btn-notifications" class="text-notion-textLight dark:text-[#9B9A97] hover:text-notion-text dark:hover:text-[#D4D4D4] p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2C2C2C] relative transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                            <span id="notif-badge" class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full hidden"></span>
-                        </button>
-                        <div id="notification-popover" class="hidden absolute top-14 right-0 w-80 bg-white dark:bg-[#202020] border border-gray-200 dark:border-[#2F2F2F] shadow-popover rounded-xl z-50 flex flex-col max-h-96 animate-slideIn origin-top-right overflow-hidden">
-                            <div class="px-5 py-4 border-b border-gray-100 dark:border-[#2F2F2F] flex justify-between items-center bg-gray-50/80 dark:bg-[#262626] backdrop-blur-sm">
-                                <span class="font-semibold text-xs text-gray-500 dark:text-[#9B9A97] tracking-wide">NOTIFICATIONS</span>
-                            </div>
-                            <div id="notification-list" class="overflow-y-auto no-scrollbar flex-1 p-0 min-h-[120px]"></div>
-                        </div>
-                    </div>
-                    <button id="btn-toggle-sidebar" class="text-notion-textLight dark:text-[#9B9A97] hover:text-notion-text dark:hover:text-[#D4D4D4] p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2C2C2C]" title="Toggle Sidebar"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"/></svg></button>
                 </div>
             </div>
 
-            <!-- Editor -->
-            <div class="flex flex-1 overflow-hidden relative">
-                <div class="flex-1 overflow-y-auto bg-white dark:bg-notion-dark-bg cursor-text relative no-scrollbar flex justify-center" id="editor-container" onclick="focusEditor(event)">
-                    <div class="w-full max-w-[850px] py-12 px-14 min-h-full flex flex-col relative">
-                        <div id="editor-toolbar" class="sticky top-0 bg-white/95 dark:bg-[#191919]/95 backdrop-blur z-30 flex gap-2 py-2 mb-6 border-b border-transparent hover:border-gray-100 dark:hover:border-[#2F2F2F] transition-colors opacity-0 hover:opacity-100 items-center">
-                            <button onclick="formatDoc('bold')" class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#2C2C2C] rounded-md text-gray-600 dark:text-[#9B9A97] font-bold w-8 h-8 flex items-center justify-center text-sm border border-transparent hover:border-gray-200 dark:hover:border-[#2F2F2F]">B</button>
-                            <button onclick="formatDoc('italic')" class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#2C2C2C] rounded-md text-gray-600 dark:text-[#9B9A97] italic w-8 h-8 flex items-center justify-center text-sm border border-transparent hover:border-gray-200 dark:hover:border-[#2F2F2F]">I</button>
-                            <div class="w-[1px] h-4 bg-gray-200 dark:bg-[#2F2F2F] mx-1"></div>
-                            <button onclick="window.openLinkModal()" class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#2C2C2C] rounded-md text-gray-600 dark:text-[#9B9A97] flex items-center gap-1.5 text-sm px-3 border border-transparent hover:border-gray-200 dark:hover:border-[#2F2F2F]"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Link</button>
+            <div class="px-4 py-3 text-xs font-semibold text-notion-textLight dark:text-[#9B9A97] flex justify-between items-center group tracking-wide mt-2">
+                <span>WORKSPACE</span>
+                <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button id="trigger-create-folder" class="hover:bg-gray-200 dark:hover:bg-[#2C2C2C] rounded p-1" title="New Folder"><svg class="w-3.5 h-3.5 text-gray-600 dark:text-[#9B9A97]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></button>
+                    <button id="trigger-create-project" class="hover:bg-gray-200 dark:hover:bg-[#2C2C2C] rounded p-1" title="New Project"><svg class="w-3.5 h-3.5 text-gray-600 dark:text-[#9B9A97]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg></button>
+                </div>
+            </div>
+            <div id="project-list" class="flex-shrink-0 overflow-y-auto px-2 space-y-1 no-scrollbar max-h-[40vh]"></div>
+
+            <div class="px-4 py-3 text-xs font-semibold text-notion-textLight dark:text-[#9B9A97] flex justify-between items-center group tracking-wide mt-4 border-t border-gray-200/50 dark:border-[#2F2F2F] pt-4">
+                <span>TEAMS</span>
+                <button id="trigger-create-team" class="hover:bg-gray-200 dark:hover:bg-[#2C2C2C] rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity" title="Create Team">
+                    <svg class="w-4 h-4 text-gray-600 dark:text-[#9B9A97]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                </button>
+            </div>
+            <div id="team-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar pb-4"></div>
+
+            <div class="p-4 border-t border-notion-border dark:border-notion-dark-border text-notion-textLight dark:text-[#9B9A97] text-xs flex justify-center cursor-default">EduLink v4.0</div>
+        </div>
+
+        <!-- MAIN AREA -->
+        <div class="flex-1 flex flex-col h-full bg-white dark:bg-notion-dark-bg relative transition-colors duration-200">
+            <!-- EMPTY STATE -->
+            <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-notion-dark-bg z-10 transition-colors">
+                <div class="w-24 h-24 bg-gray-50 dark:bg-[#262626] rounded-full flex items-center justify-center mb-6 text-5xl shadow-sm border border-gray-100 dark:border-[#2F2F2F] animate-pulse">👋</div>
+                <h2 class="text-2xl font-semibold text-notion-text dark:text-[#D4D4D4]">Welcome to EduLink</h2>
+                <p class="text-notion-textLight dark:text-[#9B9A97] mt-2 text-base">Select a project from the sidebar.</p>
+                <button id="btn-create-empty" class="mt-8 px-6 py-3 bg-notion-blue text-white rounded-lg shadow-sm hover:bg-blue-600 transition text-sm font-medium flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                    Create New Project
+                </button>
+            </div>
+
+            <!-- PROJECT WORKSPACE -->
+            <div id="workspace-container" class="flex flex-col h-full hidden w-full">
+                <div class="h-16 border-b border-notion-border dark:border-notion-dark-border flex items-center justify-between px-6 bg-white dark:bg-notion-dark-bg sticky top-0 z-40 transition-colors">
+                    <div class="flex items-center gap-3 flex-1 min-w-0 mr-6">
+                        <span class="text-2xl cursor-default select-none" id="doc-icon">📄</span>
+                        <input id="doc-title" type="text" class="text-lg font-semibold text-notion-text dark:text-[#D4D4D4] outline-none hover:bg-notion-sidebar dark:hover:bg-[#2C2C2C] px-2 py-1.5 rounded w-full max-w-md transition-colors bg-transparent placeholder-gray-400" placeholder="Untitled">
+                        <div id="save-indicator" class="text-xs text-notion-textLight hidden whitespace-nowrap bg-gray-50 dark:bg-[#262626] px-2 py-1 rounded border border-gray-100 dark:border-[#2F2F2F]">Saving...</div>
+                    </div>
+
+                    <div class="flex items-center gap-3 relative">
+                        <button id="btn-broadcast-create" class="hidden text-sm font-medium text-notion-text dark:text-[#D4D4D4] hover:bg-notion-sidebar dark:hover:bg-[#2C2C2C] px-4 py-2 rounded-lg transition-colors border border-gray-200 dark:border-[#2F2F2F] hover:border-gray-300 dark:hover:border-[#3F3F3F] flex items-center gap-2 animate-slideIn">
+                            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg> <span>Broadcast</span>
+                        </button>
+                        <button id="btn-announce-create" class="hidden text-sm font-medium text-notion-text dark:text-[#D4D4D4] hover:bg-notion-sidebar dark:hover:bg-[#2C2C2C] px-4 py-2 rounded-lg transition-colors border border-gray-200 dark:border-[#2F2F2F] hover:border-gray-300 dark:hover:border-[#3F3F3F] flex items-center gap-2 animate-slideIn">
+                            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6"/></svg> <span>Announce</span>
+                        </button>
+
+                        <button id="btn-open-share" class="text-sm font-medium text-notion-text dark:text-[#D4D4D4] hover:bg-notion-sidebar dark:hover:bg-[#2C2C2C] px-4 py-2 rounded-lg transition-colors border border-gray-200 dark:border-[#2F2F2F] hover:border-gray-300 dark:hover:border-[#3F3F3F] flex items-center gap-2">
+                            <span>Share</span>
+                        </button>
+
+                        <span class="h-6 w-[1px] bg-gray-200 dark:bg-[#2F2F2F] mx-1"></span>
+                        <div class="flex -space-x-3 overflow-hidden cursor-pointer hover:opacity-100 opacity-90 transition py-1 px-1" id="member-avatars" onclick="document.getElementById('share-modal').classList.remove('hidden')" title="Manage Members"></div>
+
+                        <div class="relative">
+                            <button id="btn-notifications" class="text-notion-textLight dark:text-[#9B9A97] hover:text-notion-text dark:hover:text-[#D4D4D4] p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2C2C2C] relative transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                <span id="notif-badge" class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full hidden"></span>
+                            </button>
+                            <div id="notification-popover" class="hidden absolute top-14 right-0 w-80 bg-white dark:bg-[#202020] border border-gray-200 dark:border-[#2F2F2F] shadow-popover rounded-xl z-50 flex flex-col max-h-96 animate-slideIn origin-top-right overflow-hidden">
+                                <div class="px-5 py-4 border-b border-gray-100 dark:border-[#2F2F2F] flex justify-between items-center bg-gray-50/80 dark:bg-[#262626] backdrop-blur-sm">
+                                    <span class="font-semibold text-xs text-gray-500 dark:text-[#9B9A97] tracking-wide">NOTIFICATIONS</span>
+                                </div>
+                                <div id="notification-list" class="overflow-y-auto no-scrollbar flex-1 p-0 min-h-[120px]"></div>
+                            </div>
                         </div>
-                        <div id="ai-indicator" class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 bg-white dark:bg-[#202020] border border-gray-200 dark:border-[#2F2F2F] shadow-xl rounded-full px-5 py-2.5 flex items-center gap-2 z-50 animate-bounce"><span class="ai-shimmer font-semibold text-sm">✨ AI is writing...</span></div>
-                        <div id="read-only-banner" class="hidden mb-6 p-4 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2F2F2F] rounded-lg text-sm text-gray-500 dark:text-[#9B9A97] flex items-center gap-3"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><span class="font-medium">View Only</span></div>
-                        <div id="remote-cursors-layer" class="absolute inset-0 pointer-events-none z-10 overflow-hidden"></div>
-                        <div id="doc-content" contenteditable="true" class="w-full h-full min-h-[75vh] outline-none text-[#37352F] dark:text-[#D4D4D4] leading-8 text-[17px] font-sans placeholder-gray-300 relative z-20" placeholder="Type '/' for AI commands..."></div>
+                        <button id="btn-toggle-sidebar" class="text-notion-textLight dark:text-[#9B9A97] hover:text-notion-text dark:hover:text-[#D4D4D4] p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2C2C2C]" title="Toggle Sidebar"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"/></svg></button>
                     </div>
                 </div>
 
-                <!-- Slash AI Menu -->
-                <div id="slash-menu" class="fixed hidden bg-white dark:bg-[#202020] border border-gray-200 dark:border-[#2F2F2F] rounded-xl shadow-menu z-[100] w-64 overflow-hidden animate-popIn">
-                    <div id="slash-main-content">
-                        <div class="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-[#9B9A97] uppercase tracking-wide bg-gray-50 dark:bg-[#262626] border-b border-gray-100 dark:border-[#2F2F2F]">AI Assistant</div>
-                        <div class="p-1">
-                            <button onclick="window.showSlashAIInput()" class="w-full text-left px-3 py-2 text-sm text-notion-text dark:text-[#D4D4D4] hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 rounded-lg flex items-center gap-2.5 font-medium">
-                                <span class="ai-shimmer">✨</span> Ask AI...
-                            </button>
-                            <div class="h-[1px] bg-gray-100 dark:bg-[#2F2F2F] my-1 mx-2"></div>
-                            <button onclick="executeAICommand('Continue writing')" class="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-[#D4D4D4] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
-                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg> Continue writing
-                            </button>
-                            <button onclick="executeAICommand('Summarize')" class="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-[#D4D4D4] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
-                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg> Summarize
-                            </button>
-                            <button onclick="executeAICommand('Fix grammar and spelling')" class="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-[#D4D4D4] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
-                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Fix grammar
-                            </button>
-                            <button onclick="executeAICommand('Translate to Spanish')" class="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-[#D4D4D4] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
-                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg> Translate to Spanish
-                            </button>
+                <!-- Editor -->
+                <div class="flex flex-1 overflow-hidden relative">
+                    <div class="flex-1 overflow-y-auto bg-white dark:bg-notion-dark-bg cursor-text relative no-scrollbar flex justify-center" id="editor-container" onclick="focusEditor(event)">
+                        <div class="w-full max-w-[850px] py-12 px-14 min-h-full flex flex-col relative">
+                            <div id="editor-toolbar" class="sticky top-0 bg-white/95 dark:bg-[#191919]/95 backdrop-blur z-30 flex gap-2 py-2 mb-6 border-b border-transparent hover:border-gray-100 dark:hover:border-[#2F2F2F] transition-colors opacity-0 hover:opacity-100 items-center">
+                                <button onclick="formatDoc('bold')" class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#2C2C2C] rounded-md text-gray-600 dark:text-[#9B9A97] font-bold w-8 h-8 flex items-center justify-center text-sm border border-transparent hover:border-gray-200 dark:hover:border-[#2F2F2F]">B</button>
+                                <button onclick="formatDoc('italic')" class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#2C2C2C] rounded-md text-gray-600 dark:text-[#9B9A97] italic w-8 h-8 flex items-center justify-center text-sm border border-transparent hover:border-gray-200 dark:hover:border-[#2F2F2F]">I</button>
+                                <div class="w-[1px] h-4 bg-gray-200 dark:bg-[#2F2F2F] mx-1"></div>
+                                <button onclick="window.openLinkModal()" class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#2C2C2C] rounded-md text-gray-600 dark:text-[#9B9A97] flex items-center gap-1.5 text-sm px-3 border border-transparent hover:border-gray-200 dark:hover:border-[#2F2F2F]"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Link</button>
+                            </div>
+                            <div id="ai-indicator" class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 bg-white dark:bg-[#202020] border border-gray-200 dark:border-[#2F2F2F] shadow-xl rounded-full px-5 py-2.5 flex items-center gap-2 z-50 animate-bounce"><span class="ai-shimmer font-semibold text-sm">✨ AI is writing...</span></div>
+                            <div id="read-only-banner" class="hidden mb-6 p-4 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2F2F2F] rounded-lg text-sm text-gray-500 dark:text-[#9B9A97] flex items-center gap-3"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><span class="font-medium">View Only</span></div>
+                            <div id="remote-cursors-layer" class="absolute inset-0 pointer-events-none z-10 overflow-hidden"></div>
+                            <div id="doc-content" contenteditable="true" class="w-full h-full min-h-[75vh] outline-none text-[#37352F] dark:text-[#D4D4D4] leading-8 text-[17px] font-sans placeholder-gray-300 relative z-20" placeholder="Type '/' for AI commands..."></div>
                         </div>
-                    </div>
-                    <div id="slash-ai-input-container" class="hidden p-2">
-                        <div class="flex items-center gap-2 bg-gray-50 dark:bg-[#262626] rounded-lg p-1.5 border border-gray-200 dark:border-[#2F2F2F]">
-                             <span class="ai-shimmer text-lg">✨</span>
-                             <input id="slash-ai-custom-input" type="text" class="bg-transparent outline-none text-sm w-full text-gray-700 dark:text-[#D4D4D4]" placeholder="What should AI write?">
-                        </div>
-                        <div class="text-[10px] text-gray-400 mt-1 px-1">Press Enter to generate</div>
-                    </div>
-                </div>
-
-                <div id="right-panel" class="w-[360px] border-l border-notion-border dark:border-notion-dark-border bg-white dark:bg-notion-dark-bg flex flex-col shadow-sm relative z-30 transition-all duration-300">
-                    <div class="flex border-b border-notion-border dark:border-notion-dark-border h-14 items-center px-2 gap-1">
-                        <button class="flex-1 h-full text-[14px] tab-active transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50 dark:hover:bg-[#2C2C2C]" data-tab="chat" title="Chat"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></button>
-                        <button class="flex-1 h-full text-[14px] tab-inactive transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50 dark:hover:bg-[#2C2C2C]" data-tab="comments" title="Comments"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg></button>
-                        <button class="flex-1 h-full text-[14px] tab-inactive transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50 dark:hover:bg-[#2C2C2C]" data-tab="calendar" title="Calendar"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></button>
-                        <button class="flex-1 h-full text-[14px] tab-inactive transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50 dark:hover:bg-[#2C2C2C]" data-tab="ai" title="AI"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></button>
                     </div>
 
-                    <div id="tab-chat" class="flex-1 flex flex-col h-full overflow-hidden relative">
-                        <div id="chat-messages" class="flex-1 overflow-y-auto p-5 space-y-4 no-scrollbar bg-[#FBFAFA] dark:bg-notion-dark-bg"></div>
-                        <!-- Mention Popover -->
-                        <div id="mention-suggestions" class="absolute bottom-16 left-4 bg-white dark:bg-[#202020] border border-gray-200 dark:border-[#2F2F2F] shadow-xl rounded-lg hidden z-50 w-48 max-h-40 overflow-y-auto no-scrollbar text-sm dark:text-[#D4D4D4]"></div>
-                        
-                        <div class="p-4 border-t border-notion-border dark:border-notion-dark-border bg-white dark:bg-notion-dark-bg flex flex-col gap-2 relative">
-                            <select id="chat-recipient" class="text-xs p-1.5 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2F2F2F] rounded outline-none text-gray-600 dark:text-[#9B9A97] mb-1 w-fit">
-                                <option value="all">Everyone</option>
-                            </select>
-                            <form id="chat-form" class="relative">
-                                <input id="chat-input" type="text" autocomplete="off" class="w-full text-[15px] p-3 pr-10 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none focus:bg-white dark:focus:bg-[#191919] focus:border-gray-300 dark:focus:border-[#3F3F3F] transition-all placeholder-gray-400 dark:placeholder-[#5A5A5A] text-notion-text dark:text-[#D4D4D4]" placeholder="Message or @mention...">
-                                <button type="submit" class="absolute right-3 top-3 text-gray-400 hover:text-notion-blue"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg></button>
-                            </form>
+                    <!-- Slash AI Menu -->
+                    <div id="slash-menu" class="fixed hidden bg-white dark:bg-[#202020] border border-gray-200 dark:border-[#2F2F2F] rounded-xl shadow-menu z-[100] w-64 overflow-hidden animate-popIn">
+                        <div id="slash-main-content">
+                            <div class="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-[#9B9A97] uppercase tracking-wide bg-gray-50 dark:bg-[#262626] border-b border-gray-100 dark:border-[#2F2F2F]">AI Assistant</div>
+                            <div class="p-1">
+                                <button onclick="window.showSlashAIInput()" class="w-full text-left px-3 py-2 text-sm text-notion-text dark:text-[#D4D4D4] hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 rounded-lg flex items-center gap-2.5 font-medium">
+                                    <span class="ai-shimmer">✨</span> Ask AI...
+                                </button>
+                                <div class="h-[1px] bg-gray-100 dark:bg-[#2F2F2F] my-1 mx-2"></div>
+                                <button onclick="executeAICommand('Continue writing')" class="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-[#D4D4D4] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg> Continue writing
+                                </button>
+                                <button onclick="executeAICommand('Summarize')" class="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-[#D4D4D4] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg> Summarize
+                                </button>
+                                <button onclick="executeAICommand('Fix grammar and spelling')" class="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-[#D4D4D4] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Fix grammar
+                                </button>
+                                <button onclick="executeAICommand('Translate to Spanish')" class="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-[#D4D4D4] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-notion-blue rounded-lg flex items-center gap-2.5">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg> Translate to Spanish
+                                </button>
+                            </div>
+                        </div>
+                        <div id="slash-ai-input-container" class="hidden p-2">
+                            <div class="flex items-center gap-2 bg-gray-50 dark:bg-[#262626] rounded-lg p-1.5 border border-gray-200 dark:border-[#2F2F2F]">
+                                 <span class="ai-shimmer text-lg">✨</span>
+                                 <input id="slash-ai-custom-input" type="text" class="bg-transparent outline-none text-sm w-full text-gray-700 dark:text-[#D4D4D4]" placeholder="What should AI write?">
+                            </div>
+                            <div class="text-[10px] text-gray-400 mt-1 px-1">Press Enter to generate</div>
                         </div>
                     </div>
-                    <div id="tab-comments" class="flex-1 flex flex-col h-full hidden overflow-hidden">
-                        <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 text-xs text-yellow-800 dark:text-yellow-200 border-b border-yellow-100 dark:border-yellow-900/30 flex justify-between items-center font-medium"><span>Discussion & Feedback</span></div>
-                        <div id="comments-list" class="flex-1 overflow-y-auto p-5 space-y-3 no-scrollbar bg-white dark:bg-notion-dark-bg"></div>
-                        <div class="p-4 border-t border-notion-border dark:border-notion-dark-border bg-white dark:bg-notion-dark-bg"><form id="comments-form" class="relative"><textarea id="comment-input" rows="2" class="w-full text-[15px] p-3 border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none focus:border-notion-blue resize-none bg-gray-50 dark:bg-[#262626] focus:bg-white dark:focus:bg-[#191919] transition-colors dark:text-[#D4D4D4]" placeholder="Add a comment..."></textarea><button type="submit" class="mt-2 w-full py-2 bg-gray-100 dark:bg-[#2C2C2C] text-xs font-semibold text-gray-600 dark:text-[#9B9A97] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3F3F3F] transition-colors">Post Comment</button></form></div>
-                    </div>
-                    <div id="tab-calendar" class="flex-1 flex flex-col h-full hidden overflow-hidden bg-white dark:bg-notion-dark-bg">
-                        <div class="p-5 border-b border-gray-100 dark:border-[#2F2F2F]"><h3 class="font-semibold text-sm mb-4 text-gray-700 dark:text-[#D4D4D4] flex items-center gap-2"><svg class="w-4 h-4 text-notion-blue" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Add Reminder</h3><form id="reminder-form" class="space-y-3"><input id="rem-title" type="text" placeholder="Event or Task..." class="w-full p-2.5 text-sm border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none focus:border-notion-blue bg-gray-50 dark:bg-[#262626] focus:bg-white dark:focus:bg-[#191919] transition-colors dark:text-[#D4D4D4]" required><div class="flex gap-2"><input id="rem-date" type="date" class="flex-1 p-2.5 text-sm border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none bg-gray-50 dark:bg-[#262626] focus:bg-white dark:focus:bg-[#191919] transition-colors text-gray-500 dark:text-[#9B9A97]" required><input id="rem-time" type="time" class="flex-1 p-2.5 text-sm border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none bg-gray-50 dark:bg-[#262626] focus:bg-white dark:focus:bg-[#191919] transition-colors text-gray-500 dark:text-[#9B9A97]" required></div><button type="submit" class="w-full py-2 bg-notion-blue text-white text-sm font-medium rounded-lg hover:bg-blue-600 shadow-sm transition-transform active:scale-[0.98]">Set Reminder</button></form></div>
-                        <div class="flex-1 overflow-y-auto no-scrollbar p-5"><h4 class="text-[11px] font-bold text-gray-400 uppercase mb-3 tracking-wider flex justify-between">Upcoming Events</h4><div id="reminder-list" class="space-y-3"></div></div>
-                    </div>
-                    <div id="tab-ai" class="flex-1 flex flex-col h-full hidden overflow-hidden">
-                        <div class="p-4 bg-blue-50 dark:bg-blue-900/20 text-xs text-blue-800 dark:text-blue-200 border-b border-blue-100 dark:border-blue-900/30 leading-relaxed flex gap-2"><span class="text-xl">🤖</span> <span><strong>AI Assistant:</strong> Ask questions about the document, summarize content, or generate ideas.</span></div>
-                        <div id="ai-messages" class="flex-1 overflow-y-auto p-5 space-y-4 no-scrollbar bg-white dark:bg-notion-dark-bg"></div>
-                        <div class="p-4 border-t border-notion-border dark:border-notion-dark-border bg-white dark:bg-notion-dark-bg"><form id="ai-form" class="relative"><input id="ai-input" type="text" class="w-full text-[15px] p-3 pr-10 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none focus:border-purple-300 focus:bg-white dark:focus:bg-[#191919] transition-all placeholder-gray-400 dark:placeholder-[#5A5A5A] text-notion-text dark:text-[#D4D4D4]" placeholder="Ask AI something..."><button type="submit" class="absolute right-3 top-3 text-purple-500 hover:text-purple-700"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></form></div>
+
+                    <div id="right-panel" class="w-[360px] border-l border-notion-border dark:border-notion-dark-border bg-white dark:bg-notion-dark-bg flex flex-col shadow-sm relative z-30 transition-all duration-300">
+                        <div class="flex border-b border-notion-border dark:border-notion-dark-border h-14 items-center px-2 gap-1">
+                            <button class="flex-1 h-full text-[14px] tab-active transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50 dark:hover:bg-[#2C2C2C]" data-tab="chat" title="Chat"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></button>
+                            <button class="flex-1 h-full text-[14px] tab-inactive transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50 dark:hover:bg-[#2C2C2C]" data-tab="comments" title="Comments"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg></button>
+                            <button class="flex-1 h-full text-[14px] tab-inactive transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50 dark:hover:bg-[#2C2C2C]" data-tab="calendar" title="Calendar"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></button>
+                            <button class="flex-1 h-full text-[14px] tab-inactive transition-colors flex items-center justify-center gap-1.5 rounded-t-md hover:bg-gray-50 dark:hover:bg-[#2C2C2C]" data-tab="ai" title="AI"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></button>
+                        </div>
+
+                        <div id="tab-chat" class="flex-1 flex flex-col h-full overflow-hidden relative">
+                            <div id="chat-messages" class="flex-1 overflow-y-auto p-5 space-y-4 no-scrollbar bg-[#FBFAFA] dark:bg-notion-dark-bg"></div>
+                            <!-- Mention Popover -->
+                            <div id="mention-suggestions" class="absolute bottom-16 left-4 bg-white dark:bg-[#202020] border border-gray-200 dark:border-[#2F2F2F] shadow-xl rounded-lg hidden z-50 w-48 max-h-40 overflow-y-auto no-scrollbar text-sm dark:text-[#D4D4D4]"></div>
+                            
+                            <div class="p-4 border-t border-notion-border dark:border-notion-dark-border bg-white dark:bg-notion-dark-bg flex flex-col gap-2 relative">
+                                <select id="chat-recipient" class="text-xs p-1.5 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2F2F2F] rounded outline-none text-gray-600 dark:text-[#9B9A97] mb-1 w-fit">
+                                    <option value="all">Everyone</option>
+                                </select>
+                                <form id="chat-form" class="relative">
+                                    <input id="chat-input" type="text" autocomplete="off" class="w-full text-[15px] p-3 pr-10 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none focus:bg-white dark:focus:bg-[#191919] focus:border-gray-300 dark:focus:border-[#3F3F3F] transition-all placeholder-gray-400 dark:placeholder-[#5A5A5A] text-notion-text dark:text-[#D4D4D4]" placeholder="Message or @mention...">
+                                    <button type="submit" class="absolute right-3 top-3 text-gray-400 hover:text-notion-blue"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg></button>
+                                </form>
+                            </div>
+                        </div>
+                        <div id="tab-comments" class="flex-1 flex flex-col h-full hidden overflow-hidden">
+                            <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 text-xs text-yellow-800 dark:text-yellow-200 border-b border-yellow-100 dark:border-yellow-900/30 flex justify-between items-center font-medium"><span>Discussion & Feedback</span></div>
+                            <div id="comments-list" class="flex-1 overflow-y-auto p-5 space-y-3 no-scrollbar bg-white dark:bg-notion-dark-bg"></div>
+                            <div class="p-4 border-t border-notion-border dark:border-notion-dark-border bg-white dark:bg-notion-dark-bg"><form id="comments-form" class="relative"><textarea id="comment-input" rows="2" class="w-full text-[15px] p-3 border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none focus:border-notion-blue resize-none bg-gray-50 dark:bg-[#262626] focus:bg-white dark:focus:bg-[#191919] transition-colors dark:text-[#D4D4D4]" placeholder="Add a comment..."></textarea><button type="submit" class="mt-2 w-full py-2 bg-gray-100 dark:bg-[#2C2C2C] text-xs font-semibold text-gray-600 dark:text-[#9B9A97] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3F3F3F] transition-colors">Post Comment</button></form></div>
+                        </div>
+                        <div id="tab-calendar" class="flex-1 flex flex-col h-full hidden overflow-hidden bg-white dark:bg-notion-dark-bg">
+                            <div class="p-5 border-b border-gray-100 dark:border-[#2F2F2F]"><h3 class="font-semibold text-sm mb-4 text-gray-700 dark:text-[#D4D4D4] flex items-center gap-2"><svg class="w-4 h-4 text-notion-blue" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Add Reminder</h3><form id="reminder-form" class="space-y-3"><input id="rem-title" type="text" placeholder="Event or Task..." class="w-full p-2.5 text-sm border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none focus:border-notion-blue bg-gray-50 dark:bg-[#262626] focus:bg-white dark:focus:bg-[#191919] transition-colors dark:text-[#D4D4D4]" required><div class="flex gap-2"><input id="rem-date" type="date" class="flex-1 p-2.5 text-sm border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none bg-gray-50 dark:bg-[#262626] focus:bg-white dark:focus:bg-[#191919] transition-colors text-gray-500 dark:text-[#9B9A97]" required><input id="rem-time" type="time" class="flex-1 p-2.5 text-sm border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none bg-gray-50 dark:bg-[#262626] focus:bg-white dark:focus:bg-[#191919] transition-colors text-gray-500 dark:text-[#9B9A97]" required></div><button type="submit" class="w-full py-2 bg-notion-blue text-white text-sm font-medium rounded-lg hover:bg-blue-600 shadow-sm transition-transform active:scale-[0.98]">Set Reminder</button></form></div>
+                            <div class="flex-1 overflow-y-auto no-scrollbar p-5"><h4 class="text-[11px] font-bold text-gray-400 uppercase mb-3 tracking-wider flex justify-between">Upcoming Events</h4><div id="reminder-list" class="space-y-3"></div></div>
+                        </div>
+                        <div id="tab-ai" class="flex-1 flex flex-col h-full hidden overflow-hidden">
+                            <div class="p-4 bg-blue-50 dark:bg-blue-900/20 text-xs text-blue-800 dark:text-blue-200 border-b border-blue-100 dark:border-blue-900/30 leading-relaxed flex gap-2"><span class="text-xl">🤖</span> <span><strong>AI Assistant:</strong> Ask questions about the document, summarize content, or generate ideas.</span></div>
+                            <div id="ai-messages" class="flex-1 overflow-y-auto p-5 space-y-4 no-scrollbar bg-white dark:bg-notion-dark-bg"></div>
+                            <div class="p-4 border-t border-notion-border dark:border-notion-dark-border bg-white dark:bg-notion-dark-bg"><form id="ai-form" class="relative"><input id="ai-input" type="text" class="w-full text-[15px] p-3 pr-10 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none focus:border-purple-300 focus:bg-white dark:focus:bg-[#191919] transition-all placeholder-gray-400 dark:placeholder-[#5A5A5A] text-notion-text dark:text-[#D4D4D4]" placeholder="Ask AI something..."><button type="submit" class="absolute right-3 top-3 text-purple-500 hover:text-purple-700"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></form></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -412,6 +435,42 @@
         </div>
     </div>
     
+    <div id="share-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
+        <div class="bg-white dark:bg-[#202020] rounded-xl shadow-modal w-[500px] overflow-hidden scale-95 transition-transform duration-200 transform">
+             <div class="p-5 border-b border-gray-100 dark:border-[#2F2F2F] flex justify-between items-center bg-[#FBFBFA] dark:bg-[#262626]">
+                <h3 class="font-semibold text-sm text-gray-700 dark:text-[#D4D4D4]">Share Project</h3>
+                <button class="text-gray-400 hover:text-gray-600 dark:hover:text-[#D4D4D4] p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2C2C2C]" onclick="hideModal('share-modal')"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="flex gap-2">
+                    <input id="invite-email" type="email" placeholder="Add people by email..." class="flex-1 p-2.5 text-sm border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none focus:border-notion-blue transition-colors bg-white dark:bg-[#262626] dark:text-[#D4D4D4]">
+                    <select id="invite-role" class="p-2.5 text-sm border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none bg-white dark:bg-[#262626] dark:text-[#D4D4D4]">
+                        <option value="editor">Editor</option>
+                        <option value="commenter">Commenter</option>
+                        <option value="viewer">Viewer</option>
+                    </select>
+                    <button id="btn-send-invite" class="px-4 py-2 bg-notion-blue text-white text-sm font-medium rounded-lg hover:bg-blue-600 shadow-sm transition-colors">Invite</button>
+                </div>
+                
+                <div class="bg-gray-50 dark:bg-[#262626] p-3 rounded-lg border border-gray-100 dark:border-[#2F2F2F]">
+                    <label class="block text-[10px] font-bold text-gray-400 dark:text-[#9B9A97] uppercase tracking-wide mb-2">Or Share with Team</label>
+                    <div class="flex gap-2">
+                        <select id="share-team-select" class="flex-1 p-2 text-sm border border-gray-200 dark:border-[#2F2F2F] rounded-lg outline-none bg-white dark:bg-[#202020] dark:text-[#D4D4D4]"><option value="">Select a team...</option></select>
+                        <button id="btn-share-team" class="px-3 py-2 bg-white dark:bg-[#202020] border border-gray-200 dark:border-[#2F2F2F] text-gray-600 dark:text-[#D4D4D4] text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-[#3F3F3F] transition-colors">Add Team</button>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                     <div class="flex justify-between items-center mb-3">
+                        <div class="text-[11px] font-bold text-gray-400 dark:text-[#9B9A97] uppercase tracking-wide">Who has access</div>
+                        <button id="btn-copy-link" class="text-xs text-notion-blue hover:underline flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Copy Link</button>
+                    </div>
+                    <div id="members-list" class="flex flex-col gap-2 max-h-[200px] overflow-y-auto no-scrollbar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="rename-folder-modal" class="fixed inset-0 bg-black/40 z-[95] hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-200">
         <div class="bg-white dark:bg-[#202020] rounded-xl shadow-modal w-[380px] p-6 scale-95 transition-transform duration-200 transform">
             <h3 class="text-lg font-semibold text-notion-text dark:text-[#D4D4D4] mb-5">Rename Folder</h3>
@@ -628,8 +687,9 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut, updateProfile, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove, orderBy, serverTimestamp, getDoc, setDoc, deleteDoc, getDocs, or } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { GoogleGenAI } from "@google/genai";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
@@ -645,11 +705,19 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // Initialize Google GenAI
+    // Note: In a real production app, never expose your API key on the client side. 
+    // The environment will automatically inject process.env.API_KEY.
+    const genAI = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
     let currentUser = null;
     let currentProjectId = null;
     let currentRole = 'editor'; 
     let unsubscribeDoc, unsubscribeChat, unsubscribeReminders, unsubscribeComments, unsubscribeNotifs, unsubscribePresence, unsubscribeFolders, unsubscribeProjects;
     
+    // Define Random Color for Presence
+    const myColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+
     // Global State & Caches
     let initialLoad = true;
     let debounceTimer;
@@ -801,10 +869,30 @@
         const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
     }
 
-    // --- AUTHENTICATION ---
+    // --- AUTHENTICATION LOGIC ---
+    document.getElementById('btn-login').addEventListener('click', async () => {
+        try {
+            const provider = new GoogleAuthProvider();
+            await signInWithPopup(auth, provider);
+        } catch (error) {
+            console.error("Login failed", error);
+            alert("Login failed: " + error.message);
+        }
+    });
+
     onAuthStateChanged(auth, async (user) => {
-        if (!user) { window.location.href = 'index.html'; } 
-        else {
+        const loginScreen = document.getElementById('login-screen');
+        const appContainer = document.getElementById('app-container');
+
+        if (!user) { 
+            // Show Login, Hide App
+            loginScreen.classList.remove('hidden');
+            appContainer.classList.add('hidden');
+        } else {
+            // Hide Login, Show App
+            loginScreen.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+
             try {
                 currentUser = user; 
                 
@@ -1502,6 +1590,29 @@
         }
     });
 
+    // --- UPDATED AI FUNCTIONALITY USING GEMINI ---
+    // Fetch AI response using Gemini via @google/genai SDK
+    async function fetchAI(prompt, context) {
+        try {
+            const model = "gemini-2.5-flash"; // Using latest fast model
+            const systemInstruction = "You are a helpful, professional, and concise AI writing assistant for a collaborative workspace.";
+            
+            const response = await genAI.models.generateContent({
+                model: model,
+                contents: `Context from document: ${context ? context.substring(0, 5000) : "No context provided."}\n\nUser Question/Instruction: ${prompt}`,
+                config: {
+                    systemInstruction: systemInstruction,
+                    thinkingConfig: { thinkingBudget: 0 } // Flash model - fast response
+                }
+            });
+            
+            return response.text;
+        } catch(e) {
+            console.error("AI Error:", e);
+            return "AI Error: Unable to generate response. Please check your connection or API key.";
+        }
+    }
+
     window.executeAICommand = async (command) => {
         slashMenu.classList.add('hidden');
         contentInput.focus();
@@ -1516,10 +1627,11 @@
         let activeSelection = "";
         if (sel.rangeCount && !sel.isCollapsed) activeSelection = sel.toString();
 
-        const prompt = `Act as a professional writing assistant. ${command}. ${activeSelection ? 'Focus on this text: "' + activeSelection + '"' : 'Context: ' + context.substring(0, 500)}`;
+        // Pass direct instruction to the AI fetcher
+        const prompt = `${command}. ${activeSelection ? 'Focus specifically on this selected text: "' + activeSelection + '"' : ''}`;
         
         try {
-            const result = await fetchAI(prompt, "");
+            const result = await fetchAI(prompt, context);
             document.execCommand('insertHTML', false, ` ${result} `);
         } catch(e) { notify("AI failed to respond", "error"); }
         document.getElementById('ai-indicator').classList.add('hidden');
@@ -1841,9 +1953,32 @@
     }
     document.getElementById('reminder-form').addEventListener('submit', async (e) => { e.preventDefault(); const title = document.getElementById('rem-title').value; const date = document.getElementById('rem-date').value; const time = document.getElementById('rem-time').value; if(!title || !date || !time) return; const due = new Date(`${date}T${time}`); await addDoc(collection(db, `projects/${currentProjectId}/reminders`), { title, due, addedBy: currentUser.displayName || "User", timestamp: serverTimestamp() }); document.getElementById('reminder-form').reset(); });
 
-    // --- AI ---
-    async function fetchAI(prompt, context) { try { const clean = encodeURIComponent(`Context: ${context.substring(0,500)}...\nQ: ${prompt}`); const res = await fetch(`https://text.pollinations.ai/${clean}`); if(!res.ok) throw new Error(); return await res.text(); } catch(e) { return "AI Unavailable"; } }
-    document.getElementById('ai-form').addEventListener('submit', async(e)=>{ e.preventDefault(); const inp = document.getElementById('ai-input'); const txt = inp.value.trim(); if(!txt) return; const div = document.getElementById('ai-messages'); div.innerHTML += `<div class="flex flex-col items-end"><div class="bg-gray-100 dark:bg-[#262626] text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text dark:text-[#D4D4D4] shadow-sm">${txt}</div></div>`; inp.value = ''; div.scrollTop = div.scrollHeight; const resp = await fetchAI(txt, document.getElementById('doc-content').innerText); div.innerHTML += `<div class="flex flex-col items-start"><div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-900/30 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text dark:text-[#D4D4D4] leading-relaxed shadow-sm">${resp}</div></div>`; div.scrollTop = div.scrollHeight; });
+    // --- AI CHAT LOGIC ---
+    // Note: executeAICommand now uses the new fetchAI which uses Gemini
+    document.getElementById('ai-form').addEventListener('submit', async(e)=>{ 
+        e.preventDefault(); 
+        const inp = document.getElementById('ai-input'); 
+        const txt = inp.value.trim(); 
+        if(!txt) return; 
+        
+        const div = document.getElementById('ai-messages'); 
+        // User Message
+        div.innerHTML += `<div class="flex flex-col items-end"><div class="bg-gray-100 dark:bg-[#262626] text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text dark:text-[#D4D4D4] shadow-sm">${txt}</div></div>`; 
+        inp.value = ''; 
+        div.scrollTop = div.scrollHeight; 
+        
+        // AI Thinking State
+        const thinkingId = 'thinking-' + Date.now();
+        div.innerHTML += `<div id="${thinkingId}" class="flex flex-col items-start"><div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-900/30 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-gray-500 dark:text-gray-400 italic">Thinking...</div></div>`;
+        div.scrollTop = div.scrollHeight;
+
+        const resp = await fetchAI(txt, document.getElementById('doc-content').innerText); 
+        
+        // Remove thinking, add response
+        document.getElementById(thinkingId).remove();
+        div.innerHTML += `<div class="flex flex-col items-start"><div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-900/30 text-[14px] px-3.5 py-2.5 rounded-xl max-w-[90%] mb-3 text-notion-text dark:text-[#D4D4D4] leading-relaxed shadow-sm">${resp}</div></div>`; 
+        div.scrollTop = div.scrollHeight; 
+    });
 
     // --- PROFILE ---
     const btnSettings = document.getElementById('btn-settings'); 

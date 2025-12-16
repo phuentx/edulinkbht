@@ -1014,6 +1014,15 @@ position: relative;
 <label class="text-xs font-bold text-gray-500 uppercase">Bio</label>
 <textarea id="edit-bio" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 text-sm text-gray-700 resize-none" rows="3"></textarea>
 </div>
+
+<!-- CHANGE PASSWORD BUTTON -->
+<div class="pt-4 border-t border-gray-100 mt-2">
+    <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Security</label>
+    <button onclick="sendPasswordReset()" class="w-full py-2 border border-gray-300 rounded-xl font-bold text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+        <i data-lucide="lock" class="w-4 h-4"></i> Change Password via Email
+    </button>
+</div>
+
 <button id="save-profile-btn" onclick="saveProfileChanges()" class="bg-[#0b57d0] text-white py-3 rounded-xl font-bold mt-2 hover:bg-blue-700 transition-all">Save Changes</button>
 </div>
 </div>
@@ -1426,7 +1435,7 @@ Change
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, addDoc, onSnapshot, query, orderBy, where, serverTimestamp, getDocs, writeBatch, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadString, getDownloadURL, uploadBytes } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
@@ -2679,6 +2688,20 @@ window.saveProfileChanges = async function() {
 }
 
 window.doLogout = async function() { await signOut(auth); window.location.href = "index.html"; }
+
+window.sendPasswordReset = async function() {
+    if(!currentUser || !currentUser.email) return;
+    
+    showAlert(`Send password reset email to ${currentUser.email}?`, async () => {
+        try {
+            await sendPasswordResetEmail(auth, currentUser.email);
+            showToast("Reset email sent! Check your inbox.");
+        } catch(e) {
+            console.error(e);
+            showToast("Error sending email. Try again later.", true);
+        }
+    });
+}
 
 window.toggleFollow = async function(userId) {
     const meRef = doc(db, "users", currentUser.id);

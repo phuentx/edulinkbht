@@ -11,7 +11,6 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
-<script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Google+Sans:wght@400;500;700&display=swap');
@@ -879,6 +878,20 @@ position: relative;
                 </div>
             </div>
 
+            <!-- Admin Mode (Only for admin) -->
+            <div id="admin-mode-toggle-container" class="hidden">
+                 <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Admin</h3>
+                <div class="flex items-center justify-between py-2">
+                    <div>
+                        <div class="font-medium text-gray-900">Admin Mode</div>
+                        <div class="text-xs text-gray-500">Show admin controls on profiles</div>
+                    </div>
+                    <div id="toggle-admin-mode" class="toggle-switch" onclick="toggleAdminMode()">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Links -->
             <div>
                 <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">About</h3>
@@ -1253,7 +1266,7 @@ Change
     <div id="view-admin" class="flex-1 h-full overflow-y-auto p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
         <h2 class="text-2xl font-bold mb-6 px-4 md:px-0 text-red-600 flex items-center gap-2"><i data-lucide="shield-alert"></i> Admin Console</h2>
         <div class="px-4 md:px-0">
-            <input type="text" placeholder="Search users..." onkeyup="renderAdminPanel(this.value)" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 mb-6 outline-none focus:ring-2 focus:ring-red-100">
+            <input type="text" placeholder="Search users by name or email..." onkeyup="renderAdminPanel(this.value)" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 mb-6 outline-none focus:ring-2 focus:ring-red-100">
             <div id="admin-users-list" class="space-y-3"></div>
         </div>
     </div>
@@ -1439,6 +1452,7 @@ window.replyingToCommentId = null;
 window.replyingToMessageId = null;
 window.currentViewingProfileId = null;
 window.activeExploreTab = 'people'; // New: Explore Tab State
+window.isAdminMode = false; // Admin Mode Toggle
 
 // Global Vars for App Logic
 window.currentContext = "";
@@ -1540,8 +1554,9 @@ onAuthStateChanged(auth, async (user) => {
                 // --- BAN LOGIC END ---
 
                 // Admin rights check
-                if(user.email === 'edulinkbht@gmail.com' && !currentUser.isOfficial) {
-                    updateDoc(userRef, { isOfficial: true });
+                if(user.email === 'edulinkbht@gmail.com') {
+                    if(!currentUser.isOfficial) updateDoc(userRef, { isOfficial: true });
+                    document.getElementById('admin-mode-toggle-container').classList.remove('hidden');
                 }
                 updateUserInterface();
             }
@@ -1871,6 +1886,13 @@ window.togglePrivacy = async function() {
     showToast(`Account is now ${isPrivate ? 'Private' : 'Public'}`);
 }
 
+window.toggleAdminMode = function() {
+    const toggle = document.getElementById('toggle-admin-mode');
+    window.isAdminMode = !window.isAdminMode;
+    toggle.classList.toggle('active');
+    showToast(`Admin Mode ${window.isAdminMode ? 'Enabled' : 'Disabled'}`);
+}
+
 window.switchView = function(viewName) {
     const views = ['feed', 'events', 'saved', 'network', 'profile', 'chat', 'explore', 'notifications', 'announcements', 'admin'];
     views.forEach(v => {
@@ -2063,10 +2085,10 @@ window.renderAdminPanel = function(searchTerm = "") {
                 </div>
             </div>
             <div class="flex gap-2 w-full md:w-auto">
-                <button onclick="toggleUserVerification('${u.id}', ${!isOfficial})" class="flex-1 md:flex-none justify-center flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${isOfficial ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}">
+                <button onclick="toggleUserVerification('${u.id}', ${!isOfficial})" class="flex-1 md:flex-none justify-center flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${isOfficial ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}">
                     ${isOfficial ? 'Unverify' : 'Verify'}
                 </button>
-                <button onclick="initiateBan('${u.id}', ${!isBanned})" class="flex-1 md:flex-none justify-center flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${isBanned ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-red-50 text-red-600 hover:bg-red-100'}">
+                <button onclick="initiateBan('${u.id}', ${!isBanned})" class="flex-1 md:flex-none justify-center flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${isBanned ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}">
                     ${isBanned ? 'Unban' : 'Ban'}
                 </button>
             </div>
@@ -2083,7 +2105,9 @@ window.toggleUserVerification = async function(uid, status) {
         showToast(status ? "User verified" : "User verification removed");
         // Re-render admin panel to reflect changes and refresh icons
         const input = document.querySelector('#view-admin input');
-        if(input) renderAdminPanel(input.value);
+        if(input && !document.getElementById('view-admin').classList.contains('hidden')) renderAdminPanel(input.value);
+        if(window.currentViewingProfileId === uid) showProfile(uid); // Refresh profile if open
+        setTimeout(refreshIcons, 100);
     } catch(e) { console.error(e); showToast("Error updating user", true); }
 }
 
@@ -2097,7 +2121,9 @@ window.initiateBan = function(uid, shouldBan) {
                 await updateDoc(doc(db, "users", uid), { isBanned: false, banReason: null, banExpires: null });
                 showToast("User unbanned");
                 const input = document.querySelector('#view-admin input');
-                if(input) renderAdminPanel(input.value);
+                if(input && !document.getElementById('view-admin').classList.contains('hidden')) renderAdminPanel(input.value);
+                if(window.currentViewingProfileId === uid) showProfile(uid); // Refresh profile if open
+                setTimeout(refreshIcons, 100);
             } catch(e) { console.error(e); showToast("Error unbanning user", true); }
         });
     } else {
@@ -2175,7 +2201,9 @@ window.confirmBan = async function() {
         showToast("User Banned Successfully");
         closeBanModal();
         const input = document.querySelector('#view-admin input');
-        if(input) renderAdminPanel(input.value);
+        if(input && !document.getElementById('view-admin').classList.contains('hidden')) renderAdminPanel(input.value);
+        if(window.currentViewingProfileId === uid) showProfile(uid); // Refresh profile if open
+        setTimeout(refreshIcons, 100);
     } catch(e) {
         console.error(e);
         showToast("Error banning user", true);
@@ -2554,8 +2582,22 @@ window.showProfile = function(userId) {
         <div class="flex gap-2">
         <button id="profile-follow-btn" onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-700' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">${btnText}</button>
         <button onclick="startChat('${userId}')" class="border border-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
-        </div>
         `;
+
+        if (window.isAdminMode) {
+             const isBanned = user.isBanned || false;
+             const isOfficial = user.isOfficial || false;
+             actionBtn += `
+             <div class="flex gap-2 border-l border-gray-200 pl-2 ml-2">
+                <button onclick="toggleUserVerification('${user.id}', ${!isOfficial})" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors ${isOfficial ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}">
+                    ${isOfficial ? 'Unverify' : 'Verify'}
+                </button>
+                <button onclick="initiateBan('${user.id}', ${!isBanned})" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors ${isBanned ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}">
+                    ${isBanned ? 'Unban' : 'Ban'}
+                </button>
+             </div>`;
+        }
+        actionBtn += `</div>`;
     }
 
     const userPosts = posts.filter(p => p.authorId === userId);
@@ -2589,7 +2631,7 @@ window.showProfile = function(userId) {
     <div class="profile-banner-container"><img src="${bannerUrl}" class="profile-banner-img" style="object-position: center ${bannerPos}%"></div>
     <div class="px-6 relative">
     <div class="flex justify-between items-end -mt-10 mb-4"><img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">${actionBtn}</div>
-    <div class="mb-6"><h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1><p class="text-gray-600 mt-1">${user.bio}</p>${networkStatsHTML}</div>
+    <div class="mb-6"><h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''} ${user.isBanned ? '<span class="text-red-500 text-xs bg-red-50 px-2 py-0.5 rounded uppercase font-bold">Banned</span>' : ''}</h1><p class="text-gray-600 mt-1">${user.bio}</p>${networkStatsHTML}</div>
     <div class="border-t border-gray-100 pt-6"><h3 class="font-bold text-lg mb-4">Posts</h3><div id="profile-posts-container"></div></div>
     </div>
     `;
@@ -3074,8 +3116,13 @@ function createCommentHTML(c, allComments, postId) {
     
     const replies = allComments.filter(r => r.parentId === c.id);
     let html = `<div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group"><img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-gray-900">${cAuthor.name}</span><span class="text-xs text-gray-500">• Now</span></div><p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p><div class="flex items-center gap-4 mt-2"><button id="comment-like-btn-${c.id}" onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> <span id="comment-like-count-${c.id}">${likeCount || ''}</span></button><button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div>`;
+    
     if (replies.length > 0) {
-        html += `<div class="reply-thread">`;
+        // Toggle Button for Replies
+        html += `<div class="mt-2"><button onclick="toggleReplies('comment-${c.id}')" class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"><div class="w-6 h-[1px] bg-gray-300"></div> View ${replies.length} replies</button></div>`;
+        
+        // Hidden container for replies
+        html += `<div id="replies-comment-${c.id}" class="reply-thread hidden pl-4 mt-2 border-l-2 border-gray-100">`;
         replies.forEach(r => {
             const rAuthor = users.find(u => u.id === r.authorId) || { name: 'Unknown', avatar: '' };
             const rLiked = r.likes && r.likes.includes(currentUser.id);
@@ -3088,6 +3135,13 @@ function createCommentHTML(c, allComments, postId) {
     }
     html += `</div></div>`;
     return html;
+}
+
+window.toggleReplies = function(id) {
+    const el = document.getElementById(`replies-${id}`);
+    if (el) {
+        el.classList.toggle('hidden');
+    }
 }
 
 window.deleteComment = async function(postId, commentId) {

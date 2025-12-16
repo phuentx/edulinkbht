@@ -1018,7 +1018,7 @@ position: relative;
 <!-- CHANGE PASSWORD BUTTON -->
 <div class="pt-4 border-t border-gray-100 mt-2">
     <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Security</label>
-    <button onclick="sendPasswordReset()" class="w-full py-2 border border-gray-300 rounded-xl font-bold text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+    <button type="button" onclick="sendPasswordReset()" class="w-full py-2 border border-gray-300 rounded-xl font-bold text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
         <i data-lucide="lock" class="w-4 h-4"></i> Change Password via Email
     </button>
 </div>
@@ -2690,15 +2690,24 @@ window.saveProfileChanges = async function() {
 window.doLogout = async function() { await signOut(auth); window.location.href = "index.html"; }
 
 window.sendPasswordReset = async function() {
-    if(!currentUser || !currentUser.email) return;
+    // Use auth.currentUser directly as source of truth for auth actions
+    const user = auth.currentUser;
+    if(!user || !user.email) {
+        showToast("No email associated with this account.", true);
+        return;
+    }
     
-    showAlert(`Send password reset email to ${currentUser.email}?`, async () => {
+    showAlert(`Send password reset email to ${user.email}?`, async () => {
         try {
-            await sendPasswordResetEmail(auth, currentUser.email);
-            showToast("Reset email sent! Check your inbox.");
+            await sendPasswordResetEmail(auth, user.email);
+            showToast(`Reset email sent to ${user.email}`);
         } catch(e) {
             console.error(e);
-            showToast("Error sending email. Try again later.", true);
+            let msg = "Failed to send reset email.";
+            if(e.code === 'auth/user-not-found') msg = "Account not found.";
+            if(e.code === 'auth/invalid-email') msg = "Invalid email format.";
+            if(e.code === 'auth/too-many-requests') msg = "Too many attempts. Try later.";
+            showToast(msg, true);
         }
     });
 }

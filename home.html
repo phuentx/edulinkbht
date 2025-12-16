@@ -246,7 +246,7 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.share-btn:hover { background-color: #dbeafe; }
 
 /* --- COMPOSE & CREATE MENUS --- */
-#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay {
+#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #ban-modal-box {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
 }
@@ -675,6 +675,28 @@ position: relative;
     transform: translateX(20px);
 }
 
+/* --- BAN MODAL & OVERLAY --- */
+#banned-overlay {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+}
+.ban-option-btn {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--outline);
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.ban-option-btn.active {
+    background: #eff6ff;
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
 </style>
 </head>
 <body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
@@ -683,16 +705,74 @@ position: relative;
 <div id="app-loader"><div class="loader-spinner"></div></div>
 
 <!-- CUSTOM ALERT MODAL -->
-<div id="custom-alert" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+<div id="custom-alert" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
     <div class="bg-white rounded-2xl p-6 shadow-2xl max-w-sm w-[90%] transform scale-95 transition-transform duration-200" id="custom-alert-box">
-        <h3 class="text-lg font-bold text-[#1f1f1f] mb-2" id="alert-title">Confirm</h3>
-        <p class="text-gray-600 mb-6 text-sm" id="alert-msg">Are you sure?</p>
+        <h3 class="text-xl font-bold text-[#1f1f1f] mb-3" id="alert-title">Confirm</h3>
+        <p class="text-gray-600 mb-8 text-[15px] leading-relaxed" id="alert-msg">Are you sure?</p>
         <div class="flex justify-end gap-3">
-            <button class="px-4 py-2 text-gray-600 font-bold text-sm hover:bg-gray-100 rounded-lg transition-colors" onclick="closeAlert(false)">Cancel</button>
-            <button class="px-4 py-2 bg-[#0b57d0] text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition-colors" id="alert-confirm-btn">Confirm</button>
+            <button class="px-5 py-2.5 text-gray-700 font-bold text-sm hover:bg-gray-100 rounded-xl transition-colors" onclick="closeAlert(false)">Cancel</button>
+            <button class="px-5 py-2.5 bg-[#0b57d0] text-white font-bold text-sm rounded-xl hover:bg-blue-700 transition-colors shadow-sm" id="alert-confirm-btn">Confirm</button>
         </div>
     </div>
 </div>
+
+<!-- BAN MODAL FOR ADMIN -->
+<div id="ban-modal-overlay" class="fixed inset-0 z-[75] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeBanModal()">
+    <div id="ban-modal-box" class="bg-white w-[90%] max-w-[450px] rounded-[24px] shadow-2xl p-6 relative transform scale-95 transition-transform duration-200" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-red-600 flex items-center gap-2"><i data-lucide="gavel" class="w-5 h-5"></i> Ban User</h2>
+            <button onclick="closeBanModal()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Ban Type</label>
+            <div class="flex gap-3">
+                <div id="ban-type-perm" class="ban-option-btn active" onclick="toggleBanType('perm')">Permanent</div>
+                <div id="ban-type-temp" class="ban-option-btn" onclick="toggleBanType('temp')">Temporary</div>
+            </div>
+        </div>
+
+        <div id="ban-duration-area" class="mb-4 hidden">
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Ban Until</label>
+            <input type="datetime-local" id="ban-date-input" class="w-full border border-gray-300 rounded-xl px-4 py-2 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200 transition-all text-sm">
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Reason (Visible to User)</label>
+            <textarea id="ban-reason" class="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200 text-sm resize-none h-24" placeholder="e.g. Violation of community guidelines..."></textarea>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-2 border-t border-gray-100">
+             <button class="px-5 py-2.5 text-gray-600 font-bold text-sm hover:bg-gray-100 rounded-xl transition-colors" onclick="closeBanModal()">Cancel</button>
+             <button class="px-5 py-2.5 bg-red-600 text-white font-bold text-sm rounded-xl hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2" onclick="confirmBan()">
+                 <i data-lucide="ban" class="w-4 h-4"></i> Confirm Ban
+             </button>
+        </div>
+    </div>
+</div>
+
+<!-- BANNED USER OVERLAY -->
+<div id="banned-overlay" class="fixed inset-0 z-[100] hidden flex flex-col items-center justify-center p-6 text-center">
+    <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-6 animate-bounce">
+        <i data-lucide="shield-alert" class="w-10 h-10"></i>
+    </div>
+    <h1 class="text-3xl font-bold text-gray-900 mb-2 google-font">Account Suspended</h1>
+    <p class="text-gray-600 max-w-md mb-6 leading-relaxed">Your account has been suspended by an administrator due to a violation of our community standards.</p>
+    
+    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 max-w-sm w-full mb-8 text-left">
+        <div class="mb-4">
+            <span class="text-xs font-bold text-gray-500 uppercase block mb-1">Reason</span>
+            <p id="banned-reason-text" class="text-gray-900 font-medium">No reason provided.</p>
+        </div>
+        <div>
+            <span class="text-xs font-bold text-gray-500 uppercase block mb-1">Duration</span>
+            <p id="banned-duration-text" class="text-gray-900 font-medium">Permanent</p>
+        </div>
+    </div>
+
+    <button onclick="doLogout()" class="px-8 py-3 bg-gray-900 text-white font-bold rounded-full hover:bg-black transition-transform hover:scale-105 shadow-lg">Sign Out</button>
+</div>
+
 
 <!-- Post Options Global Menu -->
 <div id="global-post-menu" class="post-options-menu"></div>
@@ -1323,7 +1403,7 @@ Change
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, addDoc, onSnapshot, query, orderBy, where, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, addDoc, onSnapshot, query, orderBy, where, serverTimestamp, getDocs, writeBatch, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadString, getDownloadURL, uploadBytes } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -1378,6 +1458,10 @@ let currentEventCoverBlob = null;
 let currentAvatarBlob = null;
 let currentBannerBlob = null;
 
+// New Global Vars for Ban Feature
+window.banTargetId = null;
+window.banType = 'perm'; // 'perm' or 'temp'
+
 // Helper: Reliable Icon Refresh
 function refreshIcons() {
     if(window.lucide) {
@@ -1406,26 +1490,59 @@ function formatDate(timestamp) {
 onAuthStateChanged(auth, async (user) => {
     const loader = document.getElementById('app-loader');
     if (user) {
+        // Real-time listener on the CURRENT user to handle banning immediately
         const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        let isOfficial = false;
-        if(user.email === 'edulinkbht@gmail.com') { isOfficial = true; }
+        onSnapshot(userRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                currentUser = { id: user.uid, ...data };
+                
+                // --- BAN LOGIC START ---
+                if (data.isBanned) {
+                    const overlay = document.getElementById('banned-overlay');
+                    const reasonText = document.getElementById('banned-reason-text');
+                    const durationText = document.getElementById('banned-duration-text');
+                    
+                    let shouldShowBan = true;
 
-        if (userSnap.exists()) {
-            const data = userSnap.data();
-            if(data.isBanned) {
-                await signOut(auth);
-                alert("Your account has been banned by an administrator.");
-                window.location.href = 'index.html';
-                return;
+                    // Check expiration if temp ban
+                    if (data.banExpires) {
+                        const now = new Date();
+                        const expireDate = data.banExpires.toDate();
+                        if (now > expireDate) {
+                            // Ban expired! Unban user automatically.
+                            updateDoc(userRef, { isBanned: false, banReason: null, banExpires: null });
+                            shouldShowBan = false;
+                            overlay.classList.add('hidden');
+                        } else {
+                            durationText.innerText = `Until ${expireDate.toLocaleString()}`;
+                        }
+                    } else {
+                        durationText.innerText = 'Permanent';
+                    }
+
+                    if (shouldShowBan) {
+                        reasonText.innerText = data.banReason || 'Violation of Terms of Service.';
+                        overlay.classList.remove('hidden');
+                        // Hide main app content just in case, though overlay is z-100
+                    }
+                } else {
+                    document.getElementById('banned-overlay').classList.add('hidden');
+                }
+                // --- BAN LOGIC END ---
+
+                // Admin rights check
+                if(user.email === 'edulinkbht@gmail.com' && !currentUser.isOfficial) {
+                    updateDoc(userRef, { isOfficial: true });
+                }
+                updateUserInterface();
             }
-            currentUser = { id: user.uid, ...data };
-            if(isOfficial && !currentUser.isOfficial) {
-                await updateDoc(userRef, { isOfficial: true });
-                currentUser.isOfficial = true;
-            }
-        } else {
-            currentUser = {
+        });
+
+        // Set initial state
+        const userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) {
+             currentUser = {
                 id: user.uid,
                 name: user.displayName || user.email.split('@')[0],
                 email: user.email,
@@ -1435,19 +1552,20 @@ onAuthStateChanged(auth, async (user) => {
                 followers: [],
                 friends: [],
                 saved: [],
-                isOfficial: isOfficial,
+                isOfficial: (user.email === 'edulinkbht@gmail.com'),
                 settings: { privateNetwork: false }
             };
             await setDoc(userRef, currentUser);
+        } else {
+             // We get data from snapshot above, but set simple global for init
+             currentUser = { id: user.uid, ...userSnap.data() };
         }
-        
+
         currentUser.following = currentUser.following || [];
         currentUser.followers = currentUser.followers || [];
         currentUser.friends = currentUser.friends || [];
         currentUser.saved = currentUser.saved || [];
         currentUser.settings = currentUser.settings || { privateNetwork: false };
-
-        window.currentUser = currentUser;
         savedPosts = currentUser.saved;
 
         const params = new URLSearchParams(window.location.search);
@@ -1478,23 +1596,6 @@ function initRealtimeListeners() {
     onSnapshot(collection(db, "users"), (snapshot) => {
         users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-        // Update currentUser if it changed (e.g. settings updated from another session)
-        if(currentUser) {
-            const me = users.find(u => u.id === currentUser.id);
-            if(me) {
-                // If I just got banned, log me out
-                if(me.isBanned) {
-                    signOut(auth).then(() => {
-                        alert("You have been banned.");
-                        window.location.href = "index.html";
-                    });
-                    return;
-                }
-                currentUser = { ...currentUser, ...me };
-                updateUserInterface(); 
-            }
-        }
-
         const netView = document.getElementById('view-network');
         if(netView && !netView.classList.contains('hidden')) renderNetwork();
         
@@ -1957,30 +2058,123 @@ window.renderAdminPanel = function(searchTerm = "") {
                 <button onclick="toggleUserVerification('${u.id}', ${!isOfficial})" class="flex-1 md:flex-none justify-center flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${isOfficial ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}">
                     ${isOfficial ? 'Unverify' : 'Verify'}
                 </button>
-                <button onclick="toggleUserBan('${u.id}', ${!isBanned})" class="flex-1 md:flex-none justify-center flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${isBanned ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-red-50 text-red-600 hover:bg-red-100'}">
+                <button onclick="initiateBan('${u.id}', ${!isBanned})" class="flex-1 md:flex-none justify-center flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${isBanned ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-red-50 text-red-600 hover:bg-red-100'}">
                     ${isBanned ? 'Unban' : 'Ban'}
                 </button>
             </div>
         `;
         container.appendChild(div);
     });
-    refreshIcons();
+    // Ensure icons are rendered immediately after list population
+    setTimeout(refreshIcons, 10);
 }
 
 window.toggleUserVerification = async function(uid, status) {
     try {
         await updateDoc(doc(db, "users", uid), { isOfficial: status });
         showToast(status ? "User verified" : "User verification removed");
+        // Re-render admin panel to reflect changes and refresh icons
+        const input = document.querySelector('#view-admin input');
+        if(input) renderAdminPanel(input.value);
     } catch(e) { console.error(e); showToast("Error updating user", true); }
 }
 
-window.toggleUserBan = async function(uid, status) {
-    if(status && !confirm("Are you sure you want to ban this user? They will be logged out immediately.")) return;
-    try {
-        await updateDoc(doc(db, "users", uid), { isBanned: status });
-        showToast(status ? "User banned" : "User unbanned");
-    } catch(e) { console.error(e); showToast("Error updating user", true); }
+// --- NEW BAN FUNCTIONS ---
+
+window.initiateBan = function(uid, shouldBan) {
+    if (!shouldBan) {
+        // Unbanning is simple
+        showAlert("Unban this user? They will regain access immediately.", async () => {
+             try {
+                await updateDoc(doc(db, "users", uid), { isBanned: false, banReason: null, banExpires: null });
+                showToast("User unbanned");
+                const input = document.querySelector('#view-admin input');
+                if(input) renderAdminPanel(input.value);
+            } catch(e) { console.error(e); showToast("Error unbanning user", true); }
+        });
+    } else {
+        // Banning requires the modal
+        window.banTargetId = uid;
+        window.banType = 'perm'; // reset default
+        
+        // Reset Modal UI
+        document.getElementById('ban-reason').value = '';
+        document.getElementById('ban-date-input').value = '';
+        toggleBanType('perm');
+
+        // Show Modal
+        document.getElementById('ban-modal-overlay').classList.remove('hidden');
+        setTimeout(() => {
+            document.getElementById('ban-modal-overlay').classList.remove('opacity-0');
+            document.getElementById('ban-modal-box').classList.remove('scale-95');
+        }, 10);
+    }
 }
+
+window.closeBanModal = function() {
+    document.getElementById('ban-modal-overlay').classList.add('opacity-0');
+    document.getElementById('ban-modal-box').classList.add('scale-95');
+    setTimeout(() => {
+        document.getElementById('ban-modal-overlay').classList.add('hidden');
+        window.banTargetId = null;
+    }, 200);
+}
+
+window.toggleBanType = function(type) {
+    window.banType = type;
+    const btnPerm = document.getElementById('ban-type-perm');
+    const btnTemp = document.getElementById('ban-type-temp');
+    const dateArea = document.getElementById('ban-duration-area');
+
+    if (type === 'perm') {
+        btnPerm.classList.add('active');
+        btnTemp.classList.remove('active');
+        dateArea.classList.add('hidden');
+    } else {
+        btnTemp.classList.add('active');
+        btnPerm.classList.remove('active');
+        dateArea.classList.remove('hidden');
+    }
+}
+
+window.confirmBan = async function() {
+    const uid = window.banTargetId;
+    const reason = document.getElementById('ban-reason').value.trim();
+    
+    let banData = {
+        isBanned: true,
+        banReason: reason || "Violation of Community Guidelines"
+    };
+
+    if (window.banType === 'temp') {
+        const dateVal = document.getElementById('ban-date-input').value;
+        if (!dateVal) {
+            showToast("Please select a date/time for temporary ban", true);
+            return;
+        }
+        const expireDate = new Date(dateVal);
+        if (expireDate <= new Date()) {
+            showToast("Ban expiration must be in the future", true);
+            return;
+        }
+        banData.banExpires = Timestamp.fromDate(expireDate);
+    } else {
+        banData.banExpires = null; // Permanent
+    }
+
+    try {
+        await updateDoc(doc(db, "users", uid), banData);
+        showToast("User Banned Successfully");
+        closeBanModal();
+        const input = document.querySelector('#view-admin input');
+        if(input) renderAdminPanel(input.value);
+    } catch(e) {
+        console.error(e);
+        showToast("Error banning user", true);
+    }
+}
+
+// --- END BAN FUNCTIONS ---
 
 function createPostElement(post) {
     const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', isOfficial: false, id: post.authorId };

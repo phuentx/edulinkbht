@@ -1169,6 +1169,15 @@ Change
         </div>
     </div>
 
+    <!-- ADMIN VIEW -->
+    <div id="view-admin" class="flex-1 h-full overflow-y-auto p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
+        <h2 class="text-2xl font-bold mb-6 px-4 md:px-0 text-red-600 flex items-center gap-2"><i data-lucide="shield-alert"></i> Admin Console</h2>
+        <div class="px-4 md:px-0">
+            <input type="text" placeholder="Search users..." onkeyup="renderAdminPanel(this.value)" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 mb-6 outline-none focus:ring-2 focus:ring-red-100">
+            <div id="admin-users-list" class="space-y-3"></div>
+        </div>
+    </div>
+
     <!-- EVENTS VIEW -->
     <div id="view-events" class="flex-1 h-full overflow-y-auto p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
         <div class="flex items-center justify-between mb-6 px-4 md:px-0">
@@ -1403,7 +1412,14 @@ onAuthStateChanged(auth, async (user) => {
         if(user.email === 'edulinkbht@gmail.com') { isOfficial = true; }
 
         if (userSnap.exists()) {
-            currentUser = { id: user.uid, ...userSnap.data() };
+            const data = userSnap.data();
+            if(data.isBanned) {
+                await signOut(auth);
+                alert("Your account has been banned by an administrator.");
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = { id: user.uid, ...data };
             if(isOfficial && !currentUser.isOfficial) {
                 await updateDoc(userRef, { isOfficial: true });
                 currentUser.isOfficial = true;
@@ -1466,6 +1482,14 @@ function initRealtimeListeners() {
         if(currentUser) {
             const me = users.find(u => u.id === currentUser.id);
             if(me) {
+                // If I just got banned, log me out
+                if(me.isBanned) {
+                    signOut(auth).then(() => {
+                        alert("You have been banned.");
+                        window.location.href = "index.html";
+                    });
+                    return;
+                }
                 currentUser = { ...currentUser, ...me };
                 updateUserInterface(); 
             }
@@ -1483,6 +1507,13 @@ function initRealtimeListeners() {
         const feedView = document.getElementById('view-feed');
         if(feedView && !feedView.classList.contains('hidden')) {
              renderFeed();
+        }
+
+        // Refresh admin panel if open
+        const adminView = document.getElementById('view-admin');
+        if(adminView && !adminView.classList.contains('hidden')) {
+            const searchVal = adminView.querySelector('input').value;
+            renderAdminPanel(searchVal);
         }
 
         if(!document.getElementById('view-chat').classList.contains('hidden')) { renderChatList(); }
@@ -1644,6 +1675,15 @@ function updateUserInterface() {
             adminLink.onclick = function() { switchView('announcements'); return false; };
             nav.appendChild(adminLink);
         }
+        if(!document.getElementById('nav-admin')) {
+            const adminLink = document.createElement('a');
+            adminLink.href = "#";
+            adminLink.id = "nav-admin";
+            adminLink.className = "nav-item text-red-600";
+            adminLink.innerHTML = `<i data-lucide="shield-alert" class="w-5 h-5"></i> <span class="hidden lg:block">Admin</span>`;
+            adminLink.onclick = function() { switchView('admin'); return false; };
+            nav.appendChild(adminLink);
+        }
     }
     refreshIcons();
 }
@@ -1723,7 +1763,7 @@ window.togglePrivacy = async function() {
 }
 
 window.switchView = function(viewName) {
-    const views = ['feed', 'events', 'saved', 'network', 'profile', 'chat', 'explore', 'notifications', 'announcements'];
+    const views = ['feed', 'events', 'saved', 'network', 'profile', 'chat', 'explore', 'notifications', 'announcements', 'admin'];
     views.forEach(v => {
         const el = document.getElementById(`view-${v}`);
         if(el) el.classList.add('hidden');
@@ -1790,6 +1830,9 @@ window.switchView = function(viewName) {
         if(document.getElementById('notification-list').children.length === 0) renderNotifications();
     } else if (viewName === 'announcements') {
         const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
+    } else if (viewName === 'admin') {
+        const nav = document.getElementById('nav-admin'); if(nav) nav.classList.add('active');
+        renderAdminPanel();
     }
     // Ensures icons re-render immediately after view switch just in case
     setTimeout(refreshIcons, 10);
@@ -1878,6 +1921,65 @@ window.renderFeed = function(filterTerm = "") {
 
     displayPosts.forEach(post => container.appendChild(createPostElement(post)));
     refreshIcons();
+}
+
+window.renderAdminPanel = function(searchTerm = "") {
+    const container = document.getElementById('admin-users-list');
+    if(!container) return;
+    container.innerHTML = "";
+    
+    let displayUsers = users.filter(u => u.id !== currentUser.id);
+    if(searchTerm) {
+        displayUsers = displayUsers.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+
+    if(displayUsers.length === 0) {
+        container.innerHTML = `<div class="text-center text-gray-400 py-4">No users found.</div>`;
+        return;
+    }
+
+    displayUsers.forEach(u => {
+        const div = document.createElement('div');
+        div.className = "flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-white border border-gray-200 rounded-xl gap-4 shadow-sm";
+        const isBanned = u.isBanned || false;
+        const isOfficial = u.isOfficial || false;
+        
+        div.innerHTML = `
+            <div class="flex items-center gap-3">
+                <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                <div>
+                    <div class="font-bold text-sm text-gray-900">${u.name} ${isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>' : ''} ${isBanned ? '<span class="text-red-500 text-[10px] uppercase font-bold bg-red-50 px-1 rounded">Banned</span>' : ''}</div>
+                    <div class="text-xs text-gray-500">${u.email}</div>
+                    <div class="text-[10px] text-gray-400">ID: ${u.id}</div>
+                </div>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto">
+                <button onclick="toggleUserVerification('${u.id}', ${!isOfficial})" class="flex-1 md:flex-none justify-center flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${isOfficial ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}">
+                    ${isOfficial ? 'Unverify' : 'Verify'}
+                </button>
+                <button onclick="toggleUserBan('${u.id}', ${!isBanned})" class="flex-1 md:flex-none justify-center flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${isBanned ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-red-50 text-red-600 hover:bg-red-100'}">
+                    ${isBanned ? 'Unban' : 'Ban'}
+                </button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+    refreshIcons();
+}
+
+window.toggleUserVerification = async function(uid, status) {
+    try {
+        await updateDoc(doc(db, "users", uid), { isOfficial: status });
+        showToast(status ? "User verified" : "User verification removed");
+    } catch(e) { console.error(e); showToast("Error updating user", true); }
+}
+
+window.toggleUserBan = async function(uid, status) {
+    if(status && !confirm("Are you sure you want to ban this user? They will be logged out immediately.")) return;
+    try {
+        await updateDoc(doc(db, "users", uid), { isBanned: status });
+        showToast(status ? "User banned" : "User unbanned");
+    } catch(e) { console.error(e); showToast("Error updating user", true); }
 }
 
 function createPostElement(post) {
@@ -3017,6 +3119,65 @@ window.toggleWebSearch = function() { showToast("Web search enabled (simulation)
 window.toggleIdeaMode = function() { showToast("Idea mode enabled"); window.isIdeaMode = !window.isIdeaMode; };
 window.pinPost = function(pid, author) { window.currentContext = `Context: Post by ${author}`; document.getElementById('ai-context-chip').classList.remove('hidden'); document.getElementById('ai-context-text').innerText = `Post by ${author}`; showToast("Added to Newton context"); };
 window.clearContext = function() { window.currentContext = ""; document.getElementById('ai-context-chip').classList.add('hidden'); };
+
+window.renderAdminPanel = function(searchTerm = "") {
+    const container = document.getElementById('admin-users-list');
+    if(!container) return;
+    container.innerHTML = "";
+    
+    let displayUsers = users.filter(u => u.id !== currentUser.id);
+    if(searchTerm) {
+        displayUsers = displayUsers.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+
+    if(displayUsers.length === 0) {
+        container.innerHTML = `<div class="text-center text-gray-400 py-4">No users found.</div>`;
+        return;
+    }
+
+    displayUsers.forEach(u => {
+        const div = document.createElement('div');
+        div.className = "flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-white border border-gray-200 rounded-xl gap-4 shadow-sm";
+        const isBanned = u.isBanned || false;
+        const isOfficial = u.isOfficial || false;
+        
+        div.innerHTML = `
+            <div class="flex items-center gap-3">
+                <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                <div>
+                    <div class="font-bold text-sm text-gray-900">${u.name} ${isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>' : ''} ${isBanned ? '<span class="text-red-500 text-[10px] uppercase font-bold bg-red-50 px-1 rounded">Banned</span>' : ''}</div>
+                    <div class="text-xs text-gray-500">${u.email}</div>
+                    <div class="text-[10px] text-gray-400">ID: ${u.id}</div>
+                </div>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto">
+                <button onclick="toggleUserVerification('${u.id}', ${!isOfficial})" class="flex-1 md:flex-none justify-center flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${isOfficial ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}">
+                    ${isOfficial ? 'Unverify' : 'Verify'}
+                </button>
+                <button onclick="toggleUserBan('${u.id}', ${!isBanned})" class="flex-1 md:flex-none justify-center flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${isBanned ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-red-50 text-red-600 hover:bg-red-100'}">
+                    ${isBanned ? 'Unban' : 'Ban'}
+                </button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+    refreshIcons();
+}
+
+window.toggleUserVerification = async function(uid, status) {
+    try {
+        await updateDoc(doc(db, "users", uid), { isOfficial: status });
+        showToast(status ? "User verified" : "User verification removed");
+    } catch(e) { console.error(e); showToast("Error updating user", true); }
+}
+
+window.toggleUserBan = async function(uid, status) {
+    if(status && !confirm("Are you sure you want to ban this user? They will be logged out immediately.")) return;
+    try {
+        await updateDoc(doc(db, "users", uid), { isBanned: status });
+        showToast(status ? "User banned" : "User unbanned");
+    } catch(e) { console.error(e); showToast("Error updating user", true); }
+}
 
 refreshIcons();
 </script>

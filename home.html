@@ -245,7 +245,7 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.share-btn:hover { background-color: #dbeafe; }
 
 /* --- COMPOSE & CREATE MENUS --- */
-#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #ban-modal-box {
+#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #ban-modal-box, #reply-thread-overlay {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
 }
@@ -837,6 +837,25 @@ position: relative;
 <div id="lightbox" class="fixed inset-0 bg-black/95 z-[9999] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300" onclick="closeLightbox()">
 <button class="absolute top-8 right-8 text-white/70 hover:text-white bg-white/10 rounded-full p-3 hover:bg-white/20"><i data-lucide="x" class="w-8 h-8"></i></button>
 <div id="lightbox-wrapper" class="w-full h-full flex justify-center items-center p-6"></div>
+</div>
+
+<!-- REPLY THREAD OVERLAY -->
+<div id="reply-thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeReplyThread()"></div>
+    <div class="bg-white w-full md:w-[500px] h-[85vh] md:h-[70vh] md:rounded-2xl rounded-t-2xl shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in">
+        <div class="h-14 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white z-10">
+            <h3 class="font-bold text-lg text-[#1f1f1f]">Thread</h3>
+            <button onclick="closeReplyThread()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div id="reply-thread-content" class="flex-1 overflow-y-auto bg-white"></div>
+        <div class="p-3 border-t border-gray-100 bg-white shrink-0">
+             <div class="flex gap-3 items-center bg-gray-50 rounded-2xl p-2 border border-gray-200 focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all">
+                <img id="reply-input-avatar" src="" class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 shrink-0">
+                <input id="reply-thread-input" type="text" placeholder="Reply to this thread..." class="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder-gray-500">
+                <button onclick="submitReplyInThread()" class="text-blue-600 font-bold text-sm px-3 hover:bg-blue-50 rounded-full py-1 transition-colors">Send</button>
+             </div>
+        </div>
+    </div>
 </div>
 
 <div id="toast" class="toast">
@@ -1442,8 +1461,9 @@ let chatPartners = new Set();
 window.replyingToCommentId = null; 
 window.replyingToMessageId = null;
 window.currentViewingProfileId = null;
-window.activeExploreTab = 'people'; // New: Explore Tab State
-window.isAdminMode = false; // Admin Mode Toggle
+window.activeExploreTab = 'people'; 
+window.isAdminMode = false; 
+window.currentThreadCommentId = null;
 
 // Global Vars for App Logic
 window.currentContext = "";
@@ -1465,7 +1485,7 @@ let currentBannerBlob = null;
 
 // New Global Vars for Ban Feature
 window.banTargetId = null;
-window.banType = 'perm'; // 'perm' or 'temp'
+window.banType = 'perm'; 
 
 // Helper: Reliable Icon Refresh
 function refreshIcons() {
@@ -1679,6 +1699,11 @@ function initRealtimeListeners() {
                          
                          // Re-render comments list to show new/deleted comments
                          renderCommentsInModal(pid);
+
+                         // Re-render thread overlay if open
+                         if(window.currentThreadCommentId && !document.getElementById('reply-thread-overlay').classList.contains('hidden')) {
+                             renderReplyThreadContent(window.currentThreadCommentId);
+                         }
                     }
                     // Do NOT set shouldFullRender to true here.
                 }
@@ -1766,6 +1791,7 @@ function updateUserInterface() {
     const edBio = document.getElementById('edit-bio'); if(edBio) edBio.value = currentUser.bio;
     const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = currentUser.avatar;
     const edBanner = document.getElementById('edit-banner-link'); if(edBanner) edBanner.value = currentUser.banner || '';
+    const replyAv = document.getElementById('reply-input-avatar'); if(replyAv) replyAv.src = currentUser.avatar;
     
     const bannerPos = currentUser.bannerPos || 50;
     const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
@@ -3027,6 +3053,7 @@ window.closePostView = function() {
     document.getElementById('post-view-overlay').classList.add('hidden');
     window.currentViewingPostId = null;
     window.replyingToCommentId = null;
+    closeReplyThread(); // Ensure nested overlay is also closed
 }
 
 function renderCommentsInModal(postId) {
@@ -3036,6 +3063,7 @@ function renderCommentsInModal(postId) {
     const containerMobile = document.getElementById('comments-list-mobile');
     let html = '';
     if(post.comments) {
+        // Only top level comments
         const topLevel = post.comments.filter(c => !c.parentId);
         topLevel.forEach(c => { html += createCommentHTML(c, post.comments, postId); });
     }
@@ -3044,7 +3072,8 @@ function renderCommentsInModal(postId) {
     refreshIcons();
 }
 
-function createCommentHTML(c, allComments, postId) {
+// Function to generate HTML for a SINGLE comment item (used in main list and thread view)
+function createSingleCommentHTML(c, postId, isReplyContext = false) {
     const cAuthor = users.find(u => u.id === c.authorId) || { name: 'Unknown', avatar: '' };
     const isLiked = c.likes && c.likes.includes(currentUser.id);
     const likeCount = c.likes ? c.likes.length : 0;
@@ -3052,84 +3081,159 @@ function createCommentHTML(c, allComments, postId) {
     const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
     const canDelete = isMyComment || isAdmin;
     
-    const replies = allComments.filter(r => r.parentId === c.id);
-    let html = `<div class="p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group">
-        <div class="flex gap-3">
-            <img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')">
-            <div class="flex-1">
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="font-bold text-sm text-gray-900">${cAuthor.name}</span>
-                    <span class="text-xs text-gray-500">• Now</span>
-                </div>
-                <p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p>
-                <div class="flex items-center gap-4 mt-2">
-                    <button id="comment-like-btn-${c.id}" onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> <span id="comment-like-count-${c.id}">${likeCount || ''}</span></button>
-                    <button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>
-                    ${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}
-                </div>`;
+    // Style adjustments for nested context vs main list
+    const containerClass = isReplyContext ? "flex gap-3 pt-2 group pl-4 border-l-2 border-gray-100" : "flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group";
+    const avatarSize = isReplyContext ? "w-8 h-8" : "w-9 h-9";
+    const textSize = isReplyContext ? "text-[13px]" : "text-[14px]";
+
+    return `
+    <div class="${containerClass}">
+        <img src="${cAuthor.avatar}" class="${avatarSize} rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')">
+        <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="font-bold text-sm text-gray-900">${cAuthor.name}</span>
+                <span class="text-xs text-gray-500">• Now</span>
+            </div>
+            <p class="${textSize} text-gray-800 leading-relaxed">${c.content}</p>
+            <div class="flex items-center gap-4 mt-2">
+                <button id="comment-like-btn-${c.id}" onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> <span id="comment-like-count-${c.id}">${likeCount || ''}</span></button>
+                <button onclick="openReplyThread('${c.id}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>
+                ${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}
+            </div>
+        </div>
+    </div>`;
+}
+
+function createCommentHTML(c, allComments, postId) {
+    // This function generates the main list item. 
+    // It uses createSingleCommentHTML for the comment itself, then appends the "View replies" button if needed.
+    let html = createSingleCommentHTML(c, postId, false);
     
-    if (replies.length > 0) {
-        html += `<div class="mt-3 ml-2">
-                    <button onclick="event.stopPropagation(); toggleReplies('${c.id}')" class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-2 group">
-                        <div class="w-6 h-[1px] bg-blue-200 group-hover:bg-blue-400"></div> 
-                        <span id="reply-btn-text-${c.id}">View ${replies.length} replies</span>
-                    </button>
-                </div>
-                <div id="replies-${c.id}" class="hidden flex flex-col gap-3 mt-3 ml-4 border-l-2 border-gray-100 pl-4">`;
-        
-        replies.forEach(r => {
-            const rAuthor = users.find(u => u.id === r.authorId) || { name: 'Unknown', avatar: '' };
-            const rLiked = r.likes && r.likes.includes(currentUser.id);
-            const rLikeCount = r.likes ? r.likes.length : 0;
-            const isMyReply = r.authorId === currentUser.id;
-            const canDeleteReply = isMyReply || isAdmin;
-            html += `<div class="flex gap-3 pt-2 group">
-                        <img src="${rAuthor.avatar}" class="w-6 h-6 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${r.authorId}')">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="font-bold text-xs text-gray-900">${rAuthor.name}</span>
-                            </div>
-                            <p class="text-[13px] text-gray-800 leading-relaxed">${r.content}</p>
-                            <div class="flex items-center gap-4 mt-1">
-                                <button id="comment-like-btn-${r.id}" onclick="toggleCommentLike('${postId}', '${r.id}')" class="text-xs font-medium flex items-center gap-1 ${rLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${rLiked ? 'fill-red-500' : ''}"></i> <span id="comment-like-count-${r.id}">${rLikeCount || ''}</span></button>
-                                ${canDeleteReply ? `<button onclick="deleteComment('${postId}', '${r.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}
-                            </div>
-                        </div>
-                    </div>`;
-        });
-        html += `</div>`;
+    const repliesCount = allComments.filter(r => r.parentId === c.id).length;
+    
+    if (repliesCount > 0) {
+        // Insert the button before the closing div of the main container.
+        // Since createSingleCommentHTML returns a string closing with </div>, we append to it differently or wrap it.
+        // Easier way: string manipulation or just append a div below.
+        html += `<div class="pl-14 pb-2 -mt-2 border-b border-gray-50">
+            <button onclick="event.stopPropagation(); openReplyThread('${c.id}')" class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-2 group">
+                <div class="w-6 h-[1px] bg-blue-200 group-hover:bg-blue-400"></div> 
+                <span>View ${repliesCount} replies</span>
+            </button>
+        </div>`;
     }
-    
-    html += `</div></div></div>`;
     return html;
 }
 
-window.toggleReplies = function(commentId) {
-    const el = document.getElementById(`replies-${commentId}`);
-    const btnText = document.getElementById(`reply-btn-text-${commentId}`);
-    if (el) {
-        if(el.classList.contains('hidden')) {
-            el.classList.remove('hidden');
-            if(btnText) btnText.innerText = "Hide replies";
-        } else {
-            el.classList.add('hidden');
-            if(btnText) {
-                // We need to count children divs inside the replies container
-                const count = el.querySelectorAll('.group').length; 
-                btnText.innerText = `View ${count} replies`;
-            }
-        }
-        refreshIcons();
+// --- THREAD OVERLAY LOGIC ---
+
+window.openReplyThread = function(commentId) {
+    const postId = window.currentViewingPostId;
+    const post = posts.find(p => p.id === postId);
+    if(!post) return;
+    
+    // Find the comment. It might be a top-level comment OR a reply (if clicking Reply on a reply)
+    // Actually, threading is usually 1 level deep in UI here. Let's find the 'root' of this thread interaction.
+    // If commentId is a reply, we should probably open the parent's thread? 
+    // For simplicity: We open the thread for the commentId clicked. If it was a top level comment, we see its replies.
+    // If it was a reply, we treat it as a parent for new replies (infinite nesting structure in DB, flattened in UI usually).
+    
+    const comment = post.comments.find(c => c.id === commentId);
+    if(!comment) return;
+
+    window.currentThreadCommentId = commentId; // Track which thread is open
+
+    renderReplyThreadContent(commentId);
+    
+    document.getElementById('reply-thread-overlay').classList.remove('hidden');
+    refreshIcons();
+}
+
+window.closeReplyThread = function() {
+    document.getElementById('reply-thread-overlay').classList.add('hidden');
+    window.currentThreadCommentId = null;
+}
+
+window.renderReplyThreadContent = function(commentId) {
+    const postId = window.currentViewingPostId;
+    const post = posts.find(p => p.id === postId);
+    if(!post) return;
+    const comment = post.comments.find(c => c.id === commentId);
+    if(!comment) return;
+
+    const contentDiv = document.getElementById('reply-thread-content');
+    
+    // Parent Comment (The "OP" of this thread)
+    let html = `<div class="p-4 border-b border-gray-100 bg-gray-50/30">
+        ${createSingleCommentHTML(comment, postId, false).replace('border-b border-gray-50', '')} 
+    </div>`;
+    
+    // Replies
+    const replies = post.comments.filter(r => r.parentId === commentId);
+    html += `<div class="p-4 space-y-4">`;
+    
+    if(replies.length === 0) {
+        html += `<div class="text-center text-gray-400 text-sm py-4 italic">No replies yet. Be the first!</div>`;
+    } else {
+        replies.forEach(r => {
+            html += createSingleCommentHTML(r, postId, true);
+        });
     }
+    html += `</div>`;
+    
+    contentDiv.innerHTML = html;
+    refreshIcons();
+}
+
+window.submitReplyInThread = async function() {
+    const input = document.getElementById('reply-thread-input');
+    const txt = input.value.trim();
+    if(!txt || !window.currentViewingPostId || !window.currentThreadCommentId) return;
+    
+    const postRef = doc(db, "posts", window.currentViewingPostId);
+    const commentId = "c-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
+    
+    const newReply = { 
+        id: commentId, 
+        authorId: currentUser.id, 
+        content: txt, 
+        timestamp: Date.now(), 
+        likes: [], 
+        parentId: window.currentThreadCommentId 
+    };
+    
+    await updateDoc(postRef, { comments: arrayUnion(newReply) });
+    
+    // Notify parent comment author
+    const post = posts.find(p => p.id === window.currentViewingPostId);
+    const parentComment = post.comments.find(c => c.id === window.currentThreadCommentId);
+    if(parentComment && parentComment.authorId !== currentUser.id) {
+        sendNotification(parentComment.authorId, 'reply', 'replied to your comment', window.currentViewingPostId);
+    }
+    
+    input.value = "";
+    // renderReplyThreadContent is called automatically by onSnapshot listener when data changes
 }
 
 window.deleteComment = async function(postId, commentId) {
     showAlert("Delete this comment?", async () => {
         const postRef = doc(db, "posts", postId);
         const post = posts.find(p => p.id === postId);
-        const updatedComments = post.comments.filter(c => c.id !== commentId && c.parentId !== commentId);
+        // Recursive delete: remove comment and any replies to it
+        const idsToDelete = [commentId];
+        // Find children
+        post.comments.forEach(c => {
+            if(c.parentId === commentId) idsToDelete.push(c.id);
+        });
+        
+        const updatedComments = post.comments.filter(c => !idsToDelete.includes(c.id));
         await updateDoc(postRef, { comments: updatedComments });
         showToast("Comment deleted");
+        
+        // If we deleted the main comment of the thread view, close it
+        if(window.currentThreadCommentId === commentId) {
+            closeReplyThread();
+        }
     });
 }
 
@@ -3169,10 +3273,9 @@ window.toggleCommentLike = async function(postId, commentId) {
 }
 
 window.replyToComment = function(commentId, username) {
-    const input = document.getElementById('comment-input-desktop');
-    input.value = `@${username} `;
-    input.focus();
-    window.replyingToCommentId = commentId;
+    // Legacy function used by "Reply" text button in main list
+    // Now redirects to open the thread overlay for better UX
+    openReplyThread(commentId);
 }
 
 window.submitCommentDesktop = async function() {
@@ -3180,15 +3283,11 @@ window.submitCommentDesktop = async function() {
     if(!txt || !window.currentViewingPostId) return;
     const postRef = doc(db, "posts", window.currentViewingPostId);
     const commentId = "c-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
-    const newComment = { id: commentId, authorId: currentUser.id, content: txt, timestamp: Date.now(), likes: [], parentId: window.replyingToCommentId };
+    const newComment = { id: commentId, authorId: currentUser.id, content: txt, timestamp: Date.now(), likes: [], parentId: null }; // Top level
     await updateDoc(postRef, { comments: arrayUnion(newComment) });
     const post = posts.find(p => p.id === window.currentViewingPostId);
-    if (window.replyingToCommentId) {
-        const parentComment = post.comments.find(c => c.id === window.replyingToCommentId);
-        if (parentComment && parentComment.authorId !== currentUser.id) sendNotification(parentComment.authorId, 'reply', 'replied to your comment', window.currentViewingPostId);
-    } else if(post && post.authorId !== currentUser.id) { sendNotification(post.authorId, 'comment', 'commented on your post', window.currentViewingPostId); }
+    if(post && post.authorId !== currentUser.id) { sendNotification(post.authorId, 'comment', 'commented on your post', window.currentViewingPostId); }
     document.getElementById('comment-input-desktop').value = "";
-    window.replyingToCommentId = null;
 }
 
 window.promptForImageLink = function() {

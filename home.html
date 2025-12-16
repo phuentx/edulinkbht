@@ -1478,6 +1478,13 @@ function initRealtimeListeners() {
         if(profileView && !profileView.classList.contains('hidden') && window.currentViewingProfileId) {
              showProfile(window.currentViewingProfileId);
         }
+        
+        // Refresh feed if needed (e.g. privacy or follow changes)
+        const feedView = document.getElementById('view-feed');
+        if(feedView && !feedView.classList.contains('hidden')) {
+             renderFeed();
+        }
+
         if(!document.getElementById('view-chat').classList.contains('hidden')) { renderChatList(); }
         refreshIcons();
     });
@@ -1487,11 +1494,6 @@ function initRealtimeListeners() {
     onSnapshot(qPosts, { includeMetadataChanges: true }, (snapshot) => {
         // Update global posts data
         posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
-        
-        // If there are pending writes (local changes like "Like"), skip re-render completely to avoid flicker
-        if (snapshot.metadata.hasPendingWrites) {
-            return;
-        }
         
         // Targeted Update Logic: Check what changed
         const changes = snapshot.docChanges();

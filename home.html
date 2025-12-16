@@ -1510,6 +1510,12 @@ function initRealtimeListeners() {
                     if(commentCountEl) {
                         commentCountEl.innerText = p.comments ? p.comments.length : 0;
                     }
+                    
+                    // Update Overlay if open
+                    if (window.currentViewingPostId === pid) {
+                         const overlayCount = document.getElementById(`overlay-like-count-${pid}`);
+                         if(overlayCount) overlayCount.innerText = p.likes ? p.likes.length : 0;
+                    }
                     // Do NOT set shouldFullRender to true here.
                 }
             });
@@ -1927,33 +1933,57 @@ function createPostElement(post) {
 }
 
 window.toggleLike = async function(postId) {
+    // 1. Update Feed Button
     const btn = document.getElementById(`like-btn-${postId}`);
     const countSpan = document.getElementById(`like-count-${postId}`);
     
+    // 2. Update Overlay Button (if open)
+    const overlayBtn = document.getElementById(`overlay-like-btn-${postId}`);
+    const overlayCount = document.getElementById(`overlay-like-count-${postId}`);
+
+    let isLiked = false;
+
+    // Check current state from DOM (feed button as source of truth)
     if(btn) {
         const icon = btn.querySelector('svg') || btn.querySelector('i');
-        let isLiked = false;
-        
         if (icon.tagName === 'svg') isLiked = icon.classList.contains('text-red-500');
         else isLiked = icon.classList.contains('text-red-500');
-
-        if (isLiked) {
-            icon.classList.remove('fill-red-500', 'text-red-500');
-            if(countSpan) {
-                const current = parseInt(countSpan.innerText) || 0;
-                countSpan.innerText = Math.max(0, current - 1);
-            }
-        } else {
-            icon.classList.add('fill-red-500', 'text-red-500');
-            if(countSpan) {
-                const current = parseInt(countSpan.innerText) || 0;
-                countSpan.innerText = current + 1;
-            }
-        }
     }
 
+    // Toggle logic function
+    const updateButtonUI = (button, counter, liked) => {
+        if(!button) return;
+        const icon = button.querySelector('svg') || button.querySelector('i');
+        
+        if (liked) {
+            // Make unliked
+            icon.classList.remove('fill-red-500', 'text-red-500');
+            button.classList.remove('text-red-500');
+            button.classList.add('text-gray-500', 'hover:text-gray-800'); // restore hover
+            if(counter) {
+                const current = parseInt(counter.innerText) || 0;
+                counter.innerText = Math.max(0, current - 1);
+            }
+        } else {
+            // Make liked
+            icon.classList.add('fill-red-500', 'text-red-500');
+            button.classList.add('text-red-500');
+            button.classList.remove('text-gray-500', 'hover:text-gray-800');
+            if(counter) {
+                const current = parseInt(counter.innerText) || 0;
+                counter.innerText = current + 1;
+            }
+        }
+    };
+
+    // Apply to both
+    updateButtonUI(btn, countSpan, isLiked);
+    updateButtonUI(overlayBtn, overlayCount, isLiked);
+
+    // Database Update
     const postRef = doc(db, "posts", postId);
     const post = posts.find(p => p.id === postId);
+    
     if(post.likes && post.likes.includes(currentUser.id)) {
         await updateDoc(postRef, { likes: arrayRemove(currentUser.id) });
     } else {
@@ -2670,7 +2700,11 @@ window.openPostView = function(postId) {
     const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
     const overlayContent = document.getElementById('injected-post');
     const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
-    overlayContent.innerHTML = `<div class="flex gap-4 items-center mb-6"><img src="${author.avatar}" class="w-12 h-12 rounded-full border border-gray-200 cursor-pointer object-cover" onclick="showProfile('${author.id}')"><div><h3 class="font-bold text-[#1f1f1f] text-[16px]">${author.name}</h3><div class="text-xs text-[#667085] font-medium">${formatDate(post.timestamp)}</div></div></div><div class="text-[#1f1f1f] text-[16px] leading-relaxed">${tagsHTML}</div><div class="flex gap-6 mt-6 pt-6 border-t border-gray-100 text-sm text-gray-500 font-medium select-none"><button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="heart" class="w-4 h-4"></i> ${post.likes ? post.likes.length : 0} Likes</button><button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="message-square" class="w-4 h-4"></i> ${post.comments ? post.comments.length : 0} Comments</button></div>`;
+    
+    // Check if user liked post
+    const isLiked = post.likes ? post.likes.includes(currentUser.id) : false;
+
+    overlayContent.innerHTML = `<div class="flex gap-4 items-center mb-6"><img src="${author.avatar}" class="w-12 h-12 rounded-full border border-gray-200 cursor-pointer object-cover" onclick="showProfile('${author.id}')"><div><h3 class="font-bold text-[#1f1f1f] text-[16px]">${author.name}</h3><div class="text-xs text-[#667085] font-medium">${formatDate(post.timestamp)}</div></div></div><div class="text-[#1f1f1f] text-[16px] leading-relaxed">${tagsHTML}</div><div class="flex gap-6 mt-6 pt-6 border-t border-gray-100 text-sm text-gray-500 font-medium select-none"><button id="overlay-like-btn-${post.id}" onclick="toggleLike('${post.id}')" class="flex items-center gap-2 transition-colors ${isLiked ? 'text-red-500' : 'hover:text-gray-800'}"><i data-lucide="heart" class="w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i> <span id="overlay-like-count-${post.id}">${post.likes ? post.likes.length : 0}</span> Likes</button><button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="message-square" class="w-4 h-4"></i> ${post.comments ? post.comments.length : 0} Comments</button></div>`;
     window.currentViewingPostId = postId;
     
     const allowComments = post.settings?.allowComments !== false; 

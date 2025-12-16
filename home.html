@@ -1461,6 +1461,16 @@ onAuthStateChanged(auth, async (user) => {
 function initRealtimeListeners() {
     onSnapshot(collection(db, "users"), (snapshot) => {
         users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // Update currentUser if it changed (e.g. settings updated from another session)
+        if(currentUser) {
+            const me = users.find(u => u.id === currentUser.id);
+            if(me) {
+                currentUser = { ...currentUser, ...me };
+                updateUserInterface(); 
+            }
+        }
+
         const netView = document.getElementById('view-network');
         if(netView && !netView.classList.contains('hidden')) renderNetwork();
         
@@ -1513,8 +1523,14 @@ function initRealtimeListeners() {
                     
                     // Update Overlay if open
                     if (window.currentViewingPostId === pid) {
-                         const overlayCount = document.getElementById(`overlay-like-count-${pid}`);
-                         if(overlayCount) overlayCount.innerText = p.likes ? p.likes.length : 0;
+                         const overlayLikeCount = document.getElementById(`overlay-like-count-${pid}`);
+                         if(overlayLikeCount) overlayLikeCount.innerText = p.likes ? p.likes.length : 0;
+
+                         const overlayCommentCount = document.getElementById(`overlay-comment-count-${pid}`);
+                         if(overlayCommentCount) overlayCommentCount.innerText = p.comments ? p.comments.length : 0;
+                         
+                         // Re-render comments list to show new/deleted comments
+                         renderCommentsInModal(pid);
                     }
                     // Do NOT set shouldFullRender to true here.
                 }
@@ -2704,7 +2720,7 @@ window.openPostView = function(postId) {
     // Check if user liked post
     const isLiked = post.likes ? post.likes.includes(currentUser.id) : false;
 
-    overlayContent.innerHTML = `<div class="flex gap-4 items-center mb-6"><img src="${author.avatar}" class="w-12 h-12 rounded-full border border-gray-200 cursor-pointer object-cover" onclick="showProfile('${author.id}')"><div><h3 class="font-bold text-[#1f1f1f] text-[16px]">${author.name}</h3><div class="text-xs text-[#667085] font-medium">${formatDate(post.timestamp)}</div></div></div><div class="text-[#1f1f1f] text-[16px] leading-relaxed">${tagsHTML}</div><div class="flex gap-6 mt-6 pt-6 border-t border-gray-100 text-sm text-gray-500 font-medium select-none"><button id="overlay-like-btn-${post.id}" onclick="toggleLike('${post.id}')" class="flex items-center gap-2 transition-colors ${isLiked ? 'text-red-500' : 'hover:text-gray-800'}"><i data-lucide="heart" class="w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i> <span id="overlay-like-count-${post.id}">${post.likes ? post.likes.length : 0}</span> Likes</button><button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="message-square" class="w-4 h-4"></i> ${post.comments ? post.comments.length : 0} Comments</button></div>`;
+    overlayContent.innerHTML = `<div class="flex gap-4 items-center mb-6"><img src="${author.avatar}" class="w-12 h-12 rounded-full border border-gray-200 cursor-pointer object-cover" onclick="showProfile('${author.id}')"><div><h3 class="font-bold text-[#1f1f1f] text-[16px]">${author.name}</h3><div class="text-xs text-[#667085] font-medium">${formatDate(post.timestamp)}</div></div></div><div class="text-[#1f1f1f] text-[16px] leading-relaxed">${tagsHTML}</div><div class="flex gap-6 mt-6 pt-6 border-t border-gray-100 text-sm text-gray-500 font-medium select-none"><button id="overlay-like-btn-${post.id}" onclick="toggleLike('${post.id}')" class="flex items-center gap-2 transition-colors ${isLiked ? 'text-red-500' : 'hover:text-gray-800'}"><i data-lucide="heart" class="w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i> <span id="overlay-like-count-${post.id}">${post.likes ? post.likes.length : 0}</span> Likes</button><button class="flex items-center gap-2 hover:text-gray-800 transition-colors"><i data-lucide="message-square" class="w-4 h-4"></i> <span id="overlay-comment-count-${post.id}">${post.comments ? post.comments.length : 0}</span> Comments</button></div>`;
     window.currentViewingPostId = postId;
     
     const allowComments = post.settings?.allowComments !== false; 

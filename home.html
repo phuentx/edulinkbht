@@ -245,7 +245,8 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.share-btn:hover { background-color: #dbeafe; }
 
 /* --- COMPOSE & CREATE MENUS --- */
-#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #ban-modal-box, #reply-thread-overlay {
+/* Fixed: Removed full-screen overlay IDs from border application */
+#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #ban-modal-box {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
 }
@@ -842,7 +843,7 @@ position: relative;
 <!-- REPLY THREAD OVERLAY -->
 <div id="reply-thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeReplyThread()"></div>
-    <div class="bg-white w-full md:w-[500px] h-[85vh] md:h-[70vh] md:rounded-2xl rounded-t-2xl shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in">
+    <div class="bg-white w-full md:w-[500px] h-[85vh] md:h-[70vh] md:rounded-2xl rounded-t-2xl shadow-2xl border border-[#eaecf0] relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in">
         <div class="h-14 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white z-10">
             <h3 class="font-bold text-lg text-[#1f1f1f]">Thread</h3>
             <button onclick="closeReplyThread()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -864,7 +865,7 @@ position: relative;
 
 <!-- LIKES OVERLAY -->
 <div id="likes-overlay" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm hidden" onclick="closeLikes()">
-    <div class="bg-white w-[90%] max-w-[400px] rounded-[24px] shadow-2xl flex flex-col max-h-[80vh] overflow-hidden transform transition-all scale-100" onclick="event.stopPropagation()">
+    <div class="bg-white w-[90%] max-w-[400px] rounded-[24px] shadow-2xl border border-[#eaecf0] flex flex-col max-h-[80vh] overflow-hidden transform transition-all scale-100" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center p-4 border-b border-gray-100">
             <h3 class="text-lg font-bold text-gray-900">Likes</h3>
             <button onclick="closeLikes()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>

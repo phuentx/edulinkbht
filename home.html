@@ -526,12 +526,14 @@ border-radius: 4px 4px 0 0;
     overflow: hidden;
 }
 
+/* --- CHAT STYLES REMOVED --- */
+
 .mobile-nav-item {
 display: flex; flex-direction: column; align-items: center; justify-content: center;
 height: 100%; flex: 1; gap: 4px; color: #98a2b3; transition: all 0.2s; cursor: pointer;
 position: relative;
 }
-.mobile-nav-item.active { color: #000000; } 
+.mobile-nav-item.active { color: #1f1f1f; }
 .mobile-nav-item i { width: 24px; height: 24px; transition: transform 0.2s; }
 .mobile-nav-item.active i { transform: scale(1.1); stroke-width: 2.5px; }
 
@@ -627,6 +629,86 @@ transform: translateX(20px);
     transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
 }
 
+/* Reels Specific Styles */
+.reels-container {
+    height: 100%;
+    width: 100%;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    background: black;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+}
+.reels-container::-webkit-scrollbar {
+    display: none;
+}
+.reel-item {
+    height: 100%;
+    width: 100%;
+    scroll-snap-align: start;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+}
+.reel-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Default for desktop */
+    max-width: 600px;
+}
+@media (max-width: 768px) {
+    .reel-video { object-fit: cover; max-width: 100%; }
+}
+.reel-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    padding: 20px;
+    padding-bottom: 80px; /* Space for mobile nav */
+    color: white;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+@media (min-width: 768px) {
+    .reel-overlay { padding-bottom: 20px; max-width: 600px; left: 50%; transform: translateX(-50%); }
+}
+.reel-info {
+    flex: 1;
+    margin-right: 16px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.reel-actions-side {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+.reel-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.reel-action-btn i {
+    width: 28px;
+    height: 28px;
+    stroke-width: 2px;
+}
+
 </style>
 </head>
 <body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
@@ -648,10 +730,11 @@ transform: translateX(20px);
 
 <!-- MOBILE NOTIFICATIONS HEADER -->
 <div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
-   <div class="h-14 flex items-center justify-center px-4 shrink-0 relative">
-      <span class="font-bold text-lg text-[#1f1f1f]">Notifications</span>
+   <div class="h-14 flex items-center justify-between px-4 shrink-0">
+      <span class="font-bold text-xl text-[#1f1f1f]">Notifications</span>
+      <button onclick="switchView('feed')" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
    </div>
-   <div class="tab-group mb-0 mx-0 w-full">
+   <div class="tab-group mb-0 mx-0 w-full border-t border-gray-100">
         <button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active">Following</button>
         <button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn">Others</button>
         <button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn">Official</button>
@@ -1014,12 +1097,8 @@ Change
 <nav class="flex-1 space-y-1" id="desktop-nav-items">
 <a href="#" onclick="switchView('feed'); return false;" id="nav-feed" class="nav-item active"><i data-lucide="home" class="w-5 h-5"></i> <span class="hidden lg:block">Home</span></a>
 <a href="#" onclick="switchView('explore'); return false;" id="nav-explore" class="nav-item"><i data-lucide="compass" class="w-5 h-5"></i> <span class="hidden lg:block">Explore</span></a>
+<a href="#" onclick="switchView('reels'); return false;" id="nav-reels" class="nav-item"><i data-lucide="film" class="w-5 h-5"></i> <span class="hidden lg:block">Reels</span></a>
 <a href="#" onclick="switchView('network'); return false;" id="nav-network" class="nav-item"><i data-lucide="users" class="w-5 h-5"></i> <span class="hidden lg:block">Network</span></a>
-<a href="#" onclick="switchView('notifications'); return false;" id="nav-notifications" class="nav-item relative">
-    <i data-lucide="bell" class="w-5 h-5"></i> 
-    <span class="hidden lg:block">Notifications</span>
-    <span id="nav-notif-badge" class="nav-dot"></span>
-</a>
 <a href="workspace.html" class="nav-item"><i data-lucide="briefcase" class="w-5 h-5"></i> <span class="hidden lg:block">Workspace</span></a>
 <a href="#" onclick="showProfile(auth.currentUser ? auth.currentUser.uid : null); return false;" id="nav-profile" class="nav-item"><i data-lucide="user" class="w-5 h-5"></i> <span class="hidden lg:block">Profile</span></a>
 <div class="pt-6 pb-2 px-3 hidden lg:block">
@@ -1058,6 +1137,7 @@ Change
 <button onclick="openSettings()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="settings" class="w-6 h-6"></i></button>
 <button class="icon-btn relative" onclick="toggleNotifications()">
 <i data-lucide="bell" class="w-6 h-6"></i>
+<span id="notif-badge" class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white hidden"></span>
 </button>
 <img id="header-avatar" src="" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 cursor-pointer hover:ring-2 ring-offset-1 ring-blue-500 transition-all hidden md:block" onclick="showProfile(auth.currentUser ? auth.currentUser.uid : null)">
 </div>
@@ -1071,6 +1151,13 @@ Change
 <p class="text-sm text-gray-400 text-center max-w-xs mt-1">Your network starts here. Share your first idea!</p>
 </div>
 </div>
+<!-- REELS VIEW -->
+<div id="view-reels" class="hidden w-full h-full bg-black absolute top-0 left-0 z-40">
+    <div id="reels-container" class="reels-container">
+        <!-- Reels Injected Here -->
+    </div>
+</div>
+
 <!-- SAVED VIEW -->
 <div id="view-saved" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-16 md:pt-6">
     <h2 class="text-2xl font-bold mb-6 px-4 md:px-0">Saved Posts</h2>
@@ -1090,9 +1177,9 @@ Change
 <!-- PROFILE VIEW -->
 <div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
 
-<!-- NOTIFICATIONS VIEW (Now Main) -->
-<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-28 md:pt-6">
-    <div class="flex justify-between items-center mb-4 px-4 md:px-0 hidden md:flex">
+<!-- NOTIFICATIONS VIEW -->
+<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
+    <div class="flex justify-between items-center mb-4 px-4 md:px-0 hidden md:flex pt-6">
         <h2 class="text-2xl font-bold">Notifications</h2>
         <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
     </div>
@@ -1101,7 +1188,7 @@ Change
         <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn">Others</button>
         <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn">Official</button>
     </div>
-    <div id="notification-list" class="w-full"></div>
+    <div id="notification-list" class="w-full pt-[120px] md:pt-0"></div>
 </div>
 
 <!-- ANNOUNCEMENTS VIEW (Admin) -->
@@ -1237,9 +1324,9 @@ Change
 <i data-lucide="plus-square"></i>
 <span class="text-[10px] font-medium">Create</span>
 </div>
-<div class="mobile-nav-item" onclick="switchView('notifications')">
-<i data-lucide="bell"></i>
-<span class="text-[10px] font-medium">Notifs</span>
+<div class="mobile-nav-item" onclick="switchView('reels')">
+<i data-lucide="film"></i>
+<span class="text-[10px] font-medium">Reels</span>
 </div>
 <div class="mobile-nav-item" onclick="showProfile(auth.currentUser ? auth.currentUser.uid : null)">
 <img id="mobile-avatar" src="" class="w-6 h-6 rounded-full border border-gray-200">
@@ -1465,6 +1552,11 @@ if(activeFeed && shouldFullRender) {
 renderFeed();
 }
 
+const activeReels = document.querySelector('#view-reels:not(.hidden)');
+if(activeReels && shouldFullRender) {
+renderReels();
+}
+
 const activeSaved = document.querySelector('#view-saved:not(.hidden)');
 if(activeSaved) renderSaved(); 
 
@@ -1496,18 +1588,22 @@ onSnapshot(qNotifs, (snapshot) => {
 notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
 notifications.sort((a,b) => (b.timestamp?.toDate ? b.timestamp.toDate() : 0) - (a.timestamp?.toDate ? a.timestamp.toDate() : 0));
 
-const badge = document.getElementById('nav-notif-badge');
+const badge = document.getElementById('notif-badge');
+const mobileBadge = document.getElementById('mobile-notif-badge');
 const unread = notifications.some(n => !n.read);
 if(badge) {
-if(unread) badge.style.display = 'block';
-else badge.style.display = 'none';
+if(unread) badge.classList.remove('hidden');
+else badge.classList.add('hidden');
+}
+if(mobileBadge) {
+if(unread) mobileBadge.classList.remove('hidden');
+else mobileBadge.classList.add('hidden');
 }
 
 const activeNotif = document.querySelector('#view-notifications:not(.hidden)');
 if(activeNotif) renderNotifications();
 refreshIcons();
 });
-
 }
 
 function updateUserInterface() {
@@ -1628,7 +1724,7 @@ showToast(`Account is now ${isPrivate ? 'Private' : 'Public'}`);
 }
 
 window.switchView = function(viewName) {
-const views = ['feed', 'events', 'saved', 'network', 'profile', 'explore', 'notifications', 'announcements'];
+const views = ['feed', 'events', 'saved', 'network', 'profile', 'reels', 'explore', 'notifications', 'announcements'];
 views.forEach(v => {
 const el = document.getElementById(`view-${v}`);
 if(el) el.classList.add('hidden');
@@ -1652,8 +1748,8 @@ if(mobileBottomNav) mobileBottomNav.classList.remove('hidden');
 if(mobileNotifHeader) mobileNotifHeader.classList.add('hidden', 'flex'); 
 if(mobileExploreHeader) mobileExploreHeader.classList.add('hidden');
 
-// HIDE MAIN HEADER ON PROFILE VIEW (Desktop & Mobile)
-if (viewName === 'profile') {
+// HIDE MAIN HEADER ON PROFILE VIEW (Desktop & Mobile) OR REELS VIEW
+if (viewName === 'profile' || viewName === 'reels') {
     if(mainHeader) mainHeader.classList.add('hidden');
 }
 
@@ -1661,13 +1757,16 @@ if (viewName === 'profile') {
 if (window.innerWidth < 768) {
     if (viewName === 'notifications') {
         if(mainHeader) mainHeader.classList.add('hidden');
-        // Footer (mobileBottomNav) is kept VISIBLE for notifications
+        if(mobileBottomNav) mobileBottomNav.classList.remove('hidden'); 
         if(mobileNotifHeader) mobileNotifHeader.classList.remove('hidden');
         if(mobileNotifHeader) mobileNotifHeader.classList.add('flex');
     } else if (viewName === 'explore') {
         if(mainHeader) mainHeader.classList.add('hidden');
         if(mobileBottomNav) mobileBottomNav.classList.add('hidden');
         if(mobileExploreHeader) mobileExploreHeader.classList.remove('hidden');
+    } else if (viewName === 'reels') {
+        if(mainHeader) mainHeader.classList.add('hidden');
+        // Keep bottom nav visible for reels on mobile usually
     }
 }
 
@@ -1704,24 +1803,104 @@ if(document.getElementById('feed-container').children.length === 0) renderFeed()
 const nav = document.getElementById('nav-explore'); if(nav) nav.classList.add('active');
 if(mobileNavItems[1]) mobileNavItems[1].classList.add('active');
 handleSearch(document.getElementById('mobile-explore-search').value);
+} else if (viewName === 'reels') {
+const nav = document.getElementById('nav-reels'); if(nav) nav.classList.add('active');
+if(mobileNavItems[3]) mobileNavItems[3].classList.add('active');
+renderReels();
 } else if (viewName === 'network') {
 const nav = document.getElementById('nav-network'); if(nav) nav.classList.add('active');
 if(document.getElementById('network-content').children.length === 0) renderNetwork();
-} else if (viewName === 'notifications') {
-const nav = document.getElementById('nav-notifications'); if(nav) nav.classList.add('active');
-if(mobileNavItems[3]) mobileNavItems[3].classList.add('active');
-if(document.getElementById('notification-list').children.length === 0) renderNotifications();
-const badge = document.getElementById('nav-notif-badge');
-if(badge) badge.style.display = 'none';
 } else if (viewName === 'saved') {
 const nav = document.getElementById('nav-saved'); if(nav) nav.classList.add('active');
 if(document.getElementById('saved-container').children.length === 0) renderSaved();
 } else if (viewName === 'ai') {
-// No mobile nav item for AI directly, usually accessed via button or gesture
+// No bottom nav logic for AI specifically as it's separate
+} else if (viewName === 'notifications') {
+if(document.getElementById('notification-list').children.length === 0) renderNotifications();
+const badge = document.getElementById('notif-badge');
+if(badge) badge.classList.add('hidden');
 } else if (viewName === 'announcements') {
 const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
 }
 setTimeout(refreshIcons, 10);
+}
+
+window.renderReels = function() {
+    const container = document.getElementById('reels-container');
+    container.innerHTML = "";
+    
+    // Filter for video posts
+    const videoPosts = posts.filter(p => p.media && (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video') || p.media.includes('catbox') || p.media.includes('cloudinary')));
+    
+    if (videoPosts.length === 0) {
+        container.innerHTML = `<div class="h-full flex items-center justify-center text-white"><p>No reels yet.</p></div>`;
+        return;
+    }
+
+    videoPosts.forEach(p => {
+        const author = users.find(u => u.id === p.authorId) || { name: 'Unknown', avatar: '' };
+        const isLiked = p.likes && p.likes.includes(currentUser.id);
+        
+        const div = document.createElement('div');
+        div.className = "reel-item";
+        div.innerHTML = `
+            <video src="${p.media}" class="reel-video" loop playsinline></video>
+            <div class="reel-overlay">
+                <div class="reel-info">
+                    <div class="flex items-center gap-3 mb-3 cursor-pointer" onclick="showProfile('${p.authorId}')">
+                        <img src="${author.avatar}" class="w-10 h-10 rounded-full border-2 border-white object-cover">
+                        <span class="font-bold text-white text-sm">${author.name}</span>
+                        ${author.isOfficial ? '<i data-lucide="badge-check" class="w-4 h-4 text-blue-400"></i>' : ''}
+                        <button class="bg-transparent border border-white/50 text-white text-xs px-2 py-1 rounded ml-2" onclick="event.stopPropagation(); toggleFollow('${p.authorId}')">Follow</button>
+                    </div>
+                    <div class="text-sm text-white/90 line-clamp-2 mb-2">${p.content}</div>
+                </div>
+                <div class="reel-actions-side">
+                    <button class="reel-action-btn" onclick="toggleLike('${p.id}')">
+                        <i data-lucide="heart" class="${isLiked ? 'fill-red-500 text-red-500' : 'text-white'}"></i>
+                        <span>${p.likes ? p.likes.length : 0}</span>
+                    </button>
+                    <button class="reel-action-btn" onclick="openPostView('${p.id}')">
+                        <i data-lucide="message-circle" class="text-white"></i>
+                        <span>${p.comments ? p.comments.length : 0}</span>
+                    </button>
+                    <button class="reel-action-btn" onclick="sharePost('${p.id}')">
+                        <i data-lucide="send" class="text-white"></i>
+                    </button>
+                    <button class="reel-action-btn" onclick="toggleSave('${p.id}')">
+                        <i data-lucide="bookmark" class="${savedPosts.includes(p.id) ? 'fill-white text-white' : 'text-white'}"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Play/Pause on click
+        const video = div.querySelector('video');
+        div.addEventListener('click', (e) => {
+            if(e.target.tagName !== 'BUTTON' && e.target.tagName !== 'I') {
+                if(video.paused) video.play(); else video.pause();
+            }
+        });
+        
+        container.appendChild(div);
+    });
+    
+    // Intersection Observer for Auto-Play
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const vid = entry.target.querySelector('video');
+            if (entry.isIntersecting) {
+                vid.play().catch(e => console.log("Autoplay prevented", e));
+            } else {
+                vid.pause();
+                vid.currentTime = 0; // Reset
+            }
+        });
+    }, { threshold: 0.6 });
+    
+    document.querySelectorAll('.reel-item').forEach(el => observer.observe(el));
+    
+    refreshIcons();
 }
 
 window.switchNetworkTab = function(tab) {
@@ -1821,11 +2000,14 @@ div.onclick = () => openPostView(post.id);
 
 let mediaHTML = "";
 if (post.media) {
-const isVideo = post.media.startsWith('data:video') || post.media.includes('.mp4') || post.media.includes('.webm');
+const isVideo = post.media.startsWith('data:video') || post.media.includes('.mp4') || post.media.includes('.webm') || post.media.includes('cloudinary');
 mediaHTML = isVideo
-? `<div class="mt-3 rounded-xl overflow-hidden"><video src="${post.media}" class="w-full max-h-[400px]" controls onclick="event.stopPropagation()"></video></div>`
+? `<div class="mt-3 rounded-xl overflow-hidden bg-black relative aspect-[9/16] w-full max-w-[320px] mx-auto shadow-lg group">
+  <video src="${post.media}" class="absolute inset-0 w-full h-full object-cover" loop playsinline onclick="this.paused ? this.play() : this.pause()"></video>
+  <div class="absolute bottom-2 right-2 text-white bg-black/50 p-1 rounded-full"><i data-lucide="volume-2" class="w-4 h-4"></i></div>
+</div>`
 : `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer" onclick="event.stopPropagation(); openLightbox('${post.media}', 'image')">
-<img src="${post.media}" class="w-full max-h-[400px] object-cover bg-gray-50">
+<img src="${post.media}" class="w-full max-h-[500px] object-cover bg-gray-50">
 </div>`;
 }
 
@@ -2111,8 +2293,7 @@ showToast("Follow request accepted");
 
 window.acceptMessage = async function(notifId, senderId) {
 await deleteDoc(doc(db, "notifications", notifId));
-// Chat is removed, so we just acknowledge
-showToast("Request accepted");
+// Chat logic removed, just remove notification
 }
 
 window.clearAllNotifications = async function() {
@@ -2128,8 +2309,8 @@ showToast("All notifications cleared");
 
 window.toggleNotifications = function() {
 switchView('notifications');
-const badge = document.getElementById('nav-notif-badge');
-if(badge) badge.style.display = 'none';
+const badge = document.getElementById('notif-badge');
+if(badge) badge.classList.add('hidden');
 }
 
 window.showProfile = function(userId, tab = 'posts') {
@@ -2250,7 +2431,7 @@ window.renderProfileContent = function(userId, tab) {
         targetPosts.forEach(p => {
             let content = '';
             if (p.media) {
-                if (p.media.includes('video') || p.media.endsWith('.mp4')) {
+                if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video') || p.media.includes('catbox') || p.media.includes('cloudinary')) {
                      content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
                 } else {
                      content = `<img src="${p.media}" class="w-full h-full object-cover">`;
@@ -2517,7 +2698,7 @@ div.onclick = () => openPostView(p.id);
 
 let content = '';
 if (p.media) {
-    if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
+    if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video') || p.media.includes('catbox') || p.media.includes('cloudinary')) {
             content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
     } else {
             content = `<img src="${p.media}" class="w-full h-full object-cover">`;
@@ -2536,17 +2717,6 @@ postsDiv.innerHTML = `<div class="text-gray-400 text-sm italic">No posts found m
 }
 
 refreshIcons();
-}
-
-function linkify(text) {
-var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-return text.replace(urlRegex, function(url) {
-return '<a href="' + url + '" target="_blank" class="text-blue-200 underline hover:text-white" onclick="event.stopPropagation()">' + url + '</a>';
-});
-}
-
-window.deleteMessage = async function(msgId) {
-showAlert("Unsend this message?", async () => { await deleteDoc(doc(db, "messages", msgId)); });
 }
 
 // Open Post View - Refactored for new UI
@@ -2576,10 +2746,13 @@ if (post.media) {
     // If desktop, the media container takes space, so the modal is wide. 
     // If mobile, it stacks.
     
-    if (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video')) {
-         mediaContainer.innerHTML = `<video src="${post.media}" class="w-full h-full object-contain" controls autoplay muted></video>`;
+    if (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video') || post.media.includes('catbox') || post.media.includes('cloudinary')) {
+         mediaContainer.innerHTML = `<video src="${post.media}" class="w-full h-full object-cover" controls autoplay muted loop playsinline></video>`;
+         // Adjusted for Reel style on Desktop View (Full height)
+         mediaContainer.className = "w-full md:w-[60%] bg-black flex items-center justify-center relative md:h-full h-[60vh] md:min-h-0"; 
     } else {
          mediaContainer.innerHTML = `<img src="${post.media}" class="w-full h-full object-contain">`;
+         mediaContainer.className = "w-full md:w-[60%] bg-black flex items-center justify-center relative md:h-full min-h-[300px] md:min-h-0";
     }
 } else {
     // Text Only Post
@@ -2906,6 +3079,45 @@ else { console.error("ImgHippo error", data); throw new Error('Upload failed'); 
 } catch (e) { throw e; }
 }
 
+// Cloudinary Upload
+async function uploadToCloudinary(file) {
+    const cloudName = "dcnxxxmgf";
+    const apiKey = "377742928234448";
+    const apiSecret = "ykolOOW4yzpncMt6qVUhbW48Y0A";
+    const timestamp = Math.floor(Date.now() / 1000);
+    const signatureStr = `timestamp=${timestamp}${apiSecret}`;
+    
+    // Simple SHA1 implementation using crypto.subtle
+    const sha1 = async (str) => {
+        const enc = new TextEncoder();
+        const hash = await crypto.subtle.digest('SHA-1', enc.encode(str));
+        return Array.from(new Uint8Array(hash))
+            .map(v => v.toString(16).padStart(2, '0'))
+            .join('');
+    };
+    
+    const signature = await sha1(signatureStr);
+    
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", apiKey);
+    formData.append("timestamp", timestamp);
+    formData.append("signature", signature);
+    // Determine resource type based on file
+    const resourceType = file.type.startsWith("video") ? "video" : "image";
+    
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
+    
+    try {
+        const res = await fetch(url, { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.secure_url) return data.secure_url;
+        throw new Error(data.error?.message || "Upload failed");
+    } catch (e) {
+        throw e;
+    }
+}
+
 window.publishPost = async function() {
 const textRaw = document.getElementById('compose-text').value;
 const btn = document.getElementById('btn-publish');
@@ -2922,13 +3134,22 @@ const originalHtml = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" c
 try {
 let mediaUrl = window.currentMedia;
 if(window.currentMediaBlob) {
-try { mediaUrl = await uploadToImgHippo(window.currentMediaBlob); }
-catch (err) {
-console.error("ImgHippo failed, falling back to Firebase Storage", err);
-const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`);
-await uploadBytes(mediaRef, window.currentMediaBlob);
-mediaUrl = await getDownloadURL(mediaRef);
-}
+    try {
+        if (window.currentMediaBlob.type.startsWith('video')) {
+            mediaUrl = await uploadToCloudinary(window.currentMediaBlob);
+        } else {
+            // Default to ImgHippo for images if preferred, or use Cloudinary for all.
+            // Using Cloudinary for video as requested, sticking to ImgHippo for images to be safe unless failed.
+            // Actually, let's use Cloudinary for video as strictly requested.
+            mediaUrl = await uploadToImgHippo(window.currentMediaBlob);
+        }
+    }
+    catch (err) {
+    console.error("Primary upload failed, falling back to Firebase Storage", err);
+    const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`);
+    await uploadBytes(mediaRef, window.currentMediaBlob);
+    mediaUrl = await getDownloadURL(mediaRef);
+    }
 }
 
 const postData = {

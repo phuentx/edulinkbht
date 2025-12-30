@@ -38,12 +38,16 @@ h1, h2, h3, .google-font { font-family: 'Google Sans', 'Inter', sans-serif; }
 * { scrollbar-width: none; -ms-overflow-style: none; }
 *::-webkit-scrollbar { width: 0px; background: transparent; display: none; }
 
+/* Prevent icon squishing */
 i[data-lucide], svg { flex-shrink: 0; }
 
 .fade-in { animation: fadeUp 0.4s cubic-bezier(0.2, 0, 0, 1) forwards; opacity: 0; transform: translateY(10px); }
 @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-/* --- NAVIGATION & LAYOUT --- */
+.scale-in { animation: scaleIn 0.3s cubic-bezier(0.2, 0, 0, 1) forwards; }
+@keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* --- LAYOUT --- */
 .app-panel {
 background: var(--surface);
 border-radius: 20px;
@@ -53,285 +57,366 @@ display: flex;
 flex-direction: column;
 overflow: hidden;
 box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
 }
 
 @media (max-width: 768px) {
 .app-panel { border-radius: 0 !important; border: none !important; box-shadow: none !important; }
 body { padding: 0 !important; }
+#workspace-layout { gap: 0 !important; }
 }
 
-/* Scroll Hide Header Logic */
-#main-header {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 50;
-}
-#main-header.header-hidden {
-    transform: translateY(-100%);
-}
-
-/* Twitter Balanced Tabs */
-.tab-row {
-    display: flex;
-    width: 100%;
-    border-bottom: 1px solid var(--outline);
-    background: var(--surface);
-}
-.tab-item {
-    flex: 1;
-    text-align: center;
-    padding: 14px 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    cursor: pointer;
-    position: relative;
-    transition: color 0.2s;
-}
-.tab-item.active {
-    color: var(--on-surface);
-}
-.tab-item.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 20%;
-    right: 20%;
-    height: 3px;
-    background: var(--primary);
-    border-radius: 10px;
-}
-
-/* Instagram Grid */
-.insta-grid {
-    display: grid;
-    grid-template-cols: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--outline);
-}
-.grid-item {
-    aspect-ratio: 1/1;
-    background: #f0f0f0;
-    position: relative;
-    cursor: pointer;
-    overflow: hidden;
-}
-.grid-item img, .grid-item video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Sidebar Nav */
-#main-sidebar { width: 88px; flex-shrink: 0; padding: 24px 12px; }
+/* --- SIDEBAR --- */
+#main-sidebar { width: 88px; flex-shrink: 0; padding: 24px 12px; transition: width 0.3s ease; }
 @media (min-width: 1024px) { #main-sidebar { width: 260px; padding: 24px 20px; } }
 
 .nav-item {
-display: flex; align-items: center; gap: 14px;
-padding: 12px; color: var(--text-secondary); font-weight: 500; font-size: 15px;
-border-radius: 12px; transition: all 0.2s ease; cursor: pointer; text-decoration: none;
-margin-bottom: 4px; justify-content: center; position: relative;
+display: flex; align-items: center; gap: 14px; padding: 12px;
+color: var(--text-secondary); font-weight: 500; font-size: 15px;
+border-radius: 12px; transition: all 0.2s ease; cursor: pointer;
+text-decoration: none; margin-bottom: 4px; justify-content: center; position: relative;
 }
+.nav-item:hover { color: var(--on-surface); background-color: var(--hover-bg); }
 .nav-item.active { color: var(--primary); background-color: #eff4ff; font-weight: 600; }
 @media (min-width: 1024px) { .nav-item { justify-content: flex-start; padding: 10px 16px; } }
 
-/* Post Cards */
-.post-card { background: var(--surface); border-bottom: 1px solid var(--outline); }
-.post-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+.create-btn {
+display: flex; align-items: center; justify-content: flex-start; gap: 12px;
+background: #1f1f1f; color: white; padding: 12px 20px; border-radius: 12px;
+font-weight: 500; font-size: 14px; transition: all 0.2s ease; width: 100%;
+margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+.create-btn:hover { background: #000; transform: translateY(-1px); }
 
-/* Overlays */
-.full-overlay {
-    position: fixed; inset: 0; background: var(--surface); z-index: 100;
-    display: flex; flex-direction: column; overflow: hidden;
+/* --- TABS (Twitter Style) --- */
+.twitter-tabs {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid var(--outline);
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+}
+.twitter-tab {
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-secondary);
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.twitter-tab:hover { background-color: rgba(0,0,0,0.03); }
+.twitter-tab.active { color: #0f1419; }
+.twitter-tab-line {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 4px;
+    width: 56px;
+    background-color: var(--primary);
+    border-radius: 99px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.twitter-tab.active .twitter-tab-line { opacity: 1; }
+
+/* --- PROFILE GRID (Instagram Style) --- */
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding-bottom: 60px;
+}
+.grid-item {
+    aspect-ratio: 1/1;
+    position: relative;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    overflow: hidden;
+}
+.grid-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+.grid-item:hover img { transform: scale(1.05); }
+.grid-item-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+    color: #6366f1;
+    font-weight: 700;
+    font-size: 10px;
+    padding: 4px;
+    text-align: center;
+    overflow: hidden;
 }
 
-/* Chat Bubbles */
-.chat-bubble-me { background: var(--primary); color: white; padding: 10px 14px; border-radius: 18px 18px 4px 18px; font-size: 14px; align-self: flex-end; max-width: 80%; }
-.chat-bubble-them { background: var(--hover-bg); color: var(--on-surface); padding: 10px 14px; border-radius: 18px 18px 18px 4px; font-size: 14px; align-self: flex-start; max-width: 80%; }
+/* --- HEADER ANIMATION --- */
+#main-header {
+    transition: transform 0.3s ease-in-out;
+}
+#main-header.scroll-hide {
+    transform: translateY(-100%);
+}
 
-/* Mobile Navigation Controls */
-.mobile-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; color: #98a2b3; }
+/* --- THREADS OVERLAY --- */
+#threads-overlay {
+    position: fixed; inset: 0; z-index: 70;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+    display: flex; flex-direction: column; justify-content: flex-end;
+}
+.threads-sheet {
+    background: white;
+    width: 100%; height: 85vh;
+    border-top-left-radius: 20px; border-top-right-radius: 20px;
+    display: flex; flex-direction: column; overflow: hidden;
+    animation: slideUp 0.3s cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+/* --- CHAT MOBILE --- */
+.chat-bubble-me { background: var(--primary); color: white; padding: 10px 16px; border-radius: 18px 18px 4px 18px; max-width: 75%; align-self: flex-end; }
+.chat-bubble-them { background: var(--hover-bg); color: var(--on-surface); padding: 10px 16px; border-radius: 18px 18px 18px 4px; max-width: 75%; align-self: flex-start; }
+
+/* Mobile Footer Logic */
+.mobile-nav-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; flex: 1; gap: 4px; color: #98a2b3; cursor: pointer;
+}
 .mobile-nav-item.active { color: var(--primary); }
 
-.loader-spinner { width: 40px; height: 40px; border: 4px solid var(--hover-bg); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: #303134; color: white; padding: 12px 24px; border-radius: 40px; font-size: 14px; opacity: 0; transition: all 0.3s; z-index: 200; display: flex; align-items: center; gap: 8px; }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-/* Circle Button */
-.circle-btn {
-    width: 36px; height: 36px; border-radius: 50%; background: var(--hover-bg);
-    display: flex; items-center; justify-content: center; color: var(--on-surface);
-}
-
-.insta-chat-footer {
-    display: flex; align-items: center; gap: 10px; padding: 12px;
-    border: 1px solid var(--outline); border-radius: 30px; margin: 10px;
-}
+/* --- POST STYLES --- */
+.post-card { background: var(--surface); border-bottom: 1px solid var(--outline); padding: 16px; }
+.hashtag { color: var(--primary); font-weight: 500; }
 </style>
 </head>
-<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]">
+<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hideGlobalMenus()">
 
-<div id="app-loader" class="fixed inset-0 bg-white z-[9999] flex items-center justify-center transition-opacity duration-500"><div class="loader-spinner"></div></div>
+<!-- LOADING -->
+<div id="app-loader" class="fixed inset-0 bg-white z-[9999] flex justify-center items-center transition-opacity duration-500">
+    <div class="w-10 h-10 border-4 border-gray-100 border-t-blue-600 rounded-full animate-spin"></div>
+</div>
 
-<!-- THREADS OVERLAY (Focused Conversation) -->
-<div id="threads-overlay" class="full-overlay hidden">
-    <div class="h-14 border-b border-gray-100 flex items-center px-4 justify-between shrink-0">
-        <button onclick="closeThreads()" class="circle-btn"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
-        <span class="font-bold">Threads</span>
-        <div class="w-8"></div>
-    </div>
-    <div id="threads-container" class="flex-1 overflow-y-auto"></div>
-    <div class="p-3 border-t border-gray-100 bg-white">
-        <div class="bg-gray-100 rounded-full px-4 py-2 flex items-center gap-2">
-            <input type="text" id="thread-input" placeholder="Reply to thread..." class="flex-1 bg-transparent outline-none text-sm">
-            <button onclick="submitThreadReply()" class="text-blue-600 font-bold text-sm">Post</button>
+<!-- TOAST -->
+<div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-[#303134] text-white px-6 py-3 rounded-full text-sm font-medium opacity-0 pointer-events-none transition-all duration-300 z-[200] flex items-center gap-2 shadow-lg whitespace-nowrap">
+    <i id="toast-icon" data-lucide="check-circle-2" class="w-5 h-5 text-[#c4eed0]"></i><span id="toast-msg">Action Completed</span>
+</div>
+
+<!-- POST OPTIONS MENU -->
+<div id="global-post-menu" class="fixed bg-white border border-gray-200 rounded-xl shadow-xl w-40 z-50 opacity-0 pointer-events-none transition-all duration-200 scale-95 p-1"></div>
+
+<!-- SETTINGS OVERLAY -->
+<div id="settings-overlay" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 backdrop-blur-sm hidden" onclick="toggleSettings(false)">
+    <div class="bg-white w-[90%] max-w-[400px] rounded-2xl shadow-2xl p-6" onclick="event.stopPropagation()">
+        <h2 class="text-xl font-bold mb-4">Settings</h2>
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <span>Private Account</span>
+                <input type="checkbox" id="toggle-privacy" class="w-5 h-5 accent-blue-600" onchange="togglePrivacy()">
+            </div>
+            <button onclick="doLogout()" class="w-full py-3 text-red-500 font-bold bg-red-50 rounded-xl mt-4">Log Out</button>
         </div>
     </div>
 </div>
 
-<!-- NOTIFICATIONS OVERLAY (NATIVE) -->
-<div id="notif-overlay" class="full-overlay hidden">
-    <div class="h-14 border-b border-gray-100 flex items-center px-4 justify-between shrink-0">
-        <span class="font-bold text-xl">Notifications</span>
-        <button onclick="closeNotifOverlay()" class="circle-btn"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <div class="tab-row">
-        <div onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-item active">Following</div>
-        <div onclick="switchNotifTab('others')" id="ntab-others" class="tab-item">Others</div>
-        <div onclick="switchNotifTab('official')" id="ntab-official" class="tab-item">Official</div>
-    </div>
-    <div id="notif-list" class="flex-1 overflow-y-auto p-2"></div>
-</div>
-
-<!-- EXPLORE OVERLAY (NATIVE) -->
-<div id="explore-overlay" class="full-overlay hidden">
-    <div class="p-3 border-b border-gray-100 flex items-center gap-3 shrink-0">
-        <div class="flex-1 bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-2">
-            <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
-            <input type="text" id="explore-search" placeholder="Search EduLink" class="bg-transparent outline-none text-sm w-full" oninput="handleExploreSearch(this.value)">
+<!-- THREADS OVERLAY -->
+<div id="threads-overlay" class="hidden" onclick="closeThreads()">
+    <div class="threads-sheet" onclick="event.stopPropagation()">
+        <div class="h-14 border-b border-gray-100 flex items-center justify-center relative shrink-0">
+            <span class="font-bold text-lg">Threads</span>
+            <button onclick="closeThreads()" class="absolute right-4 p-2 bg-gray-100 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
-        <button onclick="closeExploreOverlay()" class="text-sm font-bold text-gray-600">Exit</button>
-    </div>
-    <div id="explore-pre-state" class="flex-1 flex flex-col items-center justify-center p-10 text-center">
-        <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4"><i data-lucide="compass" class="text-blue-600"></i></div>
-        <h3 class="font-bold text-lg">Search and Discover</h3>
-        <p class="text-gray-500 text-sm mt-1">Find people, ideas, and communities across EduLink.</p>
-    </div>
-    <div id="explore-results-container" class="hidden flex-1 flex flex-col">
-        <div class="tab-row">
-            <div onclick="switchExploreTab('people')" id="etab-people" class="tab-item active">People</div>
-            <div onclick="switchExploreTab('posts')" id="etab-posts" class="tab-item">Posts</div>
+        <div id="threads-content" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+        <div class="p-3 border-t border-gray-100">
+            <div class="flex gap-2 items-center bg-gray-100 rounded-full px-4 py-2">
+                <input type="text" id="thread-reply-input" placeholder="Reply to thread..." class="bg-transparent flex-1 outline-none text-sm">
+                <button onclick="submitThreadReply()" class="text-blue-600 font-bold text-sm">Post</button>
+            </div>
         </div>
-        <div id="explore-results-list" class="flex-1 overflow-y-auto p-3"></div>
     </div>
 </div>
 
-<!-- MAIN SIDEBAR (Desktop) -->
+<!-- MAIN LAYOUT -->
 <aside id="main-sidebar" class="hidden md:flex app-panel">
-<div class="h-12 flex items-center gap-3 mb-6 px-2 cursor-pointer" onclick="switchView('feed')">
-<img src="https://i.imghippo.com/files/fRGt5603uII.png" class="w-8 h-8 object-contain">
-<h1 class="text-[20px] font-bold text-[#1f1f1f] hidden lg:block tracking-tight">EduLink</h1>
-</div>
-<nav class="flex-1">
-    <a href="#" onclick="switchView('feed'); return false;" id="nav-feed" class="nav-item active"><i data-lucide="home"></i> <span class="hidden lg:block">Home</span></a>
-    <a href="#" onclick="switchView('explore'); return false;" id="nav-explore" class="nav-item"><i data-lucide="compass"></i> <span class="hidden lg:block">Explore</span></a>
-    <a href="#" onclick="switchView('chat'); return false;" id="nav-chat" class="nav-item"><i data-lucide="message-circle"></i> <span class="hidden lg:block">Chat</span></a>
-    <a href="#" onclick="showProfile(auth.currentUser?.uid); return false;" id="nav-profile" class="nav-item"><i data-lucide="user"></i> <span class="hidden lg:block">Profile</span></a>
-</nav>
+    <div class="h-12 flex items-center gap-3 mb-6 px-2 cursor-pointer" onclick="switchView('feed')">
+        <img src="https://i.imghippo.com/files/fRGt5603uII.png" class="w-8 h-8 object-contain">
+        <h1 class="text-[20px] font-bold text-[#1f1f1f] hidden lg:block tracking-tight">EduLink</h1>
+    </div>
+    <button onclick="openCompose()" class="create-btn hidden lg:flex"><i data-lucide="plus" class="w-5 h-5"></i><span>Create</span></button>
+    <nav class="flex-1 space-y-1">
+        <a onclick="switchView('feed')" id="nav-feed" class="nav-item active"><i data-lucide="home" class="w-5 h-5"></i> <span class="hidden lg:block">Home</span></a>
+        <a onclick="switchView('explore')" id="nav-explore" class="nav-item"><i data-lucide="compass" class="w-5 h-5"></i> <span class="hidden lg:block">Explore</span></a>
+        <a onclick="switchView('notifications')" id="nav-notif" class="nav-item"><i data-lucide="bell" class="w-5 h-5"></i> <span class="hidden lg:block">Notifications</span></a>
+        <a onclick="switchView('chat')" id="nav-chat" class="nav-item"><i data-lucide="message-circle" class="w-5 h-5"></i> <span class="hidden lg:block">Chat</span></a>
+        <a onclick="showProfile(currentUser.id)" id="nav-profile" class="nav-item"><i data-lucide="user" class="w-5 h-5"></i> <span class="hidden lg:block">Profile</span></a>
+    </nav>
 </aside>
 
-<div id="workspace-layout" class="flex-1 flex min-w-0 gap-4 relative overflow-hidden transition-all duration-300">
-<main id="main-panel" class="flex-1 app-panel min-w-0 relative">
-    <!-- Instagram Style Scrolling Header -->
-    <header id="main-header" class="h-16 flex items-center justify-between px-4 shrink-0 bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-40">
-        <h1 class="text-xl font-bold tracking-tight md:hidden">EduLink</h1>
-        <div class="hidden md:block flex-1 max-w-[400px] relative">
-            <i data-lucide="search" class="absolute left-4 top-3 w-4 h-4 text-gray-400"></i>
-            <input type="text" placeholder="Search" id="global-search" oninput="handleExploreSearch(this.value)" class="w-full bg-gray-100 rounded-full py-2 pl-10 pr-4 outline-none text-sm">
+<main id="main-panel" class="flex-1 app-panel min-w-0 relative flex flex-col h-full overflow-hidden">
+    
+    <!-- DYNAMIC HEADER (Desktop & Feed Mobile) -->
+    <header id="main-header" class="h-16 flex items-center justify-between px-4 shrink-0 bg-white/95 backdrop-blur-md border-b border-[#f0f0f0] sticky top-0 z-30">
+        <div class="flex items-center gap-3 md:hidden" onclick="switchView('feed')">
+            <img src="https://i.imghippo.com/files/fRGt5603uII.png" class="w-8 h-8 object-contain">
+            <h1 class="text-lg font-bold">EduLink</h1>
         </div>
-        <div class="flex items-center gap-2">
-            <button class="icon-btn" onclick="openSettings()"><i data-lucide="settings" class="w-6 h-6"></i></button>
-            <button class="icon-btn relative" onclick="openNotifOverlay()">
-                <i data-lucide="bell" class="w-6 h-6"></i>
-                <span id="notif-badge" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-white hidden"></span>
-            </button>
-            <img id="header-avatar" src="" class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 cursor-pointer hidden md:block" onclick="showProfile(auth.currentUser?.uid)">
+        <div class="hidden md:block flex-1 max-w-[500px] relative group mx-4">
+            <i data-lucide="search" class="absolute left-4 top-2.5 w-5 h-5 text-gray-400"></i>
+            <input type="text" placeholder="Search" oninput="handleSearch(this.value)" class="w-full bg-gray-100 rounded-full py-2.5 pl-12 pr-4 outline-none focus:bg-white focus:ring-1 focus:ring-gray-300 transition-all text-sm">
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="relative cursor-pointer" onclick="switchView('notifications')">
+                <i data-lucide="bell" class="w-6 h-6 text-gray-700"></i>
+                <span id="notif-badge" class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white hidden"></span>
+            </div>
+            <button onclick="toggleSettings(true)" class="text-gray-700"><i data-lucide="settings" class="w-6 h-6"></i></button>
+            <img id="header-avatar" src="" class="hidden md:block w-9 h-9 rounded-full bg-gray-200 border cursor-pointer" onclick="showProfile(currentUser.id)">
         </div>
     </header>
 
-    <!-- FEED VIEW -->
-    <div id="view-feed" class="flex-1 h-full overflow-y-auto bg-white" onscroll="handleScroll(this)">
-        <div id="feed-container"></div>
-    </div>
-
-    <!-- PROFILE VIEW -->
-    <div id="view-profile" class="flex-1 h-full overflow-y-auto hidden bg-white">
-        <div id="profile-header-content"></div>
-        <div class="tab-row sticky top-0 z-10">
-            <div onclick="switchProfileTab('posts')" id="ptab-posts" class="tab-item active">Posts</div>
-            <div onclick="switchProfileTab('saved')" id="ptab-saved" class="tab-item">Saved</div>
-            <div onclick="switchProfileTab('liked')" id="ptab-liked" class="tab-item">Liked</div>
+    <!-- VIEWS CONTAINER -->
+    <div id="views-container" class="flex-1 overflow-hidden relative bg-white">
+        
+        <!-- FEED VIEW -->
+        <div id="view-feed" class="absolute inset-0 overflow-y-auto bg-white pb-20 md:pb-0 scroll-smooth">
+            <div id="feed-container" class="max-w-2xl mx-auto min-h-screen"></div>
         </div>
-        <div id="profile-grid" class="insta-grid"></div>
-    </div>
 
-    <!-- CHAT VIEW -->
-    <div id="view-chat" class="flex-1 h-full flex flex-col hidden bg-white overflow-hidden relative">
-        <!-- Chat List View -->
-        <div id="chat-list-view" class="flex flex-col h-full">
-            <div class="p-4 border-b border-gray-100 flex items-center gap-3">
-                <img id="chat-self-pfp" src="" class="w-10 h-10 rounded-full bg-gray-100 object-cover">
-                <div class="flex-1 bg-gray-100 rounded-xl px-3 py-2 flex items-center gap-2">
-                    <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
-                    <input type="text" placeholder="Search messages" class="bg-transparent outline-none text-sm w-full">
+        <!-- EXPLORE VIEW (Mobile Specific Layout) -->
+        <div id="view-explore" class="absolute inset-0 overflow-y-auto bg-white hidden pb-20 md:pb-0 z-40">
+            <!-- Mobile Explore Header -->
+            <div class="sticky top-0 bg-white z-20 border-b border-gray-100 p-3 md:hidden flex gap-2 items-center">
+                <div class="relative flex-1">
+                    <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
+                    <input type="text" id="mobile-explore-input" placeholder="Search..." oninput="handleMobileSearch(this.value)" class="w-full bg-gray-100 rounded-full py-2 pl-10 pr-4 text-sm outline-none">
                 </div>
+                <button onclick="clearMobileSearch()" class="p-2 text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div id="chat-list-container" class="flex-1 overflow-y-auto"></div>
+            <div id="explore-initial" class="p-10 text-center text-gray-400 flex flex-col items-center justify-center h-[60vh]">
+                <i data-lucide="compass" class="w-16 h-16 mb-4 opacity-50"></i>
+                <h3 class="font-bold text-lg text-gray-600">Search and Discover</h3>
+                <p class="text-sm">Find people, posts, and inspiration.</p>
+            </div>
+            <div id="explore-results" class="hidden">
+                 <div class="twitter-tabs sticky top-[61px] md:top-0 z-10">
+                    <div onclick="switchExploreTab('people')" id="xtab-people" class="twitter-tab active">People<div class="twitter-tab-line"></div></div>
+                    <div onclick="switchExploreTab('posts')" id="xtab-posts" class="twitter-tab">Posts<div class="twitter-tab-line"></div></div>
+                </div>
+                <div id="explore-content" class="p-4 space-y-4"></div>
+            </div>
         </div>
-        <!-- Individual Chat View -->
-        <div id="chat-window-view" class="hidden absolute inset-0 bg-white z-[60] flex flex-col">
-            <div class="h-14 border-b border-gray-100 flex items-center px-4 justify-between">
-                <div class="flex items-center gap-3">
-                    <button onclick="closeChatWindow()" class="circle-btn"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
-                    <img id="chat-partner-pfp" src="" class="w-8 h-8 rounded-full object-cover">
-                    <div>
-                        <div id="chat-partner-name" class="font-bold text-sm">User</div>
-                        <div class="text-[10px] text-green-500 font-bold">Active now</div>
+
+        <!-- NOTIFICATIONS VIEW -->
+        <div id="view-notifications" class="absolute inset-0 overflow-y-auto bg-white hidden z-40">
+            <!-- Mobile Notif Header -->
+            <div class="sticky top-0 bg-white/95 backdrop-blur z-20 border-b border-gray-100 md:hidden flex items-center justify-between px-4 h-16">
+                <span class="font-bold text-lg">Notifications</span>
+                <button onclick="switchView('feed')" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"><i data-lucide="x" class="w-4 h-4 text-gray-600"></i></button>
+            </div>
+            
+            <div class="twitter-tabs sticky top-16 md:top-0 z-10">
+                <div onclick="switchNotifTab('friends')" id="ntab-friends" class="twitter-tab active">Following<div class="twitter-tab-line"></div></div>
+                <div onclick="switchNotifTab('others')" id="ntab-others" class="twitter-tab">Others<div class="twitter-tab-line"></div></div>
+                <div onclick="switchNotifTab('official')" id="ntab-official" class="twitter-tab">Official<div class="twitter-tab-line"></div></div>
+            </div>
+            <div id="notification-list" class="max-w-2xl mx-auto"></div>
+        </div>
+
+        <!-- CHAT VIEW -->
+        <div id="view-chat" class="absolute inset-0 bg-white hidden flex flex-col z-40">
+            <!-- Chat List View -->
+            <div id="chat-list-view" class="flex flex-col h-full">
+                <!-- Mobile Header -->
+                <div class="h-16 border-b border-gray-100 flex items-center px-4 gap-3 md:hidden">
+                    <img id="chat-header-my-avatar" src="" class="w-8 h-8 rounded-full bg-gray-200">
+                    <div class="flex-1 relative">
+                        <i data-lucide="search" class="absolute left-3 top-2 w-4 h-4 text-gray-400"></i>
+                        <input type="text" placeholder="Search messages" onkeyup="renderChatList(this.value)" class="w-full bg-gray-100 rounded-full py-1.5 pl-9 pr-4 text-sm outline-none">
                     </div>
                 </div>
-                <button onclick="openChatOptions()" class="circle-btn"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
+                <div class="p-4 border-b border-gray-100 hidden md:block">
+                     <h2 class="font-bold text-lg mb-2">Messages</h2>
+                     <input type="text" placeholder="Search..." onkeyup="renderChatList(this.value)" class="w-full bg-gray-100 rounded-lg p-2 text-sm outline-none">
+                </div>
+                <div id="chat-list-container" class="flex-1 overflow-y-auto"></div>
             </div>
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col gap-2"></div>
-            <div class="insta-chat-footer bg-white">
-                <button class="text-gray-400"><i data-lucide="camera" class="w-6 h-6"></i></button>
-                <input id="chat-input" type="text" placeholder="Message..." class="flex-1 outline-none text-sm bg-transparent">
-                <button onclick="sendChatMessage()" class="text-blue-600 font-bold text-sm px-2">Send</button>
+
+            <!-- Conversation View -->
+            <div id="chat-conversation-view" class="hidden flex-col h-full bg-white absolute inset-0 z-50">
+                <!-- Conversation Header -->
+                <div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 bg-white shrink-0">
+                    <div class="flex items-center gap-3">
+                        <button onclick="closeChat()" class="p-1 -ml-2"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-600"></i></button>
+                        <img id="chat-partner-avatar" src="" class="w-8 h-8 rounded-full bg-gray-200">
+                        <div class="flex flex-col">
+                            <span id="chat-partner-name" class="font-bold text-sm leading-tight">User</span>
+                            <span class="text-[10px] text-gray-500">Active now</span>
+                        </div>
+                    </div>
+                    <div class="relative group">
+                         <button class="p-2"><i data-lucide="more-vertical" class="w-5 h-5 text-gray-600"></i></button>
+                         <div class="absolute right-0 top-8 bg-white shadow-lg border border-gray-100 rounded-lg w-32 hidden group-hover:block">
+                             <button onclick="deleteCurrentChat()" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50">Delete Chat</button>
+                         </div>
+                    </div>
+                </div>
+                <!-- Messages -->
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-1"></div>
+                <!-- Footer -->
+                <div class="p-3 border-t border-gray-100 bg-white">
+                    <div class="flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2">
+                        <input type="text" id="message-input" placeholder="Message..." class="bg-transparent flex-1 outline-none text-sm">
+                        <button onclick="sendMessage()" class="text-blue-600 font-bold text-sm">Send</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</main>
-</div>
 
-<!-- Mobile Bottom Nav -->
-<nav id="mobile-nav" class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 h-16 flex items-center justify-around z-[45]">
-    <div class="mobile-nav-item active" onclick="switchView('feed')"><i data-lucide="home"></i></div>
-    <div class="mobile-nav-item" onclick="openExploreOverlay()"><i data-lucide="search"></i></div>
-    <div class="mobile-nav-item" onclick="openCompose()"><div class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center"><i data-lucide="plus"></i></div></div>
-    <div class="mobile-nav-item" onclick="switchView('chat')"><i data-lucide="message-circle"></i></div>
-    <div class="mobile-nav-item" onclick="showProfile(auth.currentUser?.uid)"><img id="mobile-nav-pfp" src="" class="w-6 h-6 rounded-full border border-gray-200 object-cover"></div>
+        <!-- PROFILE VIEW -->
+        <div id="view-profile" class="absolute inset-0 overflow-y-auto bg-white hidden pb-20 md:pb-0 z-40">
+            <div id="profile-content"></div>
+        </div>
+
+    </div>
+
+</main>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 h-16 flex items-center justify-around z-50 pb-1">
+    <div class="mobile-nav-item active" onclick="switchView('feed')"><i data-lucide="home" class="w-6 h-6"></i></div>
+    <div class="mobile-nav-item" onclick="switchView('explore')"><i data-lucide="search" class="w-6 h-6"></i></div>
+    <div class="mobile-nav-item" onclick="openCompose()"><div class="w-10 h-10 bg-black rounded-xl flex items-center justify-center"><i data-lucide="plus" class="w-6 h-6 text-white"></i></div></div>
+    <div class="mobile-nav-item" onclick="switchView('chat')"><i data-lucide="message-circle" class="w-6 h-6"></i></div>
+    <div class="mobile-nav-item" onclick="showProfile(currentUser.id)"><img id="mobile-avatar" src="" class="w-6 h-6 rounded-full bg-gray-200 border border-gray-300"></div>
 </nav>
 
-<div id="toast" class="toast"><i data-lucide="check-circle" class="w-4 h-4"></i><span id="toast-msg"></span></div>
-
-<!-- MODALS -->
-<div id="settings-modal" class="full-overlay hidden">
-    <div class="h-14 border-b border-gray-100 flex items-center px-4 justify-between">
-        <span class="font-bold text-lg">Settings</span>
-        <button onclick="document.getElementById('settings-modal').classList.add('hidden')" class="circle-btn"><i data-lucide="x"></i></button>
-    </div>
-    <div class="p-4 flex flex-col gap-4">
-        <button onclick="doLogout()" class="w-full py-3 bg-red-50 text-red-600 font-bold rounded-xl">Log Out</button>
+<!-- COMPOSE MODAL -->
+<div id="compose-overlay" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm hidden" onclick="closeCompose()">
+    <div class="bg-white w-[95%] max-w-[500px] rounded-2xl p-4 shadow-2xl" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-4">
+            <button onclick="closeCompose()" class="text-gray-500">Cancel</button>
+            <button onclick="publishPost()" class="bg-blue-600 text-white px-4 py-1.5 rounded-full font-bold text-sm">Post</button>
+        </div>
+        <div class="flex gap-3">
+            <img id="compose-avatar" src="" class="w-10 h-10 rounded-full bg-gray-200">
+            <textarea id="compose-text" placeholder="What's new?" class="flex-1 min-h-[150px] outline-none resize-none text-lg placeholder-gray-400"></textarea>
+        </div>
+        <div class="border-t border-gray-100 pt-3 mt-2 flex justify-between items-center">
+            <button onclick="promptImage()" class="text-blue-600 flex items-center gap-2 text-sm font-medium"><i data-lucide="image" class="w-5 h-5"></i> Add Photo</button>
+        </div>
+        <div id="compose-preview" class="mt-2 hidden rounded-lg overflow-hidden relative">
+            <img id="compose-img-preview" class="w-full max-h-60 object-cover">
+            <button onclick="clearComposeMedia()" class="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
     </div>
 </div>
 
@@ -346,301 +431,647 @@ const firebaseConfig = {
     projectId: "edulinki",
     storageBucket: "edulinki.firebasestorage.app",
     messagingSenderId: "248886466474",
-    appId: "1:248886466474:web:160043201a6b28bafbbdd3",
+    appId: "1:248886466474:web:160043201a6b28bafbbdd3"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-window.auth = auth; window.db = db;
-
-let currentUser = null;
+// GLOBAL STATE
+window.currentUser = null;
 let users = [];
 let posts = [];
 let notifications = [];
-let activeChatPartnerId = null;
-let lastScrollY = 0;
-let currentProfileTab = 'posts';
-let currentExploreTab = 'people';
+let activeProfileTab = 'posts';
+let activeExploreTab = 'people';
+let activeNotifTab = 'friends';
+let activeChatUser = null;
+let currentComposeMedia = null;
+let activeThreadParentId = null;
 
-// --- HELPERS ---
-function refreshIcons() { if(window.lucide) window.lucide.createIcons(); }
-function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
-
-// --- AUTH ---
+// INIT
 onAuthStateChanged(auth, async (user) => {
+    const loader = document.getElementById('app-loader');
     if (user) {
         const userRef = doc(db, "users", user.uid);
-        const snap = await getDoc(userRef);
-        if (snap.exists()) {
-            currentUser = { id: user.uid, ...snap.data() };
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+            window.currentUser = { id: user.uid, ...userSnap.data() };
         } else {
-            currentUser = { id: user.uid, name: user.displayName || 'User', email: user.email, avatar: `https://api.dicebear.com/9.x/lorelei/svg?seed=${user.uid}`, following: [], followers: [], saved: [], liked_posts: [] };
-            await setDoc(userRef, currentUser);
+            // Create minimal user
+            window.currentUser = {
+                id: user.uid,
+                name: user.displayName || user.email.split('@')[0],
+                email: user.email,
+                avatar: user.photoURL || `https://api.dicebear.com/9.x/lorelei/svg?seed=${user.uid}`,
+                bio: "Hello World",
+                following: [], followers: [], saved: [], likes: [],
+                settings: { private: false }
+            };
+            await setDoc(userRef, window.currentUser);
         }
-        document.getElementById('header-avatar').src = currentUser.avatar;
-        document.getElementById('mobile-nav-pfp').src = currentUser.avatar;
-        document.getElementById('chat-self-pfp').src = currentUser.avatar;
+        
+        // Ensure defaults
+        window.currentUser.saved = window.currentUser.saved || [];
+        
+        // Listeners
         initDataListeners();
-        document.getElementById('app-loader').style.opacity = '0';
-        setTimeout(() => document.getElementById('app-loader').remove(), 500);
+        updateUIElements();
+        
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 500);
     } else {
-        window.location.href = 'index.html';
+        // Simple Login for Demo (Auto anonymous if needed, or redirect)
+         // For this code block to work standalone, we assume user is logged in or we use a demo login.
+         // Redirect to login page in real app.
+         console.log("No user logged in");
+         // Auto login anonymous for testing
+         // signInAnonymously(auth);
     }
 });
 
 function initDataListeners() {
-    onSnapshot(collection(db, "users"), (s) => { users = s.docs.map(d => ({ id: d.id, ...d.data() })); });
-    onSnapshot(query(collection(db, "posts"), orderBy("timestamp", "desc")), (s) => {
-        posts = s.docs.map(d => ({ id: d.id, ...d.data() }));
-        if(!document.getElementById('view-feed').classList.contains('hidden')) renderFeed();
-        if(!document.getElementById('view-profile').classList.contains('hidden')) renderProfileGrid();
+    // Users
+    onSnapshot(collection(db, "users"), (snap) => {
+        users = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        if(document.getElementById('view-explore').style.display !== 'none') handleMobileSearch(document.getElementById('mobile-explore-input').value);
     });
-    onSnapshot(query(collection(db, "notifications"), where("receiverId", "==", currentUser.id)), (s) => {
-        notifications = s.docs.map(d => ({ id: d.id, ...d.data() }));
-        document.getElementById('notif-badge').classList.toggle('hidden', !notifications.some(n => !n.read));
-    });
-}
 
-// --- CORE NAVIGATION ---
-window.switchView = function(view) {
-    const views = ['feed', 'profile', 'chat'];
-    views.forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
-    document.getElementById(`view-${view}`).classList.remove('hidden');
-    
-    document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
-    document.getElementById('main-header').classList.remove('hidden', 'header-hidden');
-    document.getElementById('mobile-nav').classList.remove('hidden');
-
-    if(view === 'feed') {
+    // Posts
+    onSnapshot(query(collection(db, "posts"), orderBy("timestamp", "desc")), (snap) => {
+        posts = snap.docs.map(d => ({id: d.id, ...d.data()}));
         renderFeed();
-        document.querySelector('[onclick="switchView(\'feed\')"]').classList.add('active');
-    } else if(view === 'profile') {
-        document.getElementById('main-header').classList.add('hidden');
-        showProfile(currentUser.id);
-        document.querySelector('[onclick="showProfile(auth.currentUser?.uid)"]').classList.add('active');
-    } else if(view === 'chat') {
-        document.getElementById('main-header').classList.add('hidden');
-        renderChatList();
-        document.querySelector('[onclick="switchView(\'chat\')"]').classList.add('active');
-    }
-    refreshIcons();
+        // If profile open, re-render
+        const profileView = document.getElementById('view-profile');
+        if(!profileView.classList.contains('hidden') && window.viewingProfileId) {
+            showProfile(window.viewingProfileId);
+        }
+    });
+
+    // Notifications
+    onSnapshot(query(collection(db, "notifications"), where("receiverId", "==", currentUser.id)), (snap) => {
+        notifications = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        const badge = document.getElementById('notif-badge');
+        const hasUnread = notifications.some(n => !n.read);
+        if(badge) badge.style.display = hasUnread ? 'block' : 'none';
+        renderNotifications();
+    });
 }
 
-// Instagram Style Scroll Hide Header
-window.handleScroll = function(el) {
-    if(window.innerWidth > 768) return;
-    const current = el.scrollTop;
+// SCROLL HEADER LOGIC
+const feedView = document.getElementById('view-feed');
+let lastScrollTop = 0;
+feedView.addEventListener('scroll', () => {
+    let st = feedView.scrollTop;
     const header = document.getElementById('main-header');
-    if (current > lastScrollY && current > 80) {
-        header.classList.add('header-hidden');
+    if (st > lastScrollTop && st > 50) {
+        header.classList.add('scroll-hide');
     } else {
-        header.classList.remove('header-hidden');
+        header.classList.remove('scroll-hide');
     }
-    lastScrollY = current;
+    lastScrollTop = st;
+});
+
+// NAVIGATION
+window.switchView = function(view) {
+    // Hide all views
+    document.querySelectorAll('#views-container > div').forEach(el => el.classList.add('hidden'));
+    
+    // Show target
+    const target = document.getElementById(`view-${view}`);
+    if(target) target.classList.remove('hidden');
+
+    // Reset Chat if leaving
+    if(view !== 'chat') {
+        document.getElementById('chat-list-view').classList.remove('hidden');
+        document.getElementById('chat-conversation-view').classList.remove('hidden'); // Reset layout for desktop
+        document.getElementById('chat-conversation-view').classList.add('hidden');
+        document.getElementById('mobile-bottom-nav').classList.remove('hidden');
+    }
+
+    // Header Logic
+    const header = document.getElementById('main-header');
+    if(view === 'profile' && window.innerWidth < 768) {
+        header.classList.add('hidden'); // Hide header on mobile profile
+    } else if (view === 'notifications' && window.innerWidth < 768) {
+        header.classList.add('hidden');
+        document.getElementById('mobile-bottom-nav').classList.add('hidden');
+    } else if (view === 'explore' && window.innerWidth < 768) {
+        header.classList.add('hidden');
+        document.getElementById('mobile-bottom-nav').classList.add('hidden');
+    } else if (view === 'chat' && window.innerWidth < 768) {
+         header.classList.add('hidden');
+    } else {
+        header.classList.remove('hidden');
+        document.getElementById('mobile-bottom-nav').classList.remove('hidden');
+    }
+
+    // Active Tab Styling
+    document.querySelectorAll('.mobile-nav-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    
+    const navId = view === 'notifications' ? 'notif' : view;
+    const mobIcon = document.querySelector(`.mobile-nav-item[onclick="switchView('${view}')"]`);
+    const deskIcon = document.getElementById(`nav-${navId}`);
+    
+    if(mobIcon) mobIcon.classList.add('active');
+    if(deskIcon) deskIcon.classList.add('active');
+
+    // Specific Renderers
+    if(view === 'feed') renderFeed();
+    if(view === 'notifications') renderNotifications();
+    if(view === 'chat') renderChatList();
+
+    lucide.createIcons();
 }
 
-// --- OVERLAYS ---
-window.openNotifOverlay = function() {
-    document.getElementById('notif-overlay').classList.remove('hidden');
-    document.getElementById('mobile-nav').classList.add('hidden');
-    renderNotifications();
-}
-window.closeNotifOverlay = function() {
-    document.getElementById('notif-overlay').classList.add('hidden');
-    document.getElementById('mobile-nav').classList.remove('hidden');
-}
-
-window.openExploreOverlay = function() {
-    document.getElementById('explore-overlay').classList.remove('hidden');
-    document.getElementById('mobile-nav').classList.add('hidden');
-}
-window.closeExploreOverlay = function() {
-    document.getElementById('explore-overlay').classList.add('hidden');
-    document.getElementById('mobile-nav').classList.remove('hidden');
-}
-
-// --- FEED & POSTS ---
+// FEED RENDERING
 window.renderFeed = function() {
     const container = document.getElementById('feed-container');
-    container.innerHTML = posts.map(p => createPostHTML(p)).join('');
-    refreshIcons();
+    container.innerHTML = "";
+    posts.forEach(post => {
+        container.appendChild(createPostElement(post));
+    });
+    lucide.createIcons();
 }
 
-function createPostHTML(post) {
-    const author = users.find(u => u.id === post.authorId) || { name: 'User', avatar: '' };
-    const isLiked = post.likes?.includes(currentUser.id);
-    const mediaHTML = post.media ? `<img src="${post.media}" class="w-full rounded-xl mt-3 max-h-[400px] object-cover border border-gray-100">` : `<div class="w-full aspect-video bg-gray-50 rounded-xl mt-3 flex items-center justify-center border border-gray-100"><i data-lucide="image" class="text-gray-300 w-10 h-10"></i></div>`;
+function createPostElement(post) {
+    const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '' };
+    const div = document.createElement('div');
+    div.className = 'post-card';
     
-    return `
-    <div class="post-card p-4 flex gap-3" onclick="openThreads('${post.id}')">
-        <img src="${author.avatar}" class="post-avatar shrink-0" onclick="event.stopPropagation(); showProfile('${author.id}')">
-        <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between">
-                <span class="font-bold text-sm truncate">${author.name}</span>
-                <span class="text-xs text-gray-400">2h</span>
-            </div>
-            <p class="text-sm mt-1 line-clamp-4">${post.content}</p>
-            ${mediaHTML}
-            <div class="flex items-center justify-between mt-4">
-                <div class="flex gap-4">
-                    <button class="flex items-center gap-1.5 text-gray-500" onclick="event.stopPropagation(); toggleLike('${post.id}')"><i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i> <span class="text-xs">${post.likes?.length || 0}</span></button>
-                    <button class="flex items-center gap-1.5 text-gray-500"><i data-lucide="message-circle" class="w-5 h-5"></i> <span class="text-xs">${post.comments?.length || 0}</span></button>
-                </div>
-                <button class="text-gray-400"><i data-lucide="bookmark" class="w-5 h-5"></i></button>
-            </div>
-            ${post.comments?.length > 0 ? `<div class="mt-3 text-blue-600 text-xs font-bold">Show 1 reply</div>` : ''}
-        </div>
-    </div>`;
-}
-
-// --- THREADS SYSTEM ---
-let activeThreadPostId = null;
-window.openThreads = function(postId) {
-    activeThreadPostId = postId;
-    const post = posts.find(p => p.id === postId);
-    const container = document.getElementById('threads-container');
-    const author = users.find(u => u.id === post.authorId);
-    
-    let html = `
-    <div class="p-4 border-b border-gray-100">
-        <div class="flex gap-3 mb-4"><img src="${author?.avatar}" class="w-10 h-10 rounded-full"><span class="font-bold pt-2">${author?.name}</span></div>
-        <p class="text-lg leading-relaxed">${post.content}</p>
-        ${post.media ? `<img src="${post.media}" class="mt-4 rounded-2xl w-full border border-gray-100">` : ''}
-    </div>`;
-
-    if(post.comments) {
-        html += post.comments.map(c => {
-            const cAuthor = users.find(u => u.id === c.authorId);
-            return `<div class="p-4 flex gap-3 border-b border-gray-50">
-                <img src="${cAuthor?.avatar}" class="w-8 h-8 rounded-full">
-                <div><span class="font-bold text-sm">${cAuthor?.name}</span><p class="text-sm mt-0.5 text-gray-800">${c.content}</p></div>
-            </div>`;
-        }).join('');
+    // Determine image rendering for standard feed
+    let mediaHtml = '';
+    if(post.media) {
+        mediaHtml = `<div class="mt-3 rounded-xl overflow-hidden bg-gray-100"><img src="${post.media}" class="w-full h-auto object-cover max-h-[500px]"></div>`;
     }
-    container.innerHTML = html;
-    document.getElementById('threads-overlay').classList.remove('hidden');
-    refreshIcons();
-}
-window.closeThreads = function() { document.getElementById('threads-overlay').classList.add('hidden'); }
 
-// --- PROFILE SYSTEM ---
-let viewingUserId = null;
+    const isLiked = post.likes && post.likes.includes(currentUser.id);
+    const likeIconClass = isLiked ? 'fill-red-500 text-red-500' : 'text-gray-500';
+
+    // Comments preview
+    const comments = post.comments || [];
+    let commentsHtml = '';
+    if (comments.length > 0) {
+        commentsHtml = `<button onclick="openThreads('${post.id}', '${comments[0].id}')" class="text-sm text-gray-500 mt-2 hover:text-gray-800">View ${comments.length} replies</button>`;
+    }
+
+    div.innerHTML = `
+        <div class="flex gap-3">
+            <img src="${author.avatar}" class="w-10 h-10 rounded-full bg-gray-200 object-cover cursor-pointer" onclick="showProfile('${author.id}')">
+            <div class="flex-1">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="font-bold text-[#1f1f1f] cursor-pointer" onclick="showProfile('${author.id}')">${author.name}</span>
+                        <span class="text-gray-500 text-sm ml-2">2h</span>
+                    </div>
+                    <button onclick="showPostOptions('${post.id}')"><i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i></button>
+                </div>
+                <p class="mt-1 text-[15px] leading-relaxed">${marked.parseInline(post.content || '')}</p>
+                ${mediaHtml}
+                <div class="flex items-center justify-between mt-3 max-w-[300px]">
+                    <button class="flex items-center gap-1.5 group" onclick="toggleLike('${post.id}')">
+                        <i data-lucide="heart" class="w-5 h-5 ${likeIconClass} transition-colors group-hover:text-red-500"></i>
+                        <span class="text-xs font-medium text-gray-500">${post.likes ? post.likes.length : 0}</span>
+                    </button>
+                    <button class="flex items-center gap-1.5 group" onclick="openThreads('${post.id}')">
+                        <i data-lucide="message-circle" class="w-5 h-5 text-gray-500 group-hover:text-blue-500"></i>
+                        <span class="text-xs font-medium text-gray-500">${comments.length}</span>
+                    </button>
+                    <button class="flex items-center gap-1.5 group" onclick="toggleSave('${post.id}')">
+                        <i data-lucide="bookmark" class="w-5 h-5 ${currentUser.saved.includes(post.id) ? 'fill-yellow-500 text-yellow-500' : 'text-gray-500'}"></i>
+                    </button>
+                </div>
+                ${commentsHtml}
+            </div>
+        </div>
+    `;
+    return div;
+}
+
+// PROFILE
 window.showProfile = function(userId) {
-    viewingUserId = userId;
+    window.viewingProfileId = userId;
     switchView('profile');
     const user = users.find(u => u.id === userId);
-    if(!user) return;
+    const isMe = userId === currentUser.id;
+    const container = document.getElementById('profile-content');
     
-    document.getElementById('profile-header-content').innerHTML = `
-    <div class="h-32 bg-gray-100 relative"></div>
-    <div class="p-4 relative">
-        <div class="flex justify-between items-end -mt-12 mb-4">
-            <img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white shadow-sm object-cover">
-            <button class="px-4 py-1.5 border border-gray-200 rounded-full font-bold text-sm">Edit Profile</button>
+    // Header Logic based on viewport
+    const isMobile = window.innerWidth < 768;
+    const headerHtml = isMobile ? `
+        <div class="p-4 flex items-center gap-4 border-b border-gray-100 sticky top-0 bg-white/95 z-20">
+            <button onclick="switchView('feed')"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+            <h2 class="font-bold text-lg flex-1">${user.name}</h2>
+            ${isMe ? `<button onclick="toggleSettings(true)"><i data-lucide="menu" class="w-6 h-6"></i></button>` : ''}
         </div>
-        <h2 class="text-xl font-bold">${user.name}</h2>
-        <p class="text-gray-500 text-sm">@${user.name.toLowerCase().replace(/ /g,'')}</p>
-        <div class="flex gap-5 mt-4 text-sm">
-            <span><strong class="text-black">${user.following?.length || 0}</strong> Following</span>
-            <span><strong class="text-black">${user.followers?.length || 0}</strong> Followers</span>
-        </div>
-    </div>`;
-    renderProfileGrid();
-}
+    ` : '';
 
-function renderProfileGrid() {
-    const grid = document.getElementById('profile-grid');
-    let display = [];
-    if(currentProfileTab === 'posts') display = posts.filter(p => p.authorId === viewingUserId);
-    else if(currentProfileTab === 'liked') display = posts.filter(p => p.likes?.includes(viewingUserId));
-    else if(currentProfileTab === 'saved') display = posts.filter(p => currentUser.saved?.includes(p.id));
+    // Action Button
+    let actionBtn = '';
+    if(isMe) {
+        actionBtn = `<button class="bg-gray-100 text-gray-900 px-6 py-2 rounded-lg font-bold text-sm w-full md:w-auto">Edit Profile</button>`;
+    } else {
+        const isFollowing = currentUser.following && currentUser.following.includes(userId);
+        actionBtn = `<button onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-900' : 'bg-blue-600 text-white'} px-6 py-2 rounded-lg font-bold text-sm flex-1">${isFollowing ? 'Following' : 'Follow'}</button>
+                     <button onclick="startChat('${userId}')" class="bg-gray-100 px-3 py-2 rounded-lg"><i data-lucide="message-circle" class="w-5 h-5"></i></button>`;
+    }
 
-    grid.innerHTML = display.map(p => `
-        <div class="grid-item" onclick="openThreads('${p.id}')">
-            ${p.media ? `<img src="${p.media}">` : `<div class="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50"><i data-lucide="file-text"></i></div>`}
+    container.innerHTML = `
+        ${headerHtml}
+        <div class="px-4 py-6 md:px-8 max-w-4xl mx-auto">
+            <div class="flex gap-6 items-start mb-6">
+                <img src="${user.avatar}" class="w-20 h-20 md:w-32 md:h-32 rounded-full border border-gray-100 object-cover bg-gray-50">
+                <div class="flex-1">
+                    <div class="flex justify-between items-start md:items-center mb-4 flex-col md:flex-row gap-3">
+                         <h1 class="text-xl font-bold hidden md:block">${user.name}</h1>
+                         <div class="flex gap-2 w-full md:w-auto">${actionBtn}</div>
+                    </div>
+                    <div class="flex gap-6 text-sm mb-4">
+                        <span><b>${posts.filter(p=>p.authorId===userId).length}</b> posts</span>
+                        <span><b>${user.followers?.length||0}</b> followers</span>
+                        <span><b>${user.following?.length||0}</b> following</span>
+                    </div>
+                    <p class="text-sm text-gray-700 whitespace-pre-wrap">${user.bio}</p>
+                </div>
+            </div>
+
+            <!-- TABS -->
+            <div class="twitter-tabs sticky top-0 md:relative bg-white z-10">
+                <div onclick="switchProfileTab('posts')" class="twitter-tab ${activeProfileTab==='posts'?'active':''}">Posts<div class="twitter-tab-line"></div></div>
+                <div onclick="switchProfileTab('saved')" class="twitter-tab ${activeProfileTab==='saved'?'active':''}">Saved<div class="twitter-tab-line"></div></div>
+                <div onclick="switchProfileTab('likes')" class="twitter-tab ${activeProfileTab==='likes'?'active':''}">Liked<div class="twitter-tab-line"></div></div>
+            </div>
+
+            <!-- GRID -->
+            <div id="profile-grid-container" class="profile-grid mt-1"></div>
         </div>
-    `).join('');
-    refreshIcons();
+    `;
+    renderProfileGrid(userId);
+    lucide.createIcons();
 }
 
 window.switchProfileTab = function(tab) {
-    currentProfileTab = tab;
-    document.querySelectorAll('#view-profile .tab-item').forEach(i => i.classList.remove('active'));
-    document.getElementById(`ptab-${tab}`).classList.add('active');
-    renderProfileGrid();
-}
-
-// --- CHAT SYSTEM ---
-window.renderChatList = function() {
-    const container = document.getElementById('chat-list-container');
-    container.innerHTML = users.filter(u => u.id !== currentUser.id).map(u => `
-    <div class="p-4 flex items-center gap-3 hover:bg-gray-50 transition-colors" onclick="openChatWindow('${u.id}')">
-        <img src="${u.avatar}" class="w-14 h-14 rounded-full object-cover">
-        <div class="flex-1 border-b border-gray-50 pb-4">
-            <div class="flex justify-between items-center"><span class="font-bold text-sm">${u.name}</span><span class="text-xs text-gray-400">12:30 PM</span></div>
-            <p class="text-xs text-gray-500 mt-1 line-clamp-1">Shared a post with you.</p>
-        </div>
-    </div>`).join('');
-}
-
-window.openChatWindow = function(partnerId) {
-    activeChatPartnerId = partnerId;
-    const partner = users.find(u => u.id === partnerId);
-    document.getElementById('chat-partner-pfp').src = partner.avatar;
-    document.getElementById('chat-partner-name').innerText = partner.name;
-    document.getElementById('chat-window-view').classList.remove('hidden');
-    document.getElementById('mobile-nav').classList.add('hidden');
-    refreshIcons();
-}
-
-window.closeChatWindow = function() {
-    document.getElementById('chat-window-view').classList.add('hidden');
-    document.getElementById('mobile-nav').classList.remove('hidden');
-}
-
-// --- EXPLORE SYSTEM ---
-window.handleExploreSearch = function(val) {
-    const pre = document.getElementById('explore-pre-state');
-    const res = document.getElementById('explore-results-container');
-    const list = document.getElementById('explore-results-list');
+    activeProfileTab = tab;
+    // Update active class manually to avoid full re-render
+    document.querySelectorAll('.twitter-tab').forEach(el => el.classList.remove('active'));
+    // Finding element by text content is tricky, simplest is re-rendering or specific IDs.
+    // For this single file, simple re-render of grid is efficient enough.
+    const tabs = document.querySelectorAll('.twitter-tab');
+    if(tab==='posts') tabs[0].classList.add('active');
+    if(tab==='saved') tabs[1].classList.add('active');
+    if(tab==='likes') tabs[2].classList.add('active');
     
-    if(!val) { pre.classList.remove('hidden'); res.classList.add('hidden'); return; }
-    pre.classList.add('hidden');
-    res.classList.remove('hidden');
+    renderProfileGrid(window.viewingProfileId);
+}
 
-    if(currentExploreTab === 'people') {
-        const matches = users.filter(u => u.name.toLowerCase().includes(val.toLowerCase()));
-        list.innerHTML = matches.map(u => `<div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl mb-2" onclick="showProfile('${u.id}'); closeExploreOverlay()">
-            <img src="${u.avatar}" class="w-10 h-10 rounded-full">
-            <div><div class="font-bold text-sm">${u.name}</div><div class="text-xs text-gray-500">Student at EduLink</div></div>
-        </div>`).join('');
+function renderProfileGrid(userId) {
+    const grid = document.getElementById('profile-grid-container');
+    grid.innerHTML = '';
+    
+    let targetPosts = [];
+    if(activeProfileTab === 'posts') {
+        targetPosts = posts.filter(p => p.authorId === userId);
+    } else if (activeProfileTab === 'saved') {
+        // Only show if it's ME viewing my own saved
+        if(userId === currentUser.id) {
+            targetPosts = posts.filter(p => currentUser.saved.includes(p.id));
+        }
+    } else if (activeProfileTab === 'likes') {
+        // Approximate "Liked" by checking if user ID is in post likes
+        // Note: Real apps query this differently.
+        targetPosts = posts.filter(p => p.likes && p.likes.includes(userId));
+    }
+
+    if(targetPosts.length === 0) {
+        grid.innerHTML = '<div class="col-span-3 text-center py-10 text-gray-400 text-sm">No posts yet.</div>';
+        return;
+    }
+
+    targetPosts.forEach(post => {
+        const div = document.createElement('div');
+        div.className = 'grid-item';
+        div.onclick = () => openThreads(post.id); // Open detailed view
+
+        if(post.media) {
+            div.innerHTML = `<img src="${post.media}">`;
+        } else {
+            // Placeholder text block for text-only posts
+            div.innerHTML = `<div class="grid-item-placeholder">${post.content.substring(0, 50)}...</div>`;
+        }
+        grid.appendChild(div);
+    });
+}
+
+// NOTIFICATIONS
+window.switchNotifTab = function(tab) {
+    activeNotifTab = tab;
+    document.querySelectorAll('#view-notifications .twitter-tab').forEach(el => el.classList.remove('active'));
+    document.getElementById(`ntab-${tab}`).classList.add('active');
+    renderNotifications();
+}
+
+window.renderNotifications = function() {
+    const container = document.getElementById('notification-list');
+    container.innerHTML = '';
+    
+    // Filter logic
+    let filtered = [];
+    if(activeNotifTab === 'official') filtered = notifications.filter(n => n.type === 'official');
+    else if(activeNotifTab === 'friends') filtered = notifications.filter(n => currentUser.following.includes(n.senderId));
+    else filtered = notifications.filter(n => !currentUser.following.includes(n.senderId) && n.type !== 'official');
+
+    if(filtered.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-gray-400">No notifications</div>`;
+        return;
+    }
+
+    filtered.forEach(n => {
+        const sender = users.find(u => u.id === n.senderId) || { name: 'App', avatar: '' };
+        const div = document.createElement('div');
+        div.className = 'flex items-center gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer';
+        div.innerHTML = `
+            <img src="${sender.avatar}" class="w-10 h-10 rounded-full bg-gray-200 object-cover">
+            <div class="flex-1 text-sm">
+                <span class="font-bold">${sender.name}</span> <span class="text-gray-600">${n.content}</span>
+            </div>
+            ${n.type === 'follow' ? '<button class="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold">Follow</button>' : ''}
+        `;
+        container.appendChild(div);
+    });
+}
+
+// CHAT
+window.renderChatList = function(searchVal = "") {
+    const container = document.getElementById('chat-list-container');
+    container.innerHTML = '';
+    
+    // In a real app, query "conversations". Here, we mock list based on following/users
+    let contacts = users.filter(u => u.id !== currentUser.id);
+    if(searchVal) contacts = contacts.filter(u => u.name.toLowerCase().includes(searchVal.toLowerCase()));
+
+    contacts.forEach(user => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center gap-3 p-4 hover:bg-gray-50 cursor-pointer';
+        div.onclick = () => startChat(user.id);
+        div.innerHTML = `
+            <img src="${user.avatar}" class="w-12 h-12 rounded-full bg-gray-200 object-cover">
+            <div class="flex-1">
+                <h4 class="font-bold text-sm text-gray-900">${user.name}</h4>
+                <p class="text-xs text-gray-500">Tap to chat</p>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+window.startChat = function(userId) {
+    activeChatUser = users.find(u => u.id === userId);
+    
+    if(window.innerWidth < 768) {
+        document.getElementById('mobile-bottom-nav').classList.add('hidden');
+        document.getElementById('chat-list-view').classList.add('hidden');
+        document.getElementById('chat-conversation-view').classList.remove('hidden');
+        document.getElementById('chat-conversation-view').classList.add('flex');
     } else {
-        const matches = posts.filter(p => p.content.toLowerCase().includes(val.toLowerCase()));
-        list.innerHTML = matches.map(p => `<div class="p-3 border-b border-gray-100" onclick="openThreads('${p.id}'); closeExploreOverlay()">
-            <p class="text-sm line-clamp-2">${p.content}</p>
-        </div>`).join('');
+        // Desktop handling (not fully implemented in this requested view, focusing on mobile)
+    }
+    
+    // Header setup
+    document.getElementById('chat-partner-name').innerText = activeChatUser.name;
+    document.getElementById('chat-partner-avatar').src = activeChatUser.avatar;
+    
+    // Load messages (Mock for now)
+    const msgContainer = document.getElementById('chat-messages');
+    msgContainer.innerHTML = `<div class="text-center text-xs text-gray-300 mt-4">Start of conversation</div>`;
+}
+
+window.closeChat = function() {
+    if(window.innerWidth < 768) {
+        document.getElementById('chat-conversation-view').classList.add('hidden');
+        document.getElementById('chat-conversation-view').classList.remove('flex');
+        document.getElementById('chat-list-view').classList.remove('hidden');
+        document.getElementById('mobile-bottom-nav').classList.remove('hidden');
+    }
+}
+
+window.sendMessage = function() {
+    const input = document.getElementById('message-input');
+    const txt = input.value;
+    if(!txt) return;
+    
+    const container = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = 'chat-bubble-me mb-2';
+    div.innerText = txt;
+    container.appendChild(div);
+    input.value = "";
+    container.scrollTop = container.scrollHeight;
+}
+
+// THREADS (Replies)
+window.openThreads = function(postId, startCommentId = null) {
+    const post = posts.find(p => p.id === postId);
+    if(!post) return;
+    
+    activeThreadParentId = postId;
+    const overlay = document.getElementById('threads-overlay');
+    const content = document.getElementById('threads-content');
+    overlay.classList.remove('hidden');
+    
+    // Build Thread HTML
+    const author = users.find(u => u.id === post.authorId);
+    let html = `
+        <div class="border-l-2 border-gray-100 pl-4 mb-4">
+            <div class="flex items-center gap-2 mb-2">
+                <img src="${author.avatar}" class="w-6 h-6 rounded-full">
+                <span class="font-bold text-sm">${author.name}</span>
+            </div>
+            <p class="text-sm">${post.content}</p>
+        </div>
+        <hr class="border-gray-100 my-2">
+        <h4 class="font-bold text-sm mb-2">Replies</h4>
+        <div id="thread-comments-list" class="space-y-4">
+    `;
+    
+    const comments = post.comments || [];
+    comments.forEach(c => {
+        const cAuth = users.find(u => u.id === c.authorId) || {name: 'User', avatar: ''};
+        html += `
+            <div class="flex gap-3">
+                <img src="${cAuth.avatar}" class="w-8 h-8 rounded-full bg-gray-200">
+                <div>
+                    <div class="bg-gray-100 rounded-2xl px-3 py-2">
+                        <span class="font-bold text-xs block">${cAuth.name}</span>
+                        <span class="text-sm">${c.content}</span>
+                    </div>
+                    <div class="flex gap-3 mt-1 ml-2 text-xs text-gray-500">
+                        <button>Like</button>
+                        <button>Reply</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `</div>`;
+    content.innerHTML = html;
+}
+
+window.submitThreadReply = async function() {
+    const input = document.getElementById('thread-reply-input');
+    const val = input.value;
+    if(!val || !activeThreadParentId) return;
+    
+    // Add comment logic
+    const postRef = doc(db, "posts", activeThreadParentId);
+    const newComment = {
+        id: Date.now().toString(),
+        authorId: currentUser.id,
+        content: val,
+        timestamp: Date.now()
+    };
+    
+    await updateDoc(postRef, { comments: arrayUnion(newComment) });
+    input.value = "";
+    // Re-render handled by snapshot listener or manual append here
+    openThreads(activeThreadParentId);
+}
+
+window.closeThreads = function() {
+    document.getElementById('threads-overlay').classList.add('hidden');
+    activeThreadParentId = null;
+}
+
+// EXPLORE
+window.handleMobileSearch = function(val) {
+    const container = document.getElementById('explore-content');
+    const resultsArea = document.getElementById('explore-results');
+    const initialArea = document.getElementById('explore-initial');
+    
+    if(!val) {
+        resultsArea.classList.add('hidden');
+        initialArea.classList.remove('hidden');
+        return;
+    }
+    
+    resultsArea.classList.remove('hidden');
+    initialArea.classList.add('hidden');
+    container.innerHTML = '';
+    
+    if(activeExploreTab === 'people') {
+        const found = users.filter(u => u.name.toLowerCase().includes(val.toLowerCase()));
+        found.forEach(u => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-3 p-2 bg-gray-50 rounded-xl cursor-pointer';
+            div.onclick = () => showProfile(u.id);
+            div.innerHTML = `<img src="${u.avatar}" class="w-10 h-10 rounded-full"><span class="font-bold">${u.name}</span>`;
+            container.appendChild(div);
+        });
+    } else {
+        const found = posts.filter(p => p.content.toLowerCase().includes(val.toLowerCase()));
+        found.forEach(p => container.appendChild(createPostElement(p)));
     }
 }
 
 window.switchExploreTab = function(tab) {
-    currentExploreTab = tab;
-    document.querySelectorAll('#explore-overlay .tab-item').forEach(i => i.classList.remove('active'));
-    document.getElementById(`etab-${tab}`).classList.add('active');
-    handleExploreSearch(document.getElementById('explore-search').value);
+    activeExploreTab = tab;
+    document.getElementById('xtab-people').classList.toggle('active', tab === 'people');
+    document.getElementById('xtab-posts').classList.toggle('active', tab === 'posts');
+    handleMobileSearch(document.getElementById('mobile-explore-input').value);
 }
 
-// --- GLOBAL ACTIONS ---
-window.openSettings = () => document.getElementById('settings-modal').classList.remove('hidden');
-window.doLogout = async () => { await signOut(auth); window.location.href = 'index.html'; }
-window.toggleLike = async function(pid) {
-    const ref = doc(db, "posts", pid);
-    if(posts.find(p=>p.id===pid).likes?.includes(currentUser.id)) await updateDoc(ref, { likes: arrayRemove(currentUser.id) });
-    else await updateDoc(ref, { likes: arrayUnion(currentUser.id) });
+window.clearMobileSearch = function() {
+    document.getElementById('mobile-explore-input').value = '';
+    handleMobileSearch('');
 }
 
-refreshIcons();
+// SETTINGS
+window.toggleSettings = function(show) {
+    const overlay = document.getElementById('settings-overlay');
+    if(show) overlay.classList.remove('hidden');
+    else overlay.classList.add('hidden');
+}
+
+window.updateUIElements = function() {
+    if(currentUser) {
+        document.getElementById('header-avatar').src = currentUser.avatar;
+        document.getElementById('mobile-avatar').src = currentUser.avatar;
+        document.getElementById('compose-avatar').src = currentUser.avatar;
+        if(currentUser.settings.private) document.getElementById('toggle-privacy').checked = true;
+    }
+}
+
+// POST ACTIONS
+window.toggleLike = async function(postId) {
+    const postRef = doc(db, "posts", postId);
+    const p = posts.find(x => x.id === postId);
+    if(p.likes && p.likes.includes(currentUser.id)) {
+        await updateDoc(postRef, { likes: arrayRemove(currentUser.id) });
+    } else {
+        await updateDoc(postRef, { likes: arrayUnion(currentUser.id) });
+    }
+}
+
+window.toggleSave = async function(postId) {
+    const userRef = doc(db, "users", currentUser.id);
+    if(currentUser.saved.includes(postId)) {
+        await updateDoc(userRef, { saved: arrayRemove(postId) });
+    } else {
+        await updateDoc(userRef, { saved: arrayUnion(postId) });
+    }
+}
+
+window.openCompose = function() {
+    document.getElementById('compose-overlay').classList.remove('hidden');
+}
+window.closeCompose = function() {
+    document.getElementById('compose-overlay').classList.add('hidden');
+}
+window.promptImage = function() {
+    const url = prompt("Image URL:");
+    if(url) {
+        currentComposeMedia = url;
+        const img = document.getElementById('compose-img-preview');
+        img.src = url;
+        document.getElementById('compose-preview').classList.remove('hidden');
+    }
+}
+window.clearComposeMedia = function() {
+    currentComposeMedia = null;
+    document.getElementById('compose-preview').classList.add('hidden');
+}
+window.publishPost = async function() {
+    const txt = document.getElementById('compose-text').value;
+    if(!txt && !currentComposeMedia) return;
+    
+    await addDoc(collection(db, "posts"), {
+        authorId: currentUser.id,
+        content: txt,
+        media: currentComposeMedia,
+        timestamp: serverTimestamp(),
+        likes: [], comments: []
+    });
+    
+    document.getElementById('compose-text').value = "";
+    clearComposeMedia();
+    closeCompose();
+    
+    const toast = document.getElementById('toast');
+    toast.classList.remove('opacity-0');
+    setTimeout(() => toast.classList.add('opacity-0'), 2000);
+}
+
+// UTILS
+window.hideGlobalMenus = function() {
+    // Hide dropdowns if any
+}
+window.doLogout = function() {
+    signOut(auth);
+    window.location.reload();
+}
+
 </script>
 </body>
 </html>

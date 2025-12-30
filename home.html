@@ -32,12 +32,6 @@ color: var(--on-surface);
 overflow: hidden;
 }
 
-/* Force white background on mobile as requested */
-@media (max-width: 768px) {
-    body { background-color: #ffffff !important; }
-    #workspace-layout { background-color: #ffffff !important; }
-}
-
 h1, h2, h3, .google-font { font-family: 'Google Sans', 'Inter', sans-serif; }
 
 /* No Scrollbars */
@@ -251,7 +245,7 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.share-btn:hover { background-color: #dbeafe; }
 
 /* --- COMPOSE & CREATE MENUS --- */
-#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #tag-people-overlay {
+#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
 }
@@ -533,42 +527,6 @@ border-radius: 4px 4px 0 0;
     overflow: hidden;
 }
 
-/* --- PEOPLE GRID STYLE (Instagram Explore) --- */
-.grid-people-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px; /* 1px gap for visual separation */
-}
-.grid-person-item {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    background: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    padding: 4px;
-    text-align: center;
-}
-.grid-person-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.grid-person-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding-bottom: 8px;
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-}
-
 /* --- CHAT STYLES --- */
 .chat-sidebar-item {
 display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px;
@@ -592,8 +550,8 @@ box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .chat-bubble-them {
-background: #efefef; /* Instagram like gray */
-color: black;
+background: var(--hover-bg);
+color: var(--on-surface);
 padding: 10px 16px;
 border-radius: 18px 18px 18px 4px;
 font-size: 15px;
@@ -783,23 +741,6 @@ transform: translateX(20px);
     transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.tagged-icon-btn {
-    position: absolute;
-    bottom: 12px;
-    left: 12px;
-    background: rgba(0,0,0,0.6);
-    color: white;
-    padding: 6px;
-    border-radius: 50%;
-    cursor: pointer;
-    backdrop-filter: blur(4px);
-    z-index: 5;
-    transition: transform 0.2s;
-}
-.tagged-icon-btn:hover {
-    transform: scale(1.1);
-}
-
 </style>
 </head>
 <body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
@@ -819,33 +760,6 @@ transform: translateX(20px);
 <!-- Post Options Global Menu -->
 <div id="global-post-menu" class="post-options-menu"></div>
 
-<!-- USERNAME SETUP MODAL -->
-<div id="username-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
-    <div class="bg-white w-[90%] max-w-[400px] rounded-2xl p-8 text-center relative">
-        <h2 class="text-2xl font-bold mb-2">Create Username</h2>
-        <p class="text-gray-500 text-sm mb-6">Choose a unique username for your profile. You can change this later.</p>
-        <div class="relative mb-6">
-            <span class="absolute left-4 top-3 text-gray-400 font-bold">@</span>
-            <input type="text" id="username-input" class="w-full bg-gray-100 rounded-xl py-3 pl-8 pr-4 outline-none border border-transparent focus:border-blue-500 focus:bg-white transition-all lowercase" placeholder="username" oninput="this.value = this.value.replace(/[^a-z0-9_.]/g, '').toLowerCase()">
-        </div>
-        <button onclick="saveUsername()" class="w-full bg-[#0b57d0] text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors">Get Started</button>
-    </div>
-</div>
-
-<!-- TAG PEOPLE OVERLAY -->
-<div id="tag-people-overlay" class="fixed inset-0 z-[75] flex items-center justify-center bg-black/40 backdrop-blur-sm hidden" onclick="closeTagging()">
-    <div class="bg-white w-[90%] max-w-[400px] h-[60vh] rounded-[24px] shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
-        <div class="flex justify-between items-center p-4 border-b border-gray-100">
-            <h3 class="text-lg font-bold text-gray-900">Tag People</h3>
-            <button onclick="saveTags()" class="text-[#0b57d0] font-bold text-sm">Done</button>
-        </div>
-        <div class="p-3">
-            <input type="text" placeholder="Search users..." class="w-full bg-gray-100 rounded-xl py-2 px-4 text-sm outline-none" oninput="renderTagSearch(this.value)">
-        </div>
-        <div id="tag-list-content" class="flex-1 overflow-y-auto p-2"></div>
-    </div>
-</div>
-
 <!-- MOBILE NOTIFICATIONS HEADER -->
 <div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
    <div class="h-14 flex items-center justify-between px-4 shrink-0">
@@ -860,19 +774,12 @@ transform: translateX(20px);
 </div>
 
 <!-- MOBILE EXPLORE HEADER -->
-<div id="mobile-explore-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex flex-col hidden border-b border-gray-100">
-    <div class="flex items-center gap-3 px-3 h-14 shrink-0">
-        <div class="relative flex-1">
-             <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
-             <input type="text" id="mobile-explore-search" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Search users & posts..." oninput="handleSearch(this.value)">
-        </div>
-        <button onclick="switchView('feed')" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+<div id="mobile-explore-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex items-center gap-3 px-3 h-16 border-b border-gray-100 hidden">
+    <div class="relative flex-1">
+         <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
+         <input type="text" id="mobile-explore-search" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Search users & posts..." oninput="handleSearch(this.value)">
     </div>
-    <!-- Tabs hidden initially, shown when searching -->
-    <div class="tab-group mb-0 mx-0 w-full hidden" id="explore-tabs-mobile">
-        <button onclick="switchExploreTab('people')" id="etab-people-mobile" class="tab-btn active">People</button>
-        <button onclick="switchExploreTab('posts')" id="etab-posts-mobile" class="tab-btn">Posts</button>
-    </div>
+    <button onclick="switchView('feed')" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
 </div>
 
 <!-- THREAD OVERLAY (Redesigned) -->
@@ -898,41 +805,6 @@ transform: translateX(20px);
             </div>
         </div>
     </div>
-</div>
-
-<!-- MOBILE CONVERSATION OVERLAY -->
-<div id="mobile-chat-overlay" class="fixed inset-0 z-[100] bg-white hidden flex-col">
-  <!-- Header -->
-  <div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0">
-     <div class="flex items-center gap-3">
-        <button onclick="closeMobileChat()" class="icon-btn -ml-2"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
-        <div class="flex items-center gap-3 cursor-pointer" onclick="if(window.activeChatUserId) showProfile(window.activeChatUserId)">
-            <img id="mobile-chat-header-avatar" src="" class="w-9 h-9 rounded-full border border-gray-100 object-cover">
-            <div class="flex flex-col">
-                <span id="mobile-chat-header-name" class="font-bold text-gray-900 text-sm leading-none">User</span>
-                <span class="text-xs text-gray-500 mt-0.5">Active now</span>
-            </div>
-        </div>
-     </div>
-     <div class="relative">
-        <button onclick="toggleMobileChatOptions()" class="icon-btn"><i data-lucide="more-horizontal" class="w-6 h-6"></i></button>
-        <div id="mobile-chat-options" class="absolute top-10 right-0 bg-white border border-gray-100 shadow-xl rounded-xl p-2 z-10 hidden w-40">
-            <div onclick="deleteCurrentChat();" class="w-full text-left px-4 py-3 text-red-500 font-medium text-sm hover:bg-red-50 rounded-lg flex items-center gap-2 cursor-pointer"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete Chat</div>
-        </div>
-     </div>
-  </div>
-
-  <!-- Messages -->
-  <div id="mobile-chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col bg-white"></div>
-
-  <!-- Footer -->
-  <div class="p-3 border-t border-gray-100 flex items-center gap-2 shrink-0 pb-[env(safe-area-inset-bottom)] mb-1 bg-white">
-     <div class="flex-1 bg-gray-100 rounded-full px-4 py-2.5 flex items-center gap-2 border border-transparent focus-within:border-gray-200 transition-colors">
-        <div class="p-1 rounded-full bg-[#0b57d0] flex items-center justify-center"><i data-lucide="camera" class="w-3 h-3 text-white"></i></div>
-        <input id="mobile-message-input" type="text" placeholder="Message..." class="bg-transparent flex-1 outline-none text-sm text-gray-900 placeholder-gray-500">
-        <button onclick="sendMobileChatMessage()" class="text-[#0b57d0] font-bold text-sm px-2">Send</button>
-     </div>
-  </div>
 </div>
 
 <!-- Post View Overlay -->
@@ -1196,7 +1068,6 @@ Change
 <img id="compose-avatar" src="" class="w-10 h-10 rounded-full border border-gray-100 bg-gray-50 object-cover">
 <div>
 <div id="compose-name" class="text-[15px] font-bold text-[#1f1f1f]">User</div>
-<div id="compose-tags-display" class="text-xs text-blue-600 font-medium hidden"></div>
 </div>
 </div>
 <textarea id="compose-text" placeholder="What do you want to share today?" class="compose-textarea"></textarea>
@@ -1210,7 +1081,6 @@ Change
 <div class="compose-tools">
     <div class="tool-group">
         <button onclick="document.getElementById('media-input').click()" class="tool-btn" title="Upload Media"><i data-lucide="image" class="w-5 h-5"></i></button>
-        <button onclick="openTagging()" class="tool-btn" title="Tag People"><i data-lucide="user-plus" class="w-5 h-5"></i></button>
         <button onclick="promptForImageLink()" class="tool-btn" title="Image Link"><i data-lucide="link" class="w-5 h-5"></i></button>
         <button onclick="insertCodeBlock()" class="tool-btn" title="Add Code"><i data-lucide="code-2" class="w-5 h-5"></i></button>
         <button class="tool-btn" title="More"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
@@ -1354,28 +1224,15 @@ Change
 
 <!-- CHAT VIEW -->
 <div id="view-chat" class="flex-1 h-full hidden flex flex-col bg-white overflow-hidden pt-16 md:pt-0">
-    <!-- Mobile Chat List Header -->
-    <div class="md:hidden h-16 flex items-center px-4 border-b border-gray-100 gap-3 shrink-0">
-        <img id="mobile-chat-list-pfp" src="" class="w-9 h-9 rounded-full bg-gray-200">
-        <div class="flex-1 bg-gray-100 rounded-full h-10 flex items-center px-4">
-            <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i>
-            <input oninput="renderChatList(this.value)" type="text" placeholder="Search" class="bg-transparent w-full outline-none text-sm">
-        </div>
-    </div>
-
     <div class="flex h-full">
-        <!-- Chat List Panel (Visible on mobile initially, becomes 1/4 on desktop) -->
-        <div class="w-full md:w-1/4 min-w-[260px] border-r border-gray-100 flex flex-col bg-[#fbfbfa]">
-            <!-- Desktop Header -->
-            <div class="p-4 border-b border-gray-100 hidden md:block">
+        <div class="w-1/4 min-w-[260px] border-r border-gray-100 flex flex-col bg-[#fbfbfa]">
+            <div class="p-4 border-b border-gray-100">
                 <div class="font-medium text-xs text-gray-500 uppercase tracking-wide mb-2">Direct Messages</div>
                 <input type="text" placeholder="Search chats..." onkeyup="renderChatList(this.value)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-blue-500 transition-colors">
             </div>
-            <div id="chat-list" class="flex-1 overflow-y-auto pt-2 bg-white"></div>
+            <div id="chat-list" class="flex-1 overflow-y-auto pt-2"></div>
         </div>
-        
-        <!-- Desktop Conversation Panel (Hidden on mobile, separate overlay used instead) -->
-        <div class="hidden md:flex flex-1 flex-col relative bg-white h-full overflow-hidden">
+        <div class="flex-1 flex flex-col relative bg-white h-full overflow-hidden">
             <div id="chat-header" class="h-16 border-b border-gray-100 bg-white flex items-center justify-between px-6 font-semibold text-gray-800 text-[15px] shrink-0">
                 Select a friend to chat
             </div>
@@ -1419,7 +1276,7 @@ Change
  <!-- SEARCH / EXPLORE VIEW -->
 <div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
     <h2 class="text-2xl font-bold mb-4 px-4 md:px-0 hidden md:block pt-6">Explore</h2>
-    <div id="explore-results" class="px-0 md:px-0 space-y-0 pt-24 md:pt-0 pb-0 md:pb-0">
+    <div id="explore-results" class="px-0 md:px-0 space-y-0 pt-16 md:pt-0 pb-0 md:pb-0">
         <!-- Default State -->
         <div class="text-center py-20 text-gray-400">
             <h3 class="text-lg font-bold text-gray-800 mb-2">Search & Discover</h3>
@@ -1537,40 +1394,6 @@ Change
 <span class="text-[10px] font-medium">Profile</span>
 </div>
 </nav>
-<!-- MOBILE CONVERSATION OVERLAY -->
-<div id="mobile-chat-overlay" class="fixed inset-0 z-[100] bg-white hidden flex-col">
-  <!-- Header -->
-  <div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0">
-     <div class="flex items-center gap-3">
-        <button onclick="closeMobileChat()" class="icon-btn -ml-2"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
-        <div class="flex items-center gap-3 cursor-pointer" onclick="if(window.activeChatUserId) showProfile(window.activeChatUserId)">
-            <img id="mobile-chat-header-avatar" src="" class="w-9 h-9 rounded-full border border-gray-100 object-cover">
-            <div class="flex flex-col">
-                <span id="mobile-chat-header-name" class="font-bold text-gray-900 text-sm leading-none">User</span>
-                <span class="text-xs text-gray-500 mt-0.5">Active now</span>
-            </div>
-        </div>
-     </div>
-     <div class="relative">
-        <button onclick="toggleMobileChatOptions()" class="icon-btn"><i data-lucide="more-horizontal" class="w-6 h-6"></i></button>
-        <div id="mobile-chat-options" class="absolute top-10 right-0 bg-white border border-gray-100 shadow-xl rounded-xl p-2 z-10 hidden w-40">
-            <div onclick="deleteCurrentChat();" class="w-full text-left px-4 py-3 text-red-500 font-medium text-sm hover:bg-red-50 rounded-lg flex items-center gap-2 cursor-pointer"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete Chat</div>
-        </div>
-     </div>
-  </div>
-
-  <!-- Messages -->
-  <div id="mobile-chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col bg-white"></div>
-
-  <!-- Footer -->
-  <div class="p-3 border-t border-gray-100 flex items-center gap-2 shrink-0 pb-[env(safe-area-inset-bottom)] mb-1 bg-white">
-     <div class="flex-1 bg-gray-100 rounded-full px-4 py-2.5 flex items-center gap-2 border border-transparent focus-within:border-gray-200 transition-colors">
-        <div class="p-1 rounded-full bg-[#0b57d0] flex items-center justify-center"><i data-lucide="camera" class="w-3 h-3 text-white"></i></div>
-        <input id="mobile-message-input" type="text" placeholder="Message..." class="bg-transparent flex-1 outline-none text-sm text-gray-900 placeholder-gray-500">
-        <button onclick="sendMobileChatMessage()" class="text-[#0b57d0] font-bold text-sm px-2">Send</button>
-     </div>
-  </div>
-</div>
 <input type="file" id="media-input" class="hidden" accept="image/*,video/*" onchange="handleFileSelect(event)">
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -1607,7 +1430,6 @@ let activeChatUserId = null;
 let activeNotifTab = 'friends';
 let activeNetworkTab = 'people';
 let chatPartners = new Set();
-let currentTaggedUsers = []; // New for tagging
 window.replyingToCommentId = null;
 window.replyingToMessageId = null;
 window.currentViewingProfileId = null;
@@ -1718,11 +1540,6 @@ currentUser.settings = currentUser.settings || { privateNetwork: false };
 window.currentUser = currentUser;
 savedPosts = currentUser.saved;
 
-// Check for Username Setup
-if (!currentUser.username) {
-    document.getElementById('username-modal').classList.remove('hidden');
-}
-
 const params = new URLSearchParams(window.location.search);
 const sharedPostId = params.get('postId');
 
@@ -1746,21 +1563,6 @@ window.history.pushState({}, document.title, window.location.pathname);
 window.location.href = 'index.html';
 }
 });
-
-window.saveUsername = async function() {
-    const input = document.getElementById('username-input');
-    const val = input.value.trim().toLowerCase();
-    if (!val || val.length < 3) {
-        showToast("Username must be at least 3 chars", true);
-        return;
-    }
-    // Mock uniqueness check for demo
-    const userRef = doc(db, "users", currentUser.id);
-    await updateDoc(userRef, { username: val });
-    currentUser.username = val;
-    document.getElementById('username-modal').classList.add('hidden');
-    showToast("Welcome, " + val + "!");
-}
 
 function initRealtimeListeners() {
 onSnapshot(collection(db, "users"), (snapshot) => {
@@ -1897,7 +1699,6 @@ const edBio = document.getElementById('edit-bio'); if(edBio) edBio.value = curre
 const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = currentUser.avatar;
 const edBanner = document.getElementById('edit-banner-link'); if(edBanner) edBanner.value = currentUser.banner || '';
 const threadAv = document.getElementById('thread-input-avatar'); if(threadAv) threadAv.src = currentUser.avatar;
-const mobileChatListPfp = document.getElementById('mobile-chat-list-pfp'); if(mobileChatListPfp) mobileChatListPfp.src = currentUser.avatar;
 
 const bannerPos = currentUser.bannerPos || 50;
 const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
@@ -2025,9 +1826,6 @@ if(mobileBottomNav) mobileBottomNav.classList.remove('hidden');
 if(mobileNotifHeader) mobileNotifHeader.classList.add('hidden', 'flex'); 
 if(mobileExploreHeader) mobileExploreHeader.classList.add('hidden');
 
-// Ensure Mobile Chat Overlay is closed when switching away
-document.getElementById('mobile-chat-overlay').classList.add('hidden');
-
 // Handle Mobile Specific Header/Footer Logic
 if (window.innerWidth < 768) {
     if (viewName === 'notifications') {
@@ -2039,16 +1837,7 @@ if (window.innerWidth < 768) {
         if(mainHeader) mainHeader.classList.add('hidden');
         if(mobileBottomNav) mobileBottomNav.classList.add('hidden');
         if(mobileExploreHeader) mobileExploreHeader.classList.remove('hidden');
-        if(mobileExploreHeader) mobileExploreHeader.classList.add('flex');
     } else if (viewName === 'profile') {
-        if(mainHeader) mainHeader.classList.add('hidden');
-    } else if (viewName === 'chat') {
-        if(mainHeader) mainHeader.classList.add('hidden');
-        // Chat list on mobile has its own header embedded in the view HTML
-    }
-} else {
-    // Desktop: Profile has no header as per user request
-    if (viewName === 'profile') {
         if(mainHeader) mainHeader.classList.add('hidden');
     }
 }
@@ -2205,20 +1994,16 @@ const isSaved = savedPosts.includes(post.id);
 const dateStr = formatDate(post.timestamp);
 const settings = post.settings || { privacy: 'public', showLikes: true, showComments: true, allowLikeView: true, allowComments: true };
 const div = document.createElement('article');
-div.className = "post-card group overflow-hidden fade-in relative";
+div.className = "post-card group overflow-hidden fade-in";
 div.onclick = () => openPostView(post.id);
 
 let mediaHTML = "";
 if (post.media) {
 const isVideo = post.media.startsWith('data:video') || post.media.includes('.mp4') || post.media.includes('.webm');
 mediaHTML = isVideo
-? `<div class="mt-3 rounded-xl overflow-hidden relative">
-    <video src="${post.media}" class="w-full max-h-[400px]" controls onclick="event.stopPropagation()"></video>
-    ${post.taggedUsers && post.taggedUsers.length > 0 ? `<button onclick="event.stopPropagation(); openUserList('tagged', '${post.id}')" class="tagged-icon-btn"><i data-lucide="user" class="w-4 h-4"></i></button>` : ''}
-   </div>`
-: `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer relative" onclick="event.stopPropagation(); openLightbox('${post.media}', 'image')">
+? `<div class="mt-3 rounded-xl overflow-hidden"><video src="${post.media}" class="w-full max-h-[400px]" controls onclick="event.stopPropagation()"></video></div>`
+: `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer" onclick="event.stopPropagation(); openLightbox('${post.media}', 'image')">
 <img src="${post.media}" class="w-full max-h-[400px] object-cover bg-gray-50">
-${post.taggedUsers && post.taggedUsers.length > 0 ? `<button onclick="event.stopPropagation(); openUserList('tagged', '${post.id}')" class="tagged-icon-btn"><i data-lucide="user" class="w-4 h-4"></i></button>` : ''}
 </div>`;
 }
 
@@ -2272,117 +2057,548 @@ ${likeCountDisplay}
 return div;
 }
 
-// Tagging Functions
-window.openTagging = function() {
-    currentTaggedUsers = [];
-    document.getElementById('tag-people-overlay').classList.remove('hidden');
-    renderTagSearch('');
+window.toggleLike = async function(postId) {
+const btn = document.getElementById(`like-btn-${postId}`);
+const countSpan = document.getElementById(`like-count-${postId}`);
+
+if(btn) {
+const icon = btn.querySelector('svg') || btn.querySelector('i');
+let isLiked = false;
+
+if (icon.tagName === 'svg') isLiked = icon.classList.contains('text-red-500');
+else isLiked = icon.classList.contains('text-red-500');
+
+if (isLiked) {
+icon.classList.remove('fill-red-500', 'text-red-500');
+if(countSpan) {
+const current = parseInt(countSpan.innerText) || 0;
+countSpan.innerText = Math.max(0, current - 1);
+}
+} else {
+icon.classList.add('fill-red-500', 'text-red-500');
+if(countSpan) {
+const current = parseInt(countSpan.innerText) || 0;
+countSpan.innerText = current + 1;
+}
+}
 }
 
-window.closeTagging = function() {
-    document.getElementById('tag-people-overlay').classList.add('hidden');
+const postRef = doc(db, "posts", postId);
+const post = posts.find(p => p.id === postId);
+if(post.likes && post.likes.includes(currentUser.id)) {
+await updateDoc(postRef, { likes: arrayRemove(currentUser.id) });
+} else {
+await updateDoc(postRef, { likes: arrayUnion(currentUser.id) });
+if(post.authorId !== currentUser.id) {
+sendNotification(post.authorId, 'like', 'liked your post', postId);
+}
+}
 }
 
-window.renderTagSearch = function(query) {
-    const list = document.getElementById('tag-list-content');
-    list.innerHTML = "";
+window.openLikes = function(postId) {
+const post = posts.find(p => p.id === postId);
+if(!post) return;
+
+const overlay = document.getElementById('likes-overlay');
+const content = document.getElementById('likes-list-content');
+content.innerHTML = '';
+
+const likeIds = post.likes || [];
+
+if(likeIds.length === 0) {
+content.innerHTML = `<div class="text-center text-gray-400 py-8">No likes yet.</div>`;
+} else {
+likeIds.forEach(uid => {
+const user = users.find(u => u.id === uid);
+if(user) {
+const div = document.createElement('div');
+div.className = "flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
+div.onclick = () => {
+document.getElementById('likes-overlay').classList.add('hidden');
+showProfile(user.id);
+};
+div.innerHTML = `
+<img src="${user.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover">
+<div>
+<div class="font-bold text-sm text-gray-900">${user.name}</div>
+<div class="text-xs text-gray-500 truncate w-32">${user.bio}</div>
+</div>
+`;
+content.appendChild(div);
+}
+});
+}
+overlay.classList.remove('hidden');
+}
+
+window.closeLikes = function() {
+document.getElementById('likes-overlay').classList.add('hidden');
+}
+
+window.toggleSave = async function(postId) {
+const btn = document.getElementById(`save-btn-${postId}`);
+if(btn) {
+const icon = btn.querySelector('svg') || btn.querySelector('i');
+let hasClass = false;
+if(icon.tagName === 'svg') hasClass = icon.classList.contains('text-yellow-500');
+else hasClass = icon.classList.contains('text-yellow-500');
+
+if (hasClass) {
+icon.classList.remove('fill-yellow-500', 'text-yellow-500');
+showToast("Post removed");
+} else {
+icon.classList.add('fill-yellow-500', 'text-yellow-500');
+showToast("Post saved");
+}
+}
+
+const userRef = doc(db, "users", currentUser.id);
+if(savedPosts.includes(postId)) {
+await updateDoc(userRef, { saved: arrayRemove(postId) });
+savedPosts = savedPosts.filter(id => id !== postId);
+} else {
+await updateDoc(userRef, { saved: arrayUnion(postId) });
+savedPosts.push(postId);
+}
+}
+
+window.sharePost = function(postId) {
+const url = `${window.location.origin}${window.location.pathname}?postId=${postId}`;
+navigator.clipboard.writeText(url).then(() => { showToast("Link copied to clipboard!"); });
+}
+
+window.renderSaved = function() {
+const container = document.getElementById('saved-container');
+container.innerHTML = "";
+if(savedPosts.length === 0) {
+container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-60"><i data-lucide="bookmark" class="w-16 h-16 mb-2"></i><p>No saved posts yet</p></div>`;
+} else {
+const saved = posts.filter(p => savedPosts.includes(p.id));
+saved.forEach(post => container.appendChild(createPostElement(post)));
+}
+refreshIcons();
+}
+
+async function sendNotification(receiverId, type, content, postId = null) {
+await addDoc(collection(db, "notifications"), {
+receiverId,
+senderId: currentUser.id,
+type,
+content,
+timestamp: serverTimestamp(),
+read: false,
+postId: postId
+});
+}
+
+window.switchNotifTab = function(tab) {
+activeNotifTab = tab;
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+const mainBtn = document.getElementById(`ntab-${tab}`);
+const mobileBtn = document.getElementById(`ntab-${tab}-mobile`);
+if(mainBtn) mainBtn.classList.add('active');
+if(mobileBtn) mobileBtn.classList.add('active');
+renderNotifications();
+}
+
+window.renderNotifications = function() {
+const container = document.getElementById('notification-list');
+container.innerHTML = "";
+
+const filtered = notifications.filter(n => {
+if (activeNotifTab === 'official') {
+return n.type === 'official';
+} else if (activeNotifTab === 'friends') {
+return currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request';
+} else {
+return n.type !== 'official' && !currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request';
+}
+});
+
+if (filtered.length === 0) {
+container.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">No notifications here</div>`;
+return;
+}
+
+filtered.forEach(n => {
+const sender = users.find(u => u.id === n.senderId) || { name: 'Admin', avatar: '' };
+const div = document.createElement('div');
+div.className = "w-full flex items-center gap-3 p-3 border-b border-gray-100 bg-white group relative";
+let icon = "";
+if(n.type === 'like') icon = '<i data-lucide="heart" class="w-3 h-3 text-white"></i>';
+if(n.type === 'comment') icon = '<i data-lucide="message-circle" class="w-3 h-3 text-white"></i>';
+if(n.type === 'reply') icon = '<i data-lucide="corner-down-right" class="w-3 h-3 text-white"></i>';
+if(n.type === 'follow') icon = '<i data-lucide="user-plus" class="w-3 h-3 text-white"></i>';
+if(n.type === 'official') icon = '<i data-lucide="megaphone" class="w-3 h-3 text-white"></i>';
+if(n.type === 'follow_request') icon = '<i data-lucide="lock" class="w-3 h-3 text-white"></i>';
+if(n.type === 'message_request') icon = '<i data-lucide="mail" class="w-3 h-3 text-white"></i>';
+
+let colorClass = n.type === 'like' ? 'bg-red-500' : (n.type === 'official' ? 'bg-blue-600' : 'bg-indigo-500');
+if(n.type === 'reply') colorClass = 'bg-teal-500';
+if(n.type === 'follow_request' || n.type === 'message_request') colorClass = 'bg-orange-500';
+
+let clickAction = (n.type === 'like' || n.type === 'comment' || n.type === 'reply') && n.postId
+? `onclick="openPostView('${n.postId}')"`
+: `onclick="showProfile('${sender.id}')"`;
+
+let actionButtons = '';
+if(n.type === 'follow_request') {
+actionButtons = `<div class="flex gap-2 ml-auto"><button onclick="acceptFollow('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Accept</button><button onclick="deleteNotification('${n.id}')" class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-bold">Delete</button></div>`;
+clickAction = '';
+}
+
+if(n.type === 'message_request') {
+actionButtons = `<div class="flex gap-2 ml-auto"><button onclick="acceptMessage('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Chat</button></div>`;
+clickAction = '';
+}
+
+div.innerHTML = `
+<div class="relative cursor-pointer" onclick="showProfile('${sender.id}')">
+<img src="${sender.avatar}" class="w-10 h-10 rounded-full bg-gray-200">
+<div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${colorClass} flex items-center justify-center border-2 border-white">${icon}</div>
+</div>
+<div class="flex-1 cursor-pointer" ${clickAction}>
+<div class="text-sm">
+<span class="font-bold text-gray-900">${sender.name}</span>
+<span class="text-gray-600">${n.content}</span>
+</div>
+<div class="text-xs text-gray-400 mt-0.5">${formatDate(n.timestamp)}</div>
+</div>
+${actionButtons ? actionButtons : `<button onclick="deleteNotification('${n.id}')" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`}
+`;
+container.appendChild(div);
+});
+refreshIcons();
+}
+
+window.deleteNotification = async function(id) {
+showAlert("Delete this notification?", async () => {
+await deleteDoc(doc(db, "notifications", id));
+});
+}
+
+window.acceptFollow = async function(notifId, senderId) {
+const meRef = doc(db, "users", currentUser.id);
+await updateDoc(meRef, { followers: arrayUnion(senderId) });
+const senderRef = doc(db, "users", senderId);
+await updateDoc(senderRef, { following: arrayUnion(currentUser.id) });
+await deleteDoc(doc(db, "notifications", notifId));
+await sendNotification(senderId, 'follow', 'accepted your follow request');
+showToast("Follow request accepted");
+}
+
+window.acceptMessage = async function(notifId, senderId) {
+await deleteDoc(doc(db, "notifications", notifId));
+startChat(senderId);
+}
+
+window.clearAllNotifications = async function() {
+showAlert("Clear all notifications?", async () => {
+const batch = writeBatch(db);
+const q = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
+const snap = await getDocs(q);
+snap.forEach(d => batch.delete(d.ref));
+await batch.commit();
+showToast("All notifications cleared");
+});
+}
+
+window.toggleNotifications = function() {
+switchView('notifications');
+const badge = document.getElementById('notif-badge');
+if(badge) badge.classList.add('hidden');
+}
+
+window.showProfile = function(userId, tab = 'posts') {
+if(!userId) userId = currentUser.id;
+const user = users.find(u => u.id === userId);
+if(!user) return;
+
+window.currentViewingProfileId = userId;
+window.currentProfileTab = tab;
+const container = document.getElementById('view-profile');
+
+// Hide main header on mobile when showing profile
+if(window.innerWidth < 768) {
+    const mainHeader = document.getElementById('main-header');
+    if(mainHeader) mainHeader.classList.add('hidden');
+}
+
+const isMe = userId === currentUser.id;
+const isFollowing = currentUser.following ? currentUser.following.includes(userId) : false;
+
+let actionBtn = "";
+if (isMe) {
+actionBtn = `<button onclick="openEditProfile()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200">Edit Profile</button>`;
+} else {
+const isPrivate = user.settings?.privateNetwork;
+let btnText = isFollowing ? 'Following' : (isPrivate ? 'Request' : 'Follow');
+
+const existingBtn = document.getElementById('profile-follow-btn');
+if(existingBtn && existingBtn.innerText === 'Requested' && !isFollowing) {
+btnText = 'Requested';
+}
+
+actionBtn = `
+<div class="flex gap-2">
+<button id="profile-follow-btn" onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-700' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">${btnText}</button>
+<button onclick="startChat('${userId}')" class="border border-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
+</div>
+`;
+}
+
+const bannerUrl = user.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+const bannerPos = user.bannerPos || 50;
+
+let networkStatsHTML = '';
+const isPrivate = user.settings?.privateNetwork;
+if(isMe || !isPrivate || isFollowing) {
+networkStatsHTML = `
+<div class="flex gap-4 mt-3 text-sm text-gray-500">
+<span class="cursor-pointer hover:underline" onclick="openUserList('following', '${userId}')"><strong class="text-gray-900">${user.following ? user.following.length : 0}</strong> Following</span>
+<span class="cursor-pointer hover:underline" onclick="openUserList('followers', '${userId}')"><strong class="text-gray-900">${user.followers ? user.followers.length : 0}</strong> Followers</span>
+</div>`;
+} else {
+networkStatsHTML = `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="italic"><i data-lucide="lock" class="w-3 h-3 inline"></i> Private Account</span></div>`;
+}
+
+// TABS LOGIC
+let savedTabBtn = isMe ? `<button onclick="switchProfileTab('saved')" class="tab-btn ${tab==='saved'?'active':''}">Saved</button>` : '';
+let likedTabBtn = `<button onclick="switchProfileTab('liked')" class="tab-btn ${tab==='liked'?'active':''}">Liked</button>`;
+
+let tabsHTML = `
+<div class="tab-group mb-0">
+    <button onclick="switchProfileTab('posts')" class="tab-btn ${tab==='posts'?'active':''}">Posts</button>
+    ${savedTabBtn}
+    ${likedTabBtn}
+</div>
+`;
+
+container.innerHTML = `
+<div class="profile-banner-container"><img src="${bannerUrl}" class="profile-banner-img" style="object-position: center ${bannerPos}%"></div>
+<div class="px-4 md:px-6 relative">
+<div class="flex justify-between items-end -mt-10 mb-4"><img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">${actionBtn}</div>
+<div class="mb-6"><h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1><p class="text-gray-600 mt-1">${user.bio}</p>${networkStatsHTML}</div>
+${tabsHTML}
+<div id="profile-content-area" class="pt-1 md:pt-4 pb-20 md:pb-0"></div>
+</div>
+`;
+
+switchView('profile');
+renderProfileContent(userId, tab);
+refreshIcons();
+}
+
+window.switchProfileTab = function(tab) {
+    const btns = document.querySelectorAll('#view-profile .tab-btn');
+    btns.forEach(b => b.classList.remove('active'));
+    // Find the button clicked - simple logic based on text
+    Array.from(btns).find(b => b.innerText.toLowerCase().includes(tab)).classList.add('active');
+    window.currentProfileTab = tab;
+    renderProfileContent(window.currentViewingProfileId, tab);
+}
+
+window.renderProfileContent = function(userId, tab) {
+    const contentArea = document.getElementById('profile-content-area');
+    contentArea.innerHTML = "";
     
-    let candidates = users.filter(u => u.id !== currentUser.id);
-    if(query) {
-        const lower = query.toLowerCase();
-        candidates = candidates.filter(u => u.name.toLowerCase().includes(lower) || (u.username && u.username.toLowerCase().includes(lower)));
+    let targetPosts = [];
+    
+    if (tab === 'posts') {
+        targetPosts = posts.filter(p => p.authorId === userId);
+    } else if (tab === 'saved') {
+        targetPosts = posts.filter(p => savedPosts.includes(p.id));
+    } else if (tab === 'liked') {
+        targetPosts = posts.filter(p => p.likes && p.likes.includes(userId));
     }
     
-    candidates.forEach(u => {
-        const isSelected = currentTaggedUsers.includes(u.id);
-        const div = document.createElement('div');
-        div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
-        div.onclick = () => toggleTagUser(u.id);
-        div.innerHTML = `
-            <div class="flex items-center gap-3">
-                <img src="${u.avatar}" class="w-10 h-10 rounded-full border border-gray-100 object-cover">
-                <div>
-                    <div class="font-bold text-sm text-gray-900">${u.name}</div>
-                    <div class="text-xs text-gray-500">@${u.username || 'user'}</div>
+    // Visibility Check for normal profile viewing (not me)
+    if (userId !== currentUser.id && tab === 'posts') {
+        const user = users.find(u => u.id === userId);
+        const amFollowing = currentUser.following.includes(userId);
+        const isPrivateAcc = user?.settings?.privateNetwork;
+        
+        targetPosts = targetPosts.filter(p => {
+             const isPublic = !p.settings || p.settings.privacy === 'public';
+             if (isPrivateAcc && !amFollowing) return false;
+             return isPublic || amFollowing;
+        });
+    }
+
+    if (targetPosts.length === 0) {
+        contentArea.innerHTML = `<div class="text-center py-20 text-gray-400">No posts yet</div>`;
+    } else {
+        let gridHTML = `<div class="grid-post-container">`;
+        targetPosts.forEach(p => {
+            let content = '';
+            if (p.media) {
+                if (p.media.includes('video') || p.media.endsWith('.mp4')) {
+                     content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
+                } else {
+                     content = `<img src="${p.media}" class="w-full h-full object-cover">`;
+                }
+            } else {
+                // Text placeholder for grid
+                content = `<div class="grid-post-text-preview">${p.content.substring(0, 60)}${p.content.length>60?'...':''}</div>`;
+            }
+            
+            gridHTML += `
+            <div class="grid-post-item group" onclick="openPostView('${p.id}')">
+                ${content}
+                <div class="grid-post-overlay">
+                    <div class="flex items-center gap-1"><i data-lucide="heart" class="w-5 h-5 fill-white"></i> ${p.likes ? p.likes.length : 0}</div>
+                    <div class="flex items-center gap-1"><i data-lucide="message-circle" class="w-5 h-5 fill-white"></i> ${p.comments ? p.comments.length : 0}</div>
                 </div>
-            </div>
-            <div class="w-5 h-5 border-2 rounded-full flex items-center justify-center ${isSelected ? 'bg-blue-600 border-blue-600' : 'border-gray-300'}">
-                ${isSelected ? '<i data-lucide="check" class="w-3 h-3 text-white"></i>' : ''}
-            </div>
-        `;
-        list.appendChild(div);
-    });
+            </div>`;
+        });
+        gridHTML += `</div>`;
+        contentArea.innerHTML = gridHTML;
+    }
     refreshIcons();
 }
 
-window.toggleTagUser = function(uid) {
-    if(currentTaggedUsers.includes(uid)) {
-        currentTaggedUsers = currentTaggedUsers.filter(id => id !== uid);
-    } else {
-        currentTaggedUsers.push(uid);
-    }
-    renderTagSearch(document.querySelector('#tag-people-overlay input').value);
+window.openEditProfile = function() {
+const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+currentBannerPos = currentUser.bannerPos || 50;
+initialBannerPos = currentBannerPos;
+document.getElementById('edit-banner-preview').src = bannerUrl;
+document.getElementById('edit-banner-preview').style.objectPosition = `center ${currentBannerPos}%`;
+document.getElementById('banner-pos-hint').innerText = `${currentBannerPos}%`;
+document.getElementById('edit-email').value = currentUser.email || "";
+document.getElementById('edit-profile-overlay').classList.remove('pointer-events-none', 'opacity-0');
+}
+window.closeEditProfile = function() { document.getElementById('edit-profile-overlay').classList.add('pointer-events-none', 'opacity-0'); }
+
+window.handleEditAvatarSelect = function(event) {
+const file = event.target.files[0];
+if (file) {
+currentAvatarBlob = file;
+const reader = new FileReader();
+reader.onload = function(e) { document.getElementById('edit-avatar-preview').src = e.target.result; };
+reader.readAsDataURL(file);
+}
 }
 
-window.saveTags = function() {
-    closeTagging();
-    const display = document.getElementById('compose-tags-display');
-    if (currentTaggedUsers.length > 0) {
-        display.innerText = `With: ${currentTaggedUsers.length} people`;
-        display.classList.remove('hidden');
-    } else {
-        display.classList.add('hidden');
-    }
+window.handleEditBannerSelect = function(event) {
+const file = event.target.files[0];
+if (file) {
+currentBannerBlob = file;
+const reader = new FileReader();
+reader.onload = function(e) { document.getElementById('edit-banner-preview').src = e.target.result; };
+reader.readAsDataURL(file);
+}
 }
 
-window.openUserList = function(type, id) {
-    // If type is 'tagged', id is postId
-    let targetIds = [];
-    let titleText = '';
-    
-    if (type === 'tagged') {
-        const post = posts.find(p => p.id === id); // userId here is postId
-        if(!post || !post.taggedUsers) return;
-        targetIds = post.taggedUsers;
-        titleText = 'In this photo';
-    } else {
-        const user = users.find(u => u.id === id);
-        if(!user) return;
-        if(user.settings?.privateNetwork && user.id !== currentUser.id && !currentUser.following.includes(user.id)) return;
-        targetIds = type === 'following' ? user.following : user.followers;
-        titleText = type === 'following' ? 'Following' : 'Followers';
-    }
+window.saveProfileChanges = async function() {
+const btn = document.getElementById('save-profile-btn');
+const originalText = btn.innerText;
+btn.innerText = "Saving...";
+btn.disabled = true;
 
-    const overlay = document.getElementById('user-list-overlay');
-    const title = document.getElementById('user-list-title');
-    const content = document.getElementById('user-list-content');
+const name = document.getElementById('edit-name').value;
+const bio = document.getElementById('edit-bio').value;
+const bannerPos = currentBannerPos;
 
-    title.innerText = titleText;
-    content.innerHTML = '';
+if(!name) { showToast("Name is required"); btn.innerText = originalText; btn.disabled = false; return; }
 
-    if(!targetIds || targetIds.length === 0) {
-        content.innerHTML = `<div class="text-center text-gray-400 py-8">No users found.</div>`;
-    } else {
-        targetIds.forEach(tid => {
-            const targetUser = users.find(u => u.id === tid);
-            if(targetUser) {
-                const isMe = targetUser.id === currentUser.id;
-                const amFollowing = currentUser.following.includes(targetUser.id);
-                let btn = '';
-                if(!isMe) {
-                    btn = `<button onclick="toggleFollow('${targetUser.id}')" class="text-xs px-3 py-1 rounded-full font-medium ${amFollowing ? 'bg-gray-100 text-gray-700' : 'bg-blue-600 text-white'}">${amFollowing ? 'Unfollow' : 'Follow'}</button>`;
-                }
-                const div = document.createElement('div');
-                div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
-                div.onclick = (e) => {
-                    if(e.target.tagName !== 'BUTTON') { closeUserList(); showProfile(targetUser.id); }
-                };
-                div.innerHTML = `<div class="flex items-center gap-3"><img src="${targetUser.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${targetUser.name}</div><div class="text-xs text-gray-500 truncate w-32">${targetUser.bio}</div></div></div>${btn}`;
-                content.appendChild(div);
-            }
-        });
-    }
-    overlay.classList.remove('hidden');
+let avatarUrl = currentUser.avatar;
+let bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+
+try {
+if(currentAvatarBlob) { avatarUrl = await uploadToImgHippo(currentAvatarBlob); }
+if(currentBannerBlob) { bannerUrl = await uploadToImgHippo(currentBannerBlob); }
+} catch (e) {
+console.error("Upload failed", e); showToast("Image upload failed"); btn.innerText = originalText; btn.disabled = false; return;
+}
+
+const userRef = doc(db, "users", currentUser.id);
+await updateDoc(userRef, { name, bio, avatar: avatarUrl, banner: bannerUrl, bannerPos });
+
+currentUser.name = name; currentUser.bio = bio; currentUser.avatar = avatarUrl; currentUser.banner = bannerUrl; currentUser.bannerPos = bannerPos;
+currentAvatarBlob = null; currentBannerBlob = null;
+
+updateUserInterface();
+closeEditProfile();
+showProfile(currentUser.id, window.currentProfileTab);
+showToast("Profile Updated");
+btn.innerText = originalText; btn.disabled = false;
+}
+
+window.doLogout = async function() { await signOut(auth); window.location.href = "index.html"; }
+
+window.toggleFollow = async function(userId) {
+const meRef = doc(db, "users", currentUser.id);
+const targetRef = doc(db, "users", userId);
+
+const targetUser = users.find(u => u.id === userId);
+const isPrivate = targetUser?.settings?.privateNetwork;
+
+if(currentUser.following.includes(userId)) {
+currentUser.following = currentUser.following.filter(id => id !== userId);
+showToast(`Unfollowed`);
+await updateDoc(meRef, { following: arrayRemove(userId) });
+await updateDoc(targetRef, { followers: arrayRemove(currentUser.id) });
+const btn = document.getElementById('profile-follow-btn');
+if(btn) btn.innerText = isPrivate ? 'Request' : 'Follow';
+} else {
+if(isPrivate) {
+showToast("Follow request sent");
+sendNotification(userId, 'follow_request', 'wants to follow you');
+const btn = document.getElementById('profile-follow-btn');
+if(btn) btn.innerText = "Requested";
+} else {
+currentUser.following.push(userId);
+showToast(`Following`);
+await updateDoc(meRef, { following: arrayUnion(userId) });
+await updateDoc(targetRef, { followers: arrayUnion(currentUser.id) });
+sendNotification(userId, 'follow', 'started following you');
+const btn = document.getElementById('profile-follow-btn');
+if(btn) btn.innerText = "Following";
+}
+}
+const netView = document.getElementById('view-network');
+if(netView && !netView.classList.contains('hidden')) renderNetwork();
+refreshIcons();
+}
+
+window.openUserList = function(type, userId) {
+const user = users.find(u => u.id === userId);
+if(!user) return;
+
+if(user.settings?.privateNetwork && user.id !== currentUser.id && !currentUser.following.includes(user.id)) return;
+
+const overlay = document.getElementById('user-list-overlay');
+const title = document.getElementById('user-list-title');
+const content = document.getElementById('user-list-content');
+
+title.innerText = type === 'following' ? 'Following' : 'Followers';
+content.innerHTML = '';
+
+const targetIds = type === 'following' ? user.following : user.followers;
+
+if(!targetIds || targetIds.length === 0) {
+content.innerHTML = `<div class="text-center text-gray-400 py-8">No users found.</div>`;
+} else {
+targetIds.forEach(tid => {
+const targetUser = users.find(u => u.id === tid);
+if(targetUser) {
+const isMe = targetUser.id === currentUser.id;
+const amFollowing = currentUser.following.includes(targetUser.id);
+let btn = '';
+if(!isMe) {
+btn = `<button onclick="toggleFollow('${targetUser.id}')" class="text-xs px-3 py-1 rounded-full font-medium ${amFollowing ? 'bg-gray-100 text-gray-700' : 'bg-blue-600 text-white'}">${amFollowing ? 'Unfollow' : 'Follow'}</button>`;
+}
+const div = document.createElement('div');
+div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
+div.onclick = (e) => {
+if(e.target.tagName !== 'BUTTON') { closeUserList(); showProfile(targetUser.id); }
+};
+div.innerHTML = `<div class="flex items-center gap-3"><img src="${targetUser.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${targetUser.name}</div><div class="text-xs text-gray-500 truncate w-32">${targetUser.bio}</div></div></div>${btn}`;
+content.appendChild(div);
+}
+});
+}
+overlay.classList.remove('hidden');
 }
 
 window.closeUserList = function() { document.getElementById('user-list-overlay').classList.add('hidden'); }
@@ -2401,7 +2617,6 @@ switchView('explore');
 
 const headerInput = document.getElementById('global-search');
 const mobileInput = document.getElementById('mobile-explore-search');
-const tabs = document.getElementById('explore-tabs-mobile');
 
 if(headerInput && headerInput.value !== query) headerInput.value = query;
 if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
@@ -2409,8 +2624,7 @@ if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
 const view = document.getElementById('explore-results');
 
 if(!query || query.trim() === '') {
-// DEFAULT DISCOVERY STATE (No Tabs)
-if(tabs) tabs.classList.add('hidden');
+// DEFAULT DISCOVERY STATE
 view.innerHTML = `
     <div class="text-center py-20 text-gray-400">
         <h3 class="text-lg font-bold text-gray-800 mb-2">Search & Discover</h3>
@@ -2420,9 +2634,6 @@ view.innerHTML = `
 refreshIcons();
 return;
 }
-
-// SEARCH ACTIVE (Show Tabs)
-if(tabs) tabs.classList.remove('hidden');
 
 const term = query.toLowerCase().trim();
 const keywords = term.split(" ").filter(k => k.length > 0);
@@ -2450,21 +2661,22 @@ let html = `
 const hiddenPeople = window.activeExploreTab === 'posts' ? 'hidden' : '';
 html += `<div id="results-people" class="${hiddenPeople}">`;
 if(foundUsers.length) {
-    html += `<div class="grid-people-container">`;
-    foundUsers.forEach(u => {
-    html += `
-    <div class="grid-person-item" onclick="showProfile('${u.id}')">
-        <img src="${u.avatar}" class="bg-gray-100 object-cover">
-        <div class="grid-person-overlay">${u.name}</div>
-    </div>`;
-    });
-    html += `</div>`;
+foundUsers.forEach(u => {
+html += `
+<div class="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-xl mb-2 cursor-pointer hover:shadow-sm transition-shadow" onclick="showProfile('${u.id}')">
+<img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover bg-gray-50">
+<div>
+<div class="font-bold text-sm text-gray-900">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>' : ''}</div>
+<div class="text-xs text-gray-500 line-clamp-1">${u.bio || 'No bio'}</div>
+</div>
+</div>`;
+});
 } else {
-html += `<div class="text-gray-400 text-sm mb-4 italic p-4">No people found matching "${query}"</div>`;
+html += `<div class="text-gray-400 text-sm mb-4 italic">No people found matching "${query}"</div>`;
 }
 html += `</div>`;
 
-// Posts Results Container
+// Posts Results Container (will fill via DOM appending to keep event listeners active)
 const hiddenPosts = window.activeExploreTab === 'people' ? 'hidden' : '';
 html += `<div id="results-posts" class="space-y-4 ${hiddenPosts}"></div>`;
 
@@ -2473,31 +2685,9 @@ view.innerHTML = html;
 // Append posts elements manually
 const postsDiv = document.getElementById('results-posts');
 if(foundPosts.length) {
-    let gridHTML = `<div class="grid-post-container">`;
-    foundPosts.forEach(p => {
-        let content = '';
-        if (p.media) {
-            if (p.media.includes('video') || p.media.endsWith('.mp4')) {
-                    content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
-            } else {
-                    content = `<img src="${p.media}" class="w-full h-full object-cover">`;
-            }
-        } else {
-            content = `<div class="grid-post-text-preview">${p.content.substring(0, 60)}${p.content.length>60?'...':''}</div>`;
-        }
-        
-        gridHTML += `
-        <div class="grid-post-item group" onclick="openPostView('${p.id}')">
-            ${content}
-            <div class="grid-post-overlay">
-                <div class="flex items-center gap-1"><i data-lucide="heart" class="w-5 h-5 fill-white"></i> ${p.likes ? p.likes.length : 0}</div>
-            </div>
-        </div>`;
-    });
-    gridHTML += `</div>`;
-    postsDiv.innerHTML = gridHTML;
+foundPosts.forEach(p => postsDiv.appendChild(createPostElement(p)));
 } else {
-postsDiv.innerHTML = `<div class="text-gray-400 text-sm italic p-4">No posts found matching "${query}"</div>`;
+postsDiv.innerHTML = `<div class="text-gray-400 text-sm italic">No posts found matching "${query}"</div>`;
 }
 
 refreshIcons();
@@ -2537,112 +2727,31 @@ refreshIcons();
 let messageUnsubscribe = null;
 
 window.startChat = function(userId) {
-    activeChatUserId = userId;
-    
-    // Check if we are on mobile
-    if (window.innerWidth < 768) {
-        // Mobile Logic: Open Overlay
-        const user = users.find(u => u.id === userId);
-        if(!user) return;
-        
-        // Populate Mobile Header
-        document.getElementById('mobile-chat-header-avatar').src = user.avatar;
-        document.getElementById('mobile-chat-header-name').innerText = user.name;
-        
-        // Setup overlay
-        const overlay = document.getElementById('mobile-chat-overlay');
-        overlay.classList.remove('hidden');
-        overlay.classList.add('flex');
-        
-        // Hide Main Nav on Mobile
-        const mobileNav = document.getElementById('mobile-bottom-nav');
-        if(mobileNav) mobileNav.classList.add('hidden');
-        
-        // Hide the chat list header just in case
-        const chatListHeader = document.querySelector('.md\\:hidden.h-16.flex'); 
-        if(chatListHeader) chatListHeader.classList.add('hidden');
+activeChatUserId = userId;
+switchView('chat');
+const user = users.find(u => u.id === userId);
+if(!user) return;
 
-        // Setup message listener for mobile container
-        if(messageUnsubscribe) messageUnsubscribe();
-        const qMsgs = query(collection(db, "messages"), orderBy("timestamp", "asc"));
-        
-        messageUnsubscribe = onSnapshot(qMsgs, (snapshot) => {
-            const msgs = [];
-            snapshot.forEach(doc => {
-                const m = doc.data();
-                if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) ||
-                    (m.senderId === activeChatUserId && m.receiverId === currentUser.id)) {
-                    msgs.push({ id: doc.id, ...m });
-                }
-            });
-            renderMessages(msgs, 'mobile-chat-messages'); // Render to mobile container
-        });
-        
-    } else {
-        // Desktop Logic (Existing)
-        switchView('chat');
-        const user = users.find(u => u.id === userId);
-        if(!user) return;
+document.getElementById('chat-header').innerHTML = `<div class="flex items-center gap-3"><img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover cursor-pointer" onclick="showProfile('${user.id}')"><span class="font-semibold text-gray-800 cursor-pointer" onclick="showProfile('${user.id}')">${user.name}</span></div><button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`;
+document.getElementById('chat-input-area').classList.remove('hidden');
+document.getElementById('chat-input-area').classList.add('flex');
+renderChatList();
 
-        document.getElementById('chat-header').innerHTML = `<div class="flex items-center gap-3"><img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover cursor-pointer" onclick="showProfile('${user.id}')"><div class="flex flex-col"><span class="font-semibold text-gray-800 cursor-pointer" onclick="showProfile('${user.id}')">${user.name}</span><span class="text-xs text-gray-500">Active now</span></div></div><button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`;
-        document.getElementById('chat-input-area').classList.remove('hidden');
-        document.getElementById('chat-input-area').classList.add('flex');
-        renderChatList();
+if(messageUnsubscribe) messageUnsubscribe();
+const qMsgs = query(collection(db, "messages"), orderBy("timestamp", "asc"));
 
-        if(messageUnsubscribe) messageUnsubscribe();
-        const qMsgs = query(collection(db, "messages"), orderBy("timestamp", "asc"));
-
-        messageUnsubscribe = onSnapshot(qMsgs, (snapshot) => {
-            const msgs = [];
-            snapshot.forEach(doc => {
-                const m = doc.data();
-                if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) ||
-                    (m.senderId === activeChatUserId && m.receiverId === currentUser.id)) {
-                    msgs.push({ id: doc.id, ...m });
-                }
-            });
-            renderMessages(msgs, 'chat-messages'); // Render to desktop container
-        });
-    }
-    refreshIcons();
+messageUnsubscribe = onSnapshot(qMsgs, (snapshot) => {
+const msgs = [];
+snapshot.forEach(doc => {
+const m = doc.data();
+if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) ||
+(m.senderId === activeChatUserId && m.receiverId === currentUser.id)) {
+msgs.push({ id: doc.id, ...m });
 }
-
-window.closeMobileChat = function() {
-    const overlay = document.getElementById('mobile-chat-overlay');
-    overlay.classList.add('hidden');
-    overlay.classList.remove('flex');
-    
-    // Show Main Nav on Mobile
-    const mobileNav = document.getElementById('mobile-bottom-nav');
-    if(mobileNav) mobileNav.classList.remove('hidden');
-    
-    // Show Chat List Header
-    const chatListHeader = document.querySelector('.md\\:hidden.h-16.flex'); 
-    if(chatListHeader && !document.getElementById('view-chat').classList.contains('hidden')) {
-        chatListHeader.classList.remove('hidden');
-    }
-}
-
-window.toggleMobileChatOptions = function() {
-    const menu = document.getElementById('mobile-chat-options');
-    menu.classList.toggle('hidden');
-}
-
-window.sendMobileChatMessage = async function() {
-    const input = document.getElementById('mobile-message-input');
-    const text = input.value.trim();
-    if(!text || !activeChatUserId) return;
-
-    const receiver = users.find(u => u.id === activeChatUserId);
-    if(!receiver.following.includes(currentUser.id)) { 
-        sendNotification(activeChatUserId, 'message_request', 'wants to chat with you'); 
-    }
-
-    await addDoc(collection(db, "messages"), {
-        senderId: currentUser.id, receiverId: activeChatUserId,
-        text: text, timestamp: serverTimestamp(), replyToId: null
-    });
-    input.value = "";
+});
+renderMessages(msgs);
+});
+refreshIcons();
 }
 
 window.deleteConversationHistory = function(targetId) {
@@ -2659,21 +2768,14 @@ batch.delete(doc.ref);
 await batch.commit();
 chatPartners.delete(targetId);
 if(activeChatUserId === targetId) {
-    if(window.innerWidth < 768) closeMobileChat();
-    else {
-        document.getElementById('chat-messages').innerHTML = '';
-        activeChatUserId = null;
-        document.getElementById('chat-header').innerText = 'Select a friend to chat';
-        document.getElementById('chat-input-area').classList.add('hidden');
-    }
+document.getElementById('chat-messages').innerHTML = '';
+activeChatUserId = null;
+document.getElementById('chat-header').innerText = 'Select a friend to chat';
+document.getElementById('chat-input-area').classList.add('hidden');
 }
 renderChatList();
 showToast("Conversation deleted");
 });
-}
-
-window.deleteCurrentChat = function() {
-    if(activeChatUserId) deleteConversationHistory(activeChatUserId);
 }
 
 function linkify(text) {
@@ -2683,10 +2785,8 @@ return '<a href="' + url + '" target="_blank" class="text-blue-200 underline hov
 });
 }
 
-function renderMessages(msgs, containerId) {
-const container = document.getElementById(containerId);
-if(!container) return;
-
+function renderMessages(msgs) {
+const container = document.getElementById('chat-messages');
 container.innerHTML = "";
 const dateDiv = document.createElement('div');
 dateDiv.className = 'chat-date-divider';
@@ -2829,7 +2929,7 @@ const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
 const canDelete = isMyComment || isAdmin;
 
 const replies = allComments.filter(r => r.parentId === c.id);
-let html = `<div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group"><img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-gray-900">${cAuthor.name}</span><span class="text-xs text-gray-500">• Now</span></div><p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p><div class="flex items-center gap-4 mt-2"><button id="comment-like-btn-${c.id}" onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> <span id="comment-like-count-${c.id}">${likeCount || ''}</span></button><button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div></div></div>`;
+let html = `<div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group"><img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-gray-900">${cAuthor.name}</span><span class="text-xs text-gray-500">• Now</span></div><p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p><div class="flex items-center gap-4 mt-2"><button id="comment-like-btn-${c.id}" onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> <span id="comment-like-count-${c.id}">${likeCount || ''}</span></button><button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div>`;
 
 if (showRepliesLink && replies.length > 0) {
     // Show "View Replies" link instead of nested content
@@ -3119,8 +3219,6 @@ media: mediaUrl,
 timestamp: serverTimestamp(),
 likes: [],
 comments: [],
-taggedUsers: [], // Only confirmed tags
-pendingTags: currentTaggedUsers, // New tags need approval
 settings: {
 privacy: isPrivate ? 'private' : 'public',
 showLikes: showLikes,
@@ -3130,21 +3228,7 @@ allowComments: allowComments
 }
 };
 
-const docRef = await addDoc(collection(db, "posts"), postData); 
-    
-// Send tag notifications with request
-if (currentTaggedUsers && currentTaggedUsers.length > 0) {
-    for (const taggedUid of currentTaggedUsers) {
-        if (taggedUid !== currentUser.id) {
-            sendNotification(taggedUid, 'tag_request', 'tagged you in a post', docRef.id);
-        }
-    }
-}
-
-if(window.editingPostId) { await updateDoc(doc(db, "posts", window.editingPostId), { content: textRaw, settings: postData.settings }); showToast("Post Updated!"); } else { 
-    showToast("Posted!"); 
-} 
-closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); currentTaggedUsers = []; document.getElementById('compose-tags-display').classList.add('hidden'); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; refreshIcons(); } }
+if(window.editingPostId) { await updateDoc(doc(db, "posts", window.editingPostId), { content: textRaw, settings: postData.settings }); showToast("Post Updated!"); } else { await addDoc(collection(db, "posts"), postData); showToast("Posted!"); } closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; refreshIcons(); } }
 window.showToast = function(message, isError = false) { const toast = document.getElementById('toast'); const toastMsg = document.getElementById('toast-msg'); const icon = document.getElementById('toast-icon'); toastMsg.innerText = message; if (isError) { toast.style.backgroundColor = '#d93025'; icon.setAttribute('data-lucide', 'alert-circle'); icon.classList.remove('text-[#c4eed0]'); icon.classList.add('text-white'); } else { toast.style.backgroundColor = '#303134'; icon.setAttribute('data-lucide', 'check-circle-2'); icon.classList.add('text-[#c4eed0]'); } refreshIcons(); toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3000); }
 window.openLightbox = function(src, type = 'image') { const wrapper = document.getElementById('lightbox-wrapper'); const lightbox = document.getElementById('lightbox'); if (type === 'video' || src.includes('.mp4') || src.includes('data:video') || src.includes('.webm')) { wrapper.innerHTML = `<video src="${src}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`; } else { wrapper.innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; } lightbox.classList.add('active'); lightbox.classList.remove('pointer-events-none'); lightbox.classList.remove('opacity-0'); }
 window.closeLightbox = function() { const lightbox = document.getElementById('lightbox'); lightbox.classList.remove('active'); lightbox.classList.add('pointer-events-none'); lightbox.classList.add('opacity-0'); const video = lightbox.querySelector('video'); if(video) video.pause(); }

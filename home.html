@@ -1,4 +1,4 @@
-I<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2263,237 +2263,6 @@ window.handleSearch = function(query) {
     refreshIcons();
 }
 
-
-window.openEditProfile = function() { 
-    const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
-    currentBannerPos = currentUser.bannerPos || 50;
-    initialBannerPos = currentBannerPos;
-    document.getElementById('edit-banner-preview').src = bannerUrl;
-    document.getElementById('edit-banner-preview').style.objectPosition = `center ${currentBannerPos}%`;
-    document.getElementById('banner-pos-hint').innerText = `${currentBannerPos}%`;
-    document.getElementById('edit-email').value = currentUser.email || "";
-    document.getElementById('edit-profile-overlay').classList.remove('pointer-events-none', 'opacity-0'); 
-}
-window.closeEditProfile = function() { document.getElementById('edit-profile-overlay').classList.add('pointer-events-none', 'opacity-0'); }
-
-window.handleEditAvatarSelect = function(event) {
-    const file = event.target.files[0];
-    if (file) {
-        currentAvatarBlob = file;
-        const reader = new FileReader();
-        reader.onload = function(e) { document.getElementById('edit-avatar-preview').src = e.target.result; };
-        reader.readAsDataURL(file);
-    }
-}
-
-window.handleEditBannerSelect = function(event) {
-    const file = event.target.files[0];
-    if (file) {
-        currentBannerBlob = file;
-        const reader = new FileReader();
-        reader.onload = function(e) { document.getElementById('edit-banner-preview').src = e.target.result; };
-        reader.readAsDataURL(file);
-    }
-}
-
-window.saveProfileChanges = async function() {
-    const btn = document.getElementById('save-profile-btn');
-    const originalText = btn.innerText;
-    btn.innerText = "Saving...";
-    btn.disabled = true;
-
-    const name = document.getElementById('edit-name').value;
-    const bio = document.getElementById('edit-bio').value;
-    const bannerPos = currentBannerPos;
-    
-    if(!name) { showToast("Name is required"); btn.innerText = originalText; btn.disabled = false; return; }
-    
-    let avatarUrl = currentUser.avatar;
-    let bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
-
-    try {
-        if(currentAvatarBlob) { avatarUrl = await uploadToImgHippo(currentAvatarBlob); }
-        if(currentBannerBlob) { bannerUrl = await uploadToImgHippo(currentBannerBlob); }
-    } catch (e) {
-        console.error("Upload failed", e); showToast("Image upload failed"); btn.innerText = originalText; btn.disabled = false; return;
-    }
-
-    const userRef = doc(db, "users", currentUser.id);
-    await updateDoc(userRef, { name, bio, avatar: avatarUrl, banner: bannerUrl, bannerPos });
-    
-    currentUser.name = name; currentUser.bio = bio; currentUser.avatar = avatarUrl; currentUser.banner = bannerUrl; currentUser.bannerPos = bannerPos;
-    currentAvatarBlob = null; currentBannerBlob = null;
-
-    updateUserInterface();
-    closeEditProfile();
-    showProfile(currentUser.id); 
-    showToast("Profile Updated");
-    btn.innerText = originalText; btn.disabled = false;
-}
-
-window.doLogout = async function() { await signOut(auth); window.location.href = "index.html"; }
-
-window.toggleFollow = async function(userId) {
-    const meRef = doc(db, "users", currentUser.id);
-    const targetRef = doc(db, "users", userId);
-    
-    const targetUser = users.find(u => u.id === userId);
-    const isPrivate = targetUser?.settings?.privateNetwork;
-
-    if(currentUser.following.includes(userId)) {
-        currentUser.following = currentUser.following.filter(id => id !== userId);
-        showToast(`Unfollowed`);
-        await updateDoc(meRef, { following: arrayRemove(userId) });
-        await updateDoc(targetRef, { followers: arrayRemove(currentUser.id) });
-        const btn = document.getElementById('profile-follow-btn');
-        if(btn) btn.innerText = isPrivate ? 'Request' : 'Follow';
-    } else {
-        if(isPrivate) {
-            showToast("Follow request sent");
-            sendNotification(userId, 'follow_request', 'wants to follow you');
-            const btn = document.getElementById('profile-follow-btn');
-            if(btn) btn.innerText = "Requested";
-        } else {
-            currentUser.following.push(userId);
-            showToast(`Following`);
-            await updateDoc(meRef, { following: arrayUnion(userId) });
-            await updateDoc(targetRef, { followers: arrayUnion(currentUser.id) });
-            sendNotification(userId, 'follow', 'started following you');
-            const btn = document.getElementById('profile-follow-btn');
-            if(btn) btn.innerText = "Following";
-        }
-    }
-    const netView = document.getElementById('view-network');
-    if(netView && !netView.classList.contains('hidden')) renderNetwork();
-    refreshIcons();
-}
-
-window.openUserList = function(type, userId) {
-    const user = users.find(u => u.id === userId);
-    if(!user) return;
-    
-    if(user.settings?.privateNetwork && user.id !== currentUser.id && !currentUser.following.includes(user.id)) return;
-
-    const overlay = document.getElementById('user-list-overlay');
-    const title = document.getElementById('user-list-title');
-    const content = document.getElementById('user-list-content');
-    
-    title.innerText = type === 'following' ? 'Following' : 'Followers';
-    content.innerHTML = '';
-    
-    const targetIds = type === 'following' ? user.following : user.followers;
-    
-    if(!targetIds || targetIds.length === 0) {
-        content.innerHTML = `<div class="text-center text-gray-400 py-8">No users found.</div>`;
-    } else {
-        targetIds.forEach(tid => {
-            const targetUser = users.find(u => u.id === tid);
-            if(targetUser) {
-                const isMe = targetUser.id === currentUser.id;
-                const amFollowing = currentUser.following.includes(targetUser.id);
-                let btn = '';
-                if(!isMe) {
-                    btn = `<button onclick="toggleFollow('${targetUser.id}')" class="text-xs px-3 py-1 rounded-full font-medium ${amFollowing ? 'bg-gray-100 text-gray-700' : 'bg-blue-600 text-white'}">${amFollowing ? 'Unfollow' : 'Follow'}</button>`;
-                }
-                const div = document.createElement('div');
-                div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
-                div.onclick = (e) => {
-                    if(e.target.tagName !== 'BUTTON') { closeUserList(); showProfile(targetUser.id); }
-                };
-                div.innerHTML = `<div class="flex items-center gap-3"><img src="${targetUser.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${targetUser.name}</div><div class="text-xs text-gray-500 truncate w-32">${targetUser.bio}</div></div></div>${btn}`;
-                content.appendChild(div);
-            }
-        });
-    }
-    overlay.classList.remove('hidden');
-}
-
-window.closeUserList = function() { document.getElementById('user-list-overlay').classList.add('hidden'); }
-
-// Updated Switch Explore Tab Function
-window.switchExploreTab = function(tabName) {
-    window.activeExploreTab = tabName;
-    const searchVal = document.getElementById('global-search').value;
-    handleSearch(searchVal); // Re-run search with new tab state
-}
-
-window.handleSearch = function(query) {
-    if(document.getElementById('view-explore').classList.contains('hidden')) {
-        switchView('explore');
-    }
-    
-    const headerInput = document.getElementById('global-search');
-    const mobileInput = document.querySelector('#view-explore input');
-    
-    if(headerInput && headerInput.value !== query) headerInput.value = query;
-    if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
-
-    const view = document.getElementById('explore-results');
-    
-    if(!query || query.trim() === '') { 
-        view.innerHTML = `<div class="text-center py-20 text-gray-400"><i data-lucide="compass" class="w-16 h-16 mx-auto mb-3 opacity-50"></i><p>Search for people, posts, and ideas.</p></div>`;
-        refreshIcons();
-        return; 
-    }
-
-    const term = query.toLowerCase().trim();
-    const keywords = term.split(" ").filter(k => k.length > 0);
-
-    const foundUsers = users.filter(u => {
-        const name = (u.name || '').toLowerCase();
-        const bio = (u.bio || "").toLowerCase();
-        return keywords.some(k => name.includes(k) || bio.includes(k));
-    });
-
-    const foundPosts = posts.filter(p => {
-        const content = (p.content || '').toLowerCase();
-        return keywords.some(k => content.includes(k));
-    });
-    
-    // Tab Interface
-    let html = `
-    <div class="tab-group mb-4">
-        <button onclick="switchExploreTab('people')" class="tab-btn ${window.activeExploreTab === 'people' ? 'active' : ''}">People</button>
-        <button onclick="switchExploreTab('posts')" class="tab-btn ${window.activeExploreTab === 'posts' ? 'active' : ''}">Posts</button>
-    </div>
-    `;
-    
-    // People Results
-    const hiddenPeople = window.activeExploreTab === 'posts' ? 'hidden' : '';
-    html += `<div id="results-people" class="${hiddenPeople}">`;
-    if(foundUsers.length) {
-        foundUsers.forEach(u => {
-            html += `
-            <div class="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-xl mb-2 cursor-pointer hover:shadow-sm transition-shadow" onclick="showProfile('${u.id}')">
-                <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover bg-gray-50">
-                <div>
-                    <div class="font-bold text-sm text-gray-900">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>' : ''}</div>
-                    <div class="text-xs text-gray-500 line-clamp-1">${u.bio || 'No bio'}</div>
-                </div>
-            </div>`;
-        });
-    } else { 
-        html += `<div class="text-gray-400 text-sm mb-4 italic">No people found matching "${query}"</div>`; 
-    }
-    html += `</div>`;
-    
-    // Posts Results Container (will fill via DOM appending to keep event listeners active)
-    const hiddenPosts = window.activeExploreTab === 'people' ? 'hidden' : '';
-    html += `<div id="results-posts" class="space-y-4 ${hiddenPosts}"></div>`;
-    
-    view.innerHTML = html;
-    
-    // Append posts elements manually
-    const postsDiv = document.getElementById('results-posts');
-    if(foundPosts.length) {
-        foundPosts.forEach(p => postsDiv.appendChild(createPostElement(p)));
-    } else {
-        postsDiv.innerHTML = `<div class="text-gray-400 text-sm italic">No posts found matching "${query}"</div>`;
-    }
-    
-    refreshIcons();
-}
-
 window.renderChatList = function(searchTerm = "") {
     const list = document.getElementById('chat-list');
     list.innerHTML = "";
@@ -2978,6 +2747,129 @@ window.sendAnnouncement = async function() {
         showToast(`Sent to ${count} users`);
         document.getElementById('announcement-text').value = "";
     });
+}
+
+// PROFILE LOGIC
+window.showProfile = function(userId) {
+    if(!userId) userId = currentUser.id;
+    window.currentViewingProfileId = userId;
+    window.currentProfileTab = 'posts'; // Reset to posts tab on new profile view
+    renderProfileContent(userId);
+    switchView('profile');
+}
+
+window.switchProfileTab = function(tabName) {
+    window.currentProfileTab = tabName;
+    renderProfileContent(window.currentViewingProfileId);
+}
+
+window.renderProfileContent = function(userId) {
+    const user = users.find(u => u.id === userId);
+    if(!user) return;
+    
+    const container = document.getElementById('view-profile');
+    const isMe = userId === currentUser.id;
+    const isFollowing = currentUser.following ? currentUser.following.includes(userId) : false;
+    
+    let actionBtn = "";
+    if (isMe) {
+        actionBtn = `<button onclick="openEditProfile()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200">Edit Profile</button>`;
+    } else {
+        const isPrivate = user.settings?.privateNetwork;
+        let btnText = isFollowing ? 'Following' : (isPrivate ? 'Request' : 'Follow');
+        actionBtn = `
+        <div class="flex gap-2">
+        <button id="profile-follow-btn" onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-700' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">${btnText}</button>
+        <button onclick="startChat('${userId}')" class="border border-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
+        </div>
+        `;
+    }
+
+    const bannerUrl = user.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+    const bannerPos = user.bannerPos || 50;
+
+    let networkStatsHTML = '';
+    const isPrivate = user.settings?.privateNetwork;
+    const canViewContent = isMe || !isPrivate || isFollowing;
+
+    if(canViewContent) {
+        networkStatsHTML = `
+        <div class="flex gap-4 mt-3 text-sm text-gray-500">
+        <span class="cursor-pointer hover:underline" onclick="openUserList('following', '${userId}')"><strong class="text-gray-900">${user.following ? user.following.length : 0}</strong> Following</span>
+        <span class="cursor-pointer hover:underline" onclick="openUserList('followers', '${userId}')"><strong class="text-gray-900">${user.followers ? user.followers.length : 0}</strong> Followers</span>
+        </div>`;
+    } else {
+        networkStatsHTML = `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="italic"><i data-lucide="lock" class="w-3 h-3 inline"></i> Private Account</span></div>`;
+    }
+
+    // Determine tabs visibility
+    // Saved tab only for owner
+    let tabsHTML = `
+    <div class="twitter-tabs mt-4">
+        <button onclick="switchProfileTab('posts')" class="twitter-tab-btn ${window.currentProfileTab === 'posts' ? 'active' : ''}">Posts</button>
+        <button onclick="switchProfileTab('liked')" class="twitter-tab-btn ${window.currentProfileTab === 'liked' ? 'active' : ''}">Liked</button>
+        ${isMe ? `<button onclick="switchProfileTab('saved')" class="twitter-tab-btn ${window.currentProfileTab === 'saved' ? 'active' : ''}">Saved</button>` : ''}
+    </div>
+    `;
+
+    // Content Filtering
+    let contentHTML = '';
+    if (!canViewContent) {
+        contentHTML = `<div class="text-center py-20 text-gray-400 bg-gray-50"><i data-lucide="lock" class="w-12 h-12 mx-auto mb-2 opacity-50"></i><p>This account is private</p><p class="text-xs">Follow to see their posts</p></div>`;
+        tabsHTML = ''; // Hide tabs if private and not following
+    } else {
+        let relevantPosts = [];
+        if (window.currentProfileTab === 'posts') {
+            relevantPosts = posts.filter(p => p.authorId === userId);
+        } else if (window.currentProfileTab === 'saved' && isMe) {
+            relevantPosts = posts.filter(p => savedPosts.includes(p.id));
+        } else if (window.currentProfileTab === 'liked') {
+            relevantPosts = posts.filter(p => p.likes && p.likes.includes(userId));
+        }
+
+        if (relevantPosts.length === 0) {
+            contentHTML = `<div class="text-center py-20 text-gray-400">No posts yet</div>`;
+        } else {
+            // Render Grid
+            contentHTML = `<div class="post-grid">`;
+            relevantPosts.forEach(p => {
+                let contentTile = '';
+                if(p.media) {
+                    const isVid = p.media.startsWith('data:video') || p.media.includes('.mp4');
+                    if(isVid) {
+                        contentTile = `<video src="${p.media}" class="w-full h-full object-cover"></video><div class="absolute top-2 right-2 text-white drop-shadow-md"><i data-lucide="play-circle" class="w-5 h-5"></i></div>`;
+                    } else {
+                        contentTile = `<img src="${p.media}" loading="lazy">`;
+                    }
+                } else {
+                    // Text Tile for "Every post to have image attached" visual requirement
+                    // Create a visual tile from the text content
+                    const shortText = p.content.length > 60 ? p.content.substring(0, 60) + "..." : p.content;
+                    contentTile = `<div class="grid-text-placeholder">${shortText}</div>`;
+                }
+                contentHTML += `<div class="grid-item" onclick="openPostView('${p.id}')">${contentTile}</div>`;
+            });
+            contentHTML += `</div>`;
+        }
+    }
+
+    container.innerHTML = `
+    <div class="profile-banner-container"><img src="${bannerUrl}" class="profile-banner-img" style="object-position: center ${bannerPos}%"></div>
+    <div class="px-6 relative">
+        <div class="flex justify-between items-end -mt-10 mb-4">
+            <img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">
+            ${actionBtn}
+        </div>
+        <div class="mb-4">
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1>
+            <p class="text-gray-600 mt-1 text-[15px]">${user.bio}</p>
+            ${networkStatsHTML}
+        </div>
+    </div>
+    ${tabsHTML}
+    ${contentHTML}
+    `;
+    refreshIcons();
 }
 
 // Menu Functions

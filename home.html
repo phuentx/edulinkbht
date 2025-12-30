@@ -240,8 +240,7 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.like:hover { background-color: #fef2f2; color: #ef4444; }
 .action-btn.comment:hover { background-color: #eff6ff; color: #2563eb; }
 .action-btn.bookmark:hover { background-color: #fefce8; color: #eab308; }
-.action-btn.share-btn { color: var(--primary); background-color: #eff6ff; }
-.action-btn.share-btn:hover { background-color: #dbeafe; }
+.action-btn.share-btn:hover { background-color: #f3f4f6; color: var(--on-surface); }
 
 /* --- COMPOSE & CREATE MENUS --- */
 #compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal {
@@ -458,6 +457,10 @@ cursor: pointer;
 background: transparent;
 text-align: center;
 position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
 }
 .tab-btn:hover {
 color: var(--on-surface);
@@ -627,27 +630,17 @@ transform: translateX(20px);
     transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.collab-tag {
-    display: inline-flex;
-    align-items: center;
-    background-color: #eff6ff;
-    color: #1d4ed8;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-right: 4px;
-    cursor: pointer;
-}
 .collab-chip {
     display: inline-flex;
     align-items: center;
     background-color: #f3f4f6;
-    padding: 4px 8px;
-    border-radius: 16px;
-    font-size: 12px;
-    margin-right: 4px;
-    margin-bottom: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    color: #1f1f1f;
+    border: 1px solid #e5e7eb;
 }
 
 </style>
@@ -1014,7 +1007,7 @@ Change
         <button onclick="document.getElementById('media-input').click()" class="tool-btn" title="Upload Media"><i data-lucide="image" class="w-5 h-5"></i></button>
         <button onclick="promptForImageLink()" class="tool-btn" title="Image Link"><i data-lucide="link" class="w-5 h-5"></i></button>
         <button onclick="insertCodeBlock()" class="tool-btn" title="Add Code"><i data-lucide="code-2" class="w-5 h-5"></i></button>
-        <button onclick="openCollabSelector()" class="tool-btn text-blue-600 bg-blue-50" title="Tag Collaborators"><i data-lucide="users" class="w-5 h-5"></i></button>
+        <button onclick="openCollabSelector()" class="tool-btn text-gray-600 bg-gray-50" title="Tag Collaborators"><i data-lucide="users" class="w-5 h-5"></i></button>
         <button class="tool-btn" title="More"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
     </div>
     <button id="btn-publish" onclick="publishPost()" class="bg-[#0b57d0] text-white px-6 py-2 rounded-full font-bold text-[15px] hover:bg-[#0b57d0]/90 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed">Post</button>
@@ -1934,12 +1927,17 @@ const likeCountDisplay = settings.showLikes
 : '';
 const commentCountDisplay = settings.showComments ? `<span id="comment-count-${post.id}" class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span>` : '';
 
-// Collab Display Logic
+// Collab Display Logic - ONLY SHOW ACCEPTED COLLABORATORS
+let acceptedCollabs = [];
+if(post.collaborators) {
+    acceptedCollabs = post.collaborators.filter(c => c.status === 'accepted');
+}
+
 let collabIcon = '';
-if(post.collaborators && post.collaborators.length > 0) {
-    collabIcon = `<div class="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg ml-2 cursor-pointer hover:bg-blue-100 transition-colors" onclick="event.stopPropagation(); openCollabList('${post.id}')">
-    <i data-lucide="users" class="w-3 h-3 text-blue-600"></i>
-    <span class="text-xs font-bold text-blue-600">${post.collaborators.length}</span>
+if(acceptedCollabs.length > 0) {
+    collabIcon = `<div class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-lg ml-2 cursor-pointer hover:bg-gray-200 transition-colors" onclick="event.stopPropagation(); openCollabList('${post.id}')">
+    <i data-lucide="user" class="w-3 h-3 text-gray-600"></i>
+    <span class="text-xs font-bold text-gray-600">${acceptedCollabs.length}</span>
     </div>`;
 }
 
@@ -2002,7 +2000,7 @@ window.openCollabSelector = function() {
         relevantUsers.forEach(u => {
             const isSelected = window.selectedCollaborators.find(sc => sc.id === u.id);
             const div = document.createElement('div');
-            div.className = `flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer ${isSelected ? 'bg-blue-50' : ''}`;
+            div.className = `flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer ${isSelected ? 'bg-gray-100' : ''}`;
             div.onclick = () => toggleCollaborator(u);
             div.innerHTML = `
                 <div class="flex items-center gap-3">
@@ -2012,7 +2010,7 @@ window.openCollabSelector = function() {
                         <div class="text-xs text-gray-500">@${u.username || 'user'}</div>
                     </div>
                 </div>
-                ${isSelected ? '<i data-lucide="check" class="text-blue-600 w-5 h-5"></i>' : ''}
+                ${isSelected ? '<i data-lucide="check" class="text-gray-600 w-5 h-5"></i>' : ''}
             `;
             content.appendChild(div);
         });
@@ -2027,7 +2025,8 @@ window.toggleCollaborator = function(user) {
     if(idx > -1) {
         window.selectedCollaborators.splice(idx, 1);
     } else {
-        window.selectedCollaborators.push({ id: user.id, name: user.name, avatar: user.avatar, username: user.username });
+        // Initialize as pending
+        window.selectedCollaborators.push({ id: user.id, name: user.name, avatar: user.avatar, username: user.username, status: 'pending' });
     }
     closeUserList(); // Close list after selection or re-render list? Let's just update UI
     openCollabSelector(); // Re-render to show checkmark
@@ -2066,7 +2065,9 @@ window.openCollabList = function(postId) {
     title.innerText = "Collaborators";
     content.innerHTML = '';
     
-    post.collaborators.forEach(c => {
+    const accepted = post.collaborators.filter(c => c.status === 'accepted');
+    
+    accepted.forEach(c => {
         const div = document.createElement('div');
         div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
         div.onclick = () => { closeUserList(); showProfile(c.id); };
@@ -2280,9 +2281,9 @@ let filtered = notifications.filter(n => {
     if (activeNotifTab === 'official') {
         tabMatch = n.type === 'official';
     } else if (activeNotifTab === 'friends') {
-        tabMatch = currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request';
+        tabMatch = currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request' || n.type === 'collab_request';
     } else {
-        tabMatch = n.type !== 'official' && !currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request';
+        tabMatch = n.type !== 'official' && !currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request' && n.type !== 'collab_request';
     }
     
     // Search Filter
@@ -2313,10 +2314,11 @@ if(n.type === 'follow') icon = '<i data-lucide="user-plus" class="w-3 h-3 text-w
 if(n.type === 'official') icon = '<i data-lucide="megaphone" class="w-3 h-3 text-white"></i>';
 if(n.type === 'follow_request') icon = '<i data-lucide="lock" class="w-3 h-3 text-white"></i>';
 if(n.type === 'message_request') icon = '<i data-lucide="mail" class="w-3 h-3 text-white"></i>';
+if(n.type === 'collab_request') icon = '<i data-lucide="users" class="w-3 h-3 text-white"></i>';
 
 let colorClass = n.type === 'like' ? 'bg-red-500' : (n.type === 'official' ? 'bg-blue-600' : 'bg-indigo-500');
 if(n.type === 'reply') colorClass = 'bg-teal-500';
-if(n.type === 'follow_request' || n.type === 'message_request') colorClass = 'bg-orange-500';
+if(n.type === 'follow_request' || n.type === 'message_request' || n.type === 'collab_request') colorClass = 'bg-orange-500';
 
 let clickAction = (n.type === 'like' || n.type === 'comment' || n.type === 'reply') && n.postId
 ? `onclick="if(!window.notifSelectionMode) openPostView('${n.postId}')"`
@@ -2325,6 +2327,11 @@ let clickAction = (n.type === 'like' || n.type === 'comment' || n.type === 'repl
 let actionButtons = '';
 if(n.type === 'follow_request') {
 actionButtons = `<div class="flex gap-2 ml-auto"><button onclick="acceptFollow('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Accept</button><button onclick="deleteNotification('${n.id}')" class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-bold">Delete</button></div>`;
+clickAction = '';
+}
+
+if(n.type === 'collab_request') {
+actionButtons = `<div class="flex gap-2 ml-auto"><button onclick="acceptCollab('${n.id}', '${n.postId}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Accept</button><button onclick="declineCollab('${n.id}', '${n.postId}')" class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-bold">Decline</button></div>`;
 clickAction = '';
 }
 
@@ -2365,6 +2372,35 @@ window.deleteNotification = async function(id) {
 showAlert("Delete this notification?", async () => {
 await deleteDoc(doc(db, "notifications", id));
 });
+}
+
+window.acceptCollab = async function(notifId, postId) {
+    const postRef = doc(db, "posts", postId);
+    const postSnap = await getDoc(postRef);
+    if(postSnap.exists()) {
+        const post = postSnap.data();
+        let collabs = post.collaborators || [];
+        const idx = collabs.findIndex(c => c.id === currentUser.id);
+        if(idx > -1) {
+            collabs[idx].status = 'accepted';
+            await updateDoc(postRef, { collaborators: collabs });
+            showToast("Collaboration Accepted!");
+        }
+    }
+    await deleteDoc(doc(db, "notifications", notifId));
+}
+
+window.declineCollab = async function(notifId, postId) {
+    const postRef = doc(db, "posts", postId);
+    const postSnap = await getDoc(postRef);
+    if(postSnap.exists()) {
+        const post = postSnap.data();
+        let collabs = post.collaborators || [];
+        collabs = collabs.filter(c => c.id !== currentUser.id); // Remove user from collab list
+        await updateDoc(postRef, { collaborators: collabs });
+        showToast("Collaboration Declined");
+    }
+    await deleteDoc(doc(db, "notifications", notifId));
 }
 
 window.acceptFollow = async function(notifId, senderId) {
@@ -2448,15 +2484,13 @@ networkStatsHTML = `
 networkStatsHTML = `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="italic"><i data-lucide="lock" class="w-3 h-3 inline"></i> Private Account</span></div>`;
 }
 
-// TABS LOGIC
-let savedTabBtn = isMe ? `<button onclick="switchProfileTab('saved')" class="tab-btn ${tab==='saved'?'active':''}">Saved</button>` : '';
-let likedTabBtn = `<button onclick="switchProfileTab('liked')" class="tab-btn ${tab==='liked'?'active':''}">Liked</button>`;
-
+// TABS LOGIC - ICONS
 let tabsHTML = `
 <div class="tab-group mb-0">
-    <button onclick="switchProfileTab('posts')" class="tab-btn ${tab==='posts'?'active':''}">Posts</button>
-    ${savedTabBtn}
-    ${likedTabBtn}
+    <button onclick="switchProfileTab('posts')" class="tab-btn ${tab==='posts'?'active':''}"><i data-lucide="grid" class="w-5 h-5"></i></button>
+    ${isMe ? `<button onclick="switchProfileTab('saved')" class="tab-btn ${tab==='saved'?'active':''}"><i data-lucide="bookmark" class="w-5 h-5"></i></button>` : ''}
+    <button onclick="switchProfileTab('liked')" class="tab-btn ${tab==='liked'?'active':''}"><i data-lucide="heart" class="w-5 h-5"></i></button>
+    <button onclick="switchProfileTab('tagged')" class="tab-btn ${tab==='tagged'?'active':''}"><i data-lucide="user-check" class="w-5 h-5"></i></button>
 </div>
 `;
 
@@ -2480,8 +2514,11 @@ refreshIcons();
 window.switchProfileTab = function(tab) {
     const btns = document.querySelectorAll('#view-profile .tab-btn');
     btns.forEach(b => b.classList.remove('active'));
-    // Find the button clicked - simple logic based on text
-    Array.from(btns).find(b => b.innerText.toLowerCase().includes(tab)).classList.add('active');
+    // Find the button clicked - relies on onclick attr which is brittle but works here
+    // Better: Query based on onclick content
+    const targetBtn = Array.from(btns).find(b => b.getAttribute('onclick').includes(tab));
+    if(targetBtn) targetBtn.classList.add('active');
+    
     window.currentProfileTab = tab;
     renderProfileContent(window.currentViewingProfileId, tab);
 }
@@ -2498,6 +2535,8 @@ window.renderProfileContent = function(userId, tab) {
         targetPosts = posts.filter(p => savedPosts.includes(p.id));
     } else if (tab === 'liked') {
         targetPosts = posts.filter(p => p.likes && p.likes.includes(userId));
+    } else if (tab === 'tagged') {
+        targetPosts = posts.filter(p => p.collaborators && p.collaborators.some(c => c.id === userId && c.status === 'accepted'));
     }
     
     // Visibility Check for normal profile viewing (not me)
@@ -3207,6 +3246,12 @@ mediaUrl = await getDownloadURL(mediaRef);
 }
 }
 
+// Send Collab Notifications
+if(window.selectedCollaborators && window.selectedCollaborators.length > 0) {
+    // Logic inside publish because we need post ID first? No, we need ID first.
+    // So we add doc then notify.
+}
+
 const postData = {
 authorId: currentUser.id,
 content: textRaw,
@@ -3224,7 +3269,24 @@ allowComments: allowComments
 }
 };
 
-if(window.editingPostId) { await updateDoc(doc(db, "posts", window.editingPostId), { content: textRaw, settings: postData.settings }); showToast("Post Updated!"); } else { await addDoc(collection(db, "posts"), postData); showToast("Posted!"); } closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; refreshIcons(); } }
+let postId = null;
+if(window.editingPostId) { 
+    await updateDoc(doc(db, "posts", window.editingPostId), { content: textRaw, settings: postData.settings }); 
+    postId = window.editingPostId;
+    showToast("Post Updated!"); 
+} else { 
+    const docRef = await addDoc(collection(db, "posts"), postData); 
+    postId = docRef.id;
+    showToast("Posted!"); 
+    
+    // Notify Collaborators
+    if(window.selectedCollaborators && window.selectedCollaborators.length > 0) {
+        window.selectedCollaborators.forEach(c => {
+            sendNotification(c.id, 'collab_request', 'invited you to collaborate on a post', postId);
+        });
+    }
+} 
+closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; refreshIcons(); } }
 window.showToast = function(message, isError = false) { const toast = document.getElementById('toast'); const toastMsg = document.getElementById('toast-msg'); const icon = document.getElementById('toast-icon'); toastMsg.innerText = message; if (isError) { toast.style.backgroundColor = '#d93025'; icon.setAttribute('data-lucide', 'alert-circle'); icon.classList.remove('text-[#c4eed0]'); icon.classList.add('text-white'); } else { toast.style.backgroundColor = '#303134'; icon.setAttribute('data-lucide', 'check-circle-2'); icon.classList.add('text-[#c4eed0]'); } refreshIcons(); toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3000); }
 window.openLightbox = function(src, type = 'image') { const wrapper = document.getElementById('lightbox-wrapper'); const lightbox = document.getElementById('lightbox'); if (type === 'video' || src.includes('.mp4') || src.includes('data:video') || src.includes('.webm')) { wrapper.innerHTML = `<video src="${src}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`; } else { wrapper.innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; } lightbox.classList.add('active'); lightbox.classList.remove('pointer-events-none'); lightbox.classList.remove('opacity-0'); }
 window.closeLightbox = function() { const lightbox = document.getElementById('lightbox'); lightbox.classList.remove('active'); lightbox.classList.add('pointer-events-none'); lightbox.classList.add('opacity-0'); const video = lightbox.querySelector('video'); if(video) video.pause(); }

@@ -868,7 +868,8 @@ transform: translateX(20px);
         </div>
         <button onclick="switchView('feed')" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
-    <div class="tab-group mb-0 mx-0 w-full">
+    <!-- Tabs hidden initially, shown when searching -->
+    <div class="tab-group mb-0 mx-0 w-full hidden" id="explore-tabs-mobile">
         <button onclick="switchExploreTab('people')" id="etab-people-mobile" class="tab-btn active">People</button>
         <button onclick="switchExploreTab('posts')" id="etab-posts-mobile" class="tab-btn">Posts</button>
     </div>
@@ -906,8 +907,11 @@ transform: translateX(20px);
      <div class="flex items-center gap-3">
         <button onclick="closeMobileChat()" class="icon-btn -ml-2"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
         <div class="flex items-center gap-3 cursor-pointer" onclick="if(window.activeChatUserId) showProfile(window.activeChatUserId)">
-            <img id="mobile-chat-header-avatar" src="" class="w-8 h-8 rounded-full border border-gray-100 object-cover">
-            <span id="mobile-chat-header-name" class="font-bold text-gray-900 text-sm">User</span>
+            <img id="mobile-chat-header-avatar" src="" class="w-9 h-9 rounded-full border border-gray-100 object-cover">
+            <div class="flex flex-col">
+                <span id="mobile-chat-header-name" class="font-bold text-gray-900 text-sm leading-none">User</span>
+                <span class="text-xs text-gray-500 mt-0.5">Active now</span>
+            </div>
         </div>
      </div>
      <div class="relative">
@@ -923,8 +927,8 @@ transform: translateX(20px);
 
   <!-- Footer -->
   <div class="p-3 border-t border-gray-100 flex items-center gap-2 shrink-0 pb-[env(safe-area-inset-bottom)] mb-1 bg-white">
-     <div class="flex-1 bg-gray-100 rounded-full px-4 py-2.5 flex items-center gap-2">
-        <i data-lucide="camera" class="w-5 h-5 text-[#0b57d0]"></i>
+     <div class="flex-1 bg-gray-100 rounded-full px-4 py-2.5 flex items-center gap-2 border border-transparent focus-within:border-gray-200 transition-colors">
+        <div class="p-1 rounded-full bg-[#0b57d0] flex items-center justify-center"><i data-lucide="camera" class="w-3 h-3 text-white"></i></div>
         <input id="mobile-message-input" type="text" placeholder="Message..." class="bg-transparent flex-1 outline-none text-sm text-gray-900 placeholder-gray-500">
         <button onclick="sendMobileChatMessage()" class="text-[#0b57d0] font-bold text-sm px-2">Send</button>
      </div>
@@ -1540,8 +1544,11 @@ Change
      <div class="flex items-center gap-3">
         <button onclick="closeMobileChat()" class="icon-btn -ml-2"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
         <div class="flex items-center gap-3 cursor-pointer" onclick="if(window.activeChatUserId) showProfile(window.activeChatUserId)">
-            <img id="mobile-chat-header-avatar" src="" class="w-8 h-8 rounded-full border border-gray-100 object-cover">
-            <span id="mobile-chat-header-name" class="font-bold text-gray-900 text-sm">User</span>
+            <img id="mobile-chat-header-avatar" src="" class="w-9 h-9 rounded-full border border-gray-100 object-cover">
+            <div class="flex flex-col">
+                <span id="mobile-chat-header-name" class="font-bold text-gray-900 text-sm leading-none">User</span>
+                <span class="text-xs text-gray-500 mt-0.5">Active now</span>
+            </div>
         </div>
      </div>
      <div class="relative">
@@ -1557,8 +1564,8 @@ Change
 
   <!-- Footer -->
   <div class="p-3 border-t border-gray-100 flex items-center gap-2 shrink-0 pb-[env(safe-area-inset-bottom)] mb-1 bg-white">
-     <div class="flex-1 bg-gray-100 rounded-full px-4 py-2.5 flex items-center gap-2">
-        <i data-lucide="camera" class="w-5 h-5 text-[#0b57d0]"></i>
+     <div class="flex-1 bg-gray-100 rounded-full px-4 py-2.5 flex items-center gap-2 border border-transparent focus-within:border-gray-200 transition-colors">
+        <div class="p-1 rounded-full bg-[#0b57d0] flex items-center justify-center"><i data-lucide="camera" class="w-3 h-3 text-white"></i></div>
         <input id="mobile-message-input" type="text" placeholder="Message..." class="bg-transparent flex-1 outline-none text-sm text-gray-900 placeholder-gray-500">
         <button onclick="sendMobileChatMessage()" class="text-[#0b57d0] font-bold text-sm px-2">Send</button>
      </div>
@@ -2334,570 +2341,12 @@ window.openUserList = function(type, id) {
     let titleText = '';
     
     if (type === 'tagged') {
-        const post = posts.find(p => p.id === id);
+        const post = posts.find(p => p.id === id); // userId here is postId
         if(!post || !post.taggedUsers) return;
         targetIds = post.taggedUsers;
         titleText = 'In this photo';
     } else {
         const user = users.find(u => u.id === id);
-        if(!user) return;
-        if(user.settings?.privateNetwork && user.id !== currentUser.id && !currentUser.following.includes(user.id)) return;
-        targetIds = type === 'following' ? user.following : user.followers;
-        titleText = type === 'following' ? 'Following' : 'Followers';
-    }
-
-    const overlay = document.getElementById('user-list-overlay');
-    const title = document.getElementById('user-list-title');
-    const content = document.getElementById('user-list-content');
-
-    title.innerText = titleText;
-    content.innerHTML = '';
-
-    if(!targetIds || targetIds.length === 0) {
-        content.innerHTML = `<div class="text-center text-gray-400 py-8">No users found.</div>`;
-    } else {
-        targetIds.forEach(tid => {
-            const targetUser = users.find(u => u.id === tid);
-            if(targetUser) {
-                const isMe = targetUser.id === currentUser.id;
-                const amFollowing = currentUser.following.includes(targetUser.id);
-                let btn = '';
-                if(!isMe) {
-                    btn = `<button onclick="toggleFollow('${targetUser.id}')" class="text-xs px-3 py-1 rounded-full font-medium ${amFollowing ? 'bg-gray-100 text-gray-700' : 'bg-blue-600 text-white'}">${amFollowing ? 'Unfollow' : 'Follow'}</button>`;
-                }
-                const div = document.createElement('div');
-                div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
-                div.onclick = (e) => {
-                    if(e.target.tagName !== 'BUTTON') { closeUserList(); showProfile(targetUser.id); }
-                };
-                div.innerHTML = `<div class="flex items-center gap-3"><img src="${targetUser.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${targetUser.name}</div><div class="text-xs text-gray-500 truncate w-32">${targetUser.bio}</div></div></div>${btn}`;
-                content.appendChild(div);
-            }
-        });
-    }
-    overlay.classList.remove('hidden');
-}
-
-window.toggleLike = async function(postId) {
-const btn = document.getElementById(`like-btn-${postId}`);
-const countSpan = document.getElementById(`like-count-${postId}`);
-
-if(btn) {
-const icon = btn.querySelector('svg') || btn.querySelector('i');
-let isLiked = false;
-
-if (icon.tagName === 'svg') isLiked = icon.classList.contains('text-red-500');
-else isLiked = icon.classList.contains('text-red-500');
-
-if (isLiked) {
-icon.classList.remove('fill-red-500', 'text-red-500');
-if(countSpan) {
-const current = parseInt(countSpan.innerText) || 0;
-countSpan.innerText = Math.max(0, current - 1);
-}
-} else {
-icon.classList.add('fill-red-500', 'text-red-500');
-if(countSpan) {
-const current = parseInt(countSpan.innerText) || 0;
-countSpan.innerText = current + 1;
-}
-}
-}
-
-const postRef = doc(db, "posts", postId);
-const post = posts.find(p => p.id === postId);
-if(post.likes && post.likes.includes(currentUser.id)) {
-await updateDoc(postRef, { likes: arrayRemove(currentUser.id) });
-} else {
-await updateDoc(postRef, { likes: arrayUnion(currentUser.id) });
-if(post.authorId !== currentUser.id) {
-sendNotification(post.authorId, 'like', 'liked your post', postId);
-}
-}
-}
-
-window.openLikes = function(postId) {
-const post = posts.find(p => p.id === postId);
-if(!post) return;
-
-const overlay = document.getElementById('likes-overlay');
-const content = document.getElementById('likes-list-content');
-content.innerHTML = '';
-
-const likeIds = post.likes || [];
-
-if(likeIds.length === 0) {
-content.innerHTML = `<div class="text-center text-gray-400 py-8">No likes yet.</div>`;
-} else {
-likeIds.forEach(uid => {
-const user = users.find(u => u.id === uid);
-if(user) {
-const div = document.createElement('div');
-div.className = "flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
-div.onclick = () => {
-document.getElementById('likes-overlay').classList.add('hidden');
-showProfile(user.id);
-};
-div.innerHTML = `
-<img src="${user.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover">
-<div>
-<div class="font-bold text-sm text-gray-900">${user.name}</div>
-<div class="text-xs text-gray-500 truncate w-32">${user.bio}</div>
-</div>
-`;
-content.appendChild(div);
-}
-});
-}
-overlay.classList.remove('hidden');
-}
-
-window.closeLikes = function() {
-document.getElementById('likes-overlay').classList.add('hidden');
-}
-
-window.toggleSave = async function(postId) {
-const btn = document.getElementById(`save-btn-${postId}`);
-if(btn) {
-const icon = btn.querySelector('svg') || btn.querySelector('i');
-let hasClass = false;
-if(icon.tagName === 'svg') hasClass = icon.classList.contains('text-yellow-500');
-else hasClass = icon.classList.contains('text-yellow-500');
-
-if (hasClass) {
-icon.classList.remove('fill-yellow-500', 'text-yellow-500');
-showToast("Post removed");
-} else {
-icon.classList.add('fill-yellow-500', 'text-yellow-500');
-showToast("Post saved");
-}
-}
-
-const userRef = doc(db, "users", currentUser.id);
-if(savedPosts.includes(postId)) {
-await updateDoc(userRef, { saved: arrayRemove(postId) });
-savedPosts = savedPosts.filter(id => id !== postId);
-} else {
-await updateDoc(userRef, { saved: arrayUnion(postId) });
-savedPosts.push(postId);
-}
-}
-
-window.sharePost = function(postId) {
-const url = `${window.location.origin}${window.location.pathname}?postId=${postId}`;
-navigator.clipboard.writeText(url).then(() => { showToast("Link copied to clipboard!"); });
-}
-
-window.renderSaved = function() {
-const container = document.getElementById('saved-container');
-container.innerHTML = "";
-if(savedPosts.length === 0) {
-container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-60"><i data-lucide="bookmark" class="w-16 h-16 mb-2"></i><p>No saved posts yet</p></div>`;
-} else {
-const saved = posts.filter(p => savedPosts.includes(p.id));
-saved.forEach(post => container.appendChild(createPostElement(post)));
-}
-refreshIcons();
-}
-
-async function sendNotification(receiverId, type, content, postId = null) {
-await addDoc(collection(db, "notifications"), {
-receiverId,
-senderId: currentUser.id,
-type,
-content,
-timestamp: serverTimestamp(),
-read: false,
-postId: postId
-});
-}
-
-window.switchNotifTab = function(tab) {
-activeNotifTab = tab;
-document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-const mainBtn = document.getElementById(`ntab-${tab}`);
-const mobileBtn = document.getElementById(`ntab-${tab}-mobile`);
-if(mainBtn) mainBtn.classList.add('active');
-if(mobileBtn) mobileBtn.classList.add('active');
-renderNotifications();
-}
-
-window.renderNotifications = function() {
-const container = document.getElementById('notification-list');
-container.innerHTML = "";
-
-const filtered = notifications.filter(n => {
-if (activeNotifTab === 'official') {
-return n.type === 'official';
-} else if (activeNotifTab === 'friends') {
-return currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request';
-} else {
-return n.type !== 'official' && !currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request';
-}
-});
-
-if (filtered.length === 0) {
-container.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">No notifications here</div>`;
-return;
-}
-
-filtered.forEach(n => {
-const sender = users.find(u => u.id === n.senderId) || { name: 'Admin', avatar: '' };
-const div = document.createElement('div');
-div.className = "w-full flex items-center gap-3 p-3 border-b border-gray-100 bg-white group relative";
-let icon = "";
-if(n.type === 'like') icon = '<i data-lucide="heart" class="w-3 h-3 text-white"></i>';
-if(n.type === 'comment') icon = '<i data-lucide="message-circle" class="w-3 h-3 text-white"></i>';
-if(n.type === 'reply') icon = '<i data-lucide="corner-down-right" class="w-3 h-3 text-white"></i>';
-if(n.type === 'follow') icon = '<i data-lucide="user-plus" class="w-3 h-3 text-white"></i>';
-if(n.type === 'official') icon = '<i data-lucide="megaphone" class="w-3 h-3 text-white"></i>';
-if(n.type === 'follow_request') icon = '<i data-lucide="lock" class="w-3 h-3 text-white"></i>';
-if(n.type === 'message_request') icon = '<i data-lucide="mail" class="w-3 h-3 text-white"></i>';
-if(n.type === 'tag') icon = '<i data-lucide="tag" class="w-3 h-3 text-white"></i>';
-
-let colorClass = n.type === 'like' ? 'bg-red-500' : (n.type === 'official' ? 'bg-blue-600' : 'bg-indigo-500');
-if(n.type === 'reply') colorClass = 'bg-teal-500';
-if(n.type === 'tag') colorClass = 'bg-purple-500';
-if(n.type === 'follow_request' || n.type === 'message_request') colorClass = 'bg-orange-500';
-
-let clickAction = (n.type === 'like' || n.type === 'comment' || n.type === 'reply' || n.type === 'tag') && n.postId
-? `onclick="openPostView('${n.postId}')"`
-: `onclick="showProfile('${sender.id}')"`;
-
-let actionButtons = '';
-if(n.type === 'follow_request') {
-actionButtons = `<div class="flex gap-2 ml-auto"><button onclick="acceptFollow('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Accept</button><button onclick="deleteNotification('${n.id}')" class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-bold">Delete</button></div>`;
-clickAction = '';
-}
-
-if(n.type === 'message_request') {
-actionButtons = `<div class="flex gap-2 ml-auto"><button onclick="acceptMessage('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Chat</button></div>`;
-clickAction = '';
-}
-
-div.innerHTML = `
-<div class="relative cursor-pointer" onclick="showProfile('${sender.id}')">
-<img src="${sender.avatar}" class="w-10 h-10 rounded-full bg-gray-200">
-<div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${colorClass} flex items-center justify-center border-2 border-white">${icon}</div>
-</div>
-<div class="flex-1 cursor-pointer" ${clickAction}>
-<div class="text-sm">
-<span class="font-bold text-gray-900">${sender.name}</span>
-<span class="text-gray-600">${n.content}</span>
-</div>
-<div class="text-xs text-gray-400 mt-0.5">${formatDate(n.timestamp)}</div>
-</div>
-${actionButtons ? actionButtons : `<button onclick="deleteNotification('${n.id}')" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`}
-`;
-container.appendChild(div);
-});
-refreshIcons();
-}
-
-window.deleteNotification = async function(id) {
-showAlert("Delete this notification?", async () => {
-await deleteDoc(doc(db, "notifications", id));
-});
-}
-
-window.acceptFollow = async function(notifId, senderId) {
-const meRef = doc(db, "users", currentUser.id);
-await updateDoc(meRef, { followers: arrayUnion(senderId) });
-const senderRef = doc(db, "users", senderId);
-await updateDoc(senderRef, { following: arrayUnion(currentUser.id) });
-await deleteDoc(doc(db, "notifications", notifId));
-await sendNotification(senderId, 'follow', 'accepted your follow request');
-showToast("Follow request accepted");
-}
-
-window.acceptMessage = async function(notifId, senderId) {
-await deleteDoc(doc(db, "notifications", notifId));
-startChat(senderId);
-}
-
-window.clearAllNotifications = async function() {
-showAlert("Clear all notifications?", async () => {
-const batch = writeBatch(db);
-const q = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
-const snap = await getDocs(q);
-snap.forEach(d => batch.delete(d.ref));
-await batch.commit();
-showToast("All notifications cleared");
-});
-}
-
-window.toggleNotifications = function() {
-switchView('notifications');
-const badge = document.getElementById('notif-badge');
-if(badge) badge.classList.add('hidden');
-}
-
-window.showProfile = function(userId, tab = 'posts') {
-if(!userId) userId = currentUser.id;
-const user = users.find(u => u.id === userId);
-if(!user) return;
-
-window.currentViewingProfileId = userId;
-window.currentProfileTab = tab;
-const container = document.getElementById('view-profile');
-
-// Hide main header on mobile/desktop when showing profile as per request
-if (window.innerWidth < 768 || window.innerWidth >= 768) {
-    const mainHeader = document.getElementById('main-header');
-    if(mainHeader) mainHeader.classList.add('hidden');
-}
-
-const isMe = userId === currentUser.id;
-const isFollowing = currentUser.following ? currentUser.following.includes(userId) : false;
-
-let actionBtn = "";
-if (isMe) {
-actionBtn = `<button onclick="openEditProfile()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200">Edit Profile</button>`;
-} else {
-const isPrivate = user.settings?.privateNetwork;
-let btnText = isFollowing ? 'Following' : (isPrivate ? 'Request' : 'Follow');
-
-const existingBtn = document.getElementById('profile-follow-btn');
-if(existingBtn && existingBtn.innerText === 'Requested' && !isFollowing) {
-btnText = 'Requested';
-}
-
-actionBtn = `
-<div class="flex gap-2">
-<button id="profile-follow-btn" onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-700' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">${btnText}</button>
-<button onclick="startChat('${userId}')" class="border border-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
-</div>
-`;
-}
-
-const bannerUrl = user.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
-const bannerPos = user.bannerPos || 50;
-
-let networkStatsHTML = '';
-const isPrivate = user.settings?.privateNetwork;
-if(isMe || !isPrivate || isFollowing) {
-networkStatsHTML = `
-<div class="flex gap-4 mt-3 text-sm text-gray-500">
-<span class="cursor-pointer hover:underline" onclick="openUserList('following', '${userId}')"><strong class="text-gray-900">${user.following ? user.following.length : 0}</strong> Following</span>
-<span class="cursor-pointer hover:underline" onclick="openUserList('followers', '${userId}')"><strong class="text-gray-900">${user.followers ? user.followers.length : 0}</strong> Followers</span>
-</div>`;
-} else {
-networkStatsHTML = `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="italic"><i data-lucide="lock" class="w-3 h-3 inline"></i> Private Account</span></div>`;
-}
-
-// TABS LOGIC
-let savedTabBtn = isMe ? `<button onclick="switchProfileTab('saved')" class="tab-btn ${tab==='saved'?'active':''}">Saved</button>` : '';
-let likedTabBtn = `<button onclick="switchProfileTab('liked')" class="tab-btn ${tab==='liked'?'active':''}">Liked</button>`;
-
-let tabsHTML = `
-<div class="tab-group mb-0">
-    <button onclick="switchProfileTab('posts')" class="tab-btn ${tab==='posts'?'active':''}">Posts</button>
-    ${savedTabBtn}
-    ${likedTabBtn}
-</div>
-`;
-
-container.innerHTML = `
-<div class="profile-banner-container"><img src="${bannerUrl}" class="profile-banner-img" style="object-position: center ${bannerPos}%"></div>
-<div class="px-4 md:px-6 relative">
-<div class="flex justify-between items-end -mt-10 mb-4"><img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">${actionBtn}</div>
-<div class="mb-6"><h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1>
-<p class="text-sm font-medium text-gray-500 mb-1">@${user.username || user.id.substring(0,8)}</p>
-<p class="text-gray-600 mt-1">${user.bio}</p>${networkStatsHTML}</div>
-${tabsHTML}
-<div id="profile-content-area" class="pt-1 md:pt-4 pb-20 md:pb-0"></div>
-</div>
-`;
-
-switchView('profile');
-renderProfileContent(userId, tab);
-refreshIcons();
-}
-
-window.switchProfileTab = function(tab) {
-    const btns = document.querySelectorAll('#view-profile .tab-btn');
-    btns.forEach(b => b.classList.remove('active'));
-    // Find the button clicked - simple logic based on text
-    Array.from(btns).find(b => b.innerText.toLowerCase().includes(tab)).classList.add('active');
-    window.currentProfileTab = tab;
-    renderProfileContent(window.currentViewingProfileId, tab);
-}
-
-window.renderProfileContent = function(userId, tab) {
-    const contentArea = document.getElementById('profile-content-area');
-    contentArea.innerHTML = "";
-    
-    let targetPosts = [];
-    
-    if (tab === 'posts') {
-        targetPosts = posts.filter(p => p.authorId === userId);
-    } else if (tab === 'saved') {
-        targetPosts = posts.filter(p => savedPosts.includes(p.id));
-    } else if (tab === 'liked') {
-        targetPosts = posts.filter(p => p.likes && p.likes.includes(userId));
-    }
-    
-    // Visibility Check for normal profile viewing (not me)
-    if (userId !== currentUser.id && tab === 'posts') {
-        const user = users.find(u => u.id === userId);
-        const amFollowing = currentUser.following.includes(userId);
-        const isPrivateAcc = user?.settings?.privateNetwork;
-        
-        targetPosts = targetPosts.filter(p => {
-             const isPublic = !p.settings || p.settings.privacy === 'public';
-             if (isPrivateAcc && !amFollowing) return false;
-             return isPublic || amFollowing;
-        });
-    }
-
-    if (targetPosts.length === 0) {
-        contentArea.innerHTML = `<div class="text-center py-20 text-gray-400">No posts yet</div>`;
-    } else {
-        let gridHTML = `<div class="grid-post-container">`;
-        targetPosts.forEach(p => {
-            let content = '';
-            if (p.media) {
-                if (p.media.includes('video') || p.media.endsWith('.mp4')) {
-                     content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
-                } else {
-                     content = `<img src="${p.media}" class="w-full h-full object-cover">`;
-                }
-            } else {
-                // Text placeholder for grid
-                content = `<div class="grid-post-text-preview">${p.content.substring(0, 60)}${p.content.length>60?'...':''}</div>`;
-            }
-            
-            gridHTML += `
-            <div class="grid-post-item group" onclick="openPostView('${p.id}')">
-                ${content}
-                <div class="grid-post-overlay">
-                    <div class="flex items-center gap-1"><i data-lucide="heart" class="w-5 h-5 fill-white"></i> ${p.likes ? p.likes.length : 0}</div>
-                    <div class="flex items-center gap-1"><i data-lucide="message-circle" class="w-5 h-5 fill-white"></i> ${p.comments ? p.comments.length : 0}</div>
-                </div>
-            </div>`;
-        });
-        gridHTML += `</div>`;
-        contentArea.innerHTML = gridHTML;
-    }
-    refreshIcons();
-}
-
-window.openEditProfile = function() {
-const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
-currentBannerPos = currentUser.bannerPos || 50;
-initialBannerPos = currentBannerPos;
-document.getElementById('edit-banner-preview').src = bannerUrl;
-document.getElementById('edit-banner-preview').style.objectPosition = `center ${currentBannerPos}%`;
-document.getElementById('banner-pos-hint').innerText = `${currentBannerPos}%`;
-document.getElementById('edit-email').value = currentUser.email || "";
-document.getElementById('edit-profile-overlay').classList.remove('pointer-events-none', 'opacity-0');
-}
-window.closeEditProfile = function() { document.getElementById('edit-profile-overlay').classList.add('pointer-events-none', 'opacity-0'); }
-
-window.handleEditAvatarSelect = function(event) {
-const file = event.target.files[0];
-if (file) {
-currentAvatarBlob = file;
-const reader = new FileReader();
-reader.onload = function(e) { document.getElementById('edit-avatar-preview').src = e.target.result; };
-reader.readAsDataURL(file);
-}
-}
-
-window.handleEditBannerSelect = function(event) {
-const file = event.target.files[0];
-if (file) {
-currentBannerBlob = file;
-const reader = new FileReader();
-reader.onload = function(e) { document.getElementById('edit-banner-preview').src = e.target.result; };
-reader.readAsDataURL(file);
-}
-}
-
-window.saveProfileChanges = async function() {
-const btn = document.getElementById('save-profile-btn');
-const originalText = btn.innerText;
-btn.innerText = "Saving...";
-btn.disabled = true;
-
-const name = document.getElementById('edit-name').value;
-const bio = document.getElementById('edit-bio').value;
-const bannerPos = currentBannerPos;
-
-if(!name) { showToast("Name is required"); btn.innerText = originalText; btn.disabled = false; return; }
-
-let avatarUrl = currentUser.avatar;
-let bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
-
-try {
-if(currentAvatarBlob) { avatarUrl = await uploadToImgHippo(currentAvatarBlob); }
-if(currentBannerBlob) { bannerUrl = await uploadToImgHippo(currentBannerBlob); }
-} catch (e) {
-console.error("Upload failed", e); showToast("Image upload failed"); btn.innerText = originalText; btn.disabled = false; return;
-}
-
-const userRef = doc(db, "users", currentUser.id);
-await updateDoc(userRef, { name, bio, avatar: avatarUrl, banner: bannerUrl, bannerPos });
-
-currentUser.name = name; currentUser.bio = bio; currentUser.avatar = avatarUrl; currentUser.banner = bannerUrl; currentUser.bannerPos = bannerPos;
-currentAvatarBlob = null; currentBannerBlob = null;
-
-updateUserInterface();
-closeEditProfile();
-showProfile(currentUser.id, window.currentProfileTab);
-showToast("Profile Updated");
-btn.innerText = originalText; btn.disabled = false;
-}
-
-window.doLogout = async function() { await signOut(auth); window.location.href = "index.html"; }
-
-window.toggleFollow = async function(userId) {
-const meRef = doc(db, "users", currentUser.id);
-const targetRef = doc(db, "users", userId);
-
-const targetUser = users.find(u => u.id === userId);
-const isPrivate = targetUser?.settings?.privateNetwork;
-
-if(currentUser.following.includes(userId)) {
-currentUser.following = currentUser.following.filter(id => id !== userId);
-showToast(`Unfollowed`);
-await updateDoc(meRef, { following: arrayRemove(userId) });
-await updateDoc(targetRef, { followers: arrayRemove(currentUser.id) });
-const btn = document.getElementById('profile-follow-btn');
-if(btn) btn.innerText = isPrivate ? 'Request' : 'Follow';
-} else {
-if(isPrivate) {
-showToast("Follow request sent");
-sendNotification(userId, 'follow_request', 'wants to follow you');
-const btn = document.getElementById('profile-follow-btn');
-if(btn) btn.innerText = "Requested";
-} else {
-currentUser.following.push(userId);
-showToast(`Following`);
-await updateDoc(meRef, { following: arrayUnion(userId) });
-await updateDoc(targetRef, { followers: arrayUnion(currentUser.id) });
-sendNotification(userId, 'follow', 'started following you');
-const btn = document.getElementById('profile-follow-btn');
-if(btn) btn.innerText = "Following";
-}
-}
-const netView = document.getElementById('view-network');
-if(netView && !netView.classList.contains('hidden')) renderNetwork();
-refreshIcons();
-}
-
-window.openUserList = function(type, userId) {
-// If type is 'tagged', id is postId
-    let targetIds = [];
-    let titleText = '';
-    
-    if (type === 'tagged') {
-        const post = posts.find(p => p.id === userId); // userId here is postId
-        if(!post || !post.taggedUsers) return;
-        targetIds = post.taggedUsers;
-        titleText = 'In this photo';
-    } else {
-        const user = users.find(u => u.id === userId);
         if(!user) return;
         if(user.settings?.privateNetwork && user.id !== currentUser.id && !currentUser.following.includes(user.id)) return;
         targetIds = type === 'following' ? user.following : user.followers;
@@ -2952,6 +2401,7 @@ switchView('explore');
 
 const headerInput = document.getElementById('global-search');
 const mobileInput = document.getElementById('mobile-explore-search');
+const tabs = document.getElementById('explore-tabs-mobile');
 
 if(headerInput && headerInput.value !== query) headerInput.value = query;
 if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
@@ -2959,7 +2409,8 @@ if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
 const view = document.getElementById('explore-results');
 
 if(!query || query.trim() === '') {
-// DEFAULT DISCOVERY STATE
+// DEFAULT DISCOVERY STATE (No Tabs)
+if(tabs) tabs.classList.add('hidden');
 view.innerHTML = `
     <div class="text-center py-20 text-gray-400">
         <h3 class="text-lg font-bold text-gray-800 mb-2">Search & Discover</h3>
@@ -2969,6 +2420,9 @@ view.innerHTML = `
 refreshIcons();
 return;
 }
+
+// SEARCH ACTIVE (Show Tabs)
+if(tabs) tabs.classList.remove('hidden');
 
 const term = query.toLowerCase().trim();
 const keywords = term.split(" ").filter(k => k.length > 0);
@@ -3010,7 +2464,7 @@ html += `<div class="text-gray-400 text-sm mb-4 italic p-4">No people found matc
 }
 html += `</div>`;
 
-// Posts Results Container (will fill via DOM appending to keep event listeners active)
+// Posts Results Container
 const hiddenPosts = window.activeExploreTab === 'people' ? 'hidden' : '';
 html += `<div id="results-posts" class="space-y-4 ${hiddenPosts}"></div>`;
 
@@ -3130,7 +2584,7 @@ window.startChat = function(userId) {
         const user = users.find(u => u.id === userId);
         if(!user) return;
 
-        document.getElementById('chat-header').innerHTML = `<div class="flex items-center gap-3"><img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover cursor-pointer" onclick="showProfile('${user.id}')"><span class="font-semibold text-gray-800 cursor-pointer" onclick="showProfile('${user.id}')">${user.name}</span></div><button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`;
+        document.getElementById('chat-header').innerHTML = `<div class="flex items-center gap-3"><img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover cursor-pointer" onclick="showProfile('${user.id}')"><div class="flex flex-col"><span class="font-semibold text-gray-800 cursor-pointer" onclick="showProfile('${user.id}')">${user.name}</span><span class="text-xs text-gray-500">Active now</span></div></div><button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`;
         document.getElementById('chat-input-area').classList.remove('hidden');
         document.getElementById('chat-input-area').classList.add('flex');
         renderChatList();
@@ -3375,7 +2829,7 @@ const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
 const canDelete = isMyComment || isAdmin;
 
 const replies = allComments.filter(r => r.parentId === c.id);
-let html = `<div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group"><img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-gray-900">${cAuthor.name}</span><span class="text-xs text-gray-500">• Now</span></div><p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p><div class="flex items-center gap-4 mt-2"><button id="comment-like-btn-${c.id}" onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> <span id="comment-like-count-${c.id}">${likeCount || ''}</span></button><button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div>`;
+let html = `<div class="flex gap-3 p-5 border-b border-gray-50 hover:bg-gray-50 transition-colors group"><img src="${cAuthor.avatar}" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover" onclick="showProfile('${c.authorId}')"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-gray-900">${cAuthor.name}</span><span class="text-xs text-gray-500">• Now</span></div><p class="text-[14px] text-gray-800 leading-relaxed">${c.content}</p><div class="flex items-center gap-4 mt-2"><button id="comment-like-btn-${c.id}" onclick="toggleCommentLike('${postId}', '${c.id}')" class="text-xs font-medium flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-800'}"><i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500' : ''}"></i> <span id="comment-like-count-${c.id}">${likeCount || ''}</span></button><button onclick="replyToComment('${c.id}', '${cAuthor.name}')" class="text-xs font-medium text-gray-500 hover:text-gray-800">Reply</button>${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-xs font-medium text-red-500 hover:text-red-700">Delete</button>` : ''}</div></div></div>`;
 
 if (showRepliesLink && replies.length > 0) {
     // Show "View Replies" link instead of nested content
@@ -3665,7 +3119,8 @@ media: mediaUrl,
 timestamp: serverTimestamp(),
 likes: [],
 comments: [],
-taggedUsers: currentTaggedUsers,
+taggedUsers: [], // Only confirmed tags
+pendingTags: currentTaggedUsers, // New tags need approval
 settings: {
 privacy: isPrivate ? 'private' : 'public',
 showLikes: showLikes,
@@ -3675,31 +3130,18 @@ allowComments: allowComments
 }
 };
 
-// Send tag notifications
+const docRef = await addDoc(collection(db, "posts"), postData); 
+    
+// Send tag notifications with request
 if (currentTaggedUsers && currentTaggedUsers.length > 0) {
     for (const taggedUid of currentTaggedUsers) {
         if (taggedUid !== currentUser.id) {
-            sendNotification(taggedUid, 'tag', 'tagged you in a post', null); // postId added after creation
+            sendNotification(taggedUid, 'tag_request', 'tagged you in a post', docRef.id);
         }
     }
 }
 
 if(window.editingPostId) { await updateDoc(doc(db, "posts", window.editingPostId), { content: textRaw, settings: postData.settings }); showToast("Post Updated!"); } else { 
-    const docRef = await addDoc(collection(db, "posts"), postData); 
-    
-    // Update notifications with postId for tagging
-    if (currentTaggedUsers && currentTaggedUsers.length > 0) {
-        // This is simplified; ideally we'd batch write or track notifications IDs. 
-        // For now, new tags on new posts will trigger the notification flow above but link will be missing until we refactor notification logic deeper.
-        // Re-sending specific tag notification with ID:
-        for (const taggedUid of currentTaggedUsers) {
-             if (taggedUid !== currentUser.id) {
-                // We already sent one above without ID, sending another or updating is complex without ID ref. 
-                // Let's just assume the flow works or do it here properly:
-                // Removing the pre-send loop above and doing it here is better.
-             }
-        }
-    }
     showToast("Posted!"); 
 } 
 closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); currentTaggedUsers = []; document.getElementById('compose-tags-display').classList.add('hidden'); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; refreshIcons(); } }

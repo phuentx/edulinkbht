@@ -528,8 +528,8 @@ border-radius: 4px 4px 0 0;
 
 /* --- CHAT STYLES --- */
 .chat-sidebar-item {
-display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px;
-border-bottom: 1px solid transparent;
+display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px;
+border-bottom: none;
 cursor: pointer; color: var(--on-surface);
 transition: background 0.1s; font-size: 14px; font-weight: 500;
 }
@@ -539,29 +539,32 @@ transition: background 0.1s; font-size: 14px; font-weight: 500;
 .chat-bubble-me {
 background: #3797f0;
 color: white;
-padding: 8px 16px;
-border-radius: 20px;
-font-size: 14px;
+padding: 10px 16px;
+border-radius: 18px 18px 2px 18px;
+font-size: 15px;
 max-width: 70%;
 align-self: flex-end;
 margin-bottom: 2px;
 position: relative;
+line-height: 1.4;
+box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .chat-bubble-them {
 background: #efefef;
 color: black;
-padding: 8px 16px;
-border-radius: 20px;
-font-size: 14px;
+padding: 10px 16px;
+border-radius: 18px 18px 18px 2px;
+font-size: 15px;
 max-width: 70%;
 align-self: flex-start;
 margin-bottom: 2px;
 position: relative;
+line-height: 1.4;
 }
 
 .chat-row {
-display: flex; width: 100%; margin-bottom: 4px; align-items: flex-end;
+display: flex; width: 100%; margin-bottom: 4px; align-items: flex-end; gap: 8px;
 }
 .chat-row.me { justify-content: flex-end; }
 .chat-row.them { justify-content: flex-start; }
@@ -1142,58 +1145,91 @@ Change
     <div id="notification-list" class="w-full pt-[120px] md:pt-0"></div>
 </div>
 
-<!-- CHAT VIEW -->
-<div id="view-chat" class="flex-1 h-full hidden flex flex-col bg-white overflow-hidden pt-0 md:pt-0">
-     <!-- Mobile Chat List Container -->
-     <div id="chat-list-container" class="w-full md:w-[350px] md:border-r border-gray-200 flex flex-col h-full bg-white">
-        <!-- Mobile Header for Chat List -->
-        <div class="md:hidden h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white">
+<!-- CHAT VIEW (REFACTORED) -->
+<div id="view-chat" class="flex-1 h-full hidden flex flex-col bg-white overflow-hidden relative">
+    
+    <!-- 1. Sidebar (List) -->
+    <!-- On mobile, this hides when 'activeChatUserId' is set (via JS class toggling) -->
+    <div id="chat-sidebar" class="w-full md:w-[350px] md:border-r border-gray-200 flex flex-col h-full bg-white z-10">
+        <!-- Header -->
+        <div class="h-16 md:h-20 border-b border-gray-100 flex items-center justify-between px-5 shrink-0">
              <div class="flex items-center gap-3 w-full">
-                <img id="mobile-chat-me-avatar" src="" class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 object-cover">
-                <span class="font-bold text-lg text-gray-900">Chats</span>
+                <div class="relative">
+                    <img id="chat-sidebar-user-avatar" src="" class="w-10 h-10 rounded-full border border-gray-200 object-cover cursor-pointer hover:opacity-80 transition-opacity">
+                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-bold text-lg text-gray-900 leading-tight">Chats</span>
+                    <span id="chat-sidebar-username" class="text-xs text-gray-500 font-medium">Your ID</span>
+                </div>
              </div>
-             <button onclick="openCreateMenu()" class="icon-btn"><i data-lucide="edit" class="w-5 h-5"></i></button>
+             <button onclick="openCreateMenu()" class="icon-btn bg-gray-50 hover:bg-gray-100"><i data-lucide="edit" class="w-5 h-5 text-gray-700"></i></button>
         </div>
         
         <!-- Search -->
-        <div class="p-3 border-b border-gray-100">
-             <div class="bg-gray-100 rounded-xl px-3 py-2 flex items-center">
-                 <i data-lucide="search" class="w-4 h-4 text-gray-500 mr-2"></i>
-                 <input type="text" placeholder="Search" onkeyup="renderChatList(this.value)" class="bg-transparent w-full text-sm outline-none">
+        <div class="p-4 pb-2">
+             <div class="bg-gray-100 rounded-xl px-4 py-2.5 flex items-center group focus-within:bg-gray-50 focus-within:ring-1 focus-within:ring-gray-200 transition-all">
+                 <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2 group-focus-within:text-gray-600"></i>
+                 <input type="text" placeholder="Search messages" onkeyup="renderChatList(this.value)" class="bg-transparent w-full text-sm outline-none text-gray-700 placeholder-gray-400">
              </div>
         </div>
         
-        <div id="chat-list" class="flex-1 overflow-y-auto"></div>
-     </div>
+        <!-- List -->
+        <div id="chat-list" class="flex-1 overflow-y-auto px-2 pt-2 pb-20 md:pb-0"></div>
+    </div>
 
-     <!-- Conversation View (Hidden on Mobile initially, Right side on Desktop) -->
-     <div id="chat-conversation-container" class="hidden md:flex flex-1 flex-col h-full bg-white relative z-20 md:z-0 absolute md:static inset-0 w-full transform transition-transform duration-200 translate-x-full md:translate-x-0">
-          <!-- Chat Header -->
-          <div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white shadow-sm z-10">
-               <div class="flex items-center gap-3">
-                   <button onclick="exitChat()" class="md:hidden -ml-2 p-2"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button>
-                   <img id="chat-header-avatar" class="w-8 h-8 rounded-full border border-gray-200 object-cover">
-                   <span id="chat-header-name" class="font-bold text-sm text-gray-900">User</span>
-               </div>
-               <button onclick="deleteCurrentChat()" class="icon-btn hover:text-red-500"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
-          </div>
+    <!-- 2. Conversation View -->
+    <!-- On mobile, this shows when 'activeChatUserId' is set (via JS class toggling) -->
+    <div id="chat-conversation" class="w-full md:flex-1 flex flex-col h-full bg-white absolute md:static inset-0 z-20 hidden">
+         <!-- Header -->
+         <div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white/95 backdrop-blur-sm z-30">
+              <div class="flex items-center gap-3">
+                  <button onclick="exitChat()" class="md:hidden -ml-2 p-2 rounded-full hover:bg-gray-100 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button>
+                  <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" onclick="showProfile(activeChatUserId)">
+                      <img id="chat-header-avatar" class="w-9 h-9 rounded-full border border-gray-200 object-cover">
+                      <div class="flex flex-col">
+                          <span id="chat-header-name" class="font-bold text-sm text-gray-900 leading-tight">User</span>
+                          <span class="text-[10px] text-gray-500 font-medium">Active now</span>
+                      </div>
+                  </div>
+              </div>
+              <div class="flex items-center gap-1">
+                  <button class="icon-btn hover:bg-gray-50"><i data-lucide="phone" class="w-5 h-5"></i></button>
+                  <button class="icon-btn hover:bg-gray-50"><i data-lucide="video" class="w-5 h-5"></i></button>
+                  <button class="icon-btn hover:bg-gray-50 hover:text-red-500" onclick="deleteCurrentChat()"><i data-lucide="info" class="w-5 h-5"></i></button>
+              </div>
+         </div>
 
-          <!-- Messages -->
-          <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col gap-1"></div>
+         <!-- Messages -->
+         <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col gap-1 bg-white"></div>
 
-          <!-- Input Area -->
-          <div class="p-3 border-t border-gray-100 shrink-0 bg-white">
-               <div id="reply-preview" class="hidden reply-preview-bar">
-                    <span id="reply-to-text">Replying...</span>
-                    <button onclick="cancelReply()"><i data-lucide="x" class="w-4 h-4"></i></button>
-               </div>
-               <div class="bg-gray-100 rounded-full flex items-center px-4 py-1.5 gap-2 border border-transparent focus-within:border-gray-300 focus-within:bg-white transition-all">
-                    <i data-lucide="smile" class="w-6 h-6 text-gray-400 cursor-pointer hover:text-gray-600"></i>
-                    <input id="message-input" type="text" placeholder="Message..." class="flex-1 bg-transparent outline-none text-sm h-9" onkeydown="if(event.key === 'Enter') sendChatMessage(event)">
-                    <button onclick="sendChatMessage(event)" class="text-blue-500 font-bold text-sm hover:text-blue-700">Send</button>
-               </div>
-          </div>
-     </div>
+         <!-- Footer -->
+         <div class="p-4 border-t border-gray-100 shrink-0 bg-white z-30">
+              <div id="reply-preview" class="hidden reply-preview-bar mb-2">
+                   <span id="reply-to-text" class="text-xs text-gray-600 truncate">Replying...</span>
+                   <button onclick="cancelReply()" class="p-1 hover:bg-gray-200 rounded-full"><i data-lucide="x" class="w-3 h-3"></i></button>
+              </div>
+              <div class="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1 border border-transparent focus-within:border-gray-300 focus-within:bg-white transition-all">
+                   <button class="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors shrink-0"><i data-lucide="camera" class="w-4 h-4"></i></button>
+                   <input id="message-input" type="text" placeholder="Message..." class="flex-1 bg-transparent outline-none text-sm h-10 px-2" onkeydown="if(event.key === 'Enter') sendChatMessage(event)">
+                   <div class="flex items-center pr-1 gap-1">
+                        <button class="p-2 text-gray-500 hover:text-gray-800 transition-colors"><i data-lucide="image" class="w-5 h-5"></i></button>
+                        <button class="p-2 text-gray-500 hover:text-red-500 transition-colors"><i data-lucide="heart" class="w-5 h-5"></i></button>
+                        <button onclick="sendChatMessage(event)" class="text-blue-500 font-bold text-sm hover:text-blue-700 px-2">Send</button>
+                   </div>
+              </div>
+         </div>
+    </div>
+
+    <!-- 3. Desktop Placeholder -->
+    <div id="chat-placeholder" class="hidden md:flex flex-1 flex-col items-center justify-center h-full bg-white text-center p-6 border-l border-gray-100">
+        <div class="w-24 h-24 rounded-full border-2 border-gray-900 flex items-center justify-center mb-4">
+            <i data-lucide="send" class="w-10 h-10 text-gray-900 ml-1 mt-1"></i>
+        </div>
+        <h3 class="text-xl font-medium text-gray-900 mb-2">Your Messages</h3>
+        <p class="text-gray-500 text-sm mb-6">Send private photos and messages to a friend or group.</p>
+        <button onclick="openCreateMenu()" class="bg-[#0b57d0] text-white px-5 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors">Send Message</button>
+    </div>
 </div>
 
 <!-- ANNOUNCEMENTS VIEW (Admin) -->
@@ -1634,8 +1670,9 @@ if(!currentUser) return;
 const nameEl = document.getElementById('sidebar-name'); if(nameEl) nameEl.innerText = currentUser.name;
 const avEl = document.getElementById('sidebar-avatar'); if(avEl) avEl.src = currentUser.avatar;
 const mobAv = document.getElementById('mobile-avatar'); if(mobAv) mobAv.src = currentUser.avatar;
-const mobChatAv = document.getElementById('mobile-chat-me-avatar'); if(mobChatAv) mobChatAv.src = currentUser.avatar;
+const mobChatAv = document.getElementById('chat-sidebar-user-avatar'); if(mobChatAv) mobChatAv.src = currentUser.avatar;
 const headAv = document.getElementById('header-avatar'); if(headAv) headAv.src = currentUser.avatar;
+const chatSidebarName = document.getElementById('chat-sidebar-username'); if(chatSidebarName) chatSidebarName.innerText = currentUser.name;
 const compName = document.getElementById('compose-name'); if(compName) compName.innerText = currentUser.name;
 const compAv = document.getElementById('compose-avatar'); if(compAv) compAv.src = currentUser.avatar;
 const commAv = document.getElementById('comment-input-avatar'); if(commAv) commAv.src = currentUser.avatar;
@@ -1837,6 +1874,8 @@ if(document.getElementById('network-content').children.length === 0) renderNetwo
 const nav = document.getElementById('nav-chat'); if(nav) nav.classList.add('active');
 if(mobileNavItems[3]) mobileNavItems[3].classList.add('active');
 renderChatList(); 
+// Ensure correct UI state based on active chat
+renderChatUI();
 const dot = document.getElementById('chat-dot');
 if(dot) dot.style.display = 'none';
 } else if (viewName === 'saved') {
@@ -2668,6 +2707,42 @@ postsDiv.innerHTML = `<div class="text-gray-400 text-sm italic">No posts found m
 refreshIcons();
 }
 
+// Chat Functions - UI Management
+window.renderChatUI = function() {
+    const sidebar = document.getElementById('chat-sidebar');
+    const conversation = document.getElementById('chat-conversation');
+    const placeholder = document.getElementById('chat-placeholder');
+    
+    const isMobile = window.innerWidth < 768;
+    const hasActiveChat = !!activeChatUserId;
+
+    if (isMobile) {
+        // Mobile Logic
+        if (hasActiveChat) {
+            // Show Conversation, Hide Sidebar
+            sidebar.classList.add('hidden');
+            conversation.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        } else {
+            // Show Sidebar, Hide Conversation
+            sidebar.classList.remove('hidden');
+            conversation.classList.add('hidden');
+            placeholder.classList.add('hidden');
+        }
+    } else {
+        // Desktop Logic
+        sidebar.classList.remove('hidden'); // Always show sidebar
+        
+        if (hasActiveChat) {
+            conversation.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        } else {
+            conversation.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+        }
+    }
+}
+
 window.renderChatList = function(searchTerm = "") {
 const list = document.getElementById('chat-list');
 list.innerHTML = "";
@@ -2688,10 +2763,13 @@ div.className = "chat-sidebar-item group flex items-center gap-3";
 if(activeChatUserId === f.id) div.classList.add('active');
 div.onclick = () => startChat(f.id);
 div.innerHTML = `
-<img src="${f.avatar}" class="w-12 h-12 rounded-full object-cover border border-gray-200 shrink-0">
+<div class="relative">
+    <img src="${f.avatar}" class="w-14 h-14 rounded-full object-cover border border-gray-100 shrink-0">
+    <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
 <div class="flex-1 min-w-0">
-    <div class="font-semibold text-gray-900 truncate">${f.name}</div>
-    <div class="text-xs text-gray-500">Tap to chat</div>
+    <div class="font-semibold text-gray-900 truncate text-[15px]">${f.name}</div>
+    <div class="text-xs text-gray-500 truncate mt-0.5">Click to view messages</div>
 </div>
 `;
 list.appendChild(div);
@@ -2703,19 +2781,16 @@ let messageUnsubscribe = null;
 
 window.startChat = function(userId) {
 activeChatUserId = userId;
-switchView('chat');
 const user = users.find(u => u.id === userId);
 if(!user) return;
 
 // Update Header Info
 document.getElementById('chat-header-avatar').src = user.avatar;
 document.getElementById('chat-header-name').innerText = user.name;
-document.getElementById('chat-header-name').onclick = () => showProfile(user.id);
 
-// Mobile View Logic: Slide in Conversation
-if (window.innerWidth < 768) {
-    document.getElementById('chat-conversation-container').classList.remove('translate-x-full');
-}
+// Update UI View State
+switchView('chat'); // Ensure we are in chat view first
+renderChatUI(); // Update visibility based on state
 
 if(messageUnsubscribe) messageUnsubscribe();
 const qMsgs = query(collection(db, "messages"), orderBy("timestamp", "asc"));
@@ -2736,9 +2811,7 @@ refreshIcons();
 
 window.exitChat = function() {
     activeChatUserId = null;
-    if (window.innerWidth < 768) {
-        document.getElementById('chat-conversation-container').classList.add('translate-x-full');
-    }
+    renderChatUI();
 }
 
 window.deleteConversationHistory = function(targetId) {
@@ -2757,7 +2830,7 @@ chatPartners.delete(targetId);
 if(activeChatUserId === targetId) {
 document.getElementById('chat-messages').innerHTML = '';
 activeChatUserId = null;
-exitChat(); // Go back to list on mobile
+exitChat(); // Go back to list
 }
 renderChatList();
 showToast("Conversation deleted");

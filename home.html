@@ -520,8 +520,8 @@ color: #b91c1c;
 
 /* --- CHAT STYLES --- */
 .chat-sidebar-item {
-display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px;
-margin: 2px 8px; border-radius: 6px; cursor: pointer; color: var(--text-secondary);
+display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px;
+border-bottom: 1px solid #f2f4f7; cursor: pointer; color: var(--text-secondary);
 transition: background 0.1s; font-size: 14px; font-weight: 500;
 }
 .chat-sidebar-item:hover { background: var(--hover-bg); }
@@ -758,6 +758,13 @@ position: relative;
 
 <!-- Post Options Global Menu -->
 <div id="global-post-menu" class="post-options-menu"></div>
+
+<!-- Chat Options Menu -->
+<div id="chat-options-menu" class="fixed top-16 right-4 bg-white border border-gray-100 rounded-xl shadow-xl w-48 z-50 hidden p-1">
+    <div class="p-2 hover:bg-red-50 rounded-lg cursor-pointer text-red-600 flex items-center gap-2 font-medium text-sm" onclick="deleteCurrentChat()">
+        <i data-lucide="trash-2" class="w-4 h-4"></i> Delete Chat
+    </div>
+</div>
 
 <!-- THREAD VIEW OVERLAY -->
 <div id="thread-view-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center">
@@ -1240,31 +1247,67 @@ Change
         <div id="notification-list" class="w-full"></div>
     </div>
 
-    <!-- CHAT VIEW -->
-    <div id="view-chat" class="flex-1 h-full hidden flex flex-col bg-white overflow-hidden">
-        <div class="flex h-full">
-            <div class="w-1/4 min-w-[260px] border-r border-gray-100 flex flex-col bg-[#fbfbfa]">
-                <div class="p-4 border-b border-gray-100">
-                    <div class="font-medium text-xs text-gray-500 uppercase tracking-wide mb-2">Direct Messages</div>
-                    <input type="text" placeholder="Search chats..." onkeyup="renderChatList(this.value)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-blue-500 transition-colors">
-                </div>
-                <div id="chat-list" class="flex-1 overflow-y-auto pt-2"></div>
+    <!-- CHAT VIEW REDESIGNED -->
+    <div id="view-chat" class="flex-1 h-full hidden flex-col bg-white overflow-hidden relative">
+        <div class="flex h-full relative">
+            <!-- Chat List Sidebar (Visible by default on mobile, 1/4 on desktop) -->
+            <div id="chat-list-panel" class="w-full md:w-1/4 md:min-w-[300px] border-r border-gray-100 flex flex-col bg-white h-full z-10 absolute md:relative">
+                 <!-- Mobile Chat List Header -->
+                 <div id="mobile-chat-list-header" class="md:hidden h-16 flex items-center justify-between px-4 border-b border-gray-100 bg-white z-20 shrink-0">
+                    <h1 class="text-xl font-bold google-font text-[#1f1f1f]">Messages</h1>
+                    <img id="mobile-chat-my-avatar" src="" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 object-cover cursor-pointer" onclick="showProfile(auth.currentUser ? auth.currentUser.uid : null)">
+                 </div>
+                 
+                 <!-- Search Input (Desktop & Mobile) -->
+                 <div class="p-3 border-b border-gray-100 bg-white shrink-0">
+                    <div class="hidden md:block font-medium text-xs text-gray-500 uppercase tracking-wide mb-2">Direct Messages</div>
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
+                        <input type="text" placeholder="Search" onkeyup="renderChatList(this.value)" class="w-full bg-gray-100 rounded-xl pl-9 pr-3 py-2 text-[15px] outline-none focus:ring-1 focus:ring-gray-200 transition-all text-[#1f1f1f]">
+                    </div>
+                 </div>
+
+                 <!-- List -->
+                 <div id="chat-list" class="flex-1 overflow-y-auto"></div>
             </div>
-            <div class="flex-1 flex flex-col relative bg-white h-full overflow-hidden">
-                <div id="chat-header" class="h-16 border-b border-gray-100 bg-white flex items-center justify-between px-6 font-semibold text-gray-800 text-[15px] shrink-0">
+    
+            <!-- Conversation Panel (Hidden on mobile by default, slides in. Full width on desktop) -->
+            <div id="chat-conversation-panel" class="w-full flex-1 flex flex-col bg-white h-full absolute md:relative z-30 md:z-0 transform translate-x-full md:translate-x-0 transition-transform duration-300">
+                 <!-- Mobile Conversation Header -->
+                 <div id="mobile-chat-conv-header" class="md:hidden h-16 flex items-center justify-between px-3 border-b border-gray-100 bg-white shrink-0">
+                     <div class="flex items-center gap-3">
+                        <button onclick="closeMobileChat()" class="icon-btn -ml-2"><i data-lucide="arrow-left" class="w-6 h-6 text-[#1f1f1f]"></i></button>
+                        <div class="flex items-center gap-2" onclick="showProfile(activeChatUserId)">
+                            <img id="mobile-chat-friend-avatar" src="" class="w-8 h-8 rounded-full border border-gray-200 object-cover">
+                            <div>
+                                <div id="mobile-chat-friend-name" class="font-bold text-[#1f1f1f] text-[15px] leading-tight">User</div>
+                                <div class="text-[11px] text-gray-500">Active now</div>
+                            </div>
+                        </div>
+                     </div>
+                     <button class="icon-btn" onclick="toggleChatOptions()"><i data-lucide="more-horizontal" class="w-6 h-6 text-[#1f1f1f]"></i></button>
+                 </div>
+                 
+                 <!-- Desktop Header -->
+                 <div id="chat-header" class="hidden md:flex h-16 border-b border-gray-100 bg-white items-center justify-between px-6 font-semibold text-gray-800 text-[15px] shrink-0">
                     Select a friend to chat
-                </div>
-                <div id="chat-messages" class="flex-1 overflow-y-auto p-6 flex flex-col"></div>
-                <div id="chat-input-area" class="p-4 bg-white hidden flex-col shrink-0 border-t border-gray-100">
-                    <div id="reply-preview" class="hidden reply-preview-bar">
+                 </div>
+    
+                 <!-- Messages -->
+                 <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col gap-1"></div>
+    
+                 <!-- Input Area -->
+                 <div id="chat-input-area" class="p-3 bg-white border-t border-gray-100 shrink-0 hidden md:flex items-end gap-2">
+                    <div id="reply-preview" class="hidden reply-preview-bar w-full mb-2">
                         <span id="reply-to-text">Replying to...</span>
                         <button onclick="cancelReply()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-4 h-4"></i></button>
                     </div>
-                    <form onsubmit="sendChatMessage(event)" class="flex gap-3 items-center border border-gray-200 rounded-xl p-2 px-3 focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all">
-                        <input id="message-input" type="text" placeholder="Type a message..." class="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder-gray-400">
-                        <button type="submit" class="text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors"><i data-lucide="send" class="w-4 h-4"></i></button>
+                    <form onsubmit="sendChatMessage(event)" class="w-full flex items-center gap-2 bg-gray-100 rounded-[24px] px-4 py-2 min-h-[44px]">
+                        <div class="p-1 rounded-full bg-blue-600 flex items-center justify-center cursor-pointer"><i data-lucide="camera" class="w-4 h-4 text-white"></i></div>
+                        <input id="message-input" type="text" placeholder="Message..." class="flex-1 bg-transparent outline-none text-[15px] text-[#1f1f1f] placeholder-gray-500">
+                        <button type="submit" class="text-blue-500 font-semibold text-sm hover:text-blue-700 transition-colors" id="send-btn-chat">Send</button>
                     </form>
-                </div>
+                 </div>
             </div>
         </div>
     </div>
@@ -1712,6 +1755,7 @@ function updateUserInterface() {
     const edBio = document.getElementById('edit-bio'); if(edBio) edBio.value = currentUser.bio;
     const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = currentUser.avatar;
     const edBanner = document.getElementById('edit-banner-link'); if(edBanner) edBanner.value = currentUser.banner || '';
+    const mobileChatMyAv = document.getElementById('mobile-chat-my-avatar'); if(mobileChatMyAv) mobileChatMyAv.src = currentUser.avatar;
     
     const bannerPos = currentUser.bannerPos || 50;
     const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
@@ -1870,6 +1914,19 @@ window.switchView = function(viewName) {
             if(exploreHeader) exploreHeader.style.display = 'flex';
             if(bottomNav) bottomNav.classList.add('translate-y-full'); // Hide Footer
         }
+        else if (viewName === 'chat') {
+            // Chat View specific (List state initially)
+            if(mainHeader) mainHeader.classList.add('hidden');
+            const chatListPanel = document.getElementById('chat-list-panel');
+            const chatConvPanel = document.getElementById('chat-conversation-panel');
+            
+            // Ensure we are in list view unless a chat was already active (handled by startChat)
+            if(chatListPanel && chatConvPanel && !activeChatUserId) {
+                chatListPanel.classList.remove('hidden');
+                chatConvPanel.classList.remove('translate-x-0');
+                chatConvPanel.classList.add('translate-x-full');
+            }
+        }
         else if (viewName === 'ai') {
             mainPanel.classList.add('hidden');
             aiPanel.classList.remove('hidden');
@@ -1884,7 +1941,10 @@ window.switchView = function(viewName) {
 
     if(viewName !== 'ai') {
         const target = document.getElementById(`view-${viewName}`);
-        if(target) target.classList.remove('hidden');
+        if(target) {
+            target.classList.remove('hidden');
+            if(viewName === 'chat') target.style.display = 'flex'; // Ensure flex for layout
+        }
     }
 
     if(viewName === 'chat') {
@@ -1922,345 +1982,13 @@ window.switchView = function(viewName) {
         const nav = document.getElementById('nav-saved'); if(nav) nav.classList.add('active');
         if(document.getElementById('saved-container').children.length === 0) renderSaved();
     } else if (viewName === 'ai') {
-        if(mobileNavItems[3]) mobileNavItems[3].classList.add('active'); // Maybe map AI to chat icon or its own? User didn't specify AI icon
+        if(mobileNavItems[3]) mobileNavItems[3].classList.add('active'); 
     } else if (viewName === 'notifications') {
         if(document.getElementById('notification-list').children.length === 0) renderNotifications();
     } else if (viewName === 'announcements') {
         const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
     }
     setTimeout(refreshIcons, 10);
-}
-
-window.switchNetworkTab = function(tab) {
-    activeNetworkTab = tab;
-    document.querySelectorAll('.twitter-tab-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById(`net-tab-${tab}`);
-    if(btn) btn.classList.add('active');
-    renderNetwork();
-}
-
-window.renderNetwork = function() {
-    const container = document.getElementById('network-content');
-    container.innerHTML = "";
-    
-    if (activeNetworkTab === 'people') {
-        const grid = document.createElement('div');
-        grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4 px-4 md:px-0";
-
-        if (!currentUser || !currentUser.following) {
-            container.innerHTML += `<div class="flex flex-col items-center justify-center py-10 opacity-60"><p>Loading...</p></div>`;
-            return;
-        }
-
-        const followingUsers = users.filter(u => currentUser.following.includes(u.id));
-
-        if(followingUsers.length === 0) {
-            container.innerHTML += `<div class="flex flex-col items-center justify-center py-10 opacity-60"><p>You aren't following anyone yet.</p></div>`;
-            return;
-        }
-
-        followingUsers.forEach(user => {
-            const card = document.createElement('div');
-            card.className = "bg-white p-4 rounded-xl border border-gray-100 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer";
-            card.onclick = () => showProfile(user.id);
-            card.innerHTML = `
-            <img src="${user.avatar}" class="w-12 h-12 rounded-full border border-gray-100 bg-gray-50 object-cover">
-            <div>
-            <h4 class="font-bold text-gray-900">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="w-4 h-4 inline text-blue-500"></i>' : ''}</h4>
-            <p class="text-xs text-gray-500 line-clamp-1">${user.bio}</p>
-            </div>
-            <button onclick="event.stopPropagation(); toggleFollow('${user.id}')" class="ml-auto text-xs border border-gray-200 px-3 py-1 rounded-full hover:bg-gray-50">Unfollow</button>
-            `;
-            grid.appendChild(card);
-        });
-        container.appendChild(grid);
-    } else {
-        const followingPosts = posts.filter(p => currentUser.following.includes(p.authorId));
-        const postsContainer = document.createElement('div');
-        postsContainer.className = "space-y-4 px-4 md:px-0";
-        
-        if (followingPosts.length === 0) {
-            postsContainer.innerHTML = `<div class="text-center py-10 text-gray-400">No posts from your network yet.</div>`;
-        } else {
-            followingPosts.forEach(post => postsContainer.appendChild(createPostElement(post)));
-        }
-        container.appendChild(postsContainer);
-    }
-    refreshIcons();
-}
-
-window.renderFeed = function(filterTerm = "") {
-    const container = document.getElementById('feed-container');
-    container.innerHTML = "";
-    let displayPosts = [...posts]; 
-    if(filterTerm) {
-        const term = filterTerm.toLowerCase();
-        displayPosts = displayPosts.filter(p => p.content.toLowerCase().includes(term));
-    }
-    
-    displayPosts = displayPosts.filter(p => {
-        const isAuthor = p.authorId === currentUser.id;
-        const author = users.find(u => u.id === p.authorId);
-        const isPublicPost = !p.settings || p.settings.privacy === 'public';
-        const isPrivateAccount = author?.settings?.privateNetwork;
-        const amFollowing = currentUser.following.includes(p.authorId);
-        
-        if (isAuthor) return true;
-        if (isPrivateAccount) return amFollowing; 
-        if (!isPublicPost) return amFollowing; 
-        
-        return true; 
-    });
-
-    displayPosts.forEach(post => container.appendChild(createPostElement(post)));
-    refreshIcons();
-}
-
-function createPostElement(post) {
-    const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', isOfficial: false, id: post.authorId };
-    const isLiked = post.likes ? post.likes.includes(currentUser.id) : false;
-    const isSaved = savedPosts.includes(post.id);
-    const dateStr = formatDate(post.timestamp);
-    const settings = post.settings || { privacy: 'public', showLikes: true, showComments: true, allowLikeView: true, allowComments: true };
-    const div = document.createElement('article');
-    div.className = "post-card group overflow-hidden fade-in";
-    div.onclick = () => openPostView(post.id);
-
-    let mediaHTML = "";
-    if (post.media) {
-        const isVideo = post.media.startsWith('data:video') || post.media.includes('.mp4') || post.media.includes('.webm');
-        mediaHTML = isVideo
-        ? `<div class="mt-3 rounded-xl overflow-hidden"><video src="${post.media}" class="w-full max-h-[400px]" controls onclick="event.stopPropagation()"></video></div>`
-        : `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer" onclick="event.stopPropagation(); openLightbox('${post.media}', 'image')">
-        <img src="${post.media}" class="w-full max-h-[400px] object-cover bg-gray-50">
-        </div>`;
-    }
-
-    let tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
-    let officialBadge = author.isOfficial ? `<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>` : '';
-    let lockIcon = settings.privacy === 'private' || author?.settings?.privateNetwork ? `<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>` : '';
-
-    const canViewLikeList = settings.allowLikeView === undefined || settings.allowLikeView === true || author.id === currentUser.id || currentUser.email === 'edulinkbht@gmail.com';
-    const likeCountDisplay = settings.showLikes 
-        ? `<span id="like-count-${post.id}" class="text-xs font-medium px-1 hover:underline cursor-pointer" onclick="${canViewLikeList ? `event.stopPropagation(); openLikes('${post.id}')` : 'event.stopPropagation()'}">${post.likes ? post.likes.length : 0}</span>` 
-        : '';
-    const commentCountDisplay = settings.showComments ? `<span id="comment-count-${post.id}" class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span>` : '';
-
-    div.innerHTML = `
-    <div class="p-4 md:p-5">
-    <div class="post-header">
-    <div class="flex gap-3">
-    <div class="post-avatar-container">
-    <img src="${author.avatar}" class="post-avatar">
-    </div>
-    <div>
-    <div class="flex items-center">
-    <span class="post-author-name" onclick="event.stopPropagation(); showProfile('${author.id}')">${author.name}</span>
-    ${officialBadge}
-    ${lockIcon}
-    </div>
-    <div class="post-meta flex items-center">${dateStr}</div>
-    </div>
-    </div>
-    <button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event, '${post.id}', '${author.id}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
-    </div>
-    <div class="post-content">
-    <div class="post-body" data-raw-text="${post.content.replace(/"/g, '&quot;')}">${tagsHTML}</div>
-    ${mediaHTML}
-    </div>
-    <div class="post-actions">
-    <div class="flex items-center gap-1">
-    <button id="like-btn-${post.id}" class="action-btn like" onclick="event.stopPropagation(); toggleLike('${post.id}')">
-        <i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i> 
-    </button>
-    ${likeCountDisplay}
-    <button class="action-btn comment ml-2" onclick="event.stopPropagation(); openPostView('${post.id}')"><i data-lucide="message-square" class="w-5 h-5"></i> ${commentCountDisplay}</button>
-    </div>
-    <div class="flex items-center gap-1">
-    <button id="save-btn-${post.id}" class="action-btn bookmark" onclick="event.stopPropagation(); toggleSave('${post.id}')"><i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-yellow-500 text-yellow-500' : ''}"></i></button>
-    <button class="action-btn share-btn" onclick="event.stopPropagation(); sharePost('${post.id}')" title="Share Post"><i data-lucide="share-2" class="w-5 h-5"></i></button>
-    </div>
-    </div>
-    </div>
-    `;
-    return div;
-}
-
-window.switchNotifTab = function(tab) {
-    activeNotifTab = tab;
-    // Update both standard and twitter style tabs if present
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.twitter-tab-btn').forEach(b => b.classList.remove('active'));
-    
-    const btn = document.getElementById(`ntab-${tab}`);
-    if(btn) btn.classList.add('active');
-    renderNotifications();
-}
-
-window.renderNotifications = function() {
-    const container = document.getElementById('notification-list');
-    container.innerHTML = "";
-
-    const filtered = notifications.filter(n => {
-        if (activeNotifTab === 'official') {
-            return n.type === 'official';
-        } else if (activeNotifTab === 'friends') {
-            return currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request';
-        } else {
-            return n.type !== 'official' && !currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request';
-        }
-    });
-
-    if (filtered.length === 0) {
-        container.innerHTML = `<div class="text-center text-xs text-gray-400 py-10">No notifications here</div>`;
-        return;
-    }
-
-    filtered.forEach(n => {
-        const sender = users.find(u => u.id === n.senderId) || { name: 'Admin', avatar: '' };
-        const div = document.createElement('div');
-        div.className = "w-full flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 bg-white cursor-pointer group relative";
-        let icon = "";
-        if(n.type === 'like') icon = '<i data-lucide="heart" class="w-3 h-3 text-white"></i>';
-        if(n.type === 'comment') icon = '<i data-lucide="message-circle" class="w-3 h-3 text-white"></i>';
-        if(n.type === 'reply') icon = '<i data-lucide="corner-down-right" class="w-3 h-3 text-white"></i>';
-        if(n.type === 'follow') icon = '<i data-lucide="user-plus" class="w-3 h-3 text-white"></i>';
-        if(n.type === 'official') icon = '<i data-lucide="megaphone" class="w-3 h-3 text-white"></i>';
-        if(n.type === 'follow_request') icon = '<i data-lucide="lock" class="w-3 h-3 text-white"></i>';
-        if(n.type === 'message_request') icon = '<i data-lucide="mail" class="w-3 h-3 text-white"></i>';
-
-        let colorClass = n.type === 'like' ? 'bg-red-500' : (n.type === 'official' ? 'bg-blue-600' : 'bg-indigo-500');
-        if(n.type === 'reply') colorClass = 'bg-teal-500';
-        if(n.type === 'follow_request' || n.type === 'message_request') colorClass = 'bg-orange-500';
-
-        let clickAction = (n.type === 'like' || n.type === 'comment' || n.type === 'reply') && n.postId 
-            ? `onclick="openPostView('${n.postId}')"` 
-            : `onclick="showProfile('${sender.id}')"`;
-        
-        let actionButtons = '';
-        if(n.type === 'follow_request') {
-            actionButtons = `<div class="flex gap-2 ml-auto"><button onclick="acceptFollow('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Accept</button><button onclick="deleteNotification('${n.id}')" class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-bold">Delete</button></div>`;
-            clickAction = ''; 
-        }
-        
-        if(n.type === 'message_request') {
-             actionButtons = `<div class="flex gap-2 ml-auto"><button onclick="acceptMessage('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Chat</button></div>`;
-            clickAction = '';
-        }
-
-        div.innerHTML = `
-        <div class="relative cursor-pointer" onclick="showProfile('${sender.id}')">
-        <img src="${sender.avatar}" class="w-10 h-10 rounded-full bg-gray-200 object-cover">
-        <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${colorClass} flex items-center justify-center border-2 border-white">${icon}</div>
-        </div>
-        <div class="flex-1 cursor-pointer" ${clickAction}>
-        <div class="text-sm">
-        <span class="font-bold text-gray-900">${sender.name}</span>
-        <span class="text-gray-600">${n.content}</span>
-        </div>
-        <div class="text-xs text-gray-400 mt-0.5">${formatDate(n.timestamp)}</div>
-        </div>
-        ${actionButtons ? actionButtons : `<button onclick="deleteNotification('${n.id}')" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`}
-        `;
-        container.appendChild(div);
-    });
-    refreshIcons();
-}
-
-// Updated Switch Explore Tab Function
-window.switchExploreTab = function(tabName) {
-    window.activeExploreTab = tabName;
-    const headerInput = document.getElementById('global-search');
-    const mobileInput = document.querySelector('#explore-mobile-header input');
-    
-    // Prioritize mobile input value if in mobile explore view
-    let searchVal = headerInput ? headerInput.value : '';
-    if(window.innerWidth < 768 && mobileInput) {
-        searchVal = mobileInput.value;
-    }
-    
-    handleSearch(searchVal); 
-}
-
-window.handleSearch = function(query) {
-    // Ensure view is correct if not already
-    const isMobile = window.innerWidth < 768;
-    if(!isMobile && document.getElementById('view-explore').classList.contains('hidden')) {
-        switchView('explore');
-    }
-    
-    // Sync inputs
-    const headerInput = document.getElementById('global-search');
-    const mobileInput = document.querySelector('#explore-mobile-header input');
-    
-    if(headerInput && headerInput.value !== query) headerInput.value = query;
-    if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
-
-    const view = document.getElementById('explore-results');
-    
-    if(!query || query.trim() === '') { 
-        view.innerHTML = `<div class="text-center py-20 text-gray-400"><i data-lucide="compass" class="w-16 h-16 mx-auto mb-3 opacity-50"></i><p>Search for people, posts, and ideas.</p></div>`;
-        refreshIcons();
-        return; 
-    }
-
-    const term = query.toLowerCase().trim();
-    const keywords = term.split(" ").filter(k => k.length > 0);
-
-    const foundUsers = users.filter(u => {
-        const name = (u.name || '').toLowerCase();
-        const bio = (u.bio || "").toLowerCase();
-        return keywords.some(k => name.includes(k) || bio.includes(k));
-    });
-
-    const foundPosts = posts.filter(p => {
-        const content = (p.content || '').toLowerCase();
-        return keywords.some(k => content.includes(k));
-    });
-    
-    // Tab Interface (Desktop only usually, but structure is reused)
-    // For mobile, the tabs are already in the HTML structure above the results
-    let html = `
-    <div class="twitter-tabs mb-4 hidden md:flex">
-        <button onclick="switchExploreTab('people')" class="twitter-tab-btn ${window.activeExploreTab === 'people' ? 'active' : ''}">People</button>
-        <button onclick="switchExploreTab('posts')" class="twitter-tab-btn ${window.activeExploreTab === 'posts' ? 'active' : ''}">Posts</button>
-    </div>
-    `;
-    
-    // People Results
-    const hiddenPeople = window.activeExploreTab === 'posts' ? 'hidden' : '';
-    html += `<div id="results-people" class="${hiddenPeople}">`;
-    if(foundUsers.length) {
-        foundUsers.forEach(u => {
-            html += `
-            <div class="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-xl mb-2 cursor-pointer hover:shadow-sm transition-shadow" onclick="showProfile('${u.id}')">
-                <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover bg-gray-50">
-                <div>
-                    <div class="font-bold text-sm text-gray-900">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>' : ''}</div>
-                    <div class="text-xs text-gray-500 line-clamp-1">${u.bio || 'No bio'}</div>
-                </div>
-            </div>`;
-        });
-    } else { 
-        html += `<div class="text-gray-400 text-sm mb-4 italic">No people found matching "${query}"</div>`; 
-    }
-    html += `</div>`;
-    
-    // Posts Results Container
-    const hiddenPosts = window.activeExploreTab === 'people' ? 'hidden' : '';
-    html += `<div id="results-posts" class="space-y-4 ${hiddenPosts}"></div>`;
-    
-    view.innerHTML = html;
-    
-    // Append posts elements manually
-    const postsDiv = document.getElementById('results-posts');
-    if(foundPosts.length) {
-        foundPosts.forEach(p => postsDiv.appendChild(createPostElement(p)));
-    } else {
-        postsDiv.innerHTML = `<div class="text-gray-400 text-sm italic">No posts found matching "${query}"</div>`;
-    }
-    
-    refreshIcons();
 }
 
 window.renderChatList = function(searchTerm = "") {
@@ -2283,11 +2011,13 @@ window.renderChatList = function(searchTerm = "") {
         if(activeChatUserId === f.id) div.classList.add('active');
         div.onclick = () => startChat(f.id);
         div.innerHTML = `
-            <div class="flex items-center gap-3 overflow-hidden">
-                <img src="${f.avatar}" class="w-8 h-8 rounded-full object-cover border border-gray-200 shrink-0">
-                <span class="truncate font-medium text-gray-700">${f.name}</span>
+            <div class="flex items-center gap-3 overflow-hidden w-full">
+                <img src="${f.avatar}" class="w-12 h-12 rounded-full object-cover border border-gray-200 shrink-0">
+                <div class="flex-1 min-w-0">
+                    <div class="truncate font-semibold text-gray-900 text-[15px]">${f.name}</div>
+                    <div class="truncate text-xs text-gray-500">Tap to chat</div>
+                </div>
             </div>
-            <button onclick="event.stopPropagation(); deleteConversationHistory('${f.id}')" class="opacity-0 group-hover:opacity-100 hover:text-red-500 text-gray-400 transition-opacity p-1" title="Delete conversation"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
         `;
         list.appendChild(div);
     });
@@ -2302,10 +2032,33 @@ window.startChat = function(userId) {
     const user = users.find(u => u.id === userId);
     if(!user) return;
 
+    // Populate Headers (Desktop & Mobile)
     document.getElementById('chat-header').innerHTML = `<div class="flex items-center gap-3"><img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover cursor-pointer" onclick="showProfile('${user.id}')"><span class="font-semibold text-gray-800 cursor-pointer" onclick="showProfile('${user.id}')">${user.name}</span></div><button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`;
-    document.getElementById('chat-input-area').classList.remove('hidden');
-    document.getElementById('chat-input-area').classList.add('flex');
+    
+    const mobFriendAv = document.getElementById('mobile-chat-friend-avatar');
+    const mobFriendName = document.getElementById('mobile-chat-friend-name');
+    if(mobFriendAv) mobFriendAv.src = user.avatar;
+    if(mobFriendName) mobFriendName.innerText = user.name;
+
+    // Show Input Area
+    const inputArea = document.getElementById('chat-input-area');
+    inputArea.classList.remove('hidden');
+    inputArea.classList.add('flex');
+    
     renderChatList(); 
+
+    // Mobile Slide Animation Logic
+    if(window.innerWidth < 768) {
+        const convPanel = document.getElementById('chat-conversation-panel');
+        const bottomNav = document.getElementById('mobile-bottom-nav');
+        
+        // Slide In Conversation
+        convPanel.classList.remove('translate-x-full');
+        convPanel.classList.add('translate-x-0');
+        
+        // Hide Bottom Nav
+        if(bottomNav) bottomNav.classList.add('translate-y-full');
+    }
 
     if(messageUnsubscribe) messageUnsubscribe();
     const qMsgs = query(collection(db, "messages"), orderBy("timestamp", "asc"));
@@ -2324,6 +2077,42 @@ window.startChat = function(userId) {
     refreshIcons();
 }
 
+window.closeMobileChat = function() {
+    const convPanel = document.getElementById('chat-conversation-panel');
+    const bottomNav = document.getElementById('mobile-bottom-nav');
+    
+    // Slide Out Conversation
+    convPanel.classList.remove('translate-x-0');
+    convPanel.classList.add('translate-x-full');
+    
+    // Show Bottom Nav
+    if(bottomNav) bottomNav.classList.remove('translate-y-full');
+    
+    activeChatUserId = null;
+    // Clear styles in list
+    document.querySelectorAll('.chat-sidebar-item').forEach(el => el.classList.remove('active'));
+}
+
+window.toggleChatOptions = function() {
+    const menu = document.getElementById('chat-options-menu');
+    menu.classList.toggle('hidden');
+    // Hide menu when clicking elsewhere
+    if (!menu.classList.contains('hidden')) {
+        const closeMenu = (e) => {
+            if (!menu.contains(e.target) && !e.target.closest('.icon-btn')) {
+                menu.classList.add('hidden');
+                document.removeEventListener('click', closeMenu);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', closeMenu), 10);
+    }
+}
+
+window.deleteCurrentChat = async function() {
+    if(!activeChatUserId) return;
+    deleteConversationHistory(activeChatUserId);
+}
+
 window.deleteConversationHistory = function(targetId) {
     showAlert("Permanently delete conversation history with this user?", async () => {
         const batch = writeBatch(db);
@@ -2337,12 +2126,19 @@ window.deleteConversationHistory = function(targetId) {
         });
         await batch.commit();
         chatPartners.delete(targetId);
-        if(activeChatUserId === targetId) {
-            document.getElementById('chat-messages').innerHTML = '';
+        
+        // Reset View
+        document.getElementById('chat-messages').innerHTML = '';
+        document.getElementById('chat-header').innerText = 'Select a friend to chat';
+        document.getElementById('chat-input-area').classList.add('hidden');
+        document.getElementById('chat-options-menu').classList.add('hidden');
+        
+        if(window.innerWidth < 768) {
+            closeMobileChat();
+        } else {
             activeChatUserId = null;
-            document.getElementById('chat-header').innerText = 'Select a friend to chat';
-            document.getElementById('chat-input-area').classList.add('hidden');
         }
+        
         renderChatList();
         showToast("Conversation deleted");
     });
@@ -2439,6 +2235,9 @@ window.sendChatMessage = async function(e) {
     });
     input.value = ""; cancelReply();
 }
+
+// ... existing code ...
+
 
 window.deleteCurrentChat = async function() {
     if(!activeChatUserId) return;

@@ -526,48 +526,7 @@ border-radius: 4px 4px 0 0;
     overflow: hidden;
 }
 
-/* --- CHAT STYLES --- */
-.chat-sidebar-item {
-display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px;
-border-bottom: none;
-cursor: pointer; color: var(--on-surface);
-transition: background 0.1s; font-size: 14px; font-weight: 500;
-}
-.chat-sidebar-item:hover { background: var(--hover-bg); }
-.chat-sidebar-item.active { background: #eff6ff; }
-
-.chat-bubble-me {
-background: #3797f0;
-color: white;
-padding: 10px 16px;
-border-radius: 18px 18px 2px 18px;
-font-size: 15px;
-max-width: 70%;
-align-self: flex-end;
-margin-bottom: 2px;
-position: relative;
-line-height: 1.4;
-box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-
-.chat-bubble-them {
-background: #efefef;
-color: black;
-padding: 10px 16px;
-border-radius: 18px 18px 18px 2px;
-font-size: 15px;
-max-width: 70%;
-align-self: flex-start;
-margin-bottom: 2px;
-position: relative;
-line-height: 1.4;
-}
-
-.chat-row {
-display: flex; width: 100%; margin-bottom: 4px; align-items: flex-end; gap: 8px;
-}
-.chat-row.me { justify-content: flex-end; }
-.chat-row.them { justify-content: flex-start; }
+/* --- CHAT STYLES REMOVED --- */
 
 .mobile-nav-item {
 display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -1059,7 +1018,6 @@ Change
 <a href="#" onclick="switchView('feed'); return false;" id="nav-feed" class="nav-item active"><i data-lucide="home" class="w-5 h-5"></i> <span class="hidden lg:block">Home</span></a>
 <a href="#" onclick="switchView('explore'); return false;" id="nav-explore" class="nav-item"><i data-lucide="compass" class="w-5 h-5"></i> <span class="hidden lg:block">Explore</span></a>
 <a href="#" onclick="switchView('network'); return false;" id="nav-network" class="nav-item"><i data-lucide="users" class="w-5 h-5"></i> <span class="hidden lg:block">Network</span></a>
-<a href="#" onclick="switchView('chat'); return false;" id="nav-chat" class="nav-item relative"><i data-lucide="message-circle" class="w-5 h-5"></i> <span class="hidden lg:block">Chat</span><span id="chat-dot" class="nav-dot"></span></a>
 <a href="workspace.html" class="nav-item"><i data-lucide="briefcase" class="w-5 h-5"></i> <span class="hidden lg:block">Workspace</span></a>
 <a href="#" onclick="showProfile(auth.currentUser ? auth.currentUser.uid : null); return false;" id="nav-profile" class="nav-item"><i data-lucide="user" class="w-5 h-5"></i> <span class="hidden lg:block">Profile</span></a>
 <div class="pt-6 pb-2 px-3 hidden lg:block">
@@ -1143,93 +1101,6 @@ Change
         <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn">Official</button>
     </div>
     <div id="notification-list" class="w-full pt-[120px] md:pt-0"></div>
-</div>
-
-<!-- CHAT VIEW (REFACTORED) -->
-<div id="view-chat" class="flex-1 h-full hidden flex flex-col bg-white overflow-hidden relative">
-    
-    <!-- 1. Sidebar (List) -->
-    <!-- On mobile, this hides when 'activeChatUserId' is set (via JS class toggling) -->
-    <div id="chat-sidebar" class="w-full md:w-[350px] md:border-r border-gray-200 flex flex-col h-full bg-white z-10">
-        <!-- Header -->
-        <div class="h-16 md:h-20 border-b border-gray-100 flex items-center justify-between px-5 shrink-0">
-             <div class="flex items-center gap-3 w-full">
-                <div class="relative">
-                    <img id="chat-sidebar-user-avatar" src="" class="w-10 h-10 rounded-full border border-gray-200 object-cover cursor-pointer hover:opacity-80 transition-opacity">
-                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                </div>
-                <div class="flex flex-col">
-                    <span class="font-bold text-lg text-gray-900 leading-tight">Chats</span>
-                    <span id="chat-sidebar-username" class="text-xs text-gray-500 font-medium">Your ID</span>
-                </div>
-             </div>
-             <button onclick="openCreateMenu()" class="icon-btn bg-gray-50 hover:bg-gray-100"><i data-lucide="edit" class="w-5 h-5 text-gray-700"></i></button>
-        </div>
-        
-        <!-- Search -->
-        <div class="p-4 pb-2">
-             <div class="bg-gray-100 rounded-xl px-4 py-2.5 flex items-center group focus-within:bg-gray-50 focus-within:ring-1 focus-within:ring-gray-200 transition-all">
-                 <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2 group-focus-within:text-gray-600"></i>
-                 <input type="text" placeholder="Search messages" onkeyup="renderChatList(this.value)" class="bg-transparent w-full text-sm outline-none text-gray-700 placeholder-gray-400">
-             </div>
-        </div>
-        
-        <!-- List -->
-        <div id="chat-list" class="flex-1 overflow-y-auto px-2 pt-2 pb-20 md:pb-0"></div>
-    </div>
-
-    <!-- 2. Conversation View -->
-    <!-- On mobile, this shows when 'activeChatUserId' is set (via JS class toggling) -->
-    <div id="chat-conversation" class="w-full md:flex-1 flex flex-col h-full bg-white absolute md:static inset-0 z-20 hidden">
-         <!-- Header -->
-         <div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white/95 backdrop-blur-sm z-30">
-              <div class="flex items-center gap-3">
-                  <button onclick="exitChat()" class="md:hidden -ml-2 p-2 rounded-full hover:bg-gray-100 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button>
-                  <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" onclick="showProfile(activeChatUserId)">
-                      <img id="chat-header-avatar" class="w-9 h-9 rounded-full border border-gray-200 object-cover">
-                      <div class="flex flex-col">
-                          <span id="chat-header-name" class="font-bold text-sm text-gray-900 leading-tight">User</span>
-                          <span class="text-[10px] text-gray-500 font-medium">Active now</span>
-                      </div>
-                  </div>
-              </div>
-              <div class="flex items-center gap-1">
-                  <button class="icon-btn hover:bg-gray-50"><i data-lucide="phone" class="w-5 h-5"></i></button>
-                  <button class="icon-btn hover:bg-gray-50"><i data-lucide="video" class="w-5 h-5"></i></button>
-                  <button class="icon-btn hover:bg-gray-50 hover:text-red-500" onclick="deleteCurrentChat()"><i data-lucide="info" class="w-5 h-5"></i></button>
-              </div>
-         </div>
-
-         <!-- Messages -->
-         <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col gap-1 bg-white"></div>
-
-         <!-- Footer -->
-         <div class="p-4 border-t border-gray-100 shrink-0 bg-white z-30">
-              <div id="reply-preview" class="hidden reply-preview-bar mb-2">
-                   <span id="reply-to-text" class="text-xs text-gray-600 truncate">Replying...</span>
-                   <button onclick="cancelReply()" class="p-1 hover:bg-gray-200 rounded-full"><i data-lucide="x" class="w-3 h-3"></i></button>
-              </div>
-              <div class="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1 border border-transparent focus-within:border-gray-300 focus-within:bg-white transition-all">
-                   <button class="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors shrink-0"><i data-lucide="camera" class="w-4 h-4"></i></button>
-                   <input id="message-input" type="text" placeholder="Message..." class="flex-1 bg-transparent outline-none text-sm h-10 px-2" onkeydown="if(event.key === 'Enter') sendChatMessage(event)">
-                   <div class="flex items-center pr-1 gap-1">
-                        <button class="p-2 text-gray-500 hover:text-gray-800 transition-colors"><i data-lucide="image" class="w-5 h-5"></i></button>
-                        <button class="p-2 text-gray-500 hover:text-red-500 transition-colors"><i data-lucide="heart" class="w-5 h-5"></i></button>
-                        <button onclick="sendChatMessage(event)" class="text-blue-500 font-bold text-sm hover:text-blue-700 px-2">Send</button>
-                   </div>
-              </div>
-         </div>
-    </div>
-
-    <!-- 3. Desktop Placeholder -->
-    <div id="chat-placeholder" class="hidden md:flex flex-1 flex-col items-center justify-center h-full bg-white text-center p-6 border-l border-gray-100">
-        <div class="w-24 h-24 rounded-full border-2 border-gray-900 flex items-center justify-center mb-4">
-            <i data-lucide="send" class="w-10 h-10 text-gray-900 ml-1 mt-1"></i>
-        </div>
-        <h3 class="text-xl font-medium text-gray-900 mb-2">Your Messages</h3>
-        <p class="text-gray-500 text-sm mb-6">Send private photos and messages to a friend or group.</p>
-        <button onclick="openCreateMenu()" class="bg-[#0b57d0] text-white px-5 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors">Send Message</button>
-    </div>
 </div>
 
 <!-- ANNOUNCEMENTS VIEW (Admin) -->
@@ -1409,12 +1280,9 @@ let users = [];
 let posts = [];
 let notifications = [];
 let savedPosts = [];
-let activeChatUserId = null;
 let activeNotifTab = 'friends';
 let activeNetworkTab = 'people';
-let chatPartners = new Set();
 window.replyingToCommentId = null;
-window.replyingToMessageId = null;
 window.currentViewingProfileId = null;
 window.activeExploreTab = 'people';
 window.currentProfileTab = 'posts';
@@ -1557,7 +1425,6 @@ const profileView = document.getElementById('view-profile');
 if(profileView && !profileView.classList.contains('hidden') && window.currentViewingProfileId) {
 showProfile(window.currentViewingProfileId, window.currentProfileTab);
 }
-if(!document.getElementById('view-chat').classList.contains('hidden')) { renderChatList(); }
 refreshIcons();
 });
 
@@ -1647,29 +1514,6 @@ const activeNotif = document.querySelector('#view-notifications:not(.hidden)');
 if(activeNotif) renderNotifications();
 refreshIcons();
 });
-
-const qSent = query(collection(db, "messages"), where("senderId", "==", currentUser.id));
-const qReceived = query(collection(db, "messages"), where("receiverId", "==", currentUser.id));
-
-const updateChatPartners = (snapshot, role) => {
-snapshot.docs.forEach(doc => {
-const data = doc.data();
-const partnerId = role === 'sender' ? data.receiverId : data.senderId;
-chatPartners.add(partnerId);
-});
-if(!document.getElementById('view-chat').classList.contains('hidden')) { renderChatList(); }
-};
-
-onSnapshot(qSent, (snapshot) => updateChatPartners(snapshot, 'sender'));
-onSnapshot(qReceived, (snapshot) => {
-updateChatPartners(snapshot, 'receiver');
-const dot = document.getElementById('chat-dot');
-const hasMessages = !snapshot.empty;
-if(dot) {
-if(hasMessages && activeChatUserId === null) dot.style.display = 'block';
-else dot.style.display = 'none';
-}
-});
 }
 
 function updateUserInterface() {
@@ -1677,9 +1521,7 @@ if(!currentUser) return;
 const nameEl = document.getElementById('sidebar-name'); if(nameEl) nameEl.innerText = currentUser.name;
 const avEl = document.getElementById('sidebar-avatar'); if(avEl) avEl.src = currentUser.avatar;
 const mobAv = document.getElementById('mobile-avatar'); if(mobAv) mobAv.src = currentUser.avatar;
-const mobChatAv = document.getElementById('chat-sidebar-user-avatar'); if(mobChatAv) mobChatAv.src = currentUser.avatar;
 const headAv = document.getElementById('header-avatar'); if(headAv) headAv.src = currentUser.avatar;
-const chatSidebarName = document.getElementById('chat-sidebar-username'); if(chatSidebarName) chatSidebarName.innerText = currentUser.name;
 const compName = document.getElementById('compose-name'); if(compName) compName.innerText = currentUser.name;
 const compAv = document.getElementById('compose-avatar'); if(compAv) compAv.src = currentUser.avatar;
 const commAv = document.getElementById('comment-input-avatar'); if(commAv) commAv.src = currentUser.avatar;
@@ -1792,7 +1634,7 @@ showToast(`Account is now ${isPrivate ? 'Private' : 'Public'}`);
 }
 
 window.switchView = function(viewName) {
-const views = ['feed', 'events', 'saved', 'network', 'profile', 'chat', 'explore', 'notifications', 'announcements'];
+const views = ['feed', 'events', 'saved', 'network', 'profile', 'explore', 'notifications', 'announcements'];
 views.forEach(v => {
 const el = document.getElementById(`view-${v}`);
 if(el) el.classList.add('hidden');
@@ -1832,9 +1674,6 @@ if (window.innerWidth < 768) {
         if(mainHeader) mainHeader.classList.add('hidden');
         if(mobileBottomNav) mobileBottomNav.classList.add('hidden');
         if(mobileExploreHeader) mobileExploreHeader.classList.remove('hidden');
-    } else if (viewName === 'chat') {
-        if(mainHeader) mainHeader.classList.add('hidden');
-        if(mobileBottomNav) mobileBottomNav.classList.add('hidden');
     }
 }
 
@@ -1855,10 +1694,7 @@ const target = document.getElementById(`view-${viewName}`);
 if(target) target.classList.remove('hidden');
 }
 
-if(viewName === 'chat') {
-aiPanel.classList.remove('xl:flex');
-aiPanel.classList.add('hidden');
-} else if (window.innerWidth >= 1280 && viewName !== 'ai') {
+if (window.innerWidth >= 1280 && viewName !== 'ai') {
 aiPanel.classList.add('xl:flex');
 aiPanel.classList.remove('hidden');
 }
@@ -1877,13 +1713,6 @@ handleSearch(document.getElementById('mobile-explore-search').value);
 } else if (viewName === 'network') {
 const nav = document.getElementById('nav-network'); if(nav) nav.classList.add('active');
 if(document.getElementById('network-content').children.length === 0) renderNetwork();
-} else if (viewName === 'chat') {
-const nav = document.getElementById('nav-chat'); if(nav) nav.classList.add('active');
-renderChatList(); 
-// Ensure correct UI state based on active chat
-renderChatUI();
-const dot = document.getElementById('chat-dot');
-if(dot) dot.style.display = 'none';
 } else if (viewName === 'saved') {
 const nav = document.getElementById('nav-saved'); if(nav) nav.classList.add('active');
 if(document.getElementById('saved-container').children.length === 0) renderSaved();
@@ -1998,9 +1827,12 @@ div.onclick = () => openPostView(post.id);
 
 let mediaHTML = "";
 if (post.media) {
-const isVideo = post.media.startsWith('data:video') || post.media.includes('.mp4') || post.media.includes('.webm') || post.media.includes('catbox');
+const isVideo = post.media.startsWith('data:video') || post.media.includes('.mp4') || post.media.includes('.webm') || post.media.includes('cloudinary');
 mediaHTML = isVideo
-? `<div class="mt-3 rounded-xl overflow-hidden bg-black relative aspect-[9/16] w-full max-w-[400px] mx-auto shadow-lg"><video src="${post.media}" class="absolute inset-0 w-full h-full object-cover" controls playsinline loop></video></div>`
+? `<div class="mt-3 rounded-xl overflow-hidden bg-black relative aspect-[9/16] w-full max-w-[320px] mx-auto shadow-lg group">
+  <video src="${post.media}" class="absolute inset-0 w-full h-full object-cover" loop playsinline onclick="this.paused ? this.play() : this.pause()"></video>
+  <div class="absolute bottom-2 right-2 text-white bg-black/50 p-1 rounded-full"><i data-lucide="volume-2" class="w-4 h-4"></i></div>
+</div>`
 : `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer" onclick="event.stopPropagation(); openLightbox('${post.media}', 'image')">
 <img src="${post.media}" class="w-full max-h-[500px] object-cover bg-gray-50">
 </div>`;
@@ -2288,7 +2120,7 @@ showToast("Follow request accepted");
 
 window.acceptMessage = async function(notifId, senderId) {
 await deleteDoc(doc(db, "notifications", notifId));
-startChat(senderId);
+// Chat logic removed, just remove notification
 }
 
 window.clearAllNotifications = async function() {
@@ -2337,7 +2169,6 @@ btnText = 'Requested';
 actionBtn = `
 <div class="flex gap-2">
 <button id="profile-follow-btn" onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-700' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">${btnText}</button>
-<button onclick="startChat('${userId}')" class="border border-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
 </div>
 `;
 }
@@ -2427,7 +2258,7 @@ window.renderProfileContent = function(userId, tab) {
         targetPosts.forEach(p => {
             let content = '';
             if (p.media) {
-                if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video') || p.media.includes('catbox')) {
+                if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video') || p.media.includes('catbox') || p.media.includes('cloudinary')) {
                      content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
                 } else {
                      content = `<img src="${p.media}" class="w-full h-full object-cover">`;
@@ -2694,7 +2525,7 @@ div.onclick = () => openPostView(p.id);
 
 let content = '';
 if (p.media) {
-    if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video') || p.media.includes('catbox')) {
+    if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video') || p.media.includes('catbox') || p.media.includes('cloudinary')) {
             content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
     } else {
             content = `<img src="${p.media}" class="w-full h-full object-cover">`;
@@ -2713,225 +2544,6 @@ postsDiv.innerHTML = `<div class="text-gray-400 text-sm italic">No posts found m
 }
 
 refreshIcons();
-}
-
-// Chat Functions - UI Management
-window.renderChatUI = function() {
-    const sidebar = document.getElementById('chat-sidebar');
-    const conversation = document.getElementById('chat-conversation');
-    const placeholder = document.getElementById('chat-placeholder');
-    
-    const isMobile = window.innerWidth < 768;
-    const hasActiveChat = !!activeChatUserId;
-
-    if (isMobile) {
-        // Mobile Logic
-        if (hasActiveChat) {
-            // Show Conversation, Hide Sidebar
-            sidebar.classList.add('hidden');
-            conversation.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-        } else {
-            // Show Sidebar, Hide Conversation
-            sidebar.classList.remove('hidden');
-            conversation.classList.add('hidden');
-            placeholder.classList.add('hidden');
-        }
-    } else {
-        // Desktop Logic
-        sidebar.classList.remove('hidden'); // Always show sidebar
-        
-        if (hasActiveChat) {
-            conversation.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-        } else {
-            conversation.classList.add('hidden');
-            placeholder.classList.remove('hidden');
-        }
-    }
-}
-
-window.renderChatList = function(searchTerm = "") {
-const list = document.getElementById('chat-list');
-list.innerHTML = "";
-
-const contactsSet = new Set([...currentUser.following, ...chatPartners]);
-let contacts = users.filter(u => contactsSet.has(u.id));
-
-if(searchTerm) {
-const lower = searchTerm.toLowerCase();
-contacts = contacts.filter(u => u.name.toLowerCase().includes(lower));
-}
-
-if(contacts.length === 0) { list.innerHTML = `<div class="p-4 text-xs text-gray-400 text-center">No conversations found</div>`; return; }
-
-contacts.forEach(f => {
-const div = document.createElement('div');
-div.className = "chat-sidebar-item group flex items-center gap-3";
-if(activeChatUserId === f.id) div.classList.add('active');
-div.onclick = () => startChat(f.id);
-div.innerHTML = `
-<div class="relative">
-    <img src="${f.avatar}" class="w-14 h-14 rounded-full object-cover border border-gray-100 shrink-0">
-    <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
-</div>
-<div class="flex-1 min-w-0">
-    <div class="font-semibold text-gray-900 truncate text-[15px]">${f.name}</div>
-    <div class="text-xs text-gray-500 truncate mt-0.5">Click to view messages</div>
-</div>
-`;
-list.appendChild(div);
-});
-refreshIcons();
-}
-
-let messageUnsubscribe = null;
-
-window.startChat = function(userId) {
-activeChatUserId = userId;
-const user = users.find(u => u.id === userId);
-if(!user) return;
-
-// Update Header Info
-document.getElementById('chat-header-avatar').src = user.avatar;
-document.getElementById('chat-header-name').innerText = user.name;
-
-// Update UI View State
-switchView('chat'); // Ensure we are in chat view first
-renderChatUI(); // Update visibility based on state
-
-if(messageUnsubscribe) messageUnsubscribe();
-const qMsgs = query(collection(db, "messages"), orderBy("timestamp", "asc"));
-
-messageUnsubscribe = onSnapshot(qMsgs, (snapshot) => {
-const msgs = [];
-snapshot.forEach(doc => {
-const m = doc.data();
-if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) ||
-(m.senderId === activeChatUserId && m.receiverId === currentUser.id)) {
-msgs.push({ id: doc.id, ...m });
-}
-});
-renderMessages(msgs);
-});
-refreshIcons();
-}
-
-window.exitChat = function() {
-    activeChatUserId = null;
-    renderChatUI();
-}
-
-window.deleteConversationHistory = function(targetId) {
-showAlert("Permanently delete conversation history with this user?", async () => {
-const batch = writeBatch(db);
-const qMsgs = query(collection(db, "messages"));
-const snapshot = await getDocs(qMsgs);
-snapshot.forEach(doc => {
-const m = doc.data();
-if ((m.senderId === currentUser.id && m.receiverId === targetId) || (m.senderId === targetId && m.receiverId === currentUser.id)) {
-batch.delete(doc.ref);
-}
-});
-await batch.commit();
-chatPartners.delete(targetId);
-if(activeChatUserId === targetId) {
-document.getElementById('chat-messages').innerHTML = '';
-activeChatUserId = null;
-exitChat(); // Go back to list
-}
-renderChatList();
-showToast("Conversation deleted");
-});
-}
-
-function linkify(text) {
-var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-return text.replace(urlRegex, function(url) {
-return '<a href="' + url + '" target="_blank" class="text-blue-200 underline hover:text-white" onclick="event.stopPropagation()">' + url + '</a>';
-});
-}
-
-function renderMessages(msgs) {
-const container = document.getElementById('chat-messages');
-container.innerHTML = "";
-const dateDiv = document.createElement('div');
-dateDiv.className = 'chat-date-divider';
-dateDiv.innerText = 'Conversation Started';
-container.appendChild(dateDiv);
-
-if(msgs.length === 0) container.innerHTML += `<div class="text-center text-xs text-gray-400 mt-10">Say hi!</div>`;
-
-msgs.forEach(m => {
-const div = document.createElement('div');
-const isMe = m.senderId === currentUser.id;
-div.className = isMe ? 'chat-row me' : 'chat-row them';
-let replyHTML = '';
-if(m.replyToId) {
-const parent = msgs.find(msg => msg.id === m.replyToId);
-if(parent) { replyHTML = `<div class="quoted-reply">${parent.text.substring(0, 30)}...</div>`; }
-}
-const linkifiedText = linkify(m.text);
-const bubbleClass = isMe ? 'chat-bubble-me' : 'chat-bubble-them';
-
-div.innerHTML = `
-<div class="${bubbleClass}">
-${replyHTML}
-<span>${linkifiedText}</span>
-</div>
-`;
-container.appendChild(div);
-});
-container.scrollTop = container.scrollHeight;
-refreshIcons();
-}
-
-window.setReply = function(msgId, text) {
-window.replyingToMessageId = msgId;
-document.getElementById('reply-preview').classList.remove('hidden');
-document.getElementById('reply-to-text').innerText = `Replying to: "${text.substring(0, 20)}..."`;
-document.getElementById('message-input').focus();
-}
-
-window.cancelReply = function() {
-window.replyingToMessageId = null;
-document.getElementById('reply-preview').classList.add('hidden');
-}
-
-window.reactToMessage = async function(msgId, emoji) {
-const msgRef = doc(db, "messages", msgId);
-const msgSnap = await getDoc(msgRef);
-if(msgSnap.exists()) {
-const data = msgSnap.data();
-if(data.reaction === emoji) { await updateDoc(msgRef, { reaction: null }); }
-else { await updateDoc(msgRef, { reaction: emoji }); }
-}
-}
-
-window.deleteMessage = async function(msgId) {
-showAlert("Unsend this message?", async () => { await deleteDoc(doc(db, "messages", msgId)); });
-}
-
-window.sendChatMessage = async function(e) {
-e.preventDefault();
-const input = document.getElementById('message-input');
-const text = input.value.trim();
-if(!text || !activeChatUserId) return;
-
-const receiver = users.find(u => u.id === activeChatUserId);
-const receiverFollowsMe = receiver.following && receiver.following.includes(currentUser.id);
-if(!receiverFollowsMe) { sendNotification(activeChatUserId, 'message_request', 'wants to chat with you'); }
-
-await addDoc(collection(db, "messages"), {
-senderId: currentUser.id, receiverId: activeChatUserId,
-text: text, timestamp: serverTimestamp(), replyToId: window.replyingToMessageId || null
-});
-input.value = ""; cancelReply();
-}
-
-window.deleteCurrentChat = async function() {
-if(!activeChatUserId) return;
-deleteConversationHistory(activeChatUserId);
 }
 
 // Open Post View - Refactored for new UI
@@ -2961,7 +2573,7 @@ if (post.media) {
     // If desktop, the media container takes space, so the modal is wide. 
     // If mobile, it stacks.
     
-    if (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video') || post.media.includes('catbox')) {
+    if (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video') || post.media.includes('catbox') || post.media.includes('cloudinary')) {
          mediaContainer.innerHTML = `<video src="${post.media}" class="w-full h-full object-cover" controls autoplay muted loop playsinline></video>`;
          // Adjusted for Reel style on Desktop View (Full height)
          mediaContainer.className = "w-full md:w-[60%] bg-black flex items-center justify-center relative md:h-full h-[60vh] md:min-h-0"; 
@@ -3294,24 +2906,40 @@ else { console.error("ImgHippo error", data); throw new Error('Upload failed'); 
 } catch (e) { throw e; }
 }
 
-// Catbox Upload
-async function uploadToCatbox(file) {
+// Cloudinary Upload
+async function uploadToCloudinary(file) {
+    const cloudName = "dcnxxxmgf";
+    const apiKey = "377742928234448";
+    const apiSecret = "ykolOOW4yzpncMt6qVUhbW48Y0A";
+    const timestamp = Math.floor(Date.now() / 1000);
+    const signatureStr = `timestamp=${timestamp}${apiSecret}`;
+    
+    // Simple SHA1 implementation using crypto.subtle
+    const sha1 = async (str) => {
+        const enc = new TextEncoder();
+        const hash = await crypto.subtle.digest('SHA-1', enc.encode(str));
+        return Array.from(new Uint8Array(hash))
+            .map(v => v.toString(16).padStart(2, '0'))
+            .join('');
+    };
+    
+    const signature = await sha1(signatureStr);
+    
     const formData = new FormData();
-    formData.append('reqtype', 'fileupload');
-    formData.append('userhash', '01c2f140681c1cf0cfbdda726');
-    formData.append('fileToUpload', file);
-
+    formData.append("file", file);
+    formData.append("api_key", apiKey);
+    formData.append("timestamp", timestamp);
+    formData.append("signature", signature);
+    // Determine resource type based on file
+    const resourceType = file.type.startsWith("video") ? "video" : "image";
+    
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
+    
     try {
-        const response = await fetch('https://catbox.moe/user/api.php', {
-            method: 'POST',
-            body: formData
-        });
-        const url = await response.text();
-        if (url && url.startsWith('http')) {
-            return url;
-        } else {
-            throw new Error('Upload failed');
-        }
+        const res = await fetch(url, { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.secure_url) return data.secure_url;
+        throw new Error(data.error?.message || "Upload failed");
     } catch (e) {
         throw e;
     }
@@ -3335,8 +2963,11 @@ let mediaUrl = window.currentMedia;
 if(window.currentMediaBlob) {
     try {
         if (window.currentMediaBlob.type.startsWith('video')) {
-            mediaUrl = await uploadToCatbox(window.currentMediaBlob);
+            mediaUrl = await uploadToCloudinary(window.currentMediaBlob);
         } else {
+            // Default to ImgHippo for images if preferred, or use Cloudinary for all.
+            // Using Cloudinary for video as requested, sticking to ImgHippo for images to be safe unless failed.
+            // Actually, let's use Cloudinary for video as strictly requested.
             mediaUrl = await uploadToImgHippo(window.currentMediaBlob);
         }
     }

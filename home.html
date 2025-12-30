@@ -480,6 +480,30 @@ background-color: var(--primary);
 border-radius: 4px 4px 0 0;
 }
 
+/* BETTER SEGMENTED TABS FOR NOTIFICATIONS */
+.segment-tab-group {
+    display: flex;
+    background-color: #f3f4f6;
+    border-radius: 12px;
+    padding: 4px;
+    margin: 0 16px 12px 16px;
+}
+.segment-tab-btn {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+.segment-tab-btn.active {
+    background-color: #ffffff;
+    color: #0f172a;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
 /* --- GRID POST STYLE (Instagram Style) --- */
 .grid-post-container {
     display: grid;
@@ -531,7 +555,7 @@ display: flex; flex-direction: column; align-items: center; justify-content: cen
 height: 100%; flex: 1; gap: 4px; color: #98a2b3; transition: all 0.2s; cursor: pointer;
 position: relative;
 }
-.mobile-nav-item.active { color: var(--primary); }
+.mobile-nav-item.active { color: #000000; } /* Changed to Black */
 .mobile-nav-item i { width: 24px; height: 24px; transition: transform 0.2s; }
 .mobile-nav-item.active i { transform: scale(1.1); stroke-width: 2.5px; }
 
@@ -647,15 +671,14 @@ transform: translateX(20px);
 <div id="global-post-menu" class="post-options-menu"></div>
 
 <!-- MOBILE NOTIFICATIONS HEADER -->
-<div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
-   <div class="h-14 flex items-center justify-between px-4 shrink-0">
-      <span class="font-bold text-xl text-[#1f1f1f]">Notifications</span>
-      <button onclick="switchView('feed')" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
+<div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-2">
+   <div class="h-14 flex items-center justify-center px-4 shrink-0 relative">
+      <span class="font-bold text-lg text-[#1f1f1f]">Notifications</span>
    </div>
-   <div class="tab-group mb-0 mx-0 w-full border-t border-gray-100">
-        <button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active">Following</button>
-        <button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn">Others</button>
-        <button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn">Official</button>
+   <div class="segment-tab-group">
+        <button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="segment-tab-btn active">Following</button>
+        <button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="segment-tab-btn">Others</button>
+        <button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="segment-tab-btn">Official</button>
     </div>
 </div>
 
@@ -1097,10 +1120,10 @@ Change
         <h2 class="text-2xl font-bold">Notifications</h2>
         <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
     </div>
-    <div class="tab-group mb-4 mx-0 md:mx-0 hidden md:flex">
-        <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active">Following</button>
-        <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn">Others</button>
-        <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn">Official</button>
+    <div class="segment-tab-group hidden md:flex">
+        <button onclick="switchNotifTab('friends')" id="ntab-friends" class="segment-tab-btn active">Following</button>
+        <button onclick="switchNotifTab('others')" id="ntab-others" class="segment-tab-btn">Others</button>
+        <button onclick="switchNotifTab('official')" id="ntab-official" class="segment-tab-btn">Official</button>
     </div>
     <div id="notification-list" class="w-full pt-[120px] md:pt-0"></div>
 </div>
@@ -1235,7 +1258,7 @@ Change
 <span class="text-[10px] font-medium">Explore</span>
 </div>
 <div class="mobile-nav-item" onclick="openCreateMenu()">
-<div class="w-10 h-10 bg-[#1f1f1f] rounded-full flex items-center justify-center text-white shadow-md mb-1">
+<div class="w-10 h-10 bg-[#1f1f1f] rounded-xl flex items-center justify-center text-white shadow-md mb-1">
 <i data-lucide="plus" style="width:20px;height:20px"></i>
 </div>
 </div>
@@ -1663,7 +1686,7 @@ if (viewName === 'profile') {
 if (window.innerWidth < 768) {
     if (viewName === 'notifications') {
         if(mainHeader) mainHeader.classList.add('hidden');
-        if(mobileBottomNav) mobileBottomNav.classList.add('hidden');
+        // Footer (mobileBottomNav) is kept VISIBLE for notifications
         if(mobileNotifHeader) mobileNotifHeader.classList.remove('hidden');
         if(mobileNotifHeader) mobileNotifHeader.classList.add('flex');
     } else if (viewName === 'explore') {
@@ -2017,7 +2040,8 @@ postId: postId
 
 window.switchNotifTab = function(tab) {
 activeNotifTab = tab;
-document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+// Handle .tab-btn and .segment-tab-btn
+document.querySelectorAll('.tab-btn, .segment-tab-btn').forEach(b => b.classList.remove('active'));
 const mainBtn = document.getElementById(`ntab-${tab}`);
 const mobileBtn = document.getElementById(`ntab-${tab}-mobile`);
 if(mainBtn) mainBtn.classList.add('active');

@@ -736,6 +736,11 @@ transition: transform 0.2s;
 transform: translateX(20px);
 }
 
+/* Header Transition */
+#main-header {
+    transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
 </style>
 </head>
 <body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
@@ -754,6 +759,28 @@ transform: translateX(20px);
 </div>
 <!-- Post Options Global Menu -->
 <div id="global-post-menu" class="post-options-menu"></div>
+
+<!-- MOBILE NOTIFICATIONS HEADER -->
+<div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
+   <div class="h-14 flex items-center justify-between px-4 shrink-0">
+      <span class="font-bold text-xl text-[#1f1f1f]">Notifications</span>
+      <button onclick="switchView('feed')" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
+   </div>
+   <div class="tab-group mb-0 mx-0 w-full border-t border-gray-100">
+        <button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active">Following</button>
+        <button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn">Others</button>
+        <button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn">Official</button>
+    </div>
+</div>
+
+<!-- MOBILE EXPLORE HEADER -->
+<div id="mobile-explore-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex items-center gap-3 px-3 h-16 border-b border-gray-100 hidden">
+    <div class="relative flex-1">
+         <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
+         <input type="text" id="mobile-explore-search" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Search users & posts..." oninput="handleSearch(this.value)">
+    </div>
+    <button onclick="switchView('feed')" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+</div>
 
 <!-- THREAD OVERLAY (Redesigned) -->
 <div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center">
@@ -1135,7 +1162,7 @@ Change
 </aside>
 <div id="workspace-layout" class="flex-1 flex min-w-0 gap-4 relative overflow-hidden transition-all duration-300">
 <main id="main-panel" class="flex-1 app-panel min-w-0 relative">
-<header id="main-header" class="h-16 md:h-20 flex items-center justify-between px-4 md:px-6 shrink-0 z-20 sticky top-0 bg-white/95 md:bg-white/90 backdrop-blur-md border-b border-[#f0f0f0]">
+<header id="main-header" class="h-16 md:h-20 flex items-center justify-between px-4 md:px-6 shrink-0 z-20 sticky top-0 bg-white/95 md:bg-white/90 backdrop-blur-md border-b border-[#f0f0f0] transition-transform duration-300">
 <div class="md:hidden flex items-center gap-3 cursor-pointer" onclick="switchView('feed')">
 <img src="https://i.imghippo.com/files/fRGt5603uII.png" class="w-8 h-8 object-contain">
 <h1 class="text-lg font-bold text-[#1f1f1f] tracking-tight">EduLink</h1>
@@ -1145,6 +1172,7 @@ Change
 <input type="text" placeholder="Search EduLink" id="global-search" oninput="handleSearch(this.value)" class="w-full bg-[#f3f4f6] rounded-full py-3.5 pl-14 pr-6 outline-none focus:bg-[#ffffff] focus:shadow-sm focus:ring-1 focus:ring-gray-200 transition-all text-[#1f1f1f] text-[15px]">
 </div>
 <div class="flex items-center gap-3 pl-4">
+<button onclick="openSettings()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="settings" class="w-6 h-6"></i></button>
 <button class="icon-btn relative" onclick="toggleNotifications()">
 <i data-lucide="bell" class="w-6 h-6"></i>
 <span id="notif-badge" class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white hidden"></span>
@@ -1181,17 +1209,17 @@ Change
 <div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
 
 <!-- NOTIFICATIONS VIEW -->
-<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
-    <div class="flex justify-between items-center mb-4 px-4 md:px-0">
+<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 pt-16 md:pt-6 hidden bg-[#f9fafb] md:bg-[#fff]">
+    <div class="flex justify-between items-center mb-4 px-4 md:px-0 hidden md:flex">
         <h2 class="text-2xl font-bold">Notifications</h2>
         <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
     </div>
-    <div class="tab-group mb-4 mx-0 md:mx-0">
+    <div class="tab-group mb-4 mx-0 md:mx-0 hidden md:flex">
         <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active">Following</button>
         <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn">Others</button>
         <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn">Official</button>
     </div>
-    <div id="notification-list" class="space-y-2 px-4 md:px-0 w-full"></div>
+    <div id="notification-list" class="space-y-2 px-4 md:px-0 w-full pt-4 md:pt-0 pb-20 md:pb-0"></div>
 </div>
 
 <!-- CHAT VIEW -->
@@ -1246,19 +1274,11 @@ Change
     </div>
 </div>
  <!-- SEARCH / EXPLORE VIEW -->
-<div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
-    <h2 class="text-2xl font-bold mb-4 px-4 md:px-0">Explore</h2>
-    <!-- Mobile search bar for explore view specifically -->
-    <div class="md:hidden px-4 mb-4">
-         <div class="relative group">
-            <i data-lucide="search" class="absolute left-4 top-3.5 w-5 h-5 text-[#667085]"></i>
-            <input type="text" placeholder="Search users & posts..." oninput="handleSearch(this.value)" class="w-full bg-white rounded-full py-3 pl-12 pr-4 outline-none border border-gray-200 focus:border-blue-500 transition-all text-sm">
-        </div>
-    </div>
-    <div id="explore-results" class="px-4 md:px-0 space-y-6">
-        <div class="text-center py-20 text-gray-400">
-            <i data-lucide="compass" class="w-16 h-16 mx-auto mb-3 opacity-50"></i>
-            <p>Search for people, posts, and ideas.</p>
+<div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 pt-16 md:pt-6 hidden bg-[#f9fafb] md:bg-[#fff]">
+    <h2 class="text-2xl font-bold mb-4 px-4 md:px-0 hidden md:block">Explore</h2>
+    <div id="explore-results" class="px-0 md:px-0 space-y-6 pb-20 md:pb-0">
+        <div class="grid-post-container" id="explore-default-grid">
+             <!-- Default grid content will be injected via JS -->
         </div>
     </div>
 </div>
@@ -1349,7 +1369,7 @@ Change
 </aside>
 </div>
 <!-- Bottom Nav for Mobile -->
-<nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-[#eaecf0] h-[64px] flex items-center justify-around z-50 pb-[env(safe-area-inset-bottom)] px-2 shadow-lg">
+<nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-[#eaecf0] h-[64px] flex items-center justify-around z-50 pb-[env(safe-area-inset-bottom)] px-2 shadow-lg transition-transform duration-300">
 <div class="mobile-nav-item active" onclick="switchView('feed')">
 <i data-lucide="home"></i>
 <span class="text-[10px] font-medium">Home</span>
@@ -1412,7 +1432,7 @@ window.replyingToCommentId = null;
 window.replyingToMessageId = null;
 window.currentViewingProfileId = null;
 window.activeExploreTab = 'people';
-window.currentProfileTab = 'posts'; // Default profile tab
+window.currentProfileTab = 'posts';
 
 // Global Vars for App Logic
 window.currentContext = "";
@@ -1434,6 +1454,24 @@ window.threadPostId = null;
 let currentEventCoverBlob = null;
 let currentAvatarBlob = null;
 let currentBannerBlob = null;
+
+// Header Scroll Logic
+let lastScrollTop = 0;
+const feedView = document.getElementById('view-feed');
+if(feedView) {
+    feedView.addEventListener('scroll', () => {
+        const currentScroll = feedView.scrollTop;
+        const header = document.getElementById('main-header');
+        if (currentScroll > lastScrollTop && currentScroll > 60) {
+            // Scrolling down
+            header.style.transform = 'translateY(-100%)';
+        } else {
+            // Scrolling up
+            header.style.transform = 'translateY(0)';
+        }
+        lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+    }, {passive: true});
+}
 
 // Helper: Reliable Icon Refresh
 function refreshIcons() {
@@ -1595,7 +1633,6 @@ handleSearch(searchVal);
 const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
 if(activePostView && window.currentViewingPostId) renderCommentsInModal(window.currentViewingPostId);
 
-// Update Thread if Open
 const threadOverlay = document.getElementById('thread-overlay');
 if (!threadOverlay.classList.contains('hidden') && window.threadPostId && window.threadParentCommentId) {
     renderThreadContent(window.threadPostId, window.threadParentCommentId);
@@ -1774,12 +1811,33 @@ const mainPanel = document.getElementById('main-panel');
 const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
 const desktopNavItems = document.querySelectorAll('.nav-item');
 const mainHeader = document.getElementById('main-header');
+const mobileBottomNav = document.getElementById('mobile-bottom-nav');
+const mobileNotifHeader = document.getElementById('mobile-notifications-header');
+const mobileExploreHeader = document.getElementById('mobile-explore-header');
 
-// Handle mobile profile header hiding
-if (viewName === 'profile' && window.innerWidth < 768) {
-    if(mainHeader) mainHeader.classList.add('hidden');
-} else {
-    if(mainHeader) mainHeader.classList.remove('hidden');
+// Reset Headers visibility first
+if(mainHeader) {
+    mainHeader.classList.remove('hidden');
+    mainHeader.style.transform = 'translateY(0)'; // Reset scroll
+}
+if(mobileBottomNav) mobileBottomNav.classList.remove('hidden');
+if(mobileNotifHeader) mobileNotifHeader.classList.add('hidden', 'flex'); 
+if(mobileExploreHeader) mobileExploreHeader.classList.add('hidden');
+
+// Handle Mobile Specific Header/Footer Logic
+if (window.innerWidth < 768) {
+    if (viewName === 'notifications') {
+        if(mainHeader) mainHeader.classList.add('hidden');
+        if(mobileBottomNav) mobileBottomNav.classList.add('hidden');
+        if(mobileNotifHeader) mobileNotifHeader.classList.remove('hidden');
+        if(mobileNotifHeader) mobileNotifHeader.classList.add('flex');
+    } else if (viewName === 'explore') {
+        if(mainHeader) mainHeader.classList.add('hidden');
+        if(mobileBottomNav) mobileBottomNav.classList.add('hidden');
+        if(mobileExploreHeader) mobileExploreHeader.classList.remove('hidden');
+    } else if (viewName === 'profile') {
+        if(mainHeader) mainHeader.classList.add('hidden');
+    }
 }
 
 if (window.innerWidth < 768) {
@@ -1817,6 +1875,7 @@ if(document.getElementById('feed-container').children.length === 0) renderFeed()
 } else if (viewName === 'explore') {
 const nav = document.getElementById('nav-explore'); if(nav) nav.classList.add('active');
 if(mobileNavItems[1]) mobileNavItems[1].classList.add('active');
+handleSearch(document.getElementById('mobile-explore-search').value);
 } else if (viewName === 'network') {
 const nav = document.getElementById('nav-network'); if(nav) nav.classList.add('active');
 if(document.getElementById('network-content').children.length === 0) renderNetwork();
@@ -1833,6 +1892,8 @@ if(document.getElementById('saved-container').children.length === 0) renderSaved
 if(mobileNavItems[3]) mobileNavItems[3].classList.add('active');
 } else if (viewName === 'notifications') {
 if(document.getElementById('notification-list').children.length === 0) renderNotifications();
+const badge = document.getElementById('notif-badge');
+if(badge) badge.classList.add('hidden');
 } else if (viewName === 'announcements') {
 const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
 }
@@ -2131,7 +2192,10 @@ postId: postId
 window.switchNotifTab = function(tab) {
 activeNotifTab = tab;
 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-document.getElementById(`ntab-${tab}`).classList.add('active');
+const mainBtn = document.getElementById(`ntab-${tab}`);
+const mobileBtn = document.getElementById(`ntab-${tab}-mobile`);
+if(mainBtn) mainBtn.classList.add('active');
+if(mobileBtn) mobileBtn.classList.add('active');
 renderNotifications();
 }
 
@@ -2540,7 +2604,7 @@ window.closeUserList = function() { document.getElementById('user-list-overlay')
 // Updated Switch Explore Tab Function
 window.switchExploreTab = function(tabName) {
 window.activeExploreTab = tabName;
-const searchVal = document.getElementById('global-search').value;
+const searchVal = document.getElementById('global-search').value || document.getElementById('mobile-explore-search').value;
 handleSearch(searchVal); // Re-run search with new tab state
 }
 
@@ -2550,7 +2614,7 @@ switchView('explore');
 }
 
 const headerInput = document.getElementById('global-search');
-const mobileInput = document.querySelector('#view-explore input');
+const mobileInput = document.getElementById('mobile-explore-search');
 
 if(headerInput && headerInput.value !== query) headerInput.value = query;
 if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
@@ -2558,7 +2622,41 @@ if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
 const view = document.getElementById('explore-results');
 
 if(!query || query.trim() === '') {
-view.innerHTML = `<div class="text-center py-20 text-gray-400"><i data-lucide="compass" class="w-16 h-16 mx-auto mb-3 opacity-50"></i><p>Search for people, posts, and ideas.</p></div>`;
+// DEFAULT DISCOVERY STATE
+view.innerHTML = `
+    <div class="text-center py-10">
+        <h3 class="text-lg font-bold text-gray-800 mb-2">Search & Discover</h3>
+        <p class="text-gray-500 text-sm mb-6">Find new people and ideas.</p>
+        <div class="grid-post-container" id="discover-grid">
+            <!-- Random posts for discovery -->
+        </div>
+    </div>
+`;
+
+// Populate Discover Grid with random posts (simulate "For You")
+const discoverGrid = document.getElementById('discover-grid');
+const randomPosts = posts.slice(0, 9); // Just take recent 9 for now
+randomPosts.forEach(p => {
+    let content = '';
+    if (p.media) {
+        if (p.media.includes('video') || p.media.endsWith('.mp4')) {
+                content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
+        } else {
+                content = `<img src="${p.media}" class="w-full h-full object-cover">`;
+        }
+    } else {
+        content = `<div class="grid-post-text-preview">${p.content.substring(0, 60)}${p.content.length>60?'...':''}</div>`;
+    }
+    
+    discoverGrid.innerHTML += `
+    <div class="grid-post-item group" onclick="openPostView('${p.id}')">
+        ${content}
+        <div class="grid-post-overlay">
+            <div class="flex items-center gap-1"><i data-lucide="heart" class="w-5 h-5 fill-white"></i> ${p.likes ? p.likes.length : 0}</div>
+        </div>
+    </div>`;
+});
+
 refreshIcons();
 return;
 }

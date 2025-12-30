@@ -32,6 +32,12 @@ color: var(--on-surface);
 overflow: hidden;
 }
 
+/* Force white background on mobile as requested */
+@media (max-width: 768px) {
+    body { background-color: #ffffff !important; }
+    #workspace-layout { background-color: #ffffff !important; }
+}
+
 h1, h2, h3, .google-font { font-family: 'Google Sans', 'Inter', sans-serif; }
 
 /* No Scrollbars */
@@ -807,6 +813,37 @@ transform: translateX(20px);
     </div>
 </div>
 
+<!-- MOBILE CONVERSATION OVERLAY -->
+<div id="mobile-chat-overlay" class="fixed inset-0 z-[100] bg-white hidden flex-col">
+  <!-- Header -->
+  <div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0">
+     <div class="flex items-center gap-3">
+        <button onclick="closeMobileChat()" class="icon-btn -ml-2"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+        <div class="flex items-center gap-3" onclick="if(window.activeChatUserId) showProfile(window.activeChatUserId)">
+            <img id="mobile-chat-header-avatar" src="" class="w-8 h-8 rounded-full border border-gray-100 object-cover">
+            <span id="mobile-chat-header-name" class="font-bold text-gray-900 text-sm">User</span>
+        </div>
+     </div>
+     <button onclick="toggleMobileChatOptions()" class="icon-btn relative"><i data-lucide="more-horizontal" class="w-6 h-6"></i>
+        <div id="mobile-chat-options" class="absolute top-10 right-0 bg-white border border-gray-100 shadow-xl rounded-xl p-2 z-10 hidden w-40">
+            <div onclick="deleteCurrentChat();" class="w-full text-left px-4 py-3 text-red-500 font-medium text-sm hover:bg-red-50 rounded-lg flex items-center gap-2 cursor-pointer"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete Chat</div>
+        </div>
+     </button>
+  </div>
+
+  <!-- Messages -->
+  <div id="mobile-chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col bg-white"></div>
+
+  <!-- Footer -->
+  <div class="p-3 border-t border-gray-100 flex items-center gap-2 shrink-0 pb-[env(safe-area-inset-bottom)] mb-1 bg-white">
+     <div class="flex-1 bg-gray-100 rounded-full px-4 py-2.5 flex items-center gap-2">
+        <i data-lucide="camera" class="w-5 h-5 text-[#0b57d0]"></i>
+        <input id="mobile-message-input" type="text" placeholder="Message..." class="bg-transparent flex-1 outline-none text-sm text-gray-900 placeholder-gray-500">
+        <button onclick="sendMobileChatMessage()" class="text-[#0b57d0] font-bold text-sm px-2">Send</button>
+     </div>
+  </div>
+</div>
+
 <!-- Post View Overlay -->
 <div id="post-view-overlay" class="fixed inset-0 z-[60] hidden flex justify-center items-end md:items-center">
 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closePostView()"></div>
@@ -1224,15 +1261,28 @@ Change
 
 <!-- CHAT VIEW -->
 <div id="view-chat" class="flex-1 h-full hidden flex flex-col bg-white overflow-hidden pt-16 md:pt-0">
+    <!-- Mobile Chat List Header -->
+    <div class="md:hidden h-16 flex items-center px-4 border-b border-gray-100 gap-3 shrink-0">
+        <img id="mobile-chat-list-pfp" src="" class="w-9 h-9 rounded-full bg-gray-200">
+        <div class="flex-1 bg-gray-100 rounded-full h-10 flex items-center px-4">
+            <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i>
+            <input oninput="renderChatList(this.value)" type="text" placeholder="Search" class="bg-transparent w-full outline-none text-sm">
+        </div>
+    </div>
+
     <div class="flex h-full">
-        <div class="w-1/4 min-w-[260px] border-r border-gray-100 flex flex-col bg-[#fbfbfa]">
-            <div class="p-4 border-b border-gray-100">
+        <!-- Chat List Panel (Visible on mobile initially, becomes 1/4 on desktop) -->
+        <div class="w-full md:w-1/4 min-w-[260px] border-r border-gray-100 flex flex-col bg-[#fbfbfa]">
+            <!-- Desktop Header -->
+            <div class="p-4 border-b border-gray-100 hidden md:block">
                 <div class="font-medium text-xs text-gray-500 uppercase tracking-wide mb-2">Direct Messages</div>
                 <input type="text" placeholder="Search chats..." onkeyup="renderChatList(this.value)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-blue-500 transition-colors">
             </div>
-            <div id="chat-list" class="flex-1 overflow-y-auto pt-2"></div>
+            <div id="chat-list" class="flex-1 overflow-y-auto pt-2 bg-white"></div>
         </div>
-        <div class="flex-1 flex flex-col relative bg-white h-full overflow-hidden">
+        
+        <!-- Desktop Conversation Panel (Hidden on mobile, separate overlay used instead) -->
+        <div class="hidden md:flex flex-1 flex-col relative bg-white h-full overflow-hidden">
             <div id="chat-header" class="h-16 border-b border-gray-100 bg-white flex items-center justify-between px-6 font-semibold text-gray-800 text-[15px] shrink-0">
                 Select a friend to chat
             </div>
@@ -1394,6 +1444,37 @@ Change
 <span class="text-[10px] font-medium">Profile</span>
 </div>
 </nav>
+<!-- MOBILE CONVERSATION OVERLAY -->
+<div id="mobile-chat-overlay" class="fixed inset-0 z-[100] bg-white hidden flex-col">
+  <!-- Header -->
+  <div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0">
+     <div class="flex items-center gap-3">
+        <button onclick="closeMobileChat()" class="icon-btn -ml-2"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+        <div class="flex items-center gap-3 cursor-pointer" onclick="if(window.activeChatUserId) showProfile(window.activeChatUserId)">
+            <img id="mobile-chat-header-avatar" src="" class="w-8 h-8 rounded-full border border-gray-100 object-cover">
+            <span id="mobile-chat-header-name" class="font-bold text-gray-900 text-sm">User</span>
+        </div>
+     </div>
+     <div class="relative">
+        <button onclick="toggleMobileChatOptions()" class="icon-btn"><i data-lucide="more-horizontal" class="w-6 h-6"></i></button>
+        <div id="mobile-chat-options" class="absolute top-10 right-0 bg-white border border-gray-100 shadow-xl rounded-xl p-2 z-10 hidden w-40">
+            <div onclick="deleteCurrentChat();" class="w-full text-left px-4 py-3 text-red-500 font-medium text-sm hover:bg-red-50 rounded-lg flex items-center gap-2 cursor-pointer"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete Chat</div>
+        </div>
+     </div>
+  </div>
+
+  <!-- Messages -->
+  <div id="mobile-chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col bg-white"></div>
+
+  <!-- Footer -->
+  <div class="p-3 border-t border-gray-100 flex items-center gap-2 shrink-0 pb-[env(safe-area-inset-bottom)] mb-1 bg-white">
+     <div class="flex-1 bg-gray-100 rounded-full px-4 py-2.5 flex items-center gap-2">
+        <i data-lucide="camera" class="w-5 h-5 text-[#0b57d0]"></i>
+        <input id="mobile-message-input" type="text" placeholder="Message..." class="bg-transparent flex-1 outline-none text-sm text-gray-900 placeholder-gray-500">
+        <button onclick="sendMobileChatMessage()" class="text-[#0b57d0] font-bold text-sm px-2">Send</button>
+     </div>
+  </div>
+</div>
 <input type="file" id="media-input" class="hidden" accept="image/*,video/*" onchange="handleFileSelect(event)">
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -1699,6 +1780,7 @@ const edBio = document.getElementById('edit-bio'); if(edBio) edBio.value = curre
 const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = currentUser.avatar;
 const edBanner = document.getElementById('edit-banner-link'); if(edBanner) edBanner.value = currentUser.banner || '';
 const threadAv = document.getElementById('thread-input-avatar'); if(threadAv) threadAv.src = currentUser.avatar;
+const mobileChatListPfp = document.getElementById('mobile-chat-list-pfp'); if(mobileChatListPfp) mobileChatListPfp.src = currentUser.avatar;
 
 const bannerPos = currentUser.bannerPos || 50;
 const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
@@ -1826,6 +1908,9 @@ if(mobileBottomNav) mobileBottomNav.classList.remove('hidden');
 if(mobileNotifHeader) mobileNotifHeader.classList.add('hidden', 'flex'); 
 if(mobileExploreHeader) mobileExploreHeader.classList.add('hidden');
 
+// Ensure Mobile Chat Overlay is closed when switching away
+document.getElementById('mobile-chat-overlay').classList.add('hidden');
+
 // Handle Mobile Specific Header/Footer Logic
 if (window.innerWidth < 768) {
     if (viewName === 'notifications') {
@@ -1839,6 +1924,9 @@ if (window.innerWidth < 768) {
         if(mobileExploreHeader) mobileExploreHeader.classList.remove('hidden');
     } else if (viewName === 'profile') {
         if(mainHeader) mainHeader.classList.add('hidden');
+    } else if (viewName === 'chat') {
+        if(mainHeader) mainHeader.classList.add('hidden');
+        // Chat list on mobile has its own header embedded in the view HTML
     }
 }
 
@@ -2727,31 +2815,115 @@ refreshIcons();
 let messageUnsubscribe = null;
 
 window.startChat = function(userId) {
-activeChatUserId = userId;
-switchView('chat');
-const user = users.find(u => u.id === userId);
-if(!user) return;
+    activeChatUserId = userId;
+    
+    // Check if we are on mobile
+    if (window.innerWidth < 768) {
+        // Mobile Logic: Open Overlay
+        const user = users.find(u => u.id === userId);
+        if(!user) return;
+        
+        // Populate Mobile Header
+        document.getElementById('mobile-chat-header-avatar').src = user.avatar;
+        document.getElementById('mobile-chat-header-name').innerText = user.name;
+        
+        // Setup overlay
+        const overlay = document.getElementById('mobile-chat-overlay');
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+        
+        // Hide Main Nav on Mobile
+        const mobileNav = document.getElementById('mobile-bottom-nav');
+        if(mobileNav) mobileNav.classList.add('hidden');
+        
+        // Hide the chat list header just in case
+        const chatListHeader = document.querySelector('.md\\:hidden.h-16.flex'); 
+        if(chatListHeader) chatListHeader.classList.add('hidden');
 
-document.getElementById('chat-header').innerHTML = `<div class="flex items-center gap-3"><img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover cursor-pointer" onclick="showProfile('${user.id}')"><span class="font-semibold text-gray-800 cursor-pointer" onclick="showProfile('${user.id}')">${user.name}</span></div><button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`;
-document.getElementById('chat-input-area').classList.remove('hidden');
-document.getElementById('chat-input-area').classList.add('flex');
-renderChatList();
+        // Setup message listener for mobile container
+        if(messageUnsubscribe) messageUnsubscribe();
+        const qMsgs = query(collection(db, "messages"), orderBy("timestamp", "asc"));
+        
+        messageUnsubscribe = onSnapshot(qMsgs, (snapshot) => {
+            const msgs = [];
+            snapshot.forEach(doc => {
+                const m = doc.data();
+                if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) ||
+                    (m.senderId === activeChatUserId && m.receiverId === currentUser.id)) {
+                    msgs.push({ id: doc.id, ...m });
+                }
+            });
+            renderMessages(msgs, 'mobile-chat-messages'); // Render to mobile container
+        });
+        
+    } else {
+        // Desktop Logic (Existing)
+        switchView('chat');
+        const user = users.find(u => u.id === userId);
+        if(!user) return;
 
-if(messageUnsubscribe) messageUnsubscribe();
-const qMsgs = query(collection(db, "messages"), orderBy("timestamp", "asc"));
+        document.getElementById('chat-header').innerHTML = `<div class="flex items-center gap-3"><img src="${user.avatar}" class="w-8 h-8 rounded-full border border-gray-200 object-cover cursor-pointer" onclick="showProfile('${user.id}')"><span class="font-semibold text-gray-800 cursor-pointer" onclick="showProfile('${user.id}')">${user.name}</span></div><button onclick="deleteCurrentChat()" class="icon-btn hover:bg-red-50 hover:text-red-600 text-gray-400" title="Delete conversation"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`;
+        document.getElementById('chat-input-area').classList.remove('hidden');
+        document.getElementById('chat-input-area').classList.add('flex');
+        renderChatList();
 
-messageUnsubscribe = onSnapshot(qMsgs, (snapshot) => {
-const msgs = [];
-snapshot.forEach(doc => {
-const m = doc.data();
-if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) ||
-(m.senderId === activeChatUserId && m.receiverId === currentUser.id)) {
-msgs.push({ id: doc.id, ...m });
+        if(messageUnsubscribe) messageUnsubscribe();
+        const qMsgs = query(collection(db, "messages"), orderBy("timestamp", "asc"));
+
+        messageUnsubscribe = onSnapshot(qMsgs, (snapshot) => {
+            const msgs = [];
+            snapshot.forEach(doc => {
+                const m = doc.data();
+                if ((m.senderId === currentUser.id && m.receiverId === activeChatUserId) ||
+                    (m.senderId === activeChatUserId && m.receiverId === currentUser.id)) {
+                    msgs.push({ id: doc.id, ...m });
+                }
+            });
+            renderMessages(msgs, 'chat-messages'); // Render to desktop container
+        });
+    }
+    refreshIcons();
 }
-});
-renderMessages(msgs);
-});
-refreshIcons();
+
+window.closeMobileChat = function() {
+    const overlay = document.getElementById('mobile-chat-overlay');
+    overlay.classList.add('hidden');
+    overlay.classList.remove('flex');
+    
+    // Show Main Nav on Mobile
+    const mobileNav = document.getElementById('mobile-bottom-nav');
+    if(mobileNav) mobileNav.classList.remove('hidden');
+    
+    // Show Chat List Header
+    const chatListHeader = document.querySelector('.md\\:hidden.h-16.flex'); 
+    if(chatListHeader && !document.getElementById('view-chat').classList.contains('hidden')) {
+        chatListHeader.classList.remove('hidden');
+    }
+    
+    // Reset active user? maybe keep it selected in state but close UI
+    // activeChatUserId = null; 
+}
+
+window.toggleMobileChatOptions = function() {
+    const menu = document.getElementById('mobile-chat-options');
+    menu.classList.toggle('hidden');
+}
+
+window.sendMobileChatMessage = async function() {
+    const input = document.getElementById('mobile-message-input');
+    const text = input.value.trim();
+    if(!text || !activeChatUserId) return;
+
+    const receiver = users.find(u => u.id === activeChatUserId);
+    if(!receiver.following.includes(currentUser.id)) { 
+        sendNotification(activeChatUserId, 'message_request', 'wants to chat with you'); 
+    }
+
+    await addDoc(collection(db, "messages"), {
+        senderId: currentUser.id, receiverId: activeChatUserId,
+        text: text, timestamp: serverTimestamp(), replyToId: null
+    });
+    input.value = "";
 }
 
 window.deleteConversationHistory = function(targetId) {
@@ -2768,14 +2940,21 @@ batch.delete(doc.ref);
 await batch.commit();
 chatPartners.delete(targetId);
 if(activeChatUserId === targetId) {
-document.getElementById('chat-messages').innerHTML = '';
-activeChatUserId = null;
-document.getElementById('chat-header').innerText = 'Select a friend to chat';
-document.getElementById('chat-input-area').classList.add('hidden');
+    if(window.innerWidth < 768) closeMobileChat();
+    else {
+        document.getElementById('chat-messages').innerHTML = '';
+        activeChatUserId = null;
+        document.getElementById('chat-header').innerText = 'Select a friend to chat';
+        document.getElementById('chat-input-area').classList.add('hidden');
+    }
 }
 renderChatList();
 showToast("Conversation deleted");
 });
+}
+
+window.deleteCurrentChat = function() {
+    if(activeChatUserId) deleteConversationHistory(activeChatUserId);
 }
 
 function linkify(text) {
@@ -2785,8 +2964,10 @@ return '<a href="' + url + '" target="_blank" class="text-blue-200 underline hov
 });
 }
 
-function renderMessages(msgs) {
-const container = document.getElementById('chat-messages');
+function renderMessages(msgs, containerId) {
+const container = document.getElementById(containerId);
+if(!container) return;
+
 container.innerHTML = "";
 const dateDiv = document.createElement('div');
 dateDiv.className = 'chat-date-divider';

@@ -240,7 +240,7 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.like:hover { background-color: #fef2f2; color: #ef4444; }
 .action-btn.comment:hover { background-color: #eff6ff; color: #2563eb; }
 .action-btn.bookmark:hover { background-color: #fefce8; color: #eab308; }
-.action-btn.share-btn:hover { background-color: #f3f4f6; color: var(--on-surface); }
+.action-btn.share-btn:hover { background-color: var(--hover-bg); color: var(--on-surface); }
 
 /* --- COMPOSE & CREATE MENUS --- */
 #compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal {
@@ -695,9 +695,9 @@ transform: translateX(20px);
        </div>
    </div>
    <div class="tab-group mb-0 mx-0 w-full">
-        <button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active">Following</button>
-        <button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn">Others</button>
-        <button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn">Official</button>
+        <button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i></button>
+        <button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn"><i data-lucide="globe" class="w-4 h-4"></i></button>
+        <button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="badge-check" class="w-4 h-4"></i></button>
     </div>
 </div>
 
@@ -1139,9 +1139,9 @@ Change
         <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
     </div>
     <div class="tab-group mb-4 mx-0 md:mx-0 hidden md:flex">
-        <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active">Following</button>
-        <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn">Others</button>
-        <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn">Official</button>
+        <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i></button>
+        <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn"><i data-lucide="globe" class="w-4 h-4"></i></button>
+        <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn"><i data-lucide="badge-check" class="w-4 h-4"></i></button>
     </div>
     <div id="notification-list" class="w-full"></div>
 </div>
@@ -1802,8 +1802,7 @@ if(document.getElementById('notification-list').children.length === 0) renderNot
 const badge = document.getElementById('nav-notif-badge');
 if(badge) badge.style.display = 'none';
 } else if (viewName === 'saved') {
-const nav = document.getElementById('nav-saved'); if(nav) nav.classList.add('active');
-if(document.getElementById('saved-container').children.length === 0) renderSaved();
+// Saved removed from sidebar, so logic is redundant here but safe to keep
 } else if (viewName === 'ai') {
 // No mobile nav item for AI directly, usually accessed via button or gesture
 } else if (viewName === 'announcements') {
@@ -1876,7 +1875,13 @@ container.innerHTML = "";
 let displayPosts = [...posts];
 if(filterTerm) {
 const term = filterTerm.toLowerCase();
-displayPosts = displayPosts.filter(p => p.content.toLowerCase().includes(term));
+// Handle Hashtag Search specifically
+if(term.startsWith('#')) {
+    const tag = term.substring(1);
+    displayPosts = displayPosts.filter(p => p.content.toLowerCase().includes('#' + tag));
+} else {
+    displayPosts = displayPosts.filter(p => p.content.toLowerCase().includes(term));
+}
 }
 
 displayPosts = displayPosts.filter(p => {
@@ -2776,20 +2781,28 @@ const content = (p.content || '').toLowerCase();
 return keywords.some(k => content.includes(k));
 });
 
+// Calculate Hashtags
+const allTags = new Set();
+posts.forEach(p => {
+    const matches = p.content.match(/#\w+/g);
+    if(matches) matches.forEach(t => allTags.add(t));
+});
+const foundTags = Array.from(allTags).filter(t => t.toLowerCase().includes(term));
+
 // Tab Interface
 let html = `
 <div class="tab-group mb-0 md:mb-4 bg-white sticky top-16 md:top-0 z-10 border-b border-gray-200">
-<button onclick="switchExploreTab('people')" class="tab-btn ${window.activeExploreTab === 'people' ? 'active' : ''}">People</button>
-<button onclick="switchExploreTab('posts')" class="tab-btn ${window.activeExploreTab === 'posts' ? 'active' : ''}">Posts</button>
+<button onclick="switchExploreTab('people')" class="tab-btn ${window.activeExploreTab === 'people' ? 'active' : ''}"><i data-lucide="users" class="w-4 h-4"></i> People</button>
+<button onclick="switchExploreTab('posts')" class="tab-btn ${window.activeExploreTab === 'posts' ? 'active' : ''}"><i data-lucide="image" class="w-4 h-4"></i> Posts</button>
+<button onclick="switchExploreTab('tags')" class="tab-btn ${window.activeExploreTab === 'tags' ? 'active' : ''}"><i data-lucide="hash" class="w-4 h-4"></i> Tags</button>
 </div>
 `;
 
-// People Results - No Gap on Mobile
-const hiddenPeople = window.activeExploreTab === 'posts' ? 'hidden' : '';
+// People Results
+const hiddenPeople = window.activeExploreTab === 'people' ? '' : 'hidden';
 html += `<div id="results-people" class="flex flex-col ${hiddenPeople}">`;
 if(foundUsers.length) {
 foundUsers.forEach(u => {
-// Modified classes: border-b, no rounded on mobile, no margins on mobile
 html += `
 <div class="flex items-center gap-3 p-4 bg-white border-b border-gray-100 last:border-0 md:border md:rounded-xl md:mb-2 cursor-pointer hover:bg-gray-50 transition-colors" onclick="showProfile('${u.id}')">
 <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover bg-gray-50 border border-gray-100">
@@ -2804,9 +2817,28 @@ html += `<div class="text-gray-400 text-sm p-4 text-center italic">No people fou
 }
 html += `</div>`;
 
+// Tags Results
+const hiddenTags = window.activeExploreTab === 'tags' ? '' : 'hidden';
+html += `<div id="results-tags" class="flex flex-col ${hiddenTags}">`;
+if(foundTags.length) {
+    foundTags.forEach(tag => {
+        html += `
+        <div class="flex items-center gap-3 p-4 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors" onclick="switchView('feed'); renderFeed('${tag}')">
+            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-lg">#</div>
+            <div>
+                <div class="font-bold text-sm text-gray-900">${tag}</div>
+                <div class="text-xs text-gray-500">View Posts</div>
+            </div>
+        </div>
+        `;
+    });
+} else {
+    html += `<div class="text-gray-400 text-sm p-4 text-center italic">No tags found matching "${query}"</div>`;
+}
+html += `</div>`;
+
 // Posts Results - Instagram Grid
-const hiddenPosts = window.activeExploreTab === 'people' ? 'hidden' : '';
-// Note: Using id="results-posts" for the container to append to later, but we need to structure it as a grid
+const hiddenPosts = window.activeExploreTab === 'posts' ? '' : 'hidden';
 html += `<div id="results-posts" class="${hiddenPosts}"></div>`;
 
 view.innerHTML = html;

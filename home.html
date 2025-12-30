@@ -438,32 +438,84 @@ background: #fef2f2;
 color: #b91c1c;
 }
 
-/* --- NOTIFICATION TABS --- */
-.tab-group {
-display: inline-flex;
-background: var(--hover-bg);
-padding: 4px;
-border-radius: 12px;
-width: auto;
-border: 1px solid var(--outline);
+/* --- TWITTER STYLE TABS --- */
+.twitter-tabs {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid var(--outline);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 20;
 }
-.tab-btn {
-padding: 8px 20px;
-font-size: 13px;
-font-weight: 600;
-color: var(--text-secondary);
-border-radius: 8px;
-transition: all 0.2s ease;
-cursor: pointer;
-background: transparent;
+.twitter-tab-btn {
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+    background: transparent;
 }
-.tab-btn:hover {
-color: var(--on-surface);
+.twitter-tab-btn:hover {
+    background-color: var(--hover-bg);
+    color: var(--on-surface);
 }
-.tab-btn.active {
-background: var(--surface);
-color: var(--primary);
-box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+.twitter-tab-btn.active {
+    color: var(--on-surface);
+    font-weight: 700;
+}
+.twitter-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 56px; 
+    height: 4px;
+    background: var(--primary);
+    border-radius: 4px 4px 0 0;
+}
+
+/* GRID STYLES */
+.post-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding-bottom: 60px;
+}
+.grid-item {
+    position: relative;
+    padding-bottom: 100%; /* Square aspect ratio */
+    overflow: hidden;
+    background: #f0f0f0;
+    cursor: pointer;
+}
+.grid-item img, .grid-item video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.grid-text-placeholder {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    text-align: center;
+    color: #4b5563;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+    overflow: hidden;
 }
 
 /* --- CHAT STYLES --- */
@@ -1096,7 +1148,7 @@ Change
 </aside>
 <div id="workspace-layout" class="flex-1 flex min-w-0 gap-4 relative overflow-hidden transition-all duration-300">
 <main id="main-panel" class="flex-1 app-panel min-w-0 relative">
-<header class="h-16 md:h-20 flex items-center justify-between px-4 md:px-6 shrink-0 z-20 sticky top-0 bg-white/95 md:bg-white/90 backdrop-blur-md border-b border-[#f0f0f0]">
+<header id="main-header" class="h-16 md:h-20 flex items-center justify-between px-4 md:px-6 shrink-0 z-20 sticky top-0 bg-white/95 md:bg-white/90 backdrop-blur-md border-b border-[#f0f0f0]">
 <div class="md:hidden flex items-center gap-3 cursor-pointer" onclick="switchView('feed')">
 <img src="https://i.imghippo.com/files/fRGt5603uII.png" class="w-8 h-8 object-contain">
 <h1 class="text-lg font-bold text-[#1f1f1f] tracking-tight">EduLink</h1>
@@ -1130,30 +1182,32 @@ Change
     </div>
 
     <!-- NETWORK VIEW (New) -->
-    <div id="view-network" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
-        <h2 class="text-2xl font-bold mb-6 px-4 md:px-0">My Network</h2>
-        <div class="tab-group mb-6 mx-4 md:mx-0">
-            <button onclick="switchNetworkTab('people')" id="net-tab-people" class="tab-btn active">People</button>
-            <button onclick="switchNetworkTab('posts')" id="net-tab-posts" class="tab-btn">Posts</button>
+    <div id="view-network" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 bg-white">
+        <div class="h-16 flex items-center px-4 border-b border-gray-100 bg-white sticky top-0 z-10">
+            <h2 class="text-lg font-bold">My Network</h2>
         </div>
-        <div id="network-content"></div>
+        <div class="twitter-tabs">
+            <button onclick="switchNetworkTab('people')" id="net-tab-people" class="twitter-tab-btn active">People</button>
+            <button onclick="switchNetworkTab('posts')" id="net-tab-posts" class="twitter-tab-btn">Posts</button>
+        </div>
+        <div id="network-content" class="py-4"></div>
     </div>
 
     <!-- PROFILE VIEW -->
     <div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
 
     <!-- NOTIFICATIONS VIEW -->
-    <div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff]">
-        <div class="flex justify-between items-center mb-6 px-4 md:px-0">
-            <h2 class="text-2xl font-bold">Notifications</h2>
+    <div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 bg-white">
+        <div class="h-16 flex items-center justify-between px-4 border-b border-gray-100 bg-white sticky top-0 z-10">
+            <h2 class="text-lg font-bold">Notifications</h2>
             <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
         </div>
-        <div class="tab-group mb-6 mx-4 md:mx-0">
-            <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active">Following</button>
-            <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn">Others</button>
-            <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn">Official</button>
+        <div class="twitter-tabs">
+            <button onclick="switchNotifTab('friends')" id="ntab-friends" class="twitter-tab-btn active">Following</button>
+            <button onclick="switchNotifTab('others')" id="ntab-others" class="twitter-tab-btn">Others</button>
+            <button onclick="switchNotifTab('official')" id="ntab-official" class="twitter-tab-btn">Official</button>
         </div>
-        <div id="notification-list" class="space-y-2 px-4 md:px-0 w-full"></div>
+        <div id="notification-list" class="w-full"></div>
     </div>
 
     <!-- CHAT VIEW -->
@@ -1377,8 +1431,9 @@ let chatPartners = new Set();
 window.replyingToCommentId = null; 
 window.replyingToMessageId = null;
 window.currentViewingProfileId = null;
-window.activeExploreTab = 'people'; // New: Explore Tab State
-window.currentThreadCommentId = null; // Thread State
+window.activeExploreTab = 'people'; 
+window.currentThreadCommentId = null; 
+window.currentProfileTab = 'posts'; // New Profile Tab State
 
 // Global Vars for App Logic
 window.currentContext = "";
@@ -1507,16 +1562,13 @@ function initRealtimeListeners() {
         // Update global posts data
         posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
         
-        // If there are pending writes (local changes like "Like"), skip re-render completely to avoid flicker
         if (snapshot.metadata.hasPendingWrites) {
             return;
         }
         
-        // Targeted Update Logic: Check what changed
         const changes = snapshot.docChanges();
         let shouldFullRender = false;
 
-        // If it's the very first load or empty container, force render
         if (document.getElementById('feed-container').children.length === 0) {
             shouldFullRender = true;
         } else {
@@ -1524,22 +1576,16 @@ function initRealtimeListeners() {
                 if (change.type === "added" || change.type === "removed") {
                     shouldFullRender = true;
                 } else if (change.type === "modified") {
-                    // It's a modification (likely a like or comment). Update DOM in place.
                     const p = change.doc.data();
                     const pid = change.doc.id;
-                    
-                    // Update Like Count Text
                     const likeCountEl = document.getElementById(`like-count-${pid}`);
                     if(likeCountEl) {
                         likeCountEl.innerText = p.likes ? p.likes.length : 0;
                     }
-                    
-                    // Update Comment Count Text
                     const commentCountEl = document.getElementById(`comment-count-${pid}`);
                     if(commentCountEl) {
                         commentCountEl.innerText = p.comments ? p.comments.length : 0;
                     }
-                    // Do NOT set shouldFullRender to true here.
                 }
             });
         }
@@ -1550,10 +1596,10 @@ function initRealtimeListeners() {
         }
         
         const activeSaved = document.querySelector('#view-saved:not(.hidden)');
-        if(activeSaved) renderSaved(); // Saved usually re-renders fully as it's less frequent
+        if(activeSaved) renderSaved();
 
         const activeProfile = document.querySelector('#view-profile:not(.hidden)');
-        if(activeProfile && window.currentViewingProfileId) showProfile(window.currentViewingProfileId);
+        if(activeProfile && window.currentViewingProfileId) renderProfileContent(window.currentViewingProfileId);
 
         const activeNetwork = document.querySelector('#view-network:not(.hidden)');
         if(activeNetwork && activeNetworkTab === 'posts') renderNetwork();
@@ -1567,7 +1613,6 @@ function initRealtimeListeners() {
         const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
         if(activePostView && window.currentViewingPostId) renderCommentsInModal(window.currentViewingPostId);
         
-        // THREAD VIEW UPDATE
         const activeThreadView = document.querySelector('#thread-view-overlay:not(.hidden)');
         if(activeThreadView && window.currentViewingPostId && window.currentThreadCommentId) {
             renderThreadView(window.currentViewingPostId, window.currentThreadCommentId);
@@ -1743,6 +1788,15 @@ window.switchView = function(viewName) {
 
     const aiPanel = document.getElementById('ai-panel');
     const mainPanel = document.getElementById('main-panel');
+    const header = document.getElementById('main-header');
+    
+    // Header Visibility Logic for Mobile Profile
+    if(viewName === 'profile') {
+        if(window.innerWidth < 768 && header) header.classList.add('hidden');
+    } else {
+        if(header) header.classList.remove('hidden');
+    }
+
     const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
     const desktopNavItems = document.querySelectorAll('.nav-item');
 
@@ -1777,20 +1831,17 @@ window.switchView = function(viewName) {
     if(viewName === 'feed') {
         const nav = document.getElementById('nav-feed'); if(nav) nav.classList.add('active');
         if(mobileNavItems[0]) mobileNavItems[0].classList.add('active');
-        // Initial render is handled by onSnapshot. We do NOT call renderFeed() here to prevent clearing/flicker.
-        // If it's the first load, onSnapshot runs anyway. If switching back, DOM is preserved.
         if(document.getElementById('feed-container').children.length === 0) renderFeed(); 
     } else if (viewName === 'explore') {
         const nav = document.getElementById('nav-explore'); if(nav) nav.classList.add('active');
         if(mobileNavItems[1]) mobileNavItems[1].classList.add('active');
-        // Don't auto-search here to avoid loops, let user input drive it or previous state persist
     } else if (viewName === 'network') {
         const nav = document.getElementById('nav-network'); if(nav) nav.classList.add('active');
         if(document.getElementById('network-content').children.length === 0) renderNetwork();
     } else if (viewName === 'chat') {
         const nav = document.getElementById('nav-chat'); if(nav) nav.classList.add('active');
         if(mobileNavItems[3]) mobileNavItems[3].classList.add('active');
-        renderChatList(); // Chat list needs to update highlight
+        renderChatList(); 
         const dot = document.getElementById('chat-dot');
         if(dot) dot.style.display = 'none';
     } else if (viewName === 'saved') {
@@ -1803,13 +1854,12 @@ window.switchView = function(viewName) {
     } else if (viewName === 'announcements') {
         const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
     }
-    // Ensures icons re-render immediately after view switch just in case
     setTimeout(refreshIcons, 10);
 }
 
 window.switchNetworkTab = function(tab) {
     activeNetworkTab = tab;
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.twitter-tab-btn').forEach(b => b.classList.remove('active'));
     const btn = document.getElementById(`net-tab-${tab}`);
     if(btn) btn.classList.add('active');
     renderNetwork();
@@ -1962,144 +2012,14 @@ function createPostElement(post) {
     return div;
 }
 
-window.toggleLike = async function(postId) {
-    const btn = document.getElementById(`like-btn-${postId}`);
-    const countSpan = document.getElementById(`like-count-${postId}`);
-    
-    if(btn) {
-        const icon = btn.querySelector('svg') || btn.querySelector('i');
-        let isLiked = false;
-        
-        if (icon.tagName === 'svg') isLiked = icon.classList.contains('text-red-500');
-        else isLiked = icon.classList.contains('text-red-500');
-
-        if (isLiked) {
-            icon.classList.remove('fill-red-500', 'text-red-500');
-            if(countSpan) {
-                const current = parseInt(countSpan.innerText) || 0;
-                countSpan.innerText = Math.max(0, current - 1);
-            }
-        } else {
-            icon.classList.add('fill-red-500', 'text-red-500');
-            if(countSpan) {
-                const current = parseInt(countSpan.innerText) || 0;
-                countSpan.innerText = current + 1;
-            }
-        }
-    }
-
-    const postRef = doc(db, "posts", postId);
-    const post = posts.find(p => p.id === postId);
-    if(post.likes && post.likes.includes(currentUser.id)) {
-        await updateDoc(postRef, { likes: arrayRemove(currentUser.id) });
-    } else {
-        await updateDoc(postRef, { likes: arrayUnion(currentUser.id) });
-        if(post.authorId !== currentUser.id) {
-            sendNotification(post.authorId, 'like', 'liked your post', postId);
-        }
-    }
-}
-
-window.openLikes = function(postId) {
-    const post = posts.find(p => p.id === postId);
-    if(!post) return;
-    
-    const overlay = document.getElementById('likes-overlay');
-    const content = document.getElementById('likes-list-content');
-    content.innerHTML = '';
-    
-    const likeIds = post.likes || [];
-    
-    if(likeIds.length === 0) {
-        content.innerHTML = `<div class="text-center text-gray-400 py-8">No likes yet.</div>`;
-    } else {
-        likeIds.forEach(uid => {
-            const user = users.find(u => u.id === uid);
-            if(user) {
-                const div = document.createElement('div');
-                div.className = "flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
-                div.onclick = () => {
-                    document.getElementById('likes-overlay').classList.add('hidden');
-                    showProfile(user.id);
-                };
-                div.innerHTML = `
-                    <img src="${user.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover">
-                    <div>
-                        <div class="font-bold text-sm text-gray-900">${user.name}</div>
-                        <div class="text-xs text-gray-500 truncate w-32">${user.bio}</div>
-                    </div>
-                `;
-                content.appendChild(div);
-            }
-        });
-    }
-    overlay.classList.remove('hidden');
-}
-
-window.closeLikes = function() {
-    document.getElementById('likes-overlay').classList.add('hidden');
-}
-
-window.toggleSave = async function(postId) {
-    const btn = document.getElementById(`save-btn-${postId}`);
-    if(btn) {
-        const icon = btn.querySelector('svg') || btn.querySelector('i');
-        let hasClass = false;
-        if(icon.tagName === 'svg') hasClass = icon.classList.contains('text-yellow-500');
-        else hasClass = icon.classList.contains('text-yellow-500');
-
-        if (hasClass) {
-            icon.classList.remove('fill-yellow-500', 'text-yellow-500');
-            showToast("Post removed");
-        } else {
-            icon.classList.add('fill-yellow-500', 'text-yellow-500');
-            showToast("Post saved");
-        }
-    }
-
-    const userRef = doc(db, "users", currentUser.id);
-    if(savedPosts.includes(postId)) {
-        await updateDoc(userRef, { saved: arrayRemove(postId) });
-        savedPosts = savedPosts.filter(id => id !== postId);
-    } else {
-        await updateDoc(userRef, { saved: arrayUnion(postId) });
-        savedPosts.push(postId);
-    }
-}
-
-window.sharePost = function(postId) {
-    const url = `${window.location.origin}${window.location.pathname}?postId=${postId}`;
-    navigator.clipboard.writeText(url).then(() => { showToast("Link copied to clipboard!"); });
-}
-
-window.renderSaved = function() {
-    const container = document.getElementById('saved-container');
-    container.innerHTML = "";
-    if(savedPosts.length === 0) {
-        container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-60"><i data-lucide="bookmark" class="w-16 h-16 mb-2"></i><p>No saved posts yet</p></div>`;
-    } else {
-        const saved = posts.filter(p => savedPosts.includes(p.id));
-        saved.forEach(post => container.appendChild(createPostElement(post)));
-    }
-    refreshIcons();
-}
-
-async function sendNotification(receiverId, type, content, postId = null) {
-    await addDoc(collection(db, "notifications"), {
-        receiverId,
-        senderId: currentUser.id,
-        type,
-        content,
-        timestamp: serverTimestamp(),
-        read: false,
-        postId: postId
-    });
-}
-
 window.switchNotifTab = function(tab) {
     activeNotifTab = tab;
+    // Update both standard and twitter style tabs if present
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(`ntab-${tab}`).classList.add('active');
+    document.querySelectorAll('.twitter-tab-btn').forEach(b => b.classList.remove('active'));
+    
+    const btn = document.getElementById(`ntab-${tab}`);
+    if(btn) btn.classList.add('active');
     renderNotifications();
 }
 
@@ -2118,14 +2038,14 @@ window.renderNotifications = function() {
     });
 
     if (filtered.length === 0) {
-        container.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">No notifications here</div>`;
+        container.innerHTML = `<div class="text-center text-xs text-gray-400 py-10">No notifications here</div>`;
         return;
     }
 
     filtered.forEach(n => {
         const sender = users.find(u => u.id === n.senderId) || { name: 'Admin', avatar: '' };
         const div = document.createElement('div');
-        div.className = "w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100 bg-white shadow-sm mb-2 group relative";
+        div.className = "w-full flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 bg-white cursor-pointer group relative";
         let icon = "";
         if(n.type === 'like') icon = '<i data-lucide="heart" class="w-3 h-3 text-white"></i>';
         if(n.type === 'comment') icon = '<i data-lucide="message-circle" class="w-3 h-3 text-white"></i>';
@@ -2156,7 +2076,7 @@ window.renderNotifications = function() {
 
         div.innerHTML = `
         <div class="relative cursor-pointer" onclick="showProfile('${sender.id}')">
-        <img src="${sender.avatar}" class="w-10 h-10 rounded-full bg-gray-200">
+        <img src="${sender.avatar}" class="w-10 h-10 rounded-full bg-gray-200 object-cover">
         <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${colorClass} flex items-center justify-center border-2 border-white">${icon}</div>
         </div>
         <div class="flex-1 cursor-pointer" ${clickAction}>
@@ -2173,52 +2093,25 @@ window.renderNotifications = function() {
     refreshIcons();
 }
 
-window.deleteNotification = async function(id) {
-    showAlert("Delete this notification?", async () => {
-        await deleteDoc(doc(db, "notifications", id));
-    });
-}
-
-window.acceptFollow = async function(notifId, senderId) {
-    const meRef = doc(db, "users", currentUser.id);
-    await updateDoc(meRef, { followers: arrayUnion(senderId) });
-    const senderRef = doc(db, "users", senderId);
-    await updateDoc(senderRef, { following: arrayUnion(currentUser.id) });
-    await deleteDoc(doc(db, "notifications", notifId));
-    await sendNotification(senderId, 'follow', 'accepted your follow request');
-    showToast("Follow request accepted");
-}
-
-window.acceptMessage = async function(notifId, senderId) {
-    await deleteDoc(doc(db, "notifications", notifId));
-    startChat(senderId);
-}
-
-window.clearAllNotifications = async function() {
-    showAlert("Clear all notifications?", async () => {
-        const batch = writeBatch(db);
-        const q = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
-        const snap = await getDocs(q);
-        snap.forEach(d => batch.delete(d.ref));
-        await batch.commit();
-        showToast("All notifications cleared");
-    });
-}
-
-window.toggleNotifications = function() {
-    switchView('notifications');
-    const badge = document.getElementById('notif-badge');
-    if(badge) badge.classList.add('hidden');
-}
-
+// PROFILE LOGIC
 window.showProfile = function(userId) {
     if(!userId) userId = currentUser.id;
+    window.currentViewingProfileId = userId;
+    window.currentProfileTab = 'posts'; // Reset to posts tab on new profile view
+    renderProfileContent(userId);
+    switchView('profile');
+}
+
+window.switchProfileTab = function(tabName) {
+    window.currentProfileTab = tabName;
+    renderProfileContent(window.currentViewingProfileId);
+}
+
+window.renderProfileContent = function(userId) {
     const user = users.find(u => u.id === userId);
     if(!user) return;
     
-    window.currentViewingProfileId = userId;
     const container = document.getElementById('view-profile');
-
     const isMe = userId === currentUser.id;
     const isFollowing = currentUser.following ? currentUser.following.includes(userId) : false;
     
@@ -2228,12 +2121,6 @@ window.showProfile = function(userId) {
     } else {
         const isPrivate = user.settings?.privateNetwork;
         let btnText = isFollowing ? 'Following' : (isPrivate ? 'Request' : 'Follow');
-        
-        const existingBtn = document.getElementById('profile-follow-btn');
-        if(existingBtn && existingBtn.innerText === 'Requested' && !isFollowing) {
-            btnText = 'Requested';
-        }
-
         actionBtn = `
         <div class="flex gap-2">
         <button id="profile-follow-btn" onclick="toggleFollow('${userId}')" class="${isFollowing ? 'bg-gray-100 text-gray-700' : 'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">${btnText}</button>
@@ -2242,24 +2129,14 @@ window.showProfile = function(userId) {
         `;
     }
 
-    const userPosts = posts.filter(p => p.authorId === userId);
-    const visiblePosts = userPosts.filter(p => {
-        const isAuthor = p.authorId === currentUser.id;
-        const isPublic = !p.settings || p.settings.privacy === 'public';
-        const amFollowing = currentUser.following.includes(p.authorId);
-        const isPrivateAcc = user.settings?.privateNetwork;
-        
-        if (isAuthor) return true;
-        if (isPrivateAcc && !amFollowing) return false;
-        return isPublic || amFollowing;
-    });
-
     const bannerUrl = user.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
     const bannerPos = user.bannerPos || 50;
 
     let networkStatsHTML = '';
     const isPrivate = user.settings?.privateNetwork;
-    if(isMe || !isPrivate || isFollowing) {
+    const canViewContent = isMe || !isPrivate || isFollowing;
+
+    if(canViewContent) {
         networkStatsHTML = `
         <div class="flex gap-4 mt-3 text-sm text-gray-500">
         <span class="cursor-pointer hover:underline" onclick="openUserList('following', '${userId}')"><strong class="text-gray-900">${user.following ? user.following.length : 0}</strong> Following</span>
@@ -2269,22 +2146,73 @@ window.showProfile = function(userId) {
         networkStatsHTML = `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="italic"><i data-lucide="lock" class="w-3 h-3 inline"></i> Private Account</span></div>`;
     }
 
-    container.innerHTML = `
-    <div class="profile-banner-container"><img src="${bannerUrl}" class="profile-banner-img" style="object-position: center ${bannerPos}%"></div>
-    <div class="px-6 relative">
-    <div class="flex justify-between items-end -mt-10 mb-4"><img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">${actionBtn}</div>
-    <div class="mb-6"><h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1><p class="text-gray-600 mt-1">${user.bio}</p>${networkStatsHTML}</div>
-    <div class="border-t border-gray-100 pt-6"><h3 class="font-bold text-lg mb-4">Posts</h3><div id="profile-posts-container"></div></div>
+    // Determine tabs visibility
+    // Saved tab only for owner
+    let tabsHTML = `
+    <div class="twitter-tabs mt-4">
+        <button onclick="switchProfileTab('posts')" class="twitter-tab-btn ${window.currentProfileTab === 'posts' ? 'active' : ''}">Posts</button>
+        <button onclick="switchProfileTab('liked')" class="twitter-tab-btn ${window.currentProfileTab === 'liked' ? 'active' : ''}">Liked</button>
+        ${isMe ? `<button onclick="switchProfileTab('saved')" class="twitter-tab-btn ${window.currentProfileTab === 'saved' ? 'active' : ''}">Saved</button>` : ''}
     </div>
     `;
 
-    switchView('profile');
-    const postsContainer = document.getElementById('profile-posts-container');
-    if(visiblePosts.length > 0) {
-        visiblePosts.forEach(p => postsContainer.appendChild(createPostElement(p)));
+    // Content Filtering
+    let contentHTML = '';
+    if (!canViewContent) {
+        contentHTML = `<div class="text-center py-20 text-gray-400 bg-gray-50"><i data-lucide="lock" class="w-12 h-12 mx-auto mb-2 opacity-50"></i><p>This account is private</p><p class="text-xs">Follow to see their posts</p></div>`;
+        tabsHTML = ''; // Hide tabs if private and not following
     } else {
-        postsContainer.innerHTML = '<div class="text-center py-10 text-gray-400">No posts yet</div>';
+        let relevantPosts = [];
+        if (window.currentProfileTab === 'posts') {
+            relevantPosts = posts.filter(p => p.authorId === userId);
+        } else if (window.currentProfileTab === 'saved' && isMe) {
+            relevantPosts = posts.filter(p => savedPosts.includes(p.id));
+        } else if (window.currentProfileTab === 'liked') {
+            relevantPosts = posts.filter(p => p.likes && p.likes.includes(userId));
+        }
+
+        if (relevantPosts.length === 0) {
+            contentHTML = `<div class="text-center py-20 text-gray-400">No posts yet</div>`;
+        } else {
+            // Render Grid
+            contentHTML = `<div class="post-grid">`;
+            relevantPosts.forEach(p => {
+                let contentTile = '';
+                if(p.media) {
+                    const isVid = p.media.startsWith('data:video') || p.media.includes('.mp4');
+                    if(isVid) {
+                        contentTile = `<video src="${p.media}" class="w-full h-full object-cover"></video><div class="absolute top-2 right-2 text-white drop-shadow-md"><i data-lucide="play-circle" class="w-5 h-5"></i></div>`;
+                    } else {
+                        contentTile = `<img src="${p.media}" loading="lazy">`;
+                    }
+                } else {
+                    // Text Tile for "Every post to have image attached" visual requirement
+                    // Create a visual tile from the text content
+                    const shortText = p.content.length > 60 ? p.content.substring(0, 60) + "..." : p.content;
+                    contentTile = `<div class="grid-text-placeholder">${shortText}</div>`;
+                }
+                contentHTML += `<div class="grid-item" onclick="openPostView('${p.id}')">${contentTile}</div>`;
+            });
+            contentHTML += `</div>`;
+        }
     }
+
+    container.innerHTML = `
+    <div class="profile-banner-container"><img src="${bannerUrl}" class="profile-banner-img" style="object-position: center ${bannerPos}%"></div>
+    <div class="px-6 relative">
+        <div class="flex justify-between items-end -mt-10 mb-4">
+            <img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">
+            ${actionBtn}
+        </div>
+        <div class="mb-4">
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1>
+            <p class="text-gray-600 mt-1 text-[15px]">${user.bio}</p>
+            ${networkStatsHTML}
+        </div>
+    </div>
+    ${tabsHTML}
+    ${contentHTML}
+    `;
     refreshIcons();
 }
 

@@ -240,7 +240,7 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.like:hover { background-color: #fef2f2; color: #ef4444; }
 .action-btn.comment:hover { background-color: #eff6ff; color: #2563eb; }
 .action-btn.bookmark:hover { background-color: #fefce8; color: #eab308; }
-.action-btn.share-btn:hover { background-color: #f3f4f6; color: var(--on-surface); }
+.action-btn.share-btn:hover { background-color: var(--hover-bg); color: var(--on-surface); }
 
 /* --- COMPOSE & CREATE MENUS --- */
 #compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal {
@@ -695,9 +695,9 @@ transform: translateX(20px);
        </div>
    </div>
    <div class="tab-group mb-0 mx-0 w-full">
-        <button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active">Following</button>
-        <button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn">Others</button>
-        <button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn">Official</button>
+        <button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i></button>
+        <button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn"><i data-lucide="globe" class="w-4 h-4"></i></button>
+        <button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="badge-check" class="w-4 h-4"></i></button>
     </div>
 </div>
 
@@ -705,7 +705,7 @@ transform: translateX(20px);
 <div id="mobile-explore-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex items-center gap-3 px-3 h-16 border-b border-gray-100 hidden">
     <div class="relative flex-1">
          <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
-         <input type="text" id="mobile-explore-search" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Search users & posts..." oninput="handleSearch(this.value)">
+         <input type="text" id="mobile-explore-search" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Search users, posts & tags..." oninput="handleSearch(this.value)">
     </div>
     <button onclick="switchView('feed')" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
 </div>
@@ -763,7 +763,7 @@ transform: translateX(20px);
              </div>
 
              <!-- Footer Actions -->
-             <div class="border-t border-gray-100 p-3 bg-white shrink-0 z-20 pb-safe">
+             <div class="border-t border-gray-100 p-3 bg-white shrink-0 z-20 pb-[env(safe-area-inset-bottom)]">
                   <div class="flex justify-between items-center mb-2 px-1">
                        <div class="flex gap-4">
                            <button id="post-view-like-btn" class="hover:opacity-60 transition-opacity"><i data-lucide="heart" class="w-6 h-6"></i></button>
@@ -1139,9 +1139,9 @@ Change
         <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
     </div>
     <div class="tab-group mb-4 mx-0 md:mx-0 hidden md:flex">
-        <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active">Following</button>
-        <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn">Others</button>
-        <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn">Official</button>
+        <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i></button>
+        <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn"><i data-lucide="globe" class="w-4 h-4"></i></button>
+        <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn"><i data-lucide="badge-check" class="w-4 h-4"></i></button>
     </div>
     <div id="notification-list" class="w-full"></div>
 </div>
@@ -1876,7 +1876,11 @@ container.innerHTML = "";
 let displayPosts = [...posts];
 if(filterTerm) {
 const term = filterTerm.toLowerCase();
-displayPosts = displayPosts.filter(p => p.content.toLowerCase().includes(term));
+if(term.startsWith('#')) {
+    displayPosts = displayPosts.filter(p => p.content.toLowerCase().includes(term));
+} else {
+    displayPosts = displayPosts.filter(p => p.content.toLowerCase().includes(term));
+}
 }
 
 displayPosts = displayPosts.filter(p => {
@@ -1895,6 +1899,19 @@ return true;
 
 displayPosts.forEach(post => container.appendChild(createPostElement(post)));
 refreshIcons();
+}
+
+window.handleTagClick = function(tag) {
+    switchView('explore');
+    // Ensure Explore view is active before switching tabs
+    setTimeout(() => {
+        switchExploreTab('posts');
+        const searchInput = document.getElementById('global-search');
+        if(searchInput) searchInput.value = tag;
+        const mobileInput = document.getElementById('mobile-explore-search');
+        if(mobileInput) mobileInput.value = tag;
+        handleSearch(tag);
+    }, 50);
 }
 
 function createPostElement(post) {
@@ -1917,7 +1934,7 @@ mediaHTML = isVideo
 </div>`;
 }
 
-let tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
+let tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag" onclick="event.stopPropagation(); handleTagClick(\'#$1\')">#$1</span>'));
 let officialBadge = author.isOfficial ? `<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>` : '';
 let lockIcon = settings.privacy === 'private' || author?.settings?.privateNetwork ? `<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>` : '';
 
@@ -2776,20 +2793,28 @@ const content = (p.content || '').toLowerCase();
 return keywords.some(k => content.includes(k));
 });
 
+// Calculate Hashtags
+const allTags = new Set();
+posts.forEach(p => {
+    const matches = p.content.match(/#\w+/g);
+    if(matches) matches.forEach(t => allTags.add(t));
+});
+const foundTags = Array.from(allTags).filter(t => t.toLowerCase().includes(term));
+
 // Tab Interface
 let html = `
 <div class="tab-group mb-0 md:mb-4 bg-white sticky top-16 md:top-0 z-10 border-b border-gray-200">
-<button onclick="switchExploreTab('people')" class="tab-btn ${window.activeExploreTab === 'people' ? 'active' : ''}">People</button>
-<button onclick="switchExploreTab('posts')" class="tab-btn ${window.activeExploreTab === 'posts' ? 'active' : ''}">Posts</button>
+<button onclick="switchExploreTab('people')" class="tab-btn ${window.activeExploreTab === 'people' ? 'active' : ''}"><i data-lucide="users" class="w-4 h-4"></i> People</button>
+<button onclick="switchExploreTab('posts')" class="tab-btn ${window.activeExploreTab === 'posts' ? 'active' : ''}"><i data-lucide="image" class="w-4 h-4"></i> Posts</button>
+<button onclick="switchExploreTab('tags')" class="tab-btn ${window.activeExploreTab === 'tags' ? 'active' : ''}"><i data-lucide="hash" class="w-4 h-4"></i> Tags</button>
 </div>
 `;
 
-// People Results - No Gap on Mobile
-const hiddenPeople = window.activeExploreTab === 'posts' ? 'hidden' : '';
+// People Results
+const hiddenPeople = window.activeExploreTab === 'people' ? '' : 'hidden';
 html += `<div id="results-people" class="flex flex-col ${hiddenPeople}">`;
 if(foundUsers.length) {
 foundUsers.forEach(u => {
-// Modified classes: border-b, no rounded on mobile, no margins on mobile
 html += `
 <div class="flex items-center gap-3 p-4 bg-white border-b border-gray-100 last:border-0 md:border md:rounded-xl md:mb-2 cursor-pointer hover:bg-gray-50 transition-colors" onclick="showProfile('${u.id}')">
 <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover bg-gray-50 border border-gray-100">
@@ -2804,9 +2829,28 @@ html += `<div class="text-gray-400 text-sm p-4 text-center italic">No people fou
 }
 html += `</div>`;
 
+// Tags Results
+const hiddenTags = window.activeExploreTab === 'tags' ? '' : 'hidden';
+html += `<div id="results-tags" class="flex flex-col ${hiddenTags}">`;
+if(foundTags.length) {
+    foundTags.forEach(tag => {
+        html += `
+        <div class="flex items-center gap-3 p-4 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors" onclick="event.stopPropagation(); handleTagClick('${tag}')">
+            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-lg">#</div>
+            <div>
+                <div class="font-bold text-sm text-gray-900">${tag}</div>
+                <div class="text-xs text-gray-500">View Posts</div>
+            </div>
+        </div>
+        `;
+    });
+} else {
+    html += `<div class="text-gray-400 text-sm p-4 text-center italic">No tags found matching "${query}"</div>`;
+}
+html += `</div>`;
+
 // Posts Results - Instagram Grid
-const hiddenPosts = window.activeExploreTab === 'people' ? 'hidden' : '';
-// Note: Using id="results-posts" for the container to append to later, but we need to structure it as a grid
+const hiddenPosts = window.activeExploreTab === 'posts' ? '' : 'hidden';
 html += `<div id="results-posts" class="${hiddenPosts}"></div>`;
 
 view.innerHTML = html;
@@ -2880,24 +2924,25 @@ document.getElementById('post-view-avatar').onclick = () => showProfile(author.i
 document.getElementById('post-view-username').onclick = () => showProfile(author.id);
 
 // Media Logic
+mediaContainer.classList.remove('hidden');
 if (post.media) {
-    mediaContainer.classList.remove('hidden');
-    // If desktop, the media container takes space, so the modal is wide. 
-    // If mobile, it stacks.
-    
     if (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video')) {
          mediaContainer.innerHTML = `<video src="${post.media}" class="w-full h-full object-contain" controls autoplay muted></video>`;
     } else {
          mediaContainer.innerHTML = `<img src="${post.media}" class="w-full h-full object-contain">`;
     }
 } else {
-    // Text Only Post
-    mediaContainer.classList.add('hidden');
-    mediaContainer.innerHTML = '';
+    // No Media Placeholder
+    mediaContainer.innerHTML = `
+    <div class="flex flex-col items-center justify-center h-full text-gray-300 bg-gray-50">
+        <i data-lucide="image-off" class="w-16 h-16 mb-2"></i>
+        <span class="font-medium text-sm">No Media</span>
+    </div>
+    `;
 }
 
 // Caption
-const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
+const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag" onclick="event.stopPropagation(); handleTagClick(\'#$1\')">#$1</span>'));
 captionArea.innerHTML = `
     <div class="flex gap-3">
         <img src="${author.avatar}" class="w-8 h-8 rounded-full border border-gray-100 object-cover shrink-0">

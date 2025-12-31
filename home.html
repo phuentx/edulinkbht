@@ -643,39 +643,94 @@ transform: translateX(20px);
     border: 1px solid #e5e7eb;
 }
 
-/* --- REEL OVERLAY DESIGN (Desktop & Mobile) --- */
+/* --- CINEMATIC POST OVERLAY --- */
 .post-modal-layout {
     display: flex;
     flex-direction: column;
     width: 100%;
     height: 100%;
     overflow: hidden;
+    gap: 0;
 }
 
-/* Desktop: Cinematic Side-by-Side */
+/* REEL MODE CSS (MOBILE) */
+.mobile-reel-view .mobile-header,
+.mobile-reel-view .mobile-footer {
+    display: none !important;
+}
+.mobile-reel-view .reel-ui-layer {
+    display: flex !important;
+}
+.reel-ui-layer {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    padding: 16px 12px 30px;
+    /* Improved Gradient for text readability */
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.4) 100%);
+    pointer-events: none; /* Let clicks pass through to video */
+}
+.reel-interact-btn {
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.reel-interact-icon {
+    width: 32px;
+    height: 32px;
+    color: white;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+.reel-interact-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+}
+
+/* Music Indicator (No Spin) */
+.reel-audio-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 2px solid white;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1f1f1f;
+}
+
+/* Desktop Styles */
 @media (min-width: 768px) {
     .post-modal-layout {
         flex-direction: row;
         width: 90vw;
         max-width: 1200px;
         height: 85vh;
-        gap: 0;
-        align-items: stretch;
-        background: black;
-        border-radius: 12px;
-        overflow: hidden;
+        gap: 16px;
+        align-items: center;
+        background: transparent;
     }
 
     /* Media Stage (Left) */
     .stage-panel {
         flex: 1;
         height: 100%;
-        background: #000;
+        background: radial-gradient(circle at center, #2e2e2e 0%, #1a1a1a 100%);
+        border-radius: 24px;
         position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+        min-width: 0; 
     }
 
     .stage-content {
@@ -686,107 +741,102 @@ transform: translateX(20px);
 
     /* Conversation Panel (Right) */
     .discussion-panel {
-        width: 400px;
+        width: 420px;
         height: 100%;
         background: #ffffff;
+        border-radius: 24px;
         display: flex;
         flex-direction: column;
+        box-shadow: 0 15px 40px -10px rgba(0,0,0,0.15);
+        overflow: hidden;
         flex-shrink: 0;
-        border-left: 1px solid #262626;
+        border: 1px solid rgba(255,255,255,0.1);
     }
 }
 
-/* Mobile: Full Screen Reel (Instagram Style) */
+/* Mobile Post View Layout */
 @media (max-width: 767px) {
     .post-modal-layout {
-        position: relative;
-        background: #000;
+        display: flex;
+        flex-direction: column;
+        background: #fff; /* White background for the whole modal */
         width: 100vw;
-        height: 100%;
+        height: 100%; /* Full height */
+        overflow: hidden; /* No scroll on body */
+    }
+
+    .mobile-header {
+        display: flex; /* Ensure it's displayed */
+        flex-shrink: 0;
+        height: 60px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        border-bottom: 1px solid #f0f0f0;
+        background: #fff;
+        z-index: 20;
     }
 
     .stage-panel {
-        position: absolute;
-        inset: 0;
-        background: #000;
+        flex: 1; /* Grow to fill space */
+        background: #000; /* Dark background for media */
+        width: 100%;
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 0;
+        overflow: hidden;
     }
     
     .stage-content {
         width: 100%;
         height: 100%;
-        object-fit: cover; /* Fill screen like Reel/Story */
+        object-fit: contain;
     }
 
-    /* Floating UI Layer */
-    .reel-ui-layer {
-        position: absolute;
-        inset: 0;
-        z-index: 10;
-        pointer-events: none;
+    .mobile-footer {
+        display: block; /* Ensure display */
+        flex-shrink: 0;
+        background: #fff;
+        border-top: 1px solid #f0f0f0;
+        padding: 12px 16px;
+        /* Handle safe area for iPhone home bar */
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 20px)); 
+        z-index: 20;
+    }
+
+    .mobile-actions-bar {
         display: flex;
-        flex-direction: column;
+        align-items: center;
         justify-content: space-between;
-    }
-    .reel-ui-layer * {
-        pointer-events: auto;
-    }
-
-    /* Top Bar */
-    .reel-top-bar {
-        padding: 16px;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
-        padding-top: calc(16px + env(safe-area-inset-top, 0px));
-    }
-
-    /* Bottom Area Container */
-    .reel-bottom-area {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        padding: 16px 10px 24px 16px;
-        /* Safe area for iPhone home bar */
-        padding-bottom: calc(20px + env(safe-area-inset-bottom, 20px));
-        background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-        width: 100%;
-    }
-
-    /* Left Info (User + Caption) */
-    .reel-info-col {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        flex: 1;
-        margin-right: 16px;
-        text-align: left;
-        color: white;
+        margin-bottom: 8px;
     }
     
-    /* Right Actions (Vertical) */
-    .reel-actions-col {
+    .mobile-action-group {
         display: flex;
-        flex-direction: column;
         align-items: center;
-        gap: 20px;
-        padding-bottom: 12px;
+        gap: 16px;
     }
 
-    /* Drawer for comments on mobile */
+    .mobile-caption-text {
+        font-size: 14px;
+        line-height: 1.5;
+        max-height: 80px;
+        overflow-y: auto;
+        color: #1f1f1f;
+    }
+
+    /* Discussion panel (Drawer) stays absolute/fixed */
     .discussion-panel {
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        height: 70vh;
+        height: 75vh;
         background: #fff;
         z-index: 50;
-        border-radius: 16px 16px 0 0;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
         transform: translateY(100%);
         transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
         display: flex;
@@ -796,25 +846,34 @@ transform: translateX(20px);
         transform: translateY(0);
     }
     
-    /* Hide desktop caption box in mobile drawer to avoid dupes */
-    .caption-box { display: none !important; }
+    /* Hide Caption Box inside drawer to avoid duplication */
+    .caption-box {
+        display: none !important;
+    }
+    
+    /* Mobile Drawer Header with Close Button */
+    .discussion-header {
+        border-radius: 20px 20px 0 0;
+        background: white;
+    }
 }
 
 .discussion-header {
-    padding: 16px;
+    padding: 16px 20px;
     border-bottom: 1px solid var(--outline);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #fff;
-    border-radius: 16px 16px 0 0;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 10;
 }
 
 .discussion-scroll {
     flex: 1;
     overflow-y: auto;
     padding: 0;
-    background: #fff;
+    background: #fdfdfd;
 }
 
 .caption-box {
@@ -824,7 +883,7 @@ transform: translateX(20px);
 }
 
 .comments-list {
-    padding: 16px;
+    padding: 12px 20px;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -835,8 +894,6 @@ transform: translateX(20px);
     border-top: 1px solid var(--outline);
     background: #fff;
     z-index: 10;
-    /* Mobile safe area */
-    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
 }
 
 /* Chat-Style Comments */
@@ -923,12 +980,14 @@ transform: translateX(20px);
     box-shadow: 0 0 0 3px rgba(11, 87, 208, 0.1);
 }
 
-/* Helper for Reel icons text shadow */
-.text-shadow-sm {
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+.play-pause-overlay {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    pointer-events: none; opacity: 0; transition: opacity 0.2s;
 }
-.drop-shadow-icon {
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+.play-pause-overlay.show { opacity: 1; }
+.play-pause-icon {
+    width: 80px; height: 80px; background: rgba(0,0,0,0.4); border-radius: 50%; padding: 20px;
+    color: white; backdrop-filter: blur(4px);
 }
 
 </style>
@@ -1039,89 +1098,112 @@ transform: translateX(20px);
     </div>
 </div>
 
-<!-- NEW REEL POST OVERLAY -->
+<!-- NEW ORIGINAL POST OVERLAY -->
 <div id="post-view-overlay" class="fixed inset-0 z-[60] hidden flex justify-center items-center">
-    <div class="absolute inset-0 bg-black/90 backdrop-blur-xl transition-opacity" onclick="closePostView()"></div>
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onclick="closePostView()"></div>
     
-    <!-- Reel / Cinematic Layout -->
+    <!-- Floating Stage Layout -->
     <div class="post-modal-layout scale-in relative z-10">
         
-        <!-- Media Stage (Handles full screen on mobile) -->
-        <div id="post-view-media-container" class="stage-panel">
+        <!-- 1. Mobile Header (Static, Visible on Mobile) -->
+        <div class="mobile-header md:hidden">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="closePostView(); if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
+                <img id="mobile-post-pfp" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
+                <span id="mobile-post-username" class="font-bold text-sm text-[#1f1f1f]">User</span>
+            </div>
+            <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 w-9 h-9 border border-gray-200"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
+        </div>
+
+        <!-- 2. Media Stage -->
+        <div id="post-view-media-container" class="stage-panel group relative">
              <!-- Media Injected Here -->
+             <div id="video-play-overlay" class="play-pause-overlay"><i data-lucide="play" class="play-pause-icon"></i></div>
         </div>
 
-        <!-- MOBILE UI LAYER (Overlay on Stage) -->
-        <div class="reel-ui-layer md:hidden">
-            <!-- Top Bar -->
-            <div class="reel-top-bar">
-                <button onclick="closePostView()" class="p-2 bg-black/20 rounded-full backdrop-blur-sm text-white hover:bg-black/30"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
-                <button class="p-2 bg-black/20 rounded-full backdrop-blur-sm text-white hover:bg-black/30"><i data-lucide="camera" class="w-6 h-6"></i></button>
+        <!-- REEL UI LAYER (MOBILE ONLY) -->
+        <div id="reel-ui-layer" class="reel-ui-layer md:hidden">
+            <!-- Top -->
+            <div class="flex justify-between items-start pointer-events-auto mt-2">
+                <button onclick="closePostView()" class="text-white drop-shadow-md p-2"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
             </div>
-
-            <!-- Bottom Area -->
-            <div class="reel-bottom-area">
-                <!-- Info Column (Left) -->
-                <div class="reel-info-col">
-                    <div class="flex items-center gap-2 mb-3 cursor-pointer" onclick="if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
-                        <img id="mobile-post-pfp" class="w-9 h-9 rounded-full border border-white/80 object-cover shadow-sm">
-                        <span id="mobile-post-username" class="font-bold text-sm text-white text-shadow-sm">User</span>
-                        <button class="ml-2 border border-white/60 rounded-lg px-2 py-0.5 text-[11px] font-bold text-white backdrop-blur-sm">Follow</button>
+            
+            <!-- Bottom -->
+            <div class="flex items-end justify-between w-full">
+                <!-- Left Info -->
+                <div class="flex flex-col gap-3 max-w-[80%] text-white drop-shadow-md pointer-events-auto pb-2">
+                    <div class="flex items-center gap-2 cursor-pointer" id="reel-user-info-area">
+                        <img id="reel-user-avatar" src="" class="w-8 h-8 rounded-full border border-white/50 object-cover">
+                        <span id="reel-username" class="font-bold text-sm">Username</span>
+                        <button id="reel-follow-btn" class="bg-white/20 backdrop-blur text-xs px-2.5 py-1 rounded-md font-medium border border-white/30 hidden">Follow</button>
                     </div>
-                    <div id="mobile-post-caption" class="text-white text-sm leading-snug line-clamp-2 text-shadow-sm opacity-95">
-                        <!-- Caption Text -->
-                    </div>
+                    <div id="reel-caption" class="text-sm leading-snug opacity-90 break-words"></div>
                 </div>
 
-                <!-- Actions Column (Right) -->
-                <div class="reel-actions-col">
-                    <!-- Like -->
-                    <div class="flex flex-col items-center gap-1">
-                        <i id="mobile-action-like" data-lucide="heart" class="w-8 h-8 text-white drop-shadow-icon cursor-pointer transition-transform active:scale-75" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)"></i>
-                        <span id="mobile-like-count" class="text-white text-xs font-bold text-shadow-sm">0</span>
+                <!-- Right Actions -->
+                <div class="flex flex-col gap-5 items-center pointer-events-auto pb-2 mr-1">
+                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)">
+                        <i id="reel-like-icon" data-lucide="heart" class="reel-interact-icon"></i>
+                        <span id="reel-like-count" class="reel-interact-text">0</span>
                     </div>
-                    <!-- Comment -->
-                    <div class="flex flex-col items-center gap-1">
-                        <i data-lucide="message-circle" class="w-8 h-8 text-white drop-shadow-icon cursor-pointer" onclick="toggleMobileCommentDrawer()"></i>
-                        <span id="mobile-comment-count" class="text-white text-xs font-bold text-shadow-sm">0</span>
+                    <div class="reel-interact-btn cursor-pointer" onclick="toggleMobileCommentDrawer()">
+                        <i data-lucide="message-circle" class="reel-interact-icon"></i>
+                        <span id="reel-comment-count" class="reel-interact-text">0</span>
                     </div>
-                    <!-- Share -->
-                    <div class="flex flex-col items-center gap-1">
-                        <i data-lucide="send" class="w-8 h-8 text-white drop-shadow-icon cursor-pointer -rotate-12" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)"></i>
+                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)">
+                        <i data-lucide="send" class="reel-interact-icon transform -rotate-12"></i>
                     </div>
-                    <!-- Save/More -->
-                    <div class="flex flex-col items-center gap-1 mt-2">
-                        <i id="mobile-action-save" data-lucide="bookmark" class="w-7 h-7 text-white drop-shadow-icon cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)"></i>
+                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)">
+                        <i id="reel-save-icon" data-lucide="bookmark" class="reel-interact-icon"></i>
+                    </div>
+                    <!-- Music/Audio Indicator (No Spin) -->
+                    <div class="reel-interact-btn mt-2">
+                        <div class="reel-audio-btn">
+                            <i data-lucide="disc" class="w-5 h-5 text-white"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT PANEL (Desktop Comments / Mobile Drawer) -->
+        <!-- 3. Mobile Footer (Static, Visible on Mobile) -->
+        <div class="mobile-footer md:hidden">
+            <div class="mobile-actions-bar">
+                <div class="mobile-action-group">
+                    <i id="mobile-action-like" data-lucide="heart" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)"></i>
+                    <i data-lucide="message-circle" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="toggleMobileCommentDrawer()"></i>
+                    <i data-lucide="send" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)"></i>
+                </div>
+                <i id="mobile-action-save" data-lucide="bookmark" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)"></i>
+            </div>
+            <div id="mobile-like-count" class="text-sm font-bold text-[#1f1f1f] mb-1">0 likes</div>
+            <div id="mobile-post-caption" class="mobile-caption-text">
+                <!-- Caption Text -->
+            </div>
+        </div>
+
+        <!-- 4. Right Panel: Conversation (Desktop) / Comment Drawer (Mobile) -->
         <div class="discussion-panel">
-             <!-- Desktop Header -->
-             <div class="discussion-header hidden md:flex">
+             <!-- Sticky Header -->
+             <div class="discussion-header">
                   <div class="flex items-center gap-3">
-                      <img id="post-view-avatar" class="w-8 h-8 rounded-full border border-gray-100 object-cover cursor-pointer">
-                      <div class="flex flex-col">
-                          <span id="post-view-username" class="font-bold text-sm text-gray-900 cursor-pointer hover:underline">Username</span>
+                      <!-- Hide info on mobile header since it's in main layout -->
+                      <div class="flex items-center gap-3 md:flex hidden">
+                          <img id="post-view-avatar" class="w-10 h-10 rounded-full border border-gray-100 object-cover cursor-pointer hover:ring-2 hover:ring-blue-100 transition-all">
+                          <div class="flex flex-col">
+                              <span id="post-view-username" class="font-bold text-sm text-gray-900 cursor-pointer hover:underline">Username</span>
+                              <span class="text-[11px] text-gray-400 font-medium" id="post-view-date">Just now</span>
+                          </div>
                       </div>
+                      <span class="md:hidden font-bold text-lg">Comments</span>
                   </div>
-                  <button onclick="closePostView()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
-             </div>
-
-             <!-- Mobile Drawer Handle -->
-             <div class="md:hidden flex justify-center pt-3 pb-1 bg-white rounded-t-2xl">
-                 <div class="w-12 h-1 bg-gray-300 rounded-full"></div>
-             </div>
-             <div class="md:hidden px-4 pb-2 border-b border-gray-100 bg-white">
-                 <h3 class="font-bold text-center text-gray-800">Comments</h3>
+                  <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+                  <button onclick="toggleMobileCommentDrawer()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
              </div>
 
              <!-- Scroll Area -->
              <div id="post-view-scroll" class="discussion-scroll scroll-smooth">
-                  <!-- Caption Section (Desktop Only) -->
-                  <div id="post-view-caption-area" class="caption-box hidden md:block">
+                  <!-- Caption Section (Desktop Only - Hidden on Mobile via CSS to avoid dupes) -->
+                  <div id="post-view-caption-area" class="caption-box">
                       <!-- Caption Injected -->
                   </div>
                   
@@ -1500,7 +1582,7 @@ Change
 <div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
 
 <!-- NOTIFICATIONS VIEW (Now Main) -->
-<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-32 md:pt-6">
+<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-[220px] md:pt-6">
     <div class="flex justify-between items-center mb-4 px-4 md:px-0 hidden md:flex">
         <h2 class="text-2xl font-bold">Notifications</h2>
         <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
@@ -1686,7 +1768,7 @@ let activeNotifTab = 'friends';
 let activeNetworkTab = 'people';
 window.replyingToCommentId = null;
 window.currentViewingProfileId = null;
-window.activeExploreTab = 'people';
+window.activeExploreTab = 'posts'; // Default to posts/grid
 window.currentProfileTab = 'posts';
 
 // Global Vars for App Logic
@@ -1919,12 +2001,20 @@ if(activeNetwork && activeNetworkTab === 'posts') renderNetwork();
 
 const activeExplore = document.querySelector('#view-explore:not(.hidden)');
 if(activeExplore) {
-const searchVal = document.getElementById('global-search').value;
+const searchVal = document.getElementById('global-search').value || document.getElementById('mobile-explore-search').value;
 handleSearch(searchVal);
 }
 
 const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
-if(activePostView && window.currentViewingPostId) renderCommentsInModal(window.currentViewingPostId);
+if(activePostView && window.currentViewingPostId) {
+    // Check if the current post was modified
+    const currentPost = posts.find(p => p.id === window.currentViewingPostId);
+    if(currentPost) {
+        renderCommentsInModal(window.currentViewingPostId);
+        // Realtime update for stats in overlay
+        updatePostViewStats(window.currentViewingPostId);
+    }
+}
 
 const threadOverlay = document.getElementById('thread-overlay');
 if (!threadOverlay.classList.contains('hidden') && window.threadPostId && window.threadParentCommentId) {
@@ -1965,6 +2055,57 @@ if(activeNotif) renderNotifications();
 refreshIcons();
 });
 
+}
+
+window.updatePostViewStats = function(postId) {
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+    
+    // Desktop Stats
+    const deskLikeCount = document.getElementById('post-view-likes-count');
+    if (deskLikeCount) {
+        deskLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
+    }
+    
+    // Mobile Stats
+    const mobLikeCount = document.getElementById('mobile-like-count');
+    if (mobLikeCount) {
+        mobLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
+        // Ensure visibility respects settings
+        const showLikes = post.settings?.showLikes !== false;
+        mobLikeCount.style.display = showLikes ? 'block' : 'none';
+    }
+
+    // Reel Mode Stats
+    const reelLikeCount = document.getElementById('reel-like-count');
+    const reelCommCount = document.getElementById('reel-comment-count');
+    const reelLikeIcon = document.getElementById('reel-like-icon');
+    const reelSaveIcon = document.getElementById('reel-save-icon');
+
+    if(reelLikeCount) reelLikeCount.innerText = post.likes ? post.likes.length : 0;
+    if(reelCommCount) reelCommCount.innerText = post.comments ? post.comments.length : 0;
+    
+    // Update Reel Icons state
+    if(reelLikeIcon) {
+        const isLiked = post.likes && post.likes.includes(currentUser.id);
+        if(isLiked) {
+            reelLikeIcon.classList.add('fill-red-500', 'text-red-500');
+            reelLikeIcon.classList.remove('text-white');
+        } else {
+            reelLikeIcon.classList.remove('fill-red-500', 'text-red-500');
+            reelLikeIcon.classList.add('text-white');
+        }
+    }
+    if(reelSaveIcon) {
+        const isSaved = savedPosts.includes(postId);
+        if(isSaved) {
+            reelSaveIcon.classList.add('fill-yellow-500', 'text-yellow-500');
+            reelSaveIcon.classList.remove('text-white');
+        } else {
+            reelSaveIcon.classList.remove('fill-yellow-500', 'text-yellow-500');
+            reelSaveIcon.classList.add('text-white');
+        }
+    }
 }
 
 function updateUserInterface() {
@@ -2531,13 +2672,29 @@ const mobileLikeBtn = document.getElementById('mobile-action-like');
 const mobileCountSpan = document.getElementById('mobile-like-count');
 if(mobileLikeBtn && window.currentViewingPostId === postId) {
     const isMobileLiked = mobileLikeBtn.classList.contains('text-red-500');
-    mobileLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-white');
+    mobileLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-[#1f1f1f]');
     if(isMobileLiked) {
-        mobileLikeBtn.classList.add('text-white');
+        mobileLikeBtn.classList.add('text-[#1f1f1f]');
         if(mobileCountSpan) mobileCountSpan.innerText = Math.max(0, (parseInt(mobileCountSpan.innerText) || 0) - 1);
     } else {
         mobileLikeBtn.classList.add('fill-red-500', 'text-red-500');
         if(mobileCountSpan) mobileCountSpan.innerText = (parseInt(mobileCountSpan.innerText) || 0) + 1;
+    }
+}
+
+// Optimistic Reel UI Update
+const reelLikeIcon = document.getElementById('reel-like-icon');
+const reelCount = document.getElementById('reel-like-count');
+if(reelLikeIcon && window.currentViewingPostId === postId) {
+    const isLiked = reelLikeIcon.classList.contains('text-red-500');
+    reelLikeIcon.classList.remove('fill-red-500', 'text-red-500', 'text-white');
+    let count = parseInt(reelCount.innerText) || 0;
+    if(isLiked) {
+        reelLikeIcon.classList.add('text-white');
+        reelCount.innerText = Math.max(0, count - 1);
+    } else {
+        reelLikeIcon.classList.add('fill-red-500', 'text-red-500');
+        reelCount.innerText = count + 1;
     }
 }
 
@@ -2624,11 +2781,23 @@ if(overlaySaveBtn && window.currentViewingPostId === postId) {
 const mobSaveBtn = document.getElementById('mobile-action-save');
 if(mobSaveBtn && window.currentViewingPostId === postId) {
     const isMobSaved = mobSaveBtn.classList.contains('text-yellow-500');
-    mobSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-white');
+    mobSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-[#1f1f1f]');
     if(isMobSaved) {
-        mobSaveBtn.classList.add('text-white');
+        mobSaveBtn.classList.add('text-[#1f1f1f]');
     } else {
         mobSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
+    }
+}
+
+// Optimistic Reel UI
+const reelSaveIcon = document.getElementById('reel-save-icon');
+if(reelSaveIcon && window.currentViewingPostId === postId) {
+    const isSaved = reelSaveIcon.classList.contains('text-yellow-500');
+    reelSaveIcon.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-white');
+    if(isSaved) {
+        reelSaveIcon.classList.add('text-white');
+    } else {
+        reelSaveIcon.classList.add('fill-yellow-500', 'text-yellow-500');
     }
 }
 
@@ -3285,20 +3454,62 @@ if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
 
 const view = document.getElementById('explore-results');
 
-if(!query || query.trim() === '') {
-// DEFAULT DISCOVERY STATE
-view.innerHTML = `
-    <div class="text-center py-20 text-gray-400">
-        <h3 class="text-lg font-bold text-gray-800 mb-2">Search & Discover</h3>
-        <p class="text-gray-500 text-sm mb-6 flex items-center justify-center gap-2">Find new people and ideas <i data-lucide="search" class="w-4 h-4"></i></p>
-    </div>
+// Tab Interface
+let html = `
+<div class="tab-group mb-0 md:mb-4 bg-white sticky top-16 md:top-0 z-10 border-b border-gray-200">
+<button onclick="switchExploreTab('people')" class="tab-btn ${window.activeExploreTab === 'people' ? 'active' : ''}"><i data-lucide="user" class="w-4 h-4"></i> People</button>
+<button onclick="switchExploreTab('posts')" class="tab-btn ${window.activeExploreTab === 'posts' ? 'active' : ''}"><i data-lucide="grid-3x3" class="w-4 h-4"></i> Posts</button>
+<button onclick="switchExploreTab('tags')" class="tab-btn ${window.activeExploreTab === 'tags' ? 'active' : ''}"><i data-lucide="hash" class="w-4 h-4"></i> Tags</button>
+</div>
 `;
-refreshIcons();
-return;
+
+// Default Content (Random Explore) if query is empty
+if(!query || query.trim() === '') {
+    // Show random posts by default when query is empty, regardless of tab (except People maybe, but Grid is better)
+    // Let's default to Grid view of random posts to make it look "alive"
+    const randomPosts = [...posts].sort(() => 0.5 - Math.random()).slice(0, 15);
+    
+    if(window.activeExploreTab === 'people') {
+         // Show random users
+         const randomUsers = [...users].sort(() => 0.5 - Math.random()).slice(0, 10);
+         html += `<div class="p-4 space-y-4">`;
+         html += `<h3 class="font-bold text-gray-500 text-xs uppercase mb-2">Suggested People</h3>`;
+         randomUsers.forEach(u => {
+             html += `
+            <div class="flex items-center gap-3 cursor-pointer" onclick="showProfile('${u.id}')">
+            <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover bg-gray-50 border border-gray-100">
+            <div>
+            <div class="font-bold text-sm text-gray-900">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>' : ''}</div>
+            <div class="text-xs text-gray-500 line-clamp-1">${u.bio || 'No bio'}</div>
+            </div>
+            </div>`;
+         });
+         html += `</div>`;
+    } else {
+        // Grid View
+        html += `<div class="grid grid-cols-3 gap-0.5 md:gap-4">`;
+        randomPosts.forEach(p => {
+            let content = '';
+            if (p.media) {
+                if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
+                        content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
+                } else {
+                        content = `<img src="${p.media}" class="w-full h-full object-cover">`;
+                }
+            } else {
+                content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
+            }
+            html += `<div class="relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity" onclick="openPostView('${p.id}')">${content}</div>`;
+        });
+        html += `</div>`;
+    }
+    
+    view.innerHTML = html;
+    refreshIcons();
+    return;
 }
 
 const term = query.toLowerCase().trim();
-// Support for direct hashtag search logic (remove # for matching text content generally, but keep for specific tag matching if needed)
 const cleanTerm = term.replace('#', ''); 
 const keywords = term.split(" ").filter(k => k.length > 0);
 
@@ -3310,21 +3521,11 @@ return keywords.some(k => name.includes(k) || bio.includes(k));
 
 const foundPosts = posts.filter(p => {
 const content = (p.content || '').toLowerCase();
-// If tab is 'tags', look specifically for the hash
 if (window.activeExploreTab === 'tags') {
     return content.includes('#' + cleanTerm) || content.includes(term);
 }
 return keywords.some(k => content.includes(k));
 });
-
-// Tab Interface
-let html = `
-<div class="tab-group mb-0 md:mb-4 bg-white sticky top-16 md:top-0 z-10 border-b border-gray-200">
-<button onclick="switchExploreTab('people')" class="tab-btn ${window.activeExploreTab === 'people' ? 'active' : ''}"><i data-lucide="user" class="w-4 h-4"></i> People</button>
-<button onclick="switchExploreTab('posts')" class="tab-btn ${window.activeExploreTab === 'posts' ? 'active' : ''}"><i data-lucide="grid-3x3" class="w-4 h-4"></i> Posts</button>
-<button onclick="switchExploreTab('tags')" class="tab-btn ${window.activeExploreTab === 'tags' ? 'active' : ''}"><i data-lucide="hash" class="w-4 h-4"></i> Tags</button>
-</div>
-`;
 
 // People Results
 const hiddenPeople = window.activeExploreTab === 'people' ? '' : 'hidden';
@@ -3346,7 +3547,6 @@ html += `<div class="text-gray-400 text-sm p-4 text-center italic">No people fou
 html += `</div>`;
 
 // Posts & Tags Results (Using Grid)
-// Note: Both Posts tab and Tags tab use the same visual grid layout, just different filtering logic executed above
 const hiddenPosts = (window.activeExploreTab === 'posts' || window.activeExploreTab === 'tags') ? '' : 'hidden';
 html += `<div id="results-posts" class="${hiddenPosts}"></div>`;
 
@@ -3399,76 +3599,147 @@ window.deleteMessage = async function(msgId) {
 showAlert("Unsend this message?", async () => { await deleteDoc(doc(db, "messages", msgId)); });
 }
 
-// Open Post View - Refactored for Reel Design
+// Open Post View - Refactored for new UI
 window.openPostView = function(postId) {
 const post = posts.find(p => p.id === postId);
 if(!post) return;
 window.currentViewingPostId = postId;
 
+// Reset Classes
+const overlay = document.getElementById('post-view-overlay');
+overlay.classList.remove('mobile-reel-view');
+
 const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
 const dateStr = formatDate(post.timestamp);
 const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
 
-// --- DESKTOP ELEMENTS ---
+// Desktop Only Elements
 const mediaContainer = document.getElementById('post-view-media-container');
 const captionArea = document.getElementById('post-view-caption-area');
-const overlay = document.getElementById('post-view-overlay');
 
 document.getElementById('post-view-avatar').src = author.avatar;
 document.getElementById('post-view-username').innerText = author.name;
-document.getElementById('post-view-username').onclick = () => { closePostView(); showProfile(author.id); };
-document.getElementById('post-view-avatar').onclick = () => { closePostView(); showProfile(author.id); };
+document.getElementById('post-view-date').innerText = dateStr;
 
 // Settings Logic
 const showLikes = post.settings?.showLikes !== false; 
 const likeCountText = showLikes ? `${post.likes ? post.likes.length : 0} likes` : '';
 document.getElementById('post-view-likes-count').innerText = likeCountText;
+document.getElementById('post-view-avatar').onclick = () => showProfile(author.id);
+document.getElementById('post-view-username').onclick = () => showProfile(author.id);
 
-// --- MOBILE REEL ELEMENTS ---
+// MOBILE ELEMENTS POPULATION (Standard View)
 document.getElementById('mobile-post-pfp').src = author.avatar;
 document.getElementById('mobile-post-username').innerText = author.name;
-document.getElementById('mobile-post-caption').innerHTML = tagsHTML; // Parsed content
-
-// Like Count & Visibility on Mobile
+document.getElementById('mobile-post-caption').innerHTML = tagsHTML;
 const mobileLikeCount = document.getElementById('mobile-like-count');
 if(showLikes) {
+    mobileLikeCount.style.display = 'block';
     mobileLikeCount.innerText = post.likes ? post.likes.length : 0;
-    mobileLikeCount.parentElement.style.display = 'flex';
 } else {
-    mobileLikeCount.parentElement.style.display = 'none'; // Hide whole heart group if needed, or just count
+    mobileLikeCount.style.display = 'none';
 }
-// Comment Count on Mobile
-const mobileCommentCount = document.getElementById('mobile-comment-count');
-mobileCommentCount.innerText = post.comments ? post.comments.length : 0;
 
-// MEDIA LOGIC (Reel Full Screen)
-mediaContainer.classList.remove('hidden');
+// MOBILE ELEMENTS POPULATION (Reel View)
+document.getElementById('reel-user-avatar').src = author.avatar;
+document.getElementById('reel-username').innerText = author.name;
+
+// Caption Read More Logic
+const reelCaption = document.getElementById('reel-caption');
+const fullContent = post.content;
+reelCaption.removeAttribute('data-expanded'); // Reset state
+reelCaption.style.maxHeight = '';
+reelCaption.style.overflowY = '';
+
+if(fullContent.length > 80) {
+    reelCaption.innerHTML = `<span>${fullContent.substring(0, 80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">more</span>`;
+    reelCaption.dataset.full = fullContent;
+} else {
+    reelCaption.innerHTML = fullContent;
+}
+
+updatePostViewStats(postId);
+
+// Fix Profile Redirect in Reel UI
+const userInfoArea = document.getElementById('reel-user-info-area');
+if(userInfoArea) {
+    userInfoArea.onclick = (e) => {
+        e.stopPropagation();
+        closePostView();
+        showProfile(author.id);
+    };
+}
+
+// Media Logic 
+mediaContainer.classList.remove('hidden'); 
+mediaContainer.innerHTML = ''; 
+const playOverlay = document.createElement('div');
+playOverlay.id = 'video-play-overlay';
+playOverlay.className = 'play-pause-overlay';
+playOverlay.innerHTML = '<i data-lucide="play" class="play-pause-icon"></i>';
+mediaContainer.appendChild(playOverlay);
+
 if (post.media) {
-    if (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video')) {
-         // Full screen video, looping, muted initially or autoplay with sound if user interaction
-         mediaContainer.innerHTML = `<video src="${post.media}" class="stage-content" loop autoplay playsinline onclick="this.paused ? this.play() : this.pause()"></video>`;
+    const isVideo = post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video');
+    if (isVideo) {
+         const videoEl = document.createElement('video');
+         videoEl.src = post.media;
+         videoEl.className = "stage-content rounded-lg shadow-2xl"; 
+         videoEl.controls = false; // Custom controls
+         videoEl.playsInline = true;
+         videoEl.autoplay = true;
+         videoEl.muted = false; // Try sound on desktop
+         videoEl.loop = true;
+
+         // Toggle Play/Pause Logic
+         const togglePlay = (e) => {
+             e.stopPropagation();
+             if (videoEl.paused) {
+                 videoEl.play();
+                 playOverlay.classList.remove('show');
+             } else {
+                 videoEl.pause();
+                 playOverlay.classList.add('show');
+             }
+         };
+         
+         videoEl.onclick = togglePlay;
+         playOverlay.onclick = togglePlay; // Ensure overlay click also toggles
+
+         // Mobile Reel Logic Check
+         if(window.innerWidth < 768) {
+             videoEl.onloadedmetadata = function() {
+                 // Reel Mode if < 60s
+                 if(this.duration < 60) {
+                     overlay.classList.add('mobile-reel-view');
+                     this.className = "w-full h-full object-cover"; // Full bleed
+                     this.muted = false; 
+                     this.play().catch(() => { this.muted = true; this.play(); });
+                 }
+             };
+         }
+         mediaContainer.insertBefore(videoEl, playOverlay);
     } else {
-         mediaContainer.innerHTML = `<img src="${post.media}" class="stage-content">`;
+         mediaContainer.innerHTML = `<img src="${post.media}" class="stage-content rounded-lg shadow-2xl">`;
     }
 } else {
     mediaContainer.innerHTML = `
-        <div class="flex flex-col items-center justify-center h-full text-white opacity-60">
-            <i data-lucide="image-off" class="w-16 h-16 mb-4"></i>
-            <span class="text-lg font-medium">No Media</span>
+        <div class="flex flex-col items-center justify-center h-full text-white opacity-40">
+            <i data-lucide="image-off" class="w-16 h-16 mb-2"></i>
+            <span class="text-sm font-medium">No Media</span>
         </div>`;
 }
 
-// CAPTION (Desktop)
+// Desktop Caption
 captionArea.innerHTML = `
     <div class="flex gap-3">
-        <img src="${author.avatar}" class="w-8 h-8 rounded-full border border-gray-100 object-cover shrink-0 cursor-pointer" onclick="closePostView(); showProfile('${author.id}')">
+        <img src="${author.avatar}" class="w-8 h-8 rounded-full border border-gray-100 object-cover shrink-0 cursor-pointer" onclick="showProfile('${author.id}')">
         <div>
              <div class="flex items-center gap-1.5 mb-0.5">
-                <span class="font-bold text-sm cursor-pointer" onclick="closePostView(); showProfile('${author.id}')">${author.name}</span>
+                <span class="font-bold text-sm cursor-pointer" onclick="showProfile('${author.id}')">${author.name}</span>
                 ${author.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 text-blue-500 fill-blue-50"></i>' : ''}
              </div>
              <div class="text-sm text-gray-800 leading-snug">${tagsHTML}</div>
-             <div class="text-xs text-gray-400 mt-1">${dateStr}</div>
         </div>
     </div>
 `;
@@ -3487,13 +3758,13 @@ if(isLiked) {
 }
 likeBtn.onclick = () => toggleLike(postId);
 
-// Like Button State (Mobile Reel)
+// Like Button State (Mobile Standard)
 const mobLikeBtn = document.getElementById('mobile-action-like');
-mobLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-white');
+mobLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-[#1f1f1f]');
 if(isLiked) {
      mobLikeBtn.classList.add('fill-red-500', 'text-red-500');
 } else {
-     mobLikeBtn.classList.add('text-white');
+     mobLikeBtn.classList.add('text-[#1f1f1f]');
 }
 
 // Save Button State (Desktop)
@@ -3507,26 +3778,62 @@ if(isSaved) {
 }
 saveBtn.onclick = () => toggleSave(postId);
 
-// Save Button State (Mobile Reel)
+// Save Button State (Mobile Standard)
 const mobSaveBtn = document.getElementById('mobile-action-save');
-mobSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-white');
+mobSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-[#1f1f1f]');
 if(isSaved) {
      mobSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
 } else {
-     mobSaveBtn.classList.add('text-white');
+     mobSaveBtn.classList.add('text-[#1f1f1f]');
 }
 
-// Comment Permission
+// Comment Permission Logic
 const inputContainer = document.querySelector('.chat-input-wrapper');
 if (post.settings && post.settings.allowComments === false) {
     if(inputContainer) inputContainer.classList.add('hidden');
+    let msg = document.getElementById('comments-off-msg');
+    if(!msg) {
+        msg = document.createElement('div');
+        msg.id = 'comments-off-msg';
+        msg.className = 'text-center text-sm text-gray-500 italic py-2';
+        msg.innerText = 'The creator turned off the comments';
+        document.querySelector('.discussion-footer').appendChild(msg);
+    } else {
+        msg.style.display = 'block';
+    }
 } else {
     if(inputContainer) inputContainer.classList.remove('hidden');
+    const msg = document.getElementById('comments-off-msg');
+    if(msg) msg.style.display = 'none';
 }
 
 overlay.classList.remove('hidden');
 overlay.classList.add('flex');
 refreshIcons();
+}
+
+window.toggleReelCaption = function(postId) {
+    const el = document.getElementById('reel-caption');
+    if(!el || !el.dataset.full) return;
+
+    const isExpanded = el.getAttribute('data-expanded') === 'true';
+    const fullText = el.dataset.full;
+
+    if (isExpanded) {
+        // Collapse
+        el.innerHTML = `<span>${fullText.substring(0, 80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">more</span>`;
+        el.setAttribute('data-expanded', 'false');
+        el.style.overflowY = 'hidden';
+        el.style.maxHeight = '';
+    } else {
+        // Expand
+        // Using innerText for full content to avoid HTML injection issues, but support marked if needed. 
+        // For simplicity and safety in caption, using textContent + custom less button.
+        el.innerHTML = `<span>${fullText}</span> <span class="font-bold text-gray-300 cursor-pointer block mt-1" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">less</span>`;
+        el.setAttribute('data-expanded', 'true');
+        el.style.overflowY = 'auto';
+        el.style.maxHeight = '200px';
+    }
 }
 
 window.toggleMobileCommentDrawer = function() {
@@ -3561,10 +3868,7 @@ document.getElementById('post-view-likes-count').innerText = likeText;
 const mobLikeCount = document.getElementById('mobile-like-count');
 if(mobLikeCount) {
     mobLikeCount.innerText = post.likes ? post.likes.length : 0;
-}
-const mobCommentCount = document.getElementById('mobile-comment-count');
-if(mobCommentCount) {
-    mobCommentCount.innerText = post.comments ? post.comments.length : 0;
+    mobLikeCount.style.display = showLikes ? 'block' : 'none';
 }
 
 if(post.comments) {

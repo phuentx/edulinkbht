@@ -243,7 +243,7 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.share-btn:hover { background-color: #f3f4f6; color: var(--on-surface); }
 
 /* --- COMPOSE & CREATE MENUS --- */
-#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal {
+#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #share-overlay, #add-link-modal {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
 }
@@ -983,6 +983,60 @@ transform: translateX(20px);
 </div>
 </div>
 
+<!-- SHARE OVERLAY -->
+<div id="share-overlay" class="fixed inset-0 z-[80] flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeShareOverlay()">
+    <div class="bg-white w-full md:w-[450px] rounded-t-2xl md:rounded-2xl shadow-2xl p-6 transform translate-y-full md:translate-y-0 transition-transform duration-300" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold text-gray-900">Share Post</h3>
+            <button onclick="closeShareOverlay()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="flex items-center gap-2 bg-gray-100 p-2 rounded-xl mb-6">
+            <i data-lucide="link" class="w-5 h-5 text-gray-500 ml-2"></i>
+            <input type="text" id="share-link-input" class="flex-1 bg-transparent border-none outline-none text-sm text-gray-700 truncate" readonly>
+            <button onclick="copyShareLink()" class="bg-[#0b57d0] text-white text-sm font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Copy</button>
+        </div>
+        <div class="grid grid-cols-4 gap-4 text-center">
+             <div class="flex flex-col items-center gap-2 cursor-pointer hover:opacity-80">
+                 <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white"><i data-lucide="twitter" class="w-6 h-6"></i></div>
+                 <span class="text-xs font-medium">Twitter</span>
+             </div>
+             <div class="flex flex-col items-center gap-2 cursor-pointer hover:opacity-80">
+                 <div class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white"><i data-lucide="message-circle" class="w-6 h-6"></i></div>
+                 <span class="text-xs font-medium">WhatsApp</span>
+             </div>
+             <div class="flex flex-col items-center gap-2 cursor-pointer hover:opacity-80">
+                 <div class="w-12 h-12 rounded-full bg-blue-700 flex items-center justify-center text-white"><i data-lucide="facebook" class="w-6 h-6"></i></div>
+                 <span class="text-xs font-medium">Facebook</span>
+             </div>
+             <div class="flex flex-col items-center gap-2 cursor-pointer hover:opacity-80">
+                 <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-700"><i data-lucide="mail" class="w-6 h-6"></i></div>
+                 <span class="text-xs font-medium">Email</span>
+             </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADD LINK MODAL -->
+<div id="add-link-modal" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+    <div class="bg-white w-[90%] max-w-[400px] rounded-2xl shadow-2xl p-6 relative">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Add Link</h3>
+        <div class="space-y-4 mb-6">
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase">Title (e.g. Portfolio, Website)</label>
+                <input type="text" id="new-link-title" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 font-medium text-gray-900 placeholder-gray-300">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase">URL</label>
+                <input type="url" id="new-link-url" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 font-medium text-gray-900 placeholder-gray-300">
+            </div>
+        </div>
+        <div class="flex justify-end gap-3">
+            <button onclick="document.getElementById('add-link-modal').classList.add('hidden')" class="px-4 py-2 text-gray-600 font-bold text-sm hover:bg-gray-100 rounded-lg">Cancel</button>
+            <button onclick="saveLink()" class="px-4 py-2 bg-[#0b57d0] text-white font-bold text-sm rounded-lg hover:bg-blue-700">Add Link</button>
+        </div>
+    </div>
+</div>
+
 <!-- Post Options Global Menu -->
 <div id="global-post-menu" class="post-options-menu"></div>
 
@@ -1056,7 +1110,7 @@ transform: translateX(20px);
         <!-- Mobile-Only UI Overlay Layer -->
         <div class="mobile-ui-layer md:hidden">
             <!-- Top Right: PFP & Name -->
-            <div class="mobile-top-badge" onclick="if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
+            <div class="mobile-top-badge" onclick="closePostView(); if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
                 <img id="mobile-post-pfp" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
                 <span id="mobile-post-username" class="mr-2">User</span>
             </div>
@@ -1075,7 +1129,7 @@ transform: translateX(20px);
                         <i data-lucide="message-circle" class="w-7 h-7"></i>
                         <span class="mobile-action-label">Comment</span>
                     </div>
-                    <div class="mobile-action-icon">
+                    <div class="mobile-action-icon" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)">
                          <i data-lucide="send" class="w-7 h-7"></i>
                          <span class="mobile-action-label">Share</span>
                     </div>
@@ -1087,7 +1141,7 @@ transform: translateX(20px);
         </div>
         
         <!-- Mobile Close Button (Absolute Top Left) -->
-        <button onclick="closePostView()" class="md:hidden absolute top-4 left-4 z-50 bg-black/50 text-white p-2 rounded-full backdrop-blur-sm"><i data-lucide="chevron-down" class="w-6 h-6"></i></button>
+        <button onclick="closePostView()" class="md:hidden absolute top-4 left-4 z-50 bg-black/50 text-white w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-sm"><i data-lucide="chevron-down" class="w-6 h-6"></i></button>
 
         <!-- Right Panel: Conversation (Desktop) / Comment Drawer (Mobile) -->
         <div class="discussion-panel">
@@ -1125,7 +1179,7 @@ transform: translateX(20px);
                        <div class="flex gap-4">
                            <i id="post-view-like-btn" data-lucide="heart" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
                            <i data-lucide="message-circle" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="document.getElementById('comment-input-desktop').focus()"></i>
-                           <i data-lucide="send" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
+                           <i data-lucide="send" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)"></i>
                        </div>
                        <div class="flex gap-4 items-center">
                            <span class="font-bold text-sm text-gray-900" id="post-view-likes-count">0 likes</span>
@@ -1777,6 +1831,7 @@ following: [],
 followers: [],
 friends: [],
 saved: [],
+links: [],
 isOfficial: isOfficial,
 settings: { privateNetwork: false },
 username: "" 
@@ -1789,6 +1844,7 @@ currentUser.following = currentUser.following || [];
 currentUser.followers = currentUser.followers || [];
 currentUser.friends = currentUser.friends || [];
 currentUser.saved = currentUser.saved || [];
+currentUser.links = currentUser.links || [];
 currentUser.settings = currentUser.settings || { privateNetwork: false };
 
 window.currentUser = currentUser;
@@ -2461,29 +2517,53 @@ window.openCollabList = function(postId) {
 }
 
 window.toggleLike = async function(postId) {
+// Optimistic UI Update for Feed Card
 const btn = document.getElementById(`like-btn-${postId}`);
 const countSpan = document.getElementById(`like-count-${postId}`);
 
 if(btn) {
-const icon = btn.querySelector('svg') || btn.querySelector('i');
-let isLiked = false;
+    const icon = btn.querySelector('svg') || btn.querySelector('i');
+    const isLiked = icon.classList.contains('text-red-500');
+    if (isLiked) {
+        icon.classList.remove('fill-red-500', 'text-red-500');
+        if(countSpan) countSpan.innerText = Math.max(0, (parseInt(countSpan.innerText) || 0) - 1);
+    } else {
+        icon.classList.add('fill-red-500', 'text-red-500');
+        if(countSpan) countSpan.innerText = (parseInt(countSpan.innerText) || 0) + 1;
+    }
+}
 
-if (icon.tagName === 'svg') isLiked = icon.classList.contains('text-red-500');
-else isLiked = icon.classList.contains('text-red-500');
+// Optimistic UI Update for Desktop Overlay
+const overlayLikeBtn = document.getElementById('post-view-like-btn');
+const overlayCountSpan = document.getElementById('post-view-likes-count');
+if(overlayLikeBtn && window.currentViewingPostId === postId) {
+    const isOverlayLiked = overlayLikeBtn.classList.contains('text-red-500');
+    overlayLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-gray-700');
+    if(isOverlayLiked) {
+        overlayLikeBtn.classList.add('text-gray-700');
+        // Simple decrement logic - assumes current text starts with number
+        let currentCount = parseInt(overlayCountSpan.innerText) || 0;
+        overlayCountSpan.innerText = `${Math.max(0, currentCount - 1)} likes`;
+    } else {
+        overlayLikeBtn.classList.add('fill-red-500', 'text-red-500');
+        let currentCount = parseInt(overlayCountSpan.innerText) || 0;
+        overlayCountSpan.innerText = `${currentCount + 1} likes`;
+    }
+}
 
-if (isLiked) {
-icon.classList.remove('fill-red-500', 'text-red-500');
-if(countSpan) {
-const current = parseInt(countSpan.innerText) || 0;
-countSpan.innerText = Math.max(0, current - 1);
-}
-} else {
-icon.classList.add('fill-red-500', 'text-red-500');
-if(countSpan) {
-const current = parseInt(countSpan.innerText) || 0;
-countSpan.innerText = current + 1;
-}
-}
+// Optimistic UI Update for Mobile Overlay
+const mobileLikeBtn = document.getElementById('mobile-action-like');
+const mobileCountSpan = document.getElementById('mobile-like-count');
+if(mobileLikeBtn && window.currentViewingPostId === postId) {
+    const isMobileLiked = mobileLikeBtn.classList.contains('text-red-500');
+    mobileLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-white');
+    if(isMobileLiked) {
+        mobileLikeBtn.classList.add('text-white');
+        if(mobileCountSpan) mobileCountSpan.innerText = Math.max(0, (parseInt(mobileCountSpan.innerText) || 0) - 1);
+    } else {
+        mobileLikeBtn.classList.add('fill-red-500', 'text-red-500');
+        if(mobileCountSpan) mobileCountSpan.innerText = (parseInt(mobileCountSpan.innerText) || 0) + 1;
+    }
 }
 
 const postRef = doc(db, "posts", postId);
@@ -2539,20 +2619,42 @@ document.getElementById('likes-overlay').classList.add('hidden');
 }
 
 window.toggleSave = async function(postId) {
+// Optimistic UI Feed
 const btn = document.getElementById(`save-btn-${postId}`);
 if(btn) {
-const icon = btn.querySelector('svg') || btn.querySelector('i');
-let hasClass = false;
-if(icon.tagName === 'svg') hasClass = icon.classList.contains('text-yellow-500');
-else hasClass = icon.classList.contains('text-yellow-500');
-
-if (hasClass) {
-icon.classList.remove('fill-yellow-500', 'text-yellow-500');
-showToast("Post removed");
-} else {
-icon.classList.add('fill-yellow-500', 'text-yellow-500');
-showToast("Post saved");
+    const icon = btn.querySelector('svg') || btn.querySelector('i');
+    const isSaved = icon.classList.contains('text-yellow-500');
+    if (isSaved) {
+        icon.classList.remove('fill-yellow-500', 'text-yellow-500');
+        showToast("Post removed");
+    } else {
+        icon.classList.add('fill-yellow-500', 'text-yellow-500');
+        showToast("Post saved");
+    }
 }
+
+// Optimistic UI Desktop Overlay
+const overlaySaveBtn = document.getElementById('post-view-save-btn');
+if(overlaySaveBtn && window.currentViewingPostId === postId) {
+    const isOverlaySaved = overlaySaveBtn.classList.contains('text-yellow-500');
+    overlaySaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-gray-700');
+    if(isOverlaySaved) {
+        overlaySaveBtn.classList.add('text-gray-700');
+    } else {
+        overlaySaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
+    }
+}
+
+// Optimistic UI Mobile Overlay
+const mobSaveBtn = document.getElementById('mobile-action-save');
+if(mobSaveBtn && window.currentViewingPostId === postId) {
+    const isMobSaved = mobSaveBtn.classList.contains('text-yellow-500');
+    mobSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-white');
+    if(isMobSaved) {
+        mobSaveBtn.classList.add('text-white');
+    } else {
+        mobSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
+    }
 }
 
 const userRef = doc(db, "users", currentUser.id);
@@ -2567,7 +2669,23 @@ savedPosts.push(postId);
 
 window.sharePost = function(postId) {
 const url = `${window.location.origin}${window.location.pathname}?postId=${postId}`;
-navigator.clipboard.writeText(url).then(() => { showToast("Link copied to clipboard!"); });
+document.getElementById('share-link-input').value = url;
+document.getElementById('share-overlay').classList.remove('hidden');
+setTimeout(() => { document.getElementById('share-overlay').classList.remove('opacity-0'); }, 10);
+}
+
+window.closeShareOverlay = function() {
+document.getElementById('share-overlay').classList.add('opacity-0');
+setTimeout(() => { document.getElementById('share-overlay').classList.add('hidden'); }, 200);
+}
+
+window.copyShareLink = function() {
+const input = document.getElementById('share-link-input');
+input.select();
+navigator.clipboard.writeText(input.value).then(() => {
+    showToast("Link copied!");
+    closeShareOverlay();
+});
 }
 
 window.renderSaved = function() {
@@ -2865,6 +2983,7 @@ let tabsHTML = `
     ${isMe ? `<button onclick="switchProfileTab('saved')" class="tab-btn ${tab==='saved'?'active':''}"><i data-lucide="bookmark" class="w-5 h-5"></i></button>` : ''}
     <button onclick="switchProfileTab('liked')" class="tab-btn ${tab==='liked'?'active':''}"><i data-lucide="heart" class="w-5 h-5"></i></button>
     <button onclick="switchProfileTab('tagged')" class="tab-btn ${tab==='tagged'?'active':''}"><i data-lucide="user-check" class="w-5 h-5"></i></button>
+    <button onclick="switchProfileTab('links')" class="tab-btn ${tab==='links'?'active':''}"><i data-lucide="link" class="w-5 h-5"></i></button>
 </div>
 `;
 
@@ -2900,6 +3019,42 @@ window.switchProfileTab = function(tab) {
 window.renderProfileContent = function(userId, tab) {
     const contentArea = document.getElementById('profile-content-area');
     contentArea.innerHTML = "";
+    const user = users.find(u => u.id === userId);
+    
+    if (tab === 'links') {
+        const links = user.links || [];
+        const isOwner = userId === currentUser.id;
+        
+        let html = '<div class="max-w-md mx-auto py-6 space-y-4">';
+        
+        if (isOwner) {
+            html += `<button onclick="document.getElementById('add-link-modal').classList.remove('hidden')" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center justify-center gap-2"><i data-lucide="plus" class="w-5 h-5"></i> Add New Link</button>`;
+        }
+        
+        if (links.length === 0) {
+            html += `<div class="text-center text-gray-400 py-10">No links added yet.</div>`;
+        } else {
+            links.forEach((link, idx) => {
+                html += `
+                <a href="${link.url}" target="_blank" class="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200 group relative">
+                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-200 mr-4">
+                        <i data-lucide="link" class="w-5 h-5 text-blue-600"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-gray-900 truncate">${link.title}</div>
+                        <div class="text-xs text-gray-500 truncate">${link.url}</div>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-gray-400"></i>
+                    ${isOwner ? `<button onclick="event.preventDefault(); deleteLink(${idx})" class="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50"><i data-lucide="trash-2" class="w-3 h-3"></i></button>` : ''}
+                </a>
+                `;
+            });
+        }
+        html += '</div>';
+        contentArea.innerHTML = html;
+        refreshIcons();
+        return;
+    }
     
     let targetPosts = [];
     
@@ -2915,7 +3070,6 @@ window.renderProfileContent = function(userId, tab) {
     
     // Visibility Check for normal profile viewing (not me)
     if (userId !== currentUser.id && tab === 'posts') {
-        const user = users.find(u => u.id === userId);
         const amFollowing = currentUser.following.includes(userId);
         const isPrivateAcc = user?.settings?.privateNetwork;
         
@@ -2956,6 +3110,40 @@ window.renderProfileContent = function(userId, tab) {
         contentArea.innerHTML = gridHTML;
     }
     refreshIcons();
+}
+
+window.saveLink = async function() {
+    const title = document.getElementById('new-link-title').value.trim();
+    const url = document.getElementById('new-link-url').value.trim();
+    
+    if(!title || !url) { showToast("Please fill all fields", true); return; }
+    
+    const newLink = { title, url, type: 'web' };
+    const userRef = doc(db, "users", currentUser.id);
+    await updateDoc(userRef, { links: arrayUnion(newLink) });
+    
+    // Update local state
+    if(!currentUser.links) currentUser.links = [];
+    currentUser.links.push(newLink);
+    
+    document.getElementById('add-link-modal').classList.add('hidden');
+    document.getElementById('new-link-title').value = "";
+    document.getElementById('new-link-url').value = "";
+    
+    renderProfileContent(currentUser.id, 'links');
+    showToast("Link added!");
+}
+
+window.deleteLink = async function(idx) {
+    showAlert("Remove this link?", async () => {
+        const linkToRemove = currentUser.links[idx];
+        const userRef = doc(db, "users", currentUser.id);
+        await updateDoc(userRef, { links: arrayRemove(linkToRemove) });
+        
+        currentUser.links.splice(idx, 1);
+        renderProfileContent(currentUser.id, 'links');
+        showToast("Link removed");
+    });
 }
 
 window.openEditProfile = function() {

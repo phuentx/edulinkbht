@@ -10,7 +10,6 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
-<script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Google+Sans:wght@400;500;700&display=swap');
 
@@ -653,45 +652,6 @@ transform: translateX(20px);
     gap: 0;
 }
 
-/* REEL MODE CSS (MOBILE) */
-.mobile-reel-view .mobile-header,
-.mobile-reel-view .mobile-footer {
-    display: none !important;
-}
-.mobile-reel-view .reel-ui-layer {
-    display: flex !important;
-}
-.reel-ui-layer {
-    display: none;
-    flex-direction: column;
-    justify-content: space-between;
-    position: absolute;
-    inset: 0;
-    z-index: 40;
-    padding: 16px 12px 30px;
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.3) 100%);
-    pointer-events: none; /* Let clicks pass through to video */
-}
-.reel-interact-btn {
-    pointer-events: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-}
-.reel-interact-icon {
-    width: 32px;
-    height: 32px;
-    color: white;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-}
-.reel-interact-text {
-    font-size: 11px;
-    font-weight: 600;
-    color: white;
-}
-
 /* Desktop Styles */
 @media (min-width: 768px) {
     .post-modal-layout {
@@ -763,6 +723,24 @@ transform: translateX(20px);
         z-index: 20;
     }
 
+    /* REEL MODE MODIFICATIONS */
+    #post-view-overlay.is-reel .mobile-header,
+    #post-view-overlay.is-reel .mobile-footer {
+        display: none;
+    }
+    
+    #post-view-overlay.is-reel .stage-panel {
+        background: #000;
+        height: 100%;
+    }
+    
+    #post-view-overlay.is-reel .stage-content {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+    }
+
+    /* Standard Mode */
     .stage-panel {
         flex: 1; /* Grow to fill space */
         background: #000; /* Dark background for media */
@@ -820,7 +798,7 @@ transform: translateX(20px);
         right: 0;
         height: 75vh;
         background: #fff;
-        z-index: 50;
+        z-index: 60;
         border-radius: 20px 20px 0 0;
         box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
         transform: translateY(100%);
@@ -966,14 +944,103 @@ transform: translateX(20px);
     box-shadow: 0 0 0 3px rgba(11, 87, 208, 0.1);
 }
 
-.play-pause-overlay {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    pointer-events: none; opacity: 0; transition: opacity 0.2s;
+/* REEL OVERLAY UI ELEMENTS */
+.reel-overlay-ui {
+    display: none;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 30;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%);
 }
-.play-pause-overlay.show { opacity: 1; }
-.play-pause-icon {
-    width: 80px; height: 80px; background: rgba(0,0,0,0.4); border-radius: 50%; padding: 20px;
-    color: white; backdrop-filter: blur(4px);
+#post-view-overlay.is-reel .reel-overlay-ui {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.reel-side-actions {
+    position: absolute;
+    right: 12px;
+    bottom: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+    pointer-events: auto;
+}
+.reel-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+.reel-action-btn:active {
+    transform: scale(0.9);
+}
+.reel-action-btn i {
+    width: 30px;
+    height: 30px;
+    stroke-width: 2px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+.reel-action-text {
+    font-size: 13px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+.reel-bottom-info {
+    position: absolute;
+    bottom: 24px;
+    left: 16px;
+    right: 80px;
+    pointer-events: auto;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+.reel-user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+.reel-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.reel-username {
+    font-weight: 700;
+    font-size: 15px;
+}
+.reel-caption {
+    font-size: 14px;
+    line-height: 1.4;
+    max-height: 100px;
+    overflow-y: auto;
+    font-weight: 400;
+    opacity: 0.95;
+}
+.reel-caption .hashtag {
+    color: #fff;
+    font-weight: 600;
+}
+.reel-close {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    color: white;
+    pointer-events: auto;
+    background: rgba(0,0,0,0.2);
+    border-radius: 50%;
+    padding: 8px;
+    backdrop-filter: blur(4px);
+    z-index: 40;
 }
 
 </style>
@@ -1029,32 +1096,6 @@ transform: translateX(20px);
 <!-- Post Options Global Menu -->
 <div id="global-post-menu" class="post-options-menu"></div>
 
-<!-- MOBILE NOTIFICATIONS HEADER -->
-<div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
-   <div class="h-14 flex items-center justify-between px-4 shrink-0 relative">
-      <span class="font-bold text-lg text-[#1f1f1f]">Notifications</span>
-      <div class="relative">
-          <button onclick="toggleNotifMenu()" class="icon-btn"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
-          <div id="notif-menu-dropdown" class="absolute right-0 top-10 bg-white border border-gray-100 shadow-xl rounded-xl z-50 w-48 hidden flex-col overflow-hidden">
-              <button onclick="toggleNotifSelection()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium border-b border-gray-50 text-gray-700">Select</button>
-              <button onclick="deleteSelectedNotifs()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete Selected</button>
-              <button onclick="clearAllNotifications()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete All</button>
-          </div>
-      </div>
-   </div>
-   <div class="px-4 pb-2">
-       <div class="relative">
-           <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
-           <input type="text" id="notif-search" placeholder="Search notifications..." oninput="handleNotifSearch(this.value)" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
-       </div>
-   </div>
-   <div class="tab-group mb-0 mx-0 w-full">
-        <button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i> Following</button>
-        <button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i> Others</button>
-        <button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button>
-    </div>
-</div>
-
 <!-- MOBILE EXPLORE HEADER -->
 <div id="mobile-explore-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex items-center gap-3 px-3 h-16 border-b border-gray-100 hidden">
     <div class="relative flex-1">
@@ -1091,7 +1132,40 @@ transform: translateX(20px);
     <!-- Floating Stage Layout -->
     <div class="post-modal-layout scale-in relative z-10">
         
-        <!-- 1. Mobile Header (Static, Visible on Mobile) -->
+        <!-- Reel UI Layer (Only visible in .is-reel mode on mobile) -->
+        <div class="reel-overlay-ui md:hidden">
+            <button onclick="closePostView()" class="reel-close"><i data-lucide="x" class="w-6 h-6"></i></button>
+            
+            <div class="reel-side-actions">
+                <div class="reel-action-btn" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)">
+                    <i id="reel-action-like" data-lucide="heart"></i>
+                    <span id="reel-like-count" class="reel-action-text">0</span>
+                </div>
+                <div class="reel-action-btn" onclick="toggleMobileCommentDrawer()">
+                    <i data-lucide="message-circle"></i>
+                    <span id="reel-comment-count" class="reel-action-text">0</span>
+                </div>
+                <div class="reel-action-btn" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)">
+                    <i data-lucide="send"></i>
+                    <span class="reel-action-text">Share</span>
+                </div>
+                <div class="reel-action-btn" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)">
+                    <i id="reel-action-save" data-lucide="bookmark"></i>
+                </div>
+            </div>
+
+            <div class="reel-bottom-info">
+                <div class="reel-user-row" onclick="if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
+                    <img id="reel-user-avatar" src="" class="reel-avatar object-cover">
+                    <span id="reel-username" class="reel-username">User</span>
+                </div>
+                <div id="reel-caption" class="reel-caption">
+                    <!-- Caption Text -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. Mobile Header (Static, Visible on Mobile Standard Mode) -->
         <div class="mobile-header md:hidden">
             <div class="flex items-center gap-3 cursor-pointer" onclick="closePostView(); if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
                 <img id="mobile-post-pfp" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
@@ -1101,51 +1175,11 @@ transform: translateX(20px);
         </div>
 
         <!-- 2. Media Stage -->
-        <div id="post-view-media-container" class="stage-panel group relative">
+        <div id="post-view-media-container" class="stage-panel" onclick="toggleVideoPlay(this)">
              <!-- Media Injected Here -->
-             <div id="video-play-overlay" class="play-pause-overlay"><i data-lucide="play" class="play-pause-icon"></i></div>
         </div>
 
-        <!-- REEL UI LAYER (MOBILE ONLY) -->
-        <div id="reel-ui-layer" class="reel-ui-layer md:hidden">
-            <!-- Top -->
-            <div class="flex justify-between items-start pointer-events-auto mt-2">
-                <button onclick="closePostView()" class="text-white drop-shadow-md p-2"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
-            </div>
-            
-            <!-- Bottom -->
-            <div class="flex items-end justify-between w-full">
-                <!-- Left Info -->
-                <div class="flex flex-col gap-3 max-w-[80%] text-white drop-shadow-md pointer-events-auto pb-2">
-                    <div class="flex items-center gap-2 cursor-pointer" onclick="if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
-                        <img id="reel-user-avatar" src="" class="w-8 h-8 rounded-full border border-white/50 object-cover">
-                        <span id="reel-username" class="font-bold text-sm">Username</span>
-                        <button id="reel-follow-btn" class="bg-white/20 backdrop-blur text-xs px-2.5 py-1 rounded-md font-medium border border-white/30 hidden">Follow</button>
-                    </div>
-                    <div id="reel-caption" class="text-sm leading-snug line-clamp-2 opacity-90"></div>
-                </div>
-
-                <!-- Right Actions -->
-                <div class="flex flex-col gap-5 items-center pointer-events-auto pb-2 mr-1">
-                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)">
-                        <i id="reel-like-icon" data-lucide="heart" class="reel-interact-icon"></i>
-                        <span id="reel-like-count" class="reel-interact-text">0</span>
-                    </div>
-                    <div class="reel-interact-btn cursor-pointer" onclick="toggleMobileCommentDrawer()">
-                        <i data-lucide="message-circle" class="reel-interact-icon"></i>
-                        <span id="reel-comment-count" class="reel-interact-text">0</span>
-                    </div>
-                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)">
-                        <i data-lucide="send" class="reel-interact-icon transform -rotate-12"></i>
-                    </div>
-                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)">
-                        <i id="reel-save-icon" data-lucide="bookmark" class="reel-interact-icon"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. Mobile Footer (Static, Visible on Mobile) -->
+        <!-- 3. Mobile Footer (Static, Visible on Mobile Standard Mode) -->
         <div class="mobile-footer md:hidden">
             <div class="mobile-actions-bar">
                 <div class="mobile-action-group">
@@ -1562,17 +1596,42 @@ Change
 <div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
 
 <!-- NOTIFICATIONS VIEW (Now Main) -->
-<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-[220px] md:pt-6">
-    <div class="flex justify-between items-center mb-4 px-4 md:px-0 hidden md:flex">
-        <h2 class="text-2xl font-bold">Notifications</h2>
-        <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
+<!-- RESTRUCTURED FOR FLEXBOX SCROLLING -->
+<div id="view-notifications" class="flex-1 h-full hidden bg-[#f9fafb] md:bg-[#fff] flex flex-col pt-16 md:pt-0">
+    <!-- Non-fixed header content that sits naturally at top -->
+    <div class="shrink-0 bg-white md:pt-6">
+        <div class="flex justify-between items-center mb-0 md:mb-4 px-4 h-14 md:h-auto border-b md:border-none border-gray-100">
+            <h2 class="text-lg md:text-2xl font-bold text-[#1f1f1f]">Notifications</h2>
+            <div class="flex gap-4 items-center">
+                <button onclick="toggleNotifMenu()" class="icon-btn md:hidden"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
+                <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline hidden md:block">Clear All</button>
+            </div>
+            
+            <!-- Mobile Menu Dropdown -->
+            <div id="notif-menu-dropdown" class="absolute right-4 top-12 bg-white border border-gray-100 shadow-xl rounded-xl z-50 w-48 hidden flex-col overflow-hidden">
+                  <button onclick="toggleNotifSelection()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium border-b border-gray-50 text-gray-700">Select</button>
+                  <button onclick="deleteSelectedNotifs()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete Selected</button>
+                  <button onclick="clearAllNotifications()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete All</button>
+            </div>
+        </div>
+        
+        <!-- Mobile Search Bar -->
+        <div class="px-4 pb-2 md:hidden">
+           <div class="relative">
+               <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
+               <input type="text" id="notif-search" placeholder="Search notifications..." oninput="handleNotifSearch(this.value)" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
+           </div>
+       </div>
+
+        <div class="tab-group mb-0 mx-0 w-full">
+            <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i> Following</button>
+            <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i> Others</button>
+            <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button>
+        </div>
     </div>
-    <div class="tab-group mb-4 mx-0 md:mx-0 hidden md:flex">
-        <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i> Following</button>
-        <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i> Others</button>
-        <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button>
-    </div>
-    <div id="notification-list" class="w-full"></div>
+    
+    <!-- Scrollable List Area -->
+    <div id="notification-list" class="flex-1 overflow-y-auto w-full"></div>
 </div>
 
 <!-- ANNOUNCEMENTS VIEW (Admin) -->
@@ -1986,15 +2045,7 @@ handleSearch(searchVal);
 }
 
 const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
-if(activePostView && window.currentViewingPostId) {
-    // Check if the current post was modified
-    const currentPost = posts.find(p => p.id === window.currentViewingPostId);
-    if(currentPost) {
-        renderCommentsInModal(window.currentViewingPostId);
-        // Realtime update for stats in overlay
-        updatePostViewStats(window.currentViewingPostId);
-    }
-}
+if(activePostView && window.currentViewingPostId) renderCommentsInModal(window.currentViewingPostId);
 
 const threadOverlay = document.getElementById('thread-overlay');
 if (!threadOverlay.classList.contains('hidden') && window.threadPostId && window.threadParentCommentId) {
@@ -2035,57 +2086,6 @@ if(activeNotif) renderNotifications();
 refreshIcons();
 });
 
-}
-
-window.updatePostViewStats = function(postId) {
-    const post = posts.find(p => p.id === postId);
-    if (!post) return;
-    
-    // Desktop Stats
-    const deskLikeCount = document.getElementById('post-view-likes-count');
-    if (deskLikeCount) {
-        deskLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
-    }
-    
-    // Mobile Stats
-    const mobLikeCount = document.getElementById('mobile-like-count');
-    if (mobLikeCount) {
-        mobLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
-        // Ensure visibility respects settings
-        const showLikes = post.settings?.showLikes !== false;
-        mobLikeCount.style.display = showLikes ? 'block' : 'none';
-    }
-
-    // Reel Mode Stats
-    const reelLikeCount = document.getElementById('reel-like-count');
-    const reelCommCount = document.getElementById('reel-comment-count');
-    const reelLikeIcon = document.getElementById('reel-like-icon');
-    const reelSaveIcon = document.getElementById('reel-save-icon');
-
-    if(reelLikeCount) reelLikeCount.innerText = post.likes ? post.likes.length : 0;
-    if(reelCommCount) reelCommCount.innerText = post.comments ? post.comments.length : 0;
-    
-    // Update Reel Icons state
-    if(reelLikeIcon) {
-        const isLiked = post.likes && post.likes.includes(currentUser.id);
-        if(isLiked) {
-            reelLikeIcon.classList.add('fill-red-500', 'text-red-500');
-            reelLikeIcon.classList.remove('text-white');
-        } else {
-            reelLikeIcon.classList.remove('fill-red-500', 'text-red-500');
-            reelLikeIcon.classList.add('text-white');
-        }
-    }
-    if(reelSaveIcon) {
-        const isSaved = savedPosts.includes(postId);
-        if(isSaved) {
-            reelSaveIcon.classList.add('fill-yellow-500', 'text-yellow-500');
-            reelSaveIcon.classList.remove('text-white');
-        } else {
-            reelSaveIcon.classList.remove('fill-yellow-500', 'text-yellow-500');
-            reelSaveIcon.classList.add('text-white');
-        }
-    }
 }
 
 function updateUserInterface() {
@@ -2227,7 +2227,7 @@ if(mainHeader) {
     mainHeader.style.transform = 'translateY(0)';
 }
 if(mobileBottomNav) mobileBottomNav.classList.remove('hidden');
-if(mobileNotifHeader) mobileNotifHeader.classList.add('hidden', 'flex'); 
+// We don't need mobileNotifHeader anymore as we refactored it inside the view
 if(mobileExploreHeader) mobileExploreHeader.classList.add('hidden');
 
 // HIDE MAIN HEADER ON PROFILE VIEW (Desktop & Mobile)
@@ -2239,9 +2239,6 @@ if (viewName === 'profile') {
 if (window.innerWidth < 768) {
     if (viewName === 'notifications') {
         if(mainHeader) mainHeader.classList.add('hidden');
-        // Footer (mobileBottomNav) is kept VISIBLE for notifications
-        if(mobileNotifHeader) mobileNotifHeader.classList.remove('hidden');
-        if(mobileNotifHeader) mobileNotifHeader.classList.add('flex');
     } else if (viewName === 'explore') {
         if(mainHeader) mainHeader.classList.add('hidden');
         if(mobileBottomNav) mobileBottomNav.classList.add('hidden');
@@ -2650,31 +2647,33 @@ if(overlayLikeBtn && window.currentViewingPostId === postId) {
 // Optimistic UI Update for Mobile Overlay
 const mobileLikeBtn = document.getElementById('mobile-action-like');
 const mobileCountSpan = document.getElementById('mobile-like-count');
-if(mobileLikeBtn && window.currentViewingPostId === postId) {
-    const isMobileLiked = mobileLikeBtn.classList.contains('text-red-500');
-    mobileLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-[#1f1f1f]');
-    if(isMobileLiked) {
-        mobileLikeBtn.classList.add('text-[#1f1f1f]');
-        if(mobileCountSpan) mobileCountSpan.innerText = Math.max(0, (parseInt(mobileCountSpan.innerText) || 0) - 1);
-    } else {
-        mobileLikeBtn.classList.add('fill-red-500', 'text-red-500');
-        if(mobileCountSpan) mobileCountSpan.innerText = (parseInt(mobileCountSpan.innerText) || 0) + 1;
-    }
-}
+const reelLikeBtn = document.getElementById('reel-action-like');
+const reelLikeCount = document.getElementById('reel-like-count');
 
-// Optimistic Reel UI Update
-const reelLikeIcon = document.getElementById('reel-like-icon');
-const reelCount = document.getElementById('reel-like-count');
-if(reelLikeIcon && window.currentViewingPostId === postId) {
-    const isLiked = reelLikeIcon.classList.contains('text-red-500');
-    reelLikeIcon.classList.remove('fill-red-500', 'text-red-500', 'text-white');
-    let count = parseInt(reelCount.innerText) || 0;
-    if(isLiked) {
-        reelLikeIcon.classList.add('text-white');
-        reelCount.innerText = Math.max(0, count - 1);
-    } else {
-        reelLikeIcon.classList.add('fill-red-500', 'text-red-500');
-        reelCount.innerText = count + 1;
+if(window.currentViewingPostId === postId) {
+    // Normal Mobile
+    if(mobileLikeBtn) {
+        const isMobileLiked = mobileLikeBtn.classList.contains('text-red-500');
+        mobileLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-[#1f1f1f]');
+        if(isMobileLiked) {
+            mobileLikeBtn.classList.add('text-[#1f1f1f]');
+            if(mobileCountSpan) mobileCountSpan.innerText = Math.max(0, (parseInt(mobileCountSpan.innerText) || 0) - 1);
+        } else {
+            mobileLikeBtn.classList.add('fill-red-500', 'text-red-500');
+            if(mobileCountSpan) mobileCountSpan.innerText = (parseInt(mobileCountSpan.innerText) || 0) + 1;
+        }
+    }
+    
+    // Reel
+    if(reelLikeBtn) {
+        const isReelLiked = reelLikeBtn.classList.contains('fill-red-500');
+        reelLikeBtn.classList.remove('fill-red-500', 'text-red-500');
+        if(isReelLiked) {
+            if(reelLikeCount) reelLikeCount.innerText = Math.max(0, (parseInt(reelLikeCount.innerText) || 0) - 1);
+        } else {
+            reelLikeBtn.classList.add('fill-red-500', 'text-red-500');
+            if(reelLikeCount) reelLikeCount.innerText = (parseInt(reelLikeCount.innerText) || 0) + 1;
+        }
     }
 }
 
@@ -2759,25 +2758,25 @@ if(overlaySaveBtn && window.currentViewingPostId === postId) {
 
 // Optimistic UI Mobile Overlay
 const mobSaveBtn = document.getElementById('mobile-action-save');
-if(mobSaveBtn && window.currentViewingPostId === postId) {
-    const isMobSaved = mobSaveBtn.classList.contains('text-yellow-500');
-    mobSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-[#1f1f1f]');
-    if(isMobSaved) {
-        mobSaveBtn.classList.add('text-[#1f1f1f]');
-    } else {
-        mobSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
-    }
-}
+const reelSaveBtn = document.getElementById('reel-action-save');
 
-// Optimistic Reel UI
-const reelSaveIcon = document.getElementById('reel-save-icon');
-if(reelSaveIcon && window.currentViewingPostId === postId) {
-    const isSaved = reelSaveIcon.classList.contains('text-yellow-500');
-    reelSaveIcon.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-white');
-    if(isSaved) {
-        reelSaveIcon.classList.add('text-white');
-    } else {
-        reelSaveIcon.classList.add('fill-yellow-500', 'text-yellow-500');
+if(window.currentViewingPostId === postId) {
+    if(mobSaveBtn) {
+        const isMobSaved = mobSaveBtn.classList.contains('text-yellow-500');
+        mobSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-[#1f1f1f]');
+        if(isMobSaved) {
+            mobSaveBtn.classList.add('text-[#1f1f1f]');
+        } else {
+            mobSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
+        }
+    }
+    
+    if(reelSaveBtn) {
+        const isReelSaved = reelSaveBtn.classList.contains('fill-yellow-500');
+        reelSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500');
+        if(!isReelSaved) {
+            reelSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
+        }
     }
 }
 
@@ -3372,15 +3371,187 @@ if(netView && !netView.classList.contains('hidden')) renderNetwork();
 refreshIcons();
 }
 
+window.openUserList = function(type, userId) {
+const user = users.find(u => u.id === userId);
+if(!user) return;
+
+if(user.settings?.privateNetwork && user.id !== currentUser.id && !currentUser.following.includes(user.id)) return;
+
+const overlay = document.getElementById('user-list-overlay');
+const title = document.getElementById('user-list-title');
+const content = document.getElementById('user-list-content');
+
+title.innerText = type === 'following' ? 'Following' : 'Followers';
+content.innerHTML = '';
+
+const targetIds = type === 'following' ? user.following : user.followers;
+
+if(!targetIds || targetIds.length === 0) {
+content.innerHTML = `<div class="text-center text-gray-400 py-8">No users found.</div>`;
+} else {
+targetIds.forEach(tid => {
+const targetUser = users.find(u => u.id === tid);
+if(targetUser) {
+const isMe = targetUser.id === currentUser.id;
+const amFollowing = currentUser.following.includes(targetUser.id);
+let btn = '';
+if(!isMe) {
+btn = `<button onclick="toggleFollow('${targetUser.id}')" class="text-xs px-3 py-1 rounded-full font-medium ${amFollowing ? 'bg-gray-100 text-gray-700' : 'bg-blue-600 text-white'}">${amFollowing ? 'Unfollow' : 'Follow'}</button>`;
+}
+const div = document.createElement('div');
+div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
+div.onclick = (e) => {
+if(e.target.tagName !== 'BUTTON') { closeUserList(); showProfile(targetUser.id); }
+};
+div.innerHTML = `<div class="flex items-center gap-3"><img src="${targetUser.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${targetUser.name}</div><div class="text-xs text-gray-500 truncate w-32">${targetUser.bio}</div></div></div>${btn}`;
+content.appendChild(div);
+}
+});
+}
+overlay.classList.remove('hidden');
+}
+
+window.closeUserList = function() { document.getElementById('user-list-overlay').classList.add('hidden'); }
+
+// Updated Switch Explore Tab Function
+window.switchExploreTab = function(tabName) {
+window.activeExploreTab = tabName;
+const searchVal = document.getElementById('global-search').value || document.getElementById('mobile-explore-search').value;
+handleSearch(searchVal); // Re-run search with new tab state
+}
+
+window.handleSearch = function(query) {
+if(document.getElementById('view-explore').classList.contains('hidden')) {
+switchView('explore');
+}
+
+const headerInput = document.getElementById('global-search');
+const mobileInput = document.getElementById('mobile-explore-search');
+
+if(headerInput && headerInput.value !== query) headerInput.value = query;
+if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
+
+const view = document.getElementById('explore-results');
+
+if(!query || query.trim() === '') {
+// DEFAULT DISCOVERY STATE
+view.innerHTML = `
+    <div class="text-center py-20 text-gray-400">
+        <h3 class="text-lg font-bold text-gray-800 mb-2">Search & Discover</h3>
+        <p class="text-gray-500 text-sm mb-6 flex items-center justify-center gap-2">Find new people and ideas <i data-lucide="search" class="w-4 h-4"></i></p>
+    </div>
+`;
+refreshIcons();
+return;
+}
+
+const term = query.toLowerCase().trim();
+// Support for direct hashtag search logic (remove # for matching text content generally, but keep for specific tag matching if needed)
+const cleanTerm = term.replace('#', ''); 
+const keywords = term.split(" ").filter(k => k.length > 0);
+
+const foundUsers = users.filter(u => {
+const name = (u.name || '').toLowerCase();
+const bio = (u.bio || "").toLowerCase();
+return keywords.some(k => name.includes(k) || bio.includes(k));
+});
+
+const foundPosts = posts.filter(p => {
+const content = (p.content || '').toLowerCase();
+// If tab is 'tags', look specifically for the hash
+if (window.activeExploreTab === 'tags') {
+    return content.includes('#' + cleanTerm) || content.includes(term);
+}
+return keywords.some(k => content.includes(k));
+});
+
+// Tab Interface
+let html = `
+<div class="tab-group mb-0 md:mb-4 bg-white sticky top-16 md:top-0 z-10 border-b border-gray-200">
+<button onclick="switchExploreTab('people')" class="tab-btn ${window.activeExploreTab === 'people' ? 'active' : ''}"><i data-lucide="user" class="w-4 h-4"></i> People</button>
+<button onclick="switchExploreTab('posts')" class="tab-btn ${window.activeExploreTab === 'posts' ? 'active' : ''}"><i data-lucide="grid-3x3" class="w-4 h-4"></i> Posts</button>
+<button onclick="switchExploreTab('tags')" class="tab-btn ${window.activeExploreTab === 'tags' ? 'active' : ''}"><i data-lucide="hash" class="w-4 h-4"></i> Tags</button>
+</div>
+`;
+
+// People Results
+const hiddenPeople = window.activeExploreTab === 'people' ? '' : 'hidden';
+html += `<div id="results-people" class="flex flex-col ${hiddenPeople}">`;
+if(foundUsers.length) {
+foundUsers.forEach(u => {
+html += `
+<div class="flex items-center gap-3 p-4 bg-white border-b border-gray-100 last:border-0 md:border md:rounded-xl md:mb-2 cursor-pointer hover:bg-gray-50 transition-colors" onclick="showProfile('${u.id}')">
+<img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover bg-gray-50 border border-gray-100">
+<div>
+<div class="font-bold text-sm text-gray-900">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>' : ''}</div>
+<div class="text-xs text-gray-500 line-clamp-1">${u.bio || 'No bio'}</div>
+</div>
+</div>`;
+});
+} else {
+html += `<div class="text-gray-400 text-sm p-4 text-center italic">No people found matching "${query}"</div>`;
+}
+html += `</div>`;
+
+// Posts & Tags Results (Using Grid)
+// Note: Both Posts tab and Tags tab use the same visual grid layout, just different filtering logic executed above
+const hiddenPosts = (window.activeExploreTab === 'posts' || window.activeExploreTab === 'tags') ? '' : 'hidden';
+html += `<div id="results-posts" class="${hiddenPosts}"></div>`;
+
+view.innerHTML = html;
+
+// Append posts elements manually as Grid Items
+const postsDiv = document.getElementById('results-posts');
+
+// Apply Grid Classes directly
+postsDiv.className = `grid grid-cols-3 gap-0.5 md:gap-4 ${hiddenPosts}`;
+
+if(foundPosts.length) {
+foundPosts.forEach(p => {
+// Create Grid Item
+const div = document.createElement('div');
+div.className = "relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity";
+div.onclick = () => openPostView(p.id);
+
+let content = '';
+if (p.media) {
+    if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
+            content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
+    } else {
+            content = `<img src="${p.media}" class="w-full h-full object-cover">`;
+    }
+} else {
+    // Text Tile
+    content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
+}
+
+div.innerHTML = content;
+postsDiv.appendChild(div);
+});
+} else {
+postsDiv.className = `p-4 text-center ${hiddenPosts}`;
+postsDiv.innerHTML = `<div class="text-gray-400 text-sm italic">No posts found matching "${query}"</div>`;
+}
+
+refreshIcons();
+}
+
+function linkify(text) {
+var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+return text.replace(urlRegex, function(url) {
+return '<a href="' + url + '" target="_blank" class="text-blue-200 underline hover:text-white" onclick="event.stopPropagation()">' + url + '</a>';
+});
+}
+
+window.deleteMessage = async function(msgId) {
+showAlert("Unsend this message?", async () => { await deleteDoc(doc(db, "messages", msgId)); });
+}
+
 // Open Post View - Refactored for new UI
 window.openPostView = function(postId) {
 const post = posts.find(p => p.id === postId);
 if(!post) return;
 window.currentViewingPostId = postId;
-
-// Reset Classes
-const overlay = document.getElementById('post-view-overlay');
-overlay.classList.remove('mobile-reel-view');
 
 const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
 const dateStr = formatDate(post.timestamp);
@@ -3389,13 +3560,57 @@ const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hash
 // Desktop Only Elements
 const mediaContainer = document.getElementById('post-view-media-container');
 const captionArea = document.getElementById('post-view-caption-area');
+const overlay = document.getElementById('post-view-overlay');
+
+// REEL LOGIC CHECK
+overlay.classList.remove('is-reel');
+let isReel = false;
+
+if (post.media && (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video'))) {
+    // Create temp video to check metadata
+    const tempVideo = document.createElement('video');
+    tempVideo.src = post.media;
+    tempVideo.onloadedmetadata = () => {
+        if(tempVideo.duration < 60) {
+            // It's a reel!
+            overlay.classList.add('is-reel');
+            // Update Reel UI
+            document.getElementById('reel-username').innerText = author.name;
+            document.getElementById('reel-user-avatar').src = author.avatar;
+            document.getElementById('reel-caption').innerHTML = tagsHTML;
+            
+            const reelLikeCount = document.getElementById('reel-like-count');
+            const reelCommentCount = document.getElementById('reel-comment-count');
+            const reelLikeBtn = document.getElementById('reel-action-like');
+            const reelSaveBtn = document.getElementById('reel-action-save');
+            
+            reelLikeCount.innerText = post.likes ? post.likes.length : 0;
+            reelCommentCount.innerText = post.comments ? post.comments.length : 0;
+            
+            const isLiked = post.likes && post.likes.includes(currentUser.id);
+            if(isLiked) {
+                reelLikeBtn.classList.add('fill-red-500', 'text-red-500');
+            } else {
+                reelLikeBtn.classList.remove('fill-red-500', 'text-red-500');
+            }
+            
+            const isSaved = savedPosts.includes(postId);
+            if(isSaved) {
+                reelSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
+            } else {
+                reelSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500');
+            }
+        }
+    };
+    tempVideo.load();
+}
 
 document.getElementById('post-view-avatar').src = author.avatar;
 document.getElementById('post-view-username').innerText = author.name;
 document.getElementById('post-view-date').innerText = dateStr;
 
-// Settings Logic
-const showLikes = post.settings?.showLikes !== false; 
+// Settings Logic for Desktop
+const showLikes = post.settings?.showLikes !== false; // Default true
 const likeCountText = showLikes ? `${post.likes ? post.likes.length : 0} likes` : '';
 document.getElementById('post-view-likes-count').innerText = likeCountText;
 document.getElementById('post-view-avatar').onclick = () => showProfile(author.id);
@@ -3405,6 +3620,7 @@ document.getElementById('post-view-username').onclick = () => showProfile(author
 document.getElementById('mobile-post-pfp').src = author.avatar;
 document.getElementById('mobile-post-username').innerText = author.name;
 document.getElementById('mobile-post-caption').innerHTML = tagsHTML;
+// Hide mobile like count if settings prevent it
 const mobileLikeCount = document.getElementById('mobile-like-count');
 if(showLikes) {
     mobileLikeCount.style.display = 'block';
@@ -3413,65 +3629,16 @@ if(showLikes) {
     mobileLikeCount.style.display = 'none';
 }
 
-// MOBILE ELEMENTS POPULATION (Reel View)
-document.getElementById('reel-user-avatar').src = author.avatar;
-document.getElementById('reel-username').innerText = author.name;
-document.getElementById('reel-caption').innerHTML = post.content.substring(0, 100) + (post.content.length > 100 ? "..." : ""); // Simple trunc for reel
-updatePostViewStats(postId);
-
-// Media Logic 
-mediaContainer.classList.remove('hidden'); 
-mediaContainer.innerHTML = ''; 
-const playOverlay = document.createElement('div');
-playOverlay.id = 'video-play-overlay';
-playOverlay.className = 'play-pause-overlay';
-playOverlay.innerHTML = '<i data-lucide="play" class="play-pause-icon"></i>';
-mediaContainer.appendChild(playOverlay);
-
+// Media Logic (Shared Container for Desktop/Mobile Stage)
+mediaContainer.classList.remove('hidden'); // Always show container
 if (post.media) {
-    const isVideo = post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video');
-    if (isVideo) {
-         const videoEl = document.createElement('video');
-         videoEl.src = post.media;
-         videoEl.className = "stage-content rounded-lg shadow-2xl"; 
-         videoEl.controls = false; // Custom controls
-         videoEl.playsInline = true;
-         videoEl.autoplay = true;
-         videoEl.muted = false; // Try sound on desktop
-         videoEl.loop = true;
-
-         // Toggle Play/Pause Logic
-         const togglePlay = (e) => {
-             e.stopPropagation();
-             if (videoEl.paused) {
-                 videoEl.play();
-                 playOverlay.classList.remove('show');
-             } else {
-                 videoEl.pause();
-                 playOverlay.classList.add('show');
-             }
-         };
-         
-         videoEl.onclick = togglePlay;
-         playOverlay.onclick = togglePlay; // Ensure overlay click also toggles
-
-         // Mobile Reel Logic Check
-         if(window.innerWidth < 768) {
-             videoEl.onloadedmetadata = function() {
-                 // Reel Mode if < 60s
-                 if(this.duration < 60) {
-                     overlay.classList.add('mobile-reel-view');
-                     this.className = "w-full h-full object-cover"; // Full bleed
-                     this.muted = false; 
-                     this.play().catch(() => { this.muted = true; this.play(); });
-                 }
-             };
-         }
-         mediaContainer.insertBefore(videoEl, playOverlay);
+    if (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video')) {
+         mediaContainer.innerHTML = `<video src="${post.media}" class="stage-content rounded-lg shadow-2xl" controls autoplay muted playsinline loop></video>`;
     } else {
          mediaContainer.innerHTML = `<img src="${post.media}" class="stage-content rounded-lg shadow-2xl">`;
     }
 } else {
+    // No Media Placeholder
     mediaContainer.innerHTML = `
         <div class="flex flex-col items-center justify-center h-full text-white opacity-40">
             <i data-lucide="image-off" class="w-16 h-16 mb-2"></i>
@@ -3479,7 +3646,7 @@ if (post.media) {
         </div>`;
 }
 
-// Desktop Caption
+// Caption (Desktop Only)
 captionArea.innerHTML = `
     <div class="flex gap-3">
         <img src="${author.avatar}" class="w-8 h-8 rounded-full border border-gray-100 object-cover shrink-0 cursor-pointer" onclick="showProfile('${author.id}')">
@@ -3507,7 +3674,7 @@ if(isLiked) {
 }
 likeBtn.onclick = () => toggleLike(postId);
 
-// Like Button State (Mobile Standard)
+// Like Button State (Mobile)
 const mobLikeBtn = document.getElementById('mobile-action-like');
 mobLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-[#1f1f1f]');
 if(isLiked) {
@@ -3527,7 +3694,7 @@ if(isSaved) {
 }
 saveBtn.onclick = () => toggleSave(postId);
 
-// Save Button State (Mobile Standard)
+// Save Button State (Mobile)
 const mobSaveBtn = document.getElementById('mobile-action-save');
 mobSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-[#1f1f1f]');
 if(isSaved) {
@@ -3566,9 +3733,19 @@ window.toggleMobileCommentDrawer = function() {
     if(drawer) drawer.classList.toggle('open');
 }
 
+window.toggleVideoPlay = function(container) {
+    if(!document.getElementById('post-view-overlay').classList.contains('is-reel')) return;
+    const video = container.querySelector('video');
+    if(video) {
+        if(video.paused) video.play();
+        else video.pause();
+    }
+}
+
 window.closePostView = function() {
 document.getElementById('post-view-overlay').classList.add('hidden');
 document.getElementById('post-view-overlay').classList.remove('flex');
+document.getElementById('post-view-overlay').classList.remove('is-reel'); // Reset class
 // Close drawer if open
 const drawer = document.querySelector('.discussion-panel');
 if(drawer) drawer.classList.remove('open');

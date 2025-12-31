@@ -669,77 +669,144 @@ transform: translateX(20px);
   border: 2px solid white;
 }
 
-/* Immersive YouTube Style Lightbox Overlay */
-#lightbox-overlay-info {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
-  padding: 80px 20px 40px 20px;
-  color: white;
-  pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-#lightbox-overlay-info * {
-  pointer-events: auto;
+/* --- IMMERSIVE LIGHTBOX (YOUTUBE STYLE) --- */
+#lightbox {
+    background-color: #000;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.yt-creator-row {
+#lightbox-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#yt-player {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+
+.yt-ui-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.yt-top-ui {
+    padding-top: env(safe-area-inset-top, 20px);
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
+    pointer-events: auto;
+}
+
+.yt-bottom-ui {
+    padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 20px);
+    padding-left: 20px;
+    padding-right: 80px; /* Space for right actions */
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+    pointer-events: auto;
+    position: relative;
+}
+
+.yt-right-actions {
+    position: absolute;
+    right: 12px;
+    bottom: calc(env(safe-area-inset-bottom, 20px) + 100px);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+    pointer-events: auto;
+}
+
+.yt-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: white;
+    cursor: pointer;
+}
+.yt-action-btn i {
+    width: 28px;
+    height: 28px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+.yt-action-btn span {
+    font-size: 12px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+.yt-creator-info {
     display: flex;
     align-items: center;
     gap: 12px;
+    margin-bottom: 12px;
 }
-.yt-creator-pfp {
-    width: 40px;
-    height: 40px;
+.yt-avatar {
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    border: 1px solid rgba(255,255,255,0.3);
+    border: 2px solid white;
     object-fit: cover;
 }
-.yt-creator-name {
+.yt-name {
+    color: white;
     font-weight: 700;
     font-size: 16px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
 }
 .yt-follow-btn {
-    background: white;
-    color: black;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 13px;
+    background: #fff;
+    color: #000;
     font-weight: 700;
-    margin-left: 8px;
-    transition: opacity 0.2s;
+    padding: 6px 14px;
+    border-radius: 18px;
+    font-size: 13px;
 }
-.yt-follow-btn:hover { opacity: 0.9; }
 
 .yt-caption {
+    color: rgba(255,255,255,0.95);
     font-size: 14px;
-    line-height: 1.5;
-    color: rgba(255,255,255,0.9);
-    max-width: 600px;
-    max-height: 100px;
+    line-height: 1.4;
+    max-width: 85%;
+    max-height: 80px;
     overflow-y: auto;
-    scrollbar-width: none;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
-/* Close/Back UI */
-.yt-header-ui {
+/* Progress Bar Scrubber */
+.yt-progress-container {
     position: absolute;
-    top: 0;
+    bottom: env(safe-area-inset-bottom, 0px);
     left: 0;
     width: 100%;
-    padding: 20px;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
-    display: flex;
-    justify-content: space-between;
-    z-index: 60;
-    pointer-events: none;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    pointer-events: auto;
+    cursor: pointer;
 }
-.yt-header-ui * { pointer-events: auto; }
+.yt-progress-fill {
+    height: 100%;
+    background: #ff0000;
+    width: 0%;
+    transition: width 0.1s linear;
+}
 
 </style>
 </head>
@@ -888,15 +955,53 @@ transform: translateX(20px);
     </div>
 </div>
 
-<div id="lightbox" class="fixed inset-0 bg-black z-[9999] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="yt-header-ui">
-        <button onclick="closeLightbox()" class="text-white hover:bg-white/10 rounded-full p-2 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
-        <div class="flex gap-2">
-            <button class="text-white hover:bg-white/10 rounded-full p-2"><i data-lucide="share" class="w-6 h-6"></i></button>
-            <button class="text-white hover:bg-white/10 rounded-full p-2"><i data-lucide="more-vertical" class="w-6 h-6"></i></button>
+<!-- IMMERSIVE LIGHTBOX OVERLAY -->
+<div id="lightbox" class="fixed inset-0 z-[9999] opacity-0 pointer-events-none flex flex-col items-center justify-center">
+    <!-- UI LAYER (YouTube Style) -->
+    <div class="yt-ui-layer">
+        <div class="yt-top-ui">
+             <button onclick="closeLightbox()" class="text-white"><i data-lucide="arrow-left" class="w-7 h-7"></i></button>
+             <div class="flex gap-4">
+                 <button class="text-white"><i data-lucide="share" class="w-6 h-6"></i></button>
+                 <button class="text-white"><i data-lucide="more-vertical" class="w-6 h-6"></i></button>
+             </div>
+        </div>
+        
+        <div class="yt-right-actions">
+             <div class="yt-action-btn" id="yt-like-action" onclick="toggleLike(window.activeLightboxPostId)">
+                 <i data-lucide="heart"></i>
+                 <span id="yt-like-count">0</span>
+             </div>
+             <div class="yt-action-btn" onclick="closeLightbox(); openPostView(window.activeLightboxPostId)">
+                 <i data-lucide="message-square"></i>
+                 <span id="yt-comment-count">0</span>
+             </div>
+             <div class="yt-action-btn" onclick="toggleSave(window.activeLightboxPostId)">
+                 <i data-lucide="bookmark"></i>
+                 <span>Save</span>
+             </div>
+             <div class="yt-action-btn">
+                 <i data-lucide="send"></i>
+                 <span>Share</span>
+             </div>
+        </div>
+
+        <div class="yt-bottom-ui">
+             <div class="yt-creator-info">
+                 <img id="yt-creator-avatar" src="" class="yt-avatar cursor-pointer" onclick="closeLightbox(); showProfile(window.activeLightboxAuthorId)">
+                 <span id="yt-creator-name" class="yt-name cursor-pointer" onclick="closeLightbox(); showProfile(window.activeLightboxAuthorId)">Creator</span>
+                 <button id="yt-follow-btn" class="yt-follow-btn" onclick="toggleFollow(window.activeLightboxAuthorId)">Follow</button>
+             </div>
+             <div id="yt-caption" class="yt-caption">
+                 <!-- Caption text -->
+             </div>
+             <!-- Progress Bar -->
+             <div class="yt-progress-container" onclick="seekVideo(event)">
+                <div id="yt-progress-fill" class="yt-progress-fill"></div>
+             </div>
         </div>
     </div>
-    <div id="lightbox-wrapper" class="w-full h-full flex justify-center items-center relative"></div>
+    <div id="lightbox-wrapper"></div>
 </div>
 
 <div id="toast" class="toast">
@@ -3473,94 +3578,84 @@ if(window.editingPostId) {
 closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; refreshIcons(); } }
 window.showToast = function(message, isError = false) { const toast = document.getElementById('toast'); const toastMsg = document.getElementById('toast-msg'); const icon = document.getElementById('toast-icon'); toastMsg.innerText = message; if (isError) { toast.style.backgroundColor = '#d93025'; icon.setAttribute('data-lucide', 'alert-circle'); icon.classList.remove('text-[#c4eed0]'); icon.classList.add('text-white'); } else { toast.style.backgroundColor = '#303134'; icon.setAttribute('data-lucide', 'check-circle-2'); icon.classList.add('text-[#c4eed0]'); } refreshIcons(); toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3000); }
 
-// YouTube Immersive Fullscreen Video Logic
-window.openLightbox = function(postId) { 
+// --- IMMERSIVE FULLSCREEN VIDEO (YOUTUBE STYLE) ---
+window.openLightbox = function(postId) {
     const post = posts.find(p => p.id === postId);
     if (!post) return;
     
-    const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=fallback' };
+    window.activeLightboxPostId = postId;
+    window.activeLightboxAuthorId = post.authorId;
+    
+    const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '' };
+    const isVideo = post.media && (post.media.includes('.mp4') || post.media.includes('data:video') || post.media.includes('.webm'));
+    
     const wrapper = document.getElementById('lightbox-wrapper');
-    const lightbox = document.getElementById('lightbox'); 
+    const lightbox = document.getElementById('lightbox');
     
-    const isVideo = post.media && (post.media.includes('.mp4') || post.media.includes('data:video') || post.media.includes('.webm') || post.media.includes('.mov'));
+    // Update Dynamic UI Layer
+    document.getElementById('yt-creator-avatar').src = author.avatar;
+    document.getElementById('yt-creator-name').innerText = author.name;
+    document.getElementById('yt-caption').innerHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
+    document.getElementById('yt-like-count').innerText = post.likes ? post.likes.length : 0;
+    document.getElementById('yt-comment-count').innerText = post.comments ? post.comments.length : 0;
     
-    let content = '';
-    let overlayHTML = '';
+    // Follow button state
+    const followBtn = document.getElementById('yt-follow-btn');
+    if(post.authorId === currentUser.id) {
+        followBtn.classList.add('hidden');
+    } else {
+        followBtn.classList.remove('hidden');
+        followBtn.innerText = currentUser.following.includes(post.authorId) ? 'Following' : 'Follow';
+    }
 
-    if (isVideo) { 
-        // Cinematic YouTube-Style Video Player
-        content = `
-            <video id="yt-player" src="${post.media}" controls autoplay playsinline class="w-full h-full object-contain bg-black shadow-2xl"></video>
-        `; 
+    if (isVideo) {
+        wrapper.innerHTML = `<video id="yt-player" src="${post.media}" playsinline class="w-full h-full"></video>`;
+        const video = document.getElementById('yt-player');
         
-        overlayHTML = `
-            <div id="lightbox-overlay-info">
-                <div class="yt-creator-row">
-                    <img src="${author.avatar}" class="yt-creator-pfp cursor-pointer" onclick="closeLightbox(); showProfile('${author.id}')">
-                    <div class="flex flex-col">
-                        <div class="flex items-center gap-2">
-                            <span class="yt-creator-name cursor-pointer" onclick="closeLightbox(); showProfile('${author.id}')">${author.name}</span>
-                            ${author.isOfficial ? '<i data-lucide="badge-check" class="w-4 h-4 text-blue-400"></i>' : ''}
-                            <button class="yt-follow-btn" onclick="toggleFollow('${author.id}')">Follow</button>
-                        </div>
-                        <span class="text-xs text-white/60">@${author.username || author.name.toLowerCase().replace(/\s/g, '')}</span>
-                    </div>
-                </div>
-                <div class="yt-caption">
-                    <p>${marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'))}</p>
-                </div>
-                <div class="flex items-center gap-6 mt-2">
-                    <div class="flex flex-col items-center gap-1 cursor-pointer hover:text-red-400 transition-colors" onclick="toggleLike('${post.id}')">
-                        <i data-lucide="heart" class="w-6 h-6"></i>
-                        <span class="text-[10px] font-bold">${post.likes ? post.likes.length : 0}</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-1 cursor-pointer hover:text-blue-400 transition-colors" onclick="closeLightbox(); openPostView('${post.id}')">
-                        <i data-lucide="message-square" class="w-6 h-6"></i>
-                        <span class="text-[10px] font-bold">${post.comments ? post.comments.length : 0}</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-1 cursor-pointer hover:text-yellow-400 transition-colors" onclick="toggleSave('${post.id}')">
-                        <i data-lucide="bookmark" class="w-6 h-6"></i>
-                        <span class="text-[10px] font-bold">Save</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    } else { 
-        // Standard Image View
-        content = `<img src="${post.media}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; 
-        overlayHTML = `
-            <div id="lightbox-overlay-info" class="bg-black/40">
-                <div class="yt-creator-row">
-                    <img src="${author.avatar}" class="yt-creator-pfp" onclick="closeLightbox(); showProfile('${author.id}')">
-                    <span class="yt-creator-name">${author.name}</span>
-                </div>
-                <div class="yt-caption mt-2"><p>${post.content}</p></div>
-            </div>
-        `;
+        // Progress tracking
+        video.addEventListener('timeupdate', () => {
+            const progress = (video.currentTime / video.duration) * 100;
+            document.getElementById('yt-progress-fill').style.width = progress + '%';
+        });
+
+        // Click to play/pause
+        video.addEventListener('click', () => {
+            if (video.paused) video.play();
+            else video.pause();
+        });
+
+        video.play().catch(() => {
+            video.muted = true;
+            video.play();
+            showToast("Tap for sound");
+        });
+    } else {
+        wrapper.innerHTML = `<img src="${post.media}" class="max-w-full max-h-full object-contain">`;
+        // Hide scrubber for images
+        document.querySelector('.yt-progress-container').classList.add('hidden');
     }
     
-    wrapper.innerHTML = content + overlayHTML; 
-    lightbox.classList.add('opacity-100'); 
-    lightbox.classList.remove('pointer-events-none'); 
+    lightbox.classList.remove('pointer-events-none');
+    lightbox.classList.add('opacity-100');
     refreshIcons();
-
-    // Ensure audio works if muted by browser
-    const player = document.getElementById('yt-player');
-    if(player) {
-        player.play().catch(() => {
-            player.muted = true;
-            player.play();
-            showToast("Video muted. Click to enable sound.");
-        });
-    }
 }
 
-window.closeLightbox = function() { 
-    const lightbox = document.getElementById('lightbox'); 
-    lightbox.classList.add('pointer-events-none'); 
-    lightbox.classList.remove('opacity-100'); 
-    const video = lightbox.querySelector('video'); 
-    if(video) video.pause(); 
+window.closeLightbox = function() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.add('pointer-events-none');
+    lightbox.classList.remove('opacity-100');
+    const video = document.getElementById('yt-player');
+    if (video) video.pause();
+    document.getElementById('lightbox-wrapper').innerHTML = "";
+    document.querySelector('.yt-progress-container').classList.remove('hidden');
+}
+
+window.seekVideo = function(e) {
+    const video = document.getElementById('yt-player');
+    if (!video) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pos = (e.clientX - rect.left) / rect.width;
+    video.currentTime = pos * video.duration;
 }
 
 // AI - Restored

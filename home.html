@@ -10,6 +10,7 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+<script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Google+Sans:wght@400;500;700&display=swap');
 
@@ -723,24 +724,6 @@ transform: translateX(20px);
         z-index: 20;
     }
 
-    /* REEL MODE MODIFICATIONS */
-    #post-view-overlay.is-reel .mobile-header,
-    #post-view-overlay.is-reel .mobile-footer {
-        display: none;
-    }
-    
-    #post-view-overlay.is-reel .stage-panel {
-        background: #000;
-        height: 100%;
-    }
-    
-    #post-view-overlay.is-reel .stage-content {
-        height: 100%;
-        width: 100%;
-        object-fit: cover;
-    }
-
-    /* Standard Mode */
     .stage-panel {
         flex: 1; /* Grow to fill space */
         background: #000; /* Dark background for media */
@@ -798,7 +781,7 @@ transform: translateX(20px);
         right: 0;
         height: 75vh;
         background: #fff;
-        z-index: 60;
+        z-index: 50;
         border-radius: 20px 20px 0 0;
         box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
         transform: translateY(100%);
@@ -944,90 +927,6 @@ transform: translateX(20px);
     box-shadow: 0 0 0 3px rgba(11, 87, 208, 0.1);
 }
 
-/* REEL OVERLAY UI ELEMENTS */
-.reel-overlay-ui {
-    display: none;
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 30;
-}
-#post-view-overlay.is-reel .reel-overlay-ui {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-.reel-side-actions {
-    position: absolute;
-    right: 12px;
-    bottom: 80px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;
-    pointer-events: auto;
-}
-.reel-action-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    color: white;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-}
-.reel-action-btn i {
-    width: 32px;
-    height: 32px;
-    stroke-width: 2px;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-}
-.reel-action-text {
-    font-size: 12px;
-    font-weight: 600;
-}
-.reel-bottom-info {
-    position: absolute;
-    bottom: 24px;
-    left: 16px;
-    right: 80px;
-    pointer-events: auto;
-    color: white;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-}
-.reel-user-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-.reel-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 2px solid white;
-}
-.reel-username {
-    font-weight: 700;
-    font-size: 15px;
-}
-.reel-caption {
-    font-size: 14px;
-    line-height: 1.4;
-    max-height: 80px;
-    overflow-y: auto;
-}
-.reel-close {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    color: white;
-    pointer-events: auto;
-    background: rgba(0,0,0,0.2);
-    border-radius: 50%;
-    padding: 8px;
-    backdrop-filter: blur(4px);
-}
-
 </style>
 </head>
 <body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
@@ -1081,6 +980,32 @@ transform: translateX(20px);
 <!-- Post Options Global Menu -->
 <div id="global-post-menu" class="post-options-menu"></div>
 
+<!-- MOBILE NOTIFICATIONS HEADER -->
+<div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
+   <div class="h-14 flex items-center justify-between px-4 shrink-0 relative">
+      <span class="font-bold text-lg text-[#1f1f1f]">Notifications</span>
+      <div class="relative">
+          <button onclick="toggleNotifMenu()" class="icon-btn"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
+          <div id="notif-menu-dropdown" class="absolute right-0 top-10 bg-white border border-gray-100 shadow-xl rounded-xl z-50 w-48 hidden flex-col overflow-hidden">
+              <button onclick="toggleNotifSelection()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium border-b border-gray-50 text-gray-700">Select</button>
+              <button onclick="deleteSelectedNotifs()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete Selected</button>
+              <button onclick="clearAllNotifications()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete All</button>
+          </div>
+      </div>
+   </div>
+   <div class="px-4 pb-2">
+       <div class="relative">
+           <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
+           <input type="text" id="notif-search" placeholder="Search notifications..." oninput="handleNotifSearch(this.value)" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
+       </div>
+   </div>
+   <div class="tab-group mb-0 mx-0 w-full">
+        <button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i> Following</button>
+        <button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i> Others</button>
+        <button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button>
+    </div>
+</div>
+
 <!-- MOBILE EXPLORE HEADER -->
 <div id="mobile-explore-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex items-center gap-3 px-3 h-16 border-b border-gray-100 hidden">
     <div class="relative flex-1">
@@ -1117,40 +1042,7 @@ transform: translateX(20px);
     <!-- Floating Stage Layout -->
     <div class="post-modal-layout scale-in relative z-10">
         
-        <!-- Reel UI Layer (Only visible in .is-reel mode on mobile) -->
-        <div class="reel-overlay-ui md:hidden">
-            <button onclick="closePostView()" class="reel-close"><i data-lucide="x" class="w-6 h-6"></i></button>
-            
-            <div class="reel-side-actions">
-                <div class="reel-action-btn" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)">
-                    <i id="reel-action-like" data-lucide="heart"></i>
-                    <span id="reel-like-count" class="reel-action-text">0</span>
-                </div>
-                <div class="reel-action-btn" onclick="toggleMobileCommentDrawer()">
-                    <i data-lucide="message-circle"></i>
-                    <span id="reel-comment-count" class="reel-action-text">0</span>
-                </div>
-                <div class="reel-action-btn" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)">
-                    <i data-lucide="send"></i>
-                    <span class="reel-action-text">Share</span>
-                </div>
-                <div class="reel-action-btn" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)">
-                    <i id="reel-action-save" data-lucide="bookmark"></i>
-                </div>
-            </div>
-
-            <div class="reel-bottom-info">
-                <div class="reel-user-row" onclick="if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
-                    <img id="reel-user-avatar" src="" class="reel-avatar object-cover">
-                    <span id="reel-username" class="reel-username">User</span>
-                </div>
-                <div id="reel-caption" class="reel-caption">
-                    <!-- Caption Text -->
-                </div>
-            </div>
-        </div>
-
-        <!-- 1. Mobile Header (Static, Visible on Mobile Standard Mode) -->
+        <!-- 1. Mobile Header (Static, Visible on Mobile) -->
         <div class="mobile-header md:hidden">
             <div class="flex items-center gap-3 cursor-pointer" onclick="closePostView(); if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
                 <img id="mobile-post-pfp" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
@@ -1164,7 +1056,7 @@ transform: translateX(20px);
              <!-- Media Injected Here -->
         </div>
 
-        <!-- 3. Mobile Footer (Static, Visible on Mobile Standard Mode) -->
+        <!-- 3. Mobile Footer (Static, Visible on Mobile) -->
         <div class="mobile-footer md:hidden">
             <div class="mobile-actions-bar">
                 <div class="mobile-action-group">
@@ -1581,42 +1473,17 @@ Change
 <div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
 
 <!-- NOTIFICATIONS VIEW (Now Main) -->
-<!-- RESTRUCTURED FOR FLEXBOX SCROLLING -->
-<div id="view-notifications" class="flex-1 h-full hidden bg-[#f9fafb] md:bg-[#fff] flex flex-col">
-    <!-- Non-fixed header content that sits naturally at top -->
-    <div class="shrink-0 bg-white md:pt-6">
-        <div class="flex justify-between items-center mb-0 md:mb-4 px-4 h-14 md:h-auto border-b md:border-none border-gray-100">
-            <h2 class="text-lg md:text-2xl font-bold text-[#1f1f1f]">Notifications</h2>
-            <div class="flex gap-4 items-center">
-                <button onclick="toggleNotifMenu()" class="icon-btn md:hidden"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
-                <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline hidden md:block">Clear All</button>
-            </div>
-            
-            <!-- Mobile Menu Dropdown -->
-            <div id="notif-menu-dropdown" class="absolute right-4 top-12 bg-white border border-gray-100 shadow-xl rounded-xl z-50 w-48 hidden flex-col overflow-hidden">
-                  <button onclick="toggleNotifSelection()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium border-b border-gray-50 text-gray-700">Select</button>
-                  <button onclick="deleteSelectedNotifs()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete Selected</button>
-                  <button onclick="clearAllNotifications()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete All</button>
-            </div>
-        </div>
-        
-        <!-- Mobile Search Bar -->
-        <div class="px-4 pb-2 md:hidden">
-           <div class="relative">
-               <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
-               <input type="text" id="notif-search" placeholder="Search notifications..." oninput="handleNotifSearch(this.value)" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
-           </div>
-       </div>
-
-        <div class="tab-group mb-0 mx-0 w-full">
-            <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i> Following</button>
-            <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i> Others</button>
-            <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button>
-        </div>
+<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-[220px] md:pt-6">
+    <div class="flex justify-between items-center mb-4 px-4 md:px-0 hidden md:flex">
+        <h2 class="text-2xl font-bold">Notifications</h2>
+        <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
     </div>
-    
-    <!-- Scrollable List Area -->
-    <div id="notification-list" class="flex-1 overflow-y-auto w-full"></div>
+    <div class="tab-group mb-4 mx-0 md:mx-0 hidden md:flex">
+        <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i> Following</button>
+        <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i> Others</button>
+        <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button>
+    </div>
+    <div id="notification-list" class="w-full"></div>
 </div>
 
 <!-- ANNOUNCEMENTS VIEW (Admin) -->
@@ -2030,7 +1897,15 @@ handleSearch(searchVal);
 }
 
 const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
-if(activePostView && window.currentViewingPostId) renderCommentsInModal(window.currentViewingPostId);
+if(activePostView && window.currentViewingPostId) {
+    // Check if the current post was modified
+    const currentPost = posts.find(p => p.id === window.currentViewingPostId);
+    if(currentPost) {
+        renderCommentsInModal(window.currentViewingPostId);
+        // Realtime update for stats in overlay
+        updatePostViewStats(window.currentViewingPostId);
+    }
+}
 
 const threadOverlay = document.getElementById('thread-overlay');
 if (!threadOverlay.classList.contains('hidden') && window.threadPostId && window.threadParentCommentId) {
@@ -2071,6 +1946,26 @@ if(activeNotif) renderNotifications();
 refreshIcons();
 });
 
+}
+
+window.updatePostViewStats = function(postId) {
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+    
+    // Desktop Stats
+    const deskLikeCount = document.getElementById('post-view-likes-count');
+    if (deskLikeCount) {
+        deskLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
+    }
+    
+    // Mobile Stats
+    const mobLikeCount = document.getElementById('mobile-like-count');
+    if (mobLikeCount) {
+        mobLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
+        // Ensure visibility respects settings
+        const showLikes = post.settings?.showLikes !== false;
+        mobLikeCount.style.display = showLikes ? 'block' : 'none';
+    }
 }
 
 function updateUserInterface() {
@@ -2212,7 +2107,7 @@ if(mainHeader) {
     mainHeader.style.transform = 'translateY(0)';
 }
 if(mobileBottomNav) mobileBottomNav.classList.remove('hidden');
-// We don't need mobileNotifHeader anymore as we refactored it inside the view
+if(mobileNotifHeader) mobileNotifHeader.classList.add('hidden', 'flex'); 
 if(mobileExploreHeader) mobileExploreHeader.classList.add('hidden');
 
 // HIDE MAIN HEADER ON PROFILE VIEW (Desktop & Mobile)
@@ -2224,6 +2119,9 @@ if (viewName === 'profile') {
 if (window.innerWidth < 768) {
     if (viewName === 'notifications') {
         if(mainHeader) mainHeader.classList.add('hidden');
+        // Footer (mobileBottomNav) is kept VISIBLE for notifications
+        if(mobileNotifHeader) mobileNotifHeader.classList.remove('hidden');
+        if(mobileNotifHeader) mobileNotifHeader.classList.add('flex');
     } else if (viewName === 'explore') {
         if(mainHeader) mainHeader.classList.add('hidden');
         if(mobileBottomNav) mobileBottomNav.classList.add('hidden');
@@ -2632,33 +2530,15 @@ if(overlayLikeBtn && window.currentViewingPostId === postId) {
 // Optimistic UI Update for Mobile Overlay
 const mobileLikeBtn = document.getElementById('mobile-action-like');
 const mobileCountSpan = document.getElementById('mobile-like-count');
-const reelLikeBtn = document.getElementById('reel-action-like');
-const reelLikeCount = document.getElementById('reel-like-count');
-
-if(window.currentViewingPostId === postId) {
-    // Normal Mobile
-    if(mobileLikeBtn) {
-        const isMobileLiked = mobileLikeBtn.classList.contains('text-red-500');
-        mobileLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-[#1f1f1f]');
-        if(isMobileLiked) {
-            mobileLikeBtn.classList.add('text-[#1f1f1f]');
-            if(mobileCountSpan) mobileCountSpan.innerText = Math.max(0, (parseInt(mobileCountSpan.innerText) || 0) - 1);
-        } else {
-            mobileLikeBtn.classList.add('fill-red-500', 'text-red-500');
-            if(mobileCountSpan) mobileCountSpan.innerText = (parseInt(mobileCountSpan.innerText) || 0) + 1;
-        }
-    }
-    
-    // Reel
-    if(reelLikeBtn) {
-        const isReelLiked = reelLikeBtn.classList.contains('fill-red-500');
-        reelLikeBtn.classList.remove('fill-red-500', 'text-red-500');
-        if(isReelLiked) {
-            if(reelLikeCount) reelLikeCount.innerText = Math.max(0, (parseInt(reelLikeCount.innerText) || 0) - 1);
-        } else {
-            reelLikeBtn.classList.add('fill-red-500', 'text-red-500');
-            if(reelLikeCount) reelLikeCount.innerText = (parseInt(reelLikeCount.innerText) || 0) + 1;
-        }
+if(mobileLikeBtn && window.currentViewingPostId === postId) {
+    const isMobileLiked = mobileLikeBtn.classList.contains('text-red-500');
+    mobileLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-[#1f1f1f]');
+    if(isMobileLiked) {
+        mobileLikeBtn.classList.add('text-[#1f1f1f]');
+        if(mobileCountSpan) mobileCountSpan.innerText = Math.max(0, (parseInt(mobileCountSpan.innerText) || 0) - 1);
+    } else {
+        mobileLikeBtn.classList.add('fill-red-500', 'text-red-500');
+        if(mobileCountSpan) mobileCountSpan.innerText = (parseInt(mobileCountSpan.innerText) || 0) + 1;
     }
 }
 
@@ -2743,25 +2623,13 @@ if(overlaySaveBtn && window.currentViewingPostId === postId) {
 
 // Optimistic UI Mobile Overlay
 const mobSaveBtn = document.getElementById('mobile-action-save');
-const reelSaveBtn = document.getElementById('reel-action-save');
-
-if(window.currentViewingPostId === postId) {
-    if(mobSaveBtn) {
-        const isMobSaved = mobSaveBtn.classList.contains('text-yellow-500');
-        mobSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-[#1f1f1f]');
-        if(isMobSaved) {
-            mobSaveBtn.classList.add('text-[#1f1f1f]');
-        } else {
-            mobSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
-        }
-    }
-    
-    if(reelSaveBtn) {
-        const isReelSaved = reelSaveBtn.classList.contains('fill-yellow-500');
-        reelSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500');
-        if(!isReelSaved) {
-            reelSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
-        }
+if(mobSaveBtn && window.currentViewingPostId === postId) {
+    const isMobSaved = mobSaveBtn.classList.contains('text-yellow-500');
+    mobSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-[#1f1f1f]');
+    if(isMobSaved) {
+        mobSaveBtn.classList.add('text-[#1f1f1f]');
+    } else {
+        mobSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
     }
 }
 
@@ -3547,49 +3415,6 @@ const mediaContainer = document.getElementById('post-view-media-container');
 const captionArea = document.getElementById('post-view-caption-area');
 const overlay = document.getElementById('post-view-overlay');
 
-// REEL LOGIC CHECK
-overlay.classList.remove('is-reel');
-let isReel = false;
-
-if (post.media && (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video'))) {
-    // Create temp video to check metadata
-    const tempVideo = document.createElement('video');
-    tempVideo.src = post.media;
-    tempVideo.onloadedmetadata = () => {
-        if(tempVideo.duration < 60) {
-            // It's a reel!
-            overlay.classList.add('is-reel');
-            // Update Reel UI
-            document.getElementById('reel-username').innerText = author.name;
-            document.getElementById('reel-user-avatar').src = author.avatar;
-            document.getElementById('reel-caption').innerHTML = tagsHTML;
-            
-            const reelLikeCount = document.getElementById('reel-like-count');
-            const reelCommentCount = document.getElementById('reel-comment-count');
-            const reelLikeBtn = document.getElementById('reel-action-like');
-            const reelSaveBtn = document.getElementById('reel-action-save');
-            
-            reelLikeCount.innerText = post.likes ? post.likes.length : 0;
-            reelCommentCount.innerText = post.comments ? post.comments.length : 0;
-            
-            const isLiked = post.likes && post.likes.includes(currentUser.id);
-            if(isLiked) {
-                reelLikeBtn.classList.add('fill-red-500', 'text-red-500');
-            } else {
-                reelLikeBtn.classList.remove('fill-red-500', 'text-red-500');
-            }
-            
-            const isSaved = savedPosts.includes(postId);
-            if(isSaved) {
-                reelSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
-            } else {
-                reelSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500');
-            }
-        }
-    };
-    tempVideo.load();
-}
-
 document.getElementById('post-view-avatar').src = author.avatar;
 document.getElementById('post-view-username').innerText = author.name;
 document.getElementById('post-view-date').innerText = dateStr;
@@ -3601,7 +3426,7 @@ document.getElementById('post-view-likes-count').innerText = likeCountText;
 document.getElementById('post-view-avatar').onclick = () => showProfile(author.id);
 document.getElementById('post-view-username').onclick = () => showProfile(author.id);
 
-// MOBILE ELEMENTS POPULATION (Standard View)
+// MOBILE ELEMENTS POPULATION
 document.getElementById('mobile-post-pfp').src = author.avatar;
 document.getElementById('mobile-post-username').innerText = author.name;
 document.getElementById('mobile-post-caption').innerHTML = tagsHTML;
@@ -3616,9 +3441,42 @@ if(showLikes) {
 
 // Media Logic (Shared Container for Desktop/Mobile Stage)
 mediaContainer.classList.remove('hidden'); // Always show container
+mediaContainer.innerHTML = ''; // Clear previous
+
 if (post.media) {
     if (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video')) {
-         mediaContainer.innerHTML = `<video src="${post.media}" class="stage-content rounded-lg shadow-2xl" controls autoplay muted playsinline loop></video>`;
+         const videoEl = document.createElement('video');
+         videoEl.src = post.media;
+         videoEl.className = "stage-content rounded-lg shadow-2xl"; // Default Desktop Style
+         videoEl.controls = true;
+         videoEl.playsInline = true;
+         videoEl.autoplay = true;
+         videoEl.muted = true; // Auto-play usually requires muted
+
+         // Mobile Reel Logic Check
+         if(window.innerWidth < 768) {
+             videoEl.onloadedmetadata = function() {
+                 // Reel Mode if < 60s
+                 if(this.duration < 60) {
+                     this.className = "w-full h-full object-cover"; // Full bleed
+                     this.controls = false;
+                     this.loop = true;
+                     this.muted = false; // Try unmuted
+                     this.play().catch(() => {
+                         this.muted = true; 
+                         this.play();
+                     });
+                     
+                     // Tap to Toggle Sound
+                     this.onclick = (e) => {
+                         e.stopPropagation();
+                         this.muted = !this.muted;
+                         showToast(this.muted ? "Muted" : "Unmuted");
+                     };
+                 }
+             };
+         }
+         mediaContainer.appendChild(videoEl);
     } else {
          mediaContainer.innerHTML = `<img src="${post.media}" class="stage-content rounded-lg shadow-2xl">`;
     }
@@ -3721,7 +3579,6 @@ window.toggleMobileCommentDrawer = function() {
 window.closePostView = function() {
 document.getElementById('post-view-overlay').classList.add('hidden');
 document.getElementById('post-view-overlay').classList.remove('flex');
-document.getElementById('post-view-overlay').classList.remove('is-reel'); // Reset class
 // Close drawer if open
 const drawer = document.querySelector('.discussion-panel');
 if(drawer) drawer.classList.remove('open');

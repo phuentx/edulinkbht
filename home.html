@@ -10,7 +10,6 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
-<script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Google+Sans:wght@400;500;700&display=swap');
 
@@ -653,32 +652,16 @@ transform: translateX(20px);
     gap: 0;
 }
 
-/* REEL MODE CSS (MOBILE & DESKTOP FORCE) */
-.reel-view-active .mobile-header,
-.reel-view-active .mobile-footer,
-.reel-view-active .discussion-panel,
-.reel-view-active #post-view-media-container {
+/* REEL MODE CSS (MOBILE) */
+.mobile-reel-view .mobile-header,
+.mobile-reel-view .mobile-footer {
     display: none !important;
 }
-
-/* Specific Container for Reel View (Mobile & Desktop) */
-.reel-container-fullscreen {
-    display: none;
-    position: absolute;
-    inset: 0;
-    z-index: 50;
-    background: black;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+.mobile-reel-view .reel-ui-layer {
+    display: flex !important;
 }
-.reel-view-active .reel-container-fullscreen {
-    display: flex;
-}
-
-/* Reel UI Layer */
 .reel-ui-layer {
-    display: flex;
+    display: none;
     flex-direction: column;
     justify-content: space-between;
     position: absolute;
@@ -687,29 +670,7 @@ transform: translateX(20px);
     padding: 16px 12px 30px;
     background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.4) 100%);
     pointer-events: none; 
-    width: 100%;
-    height: 100%;
 }
-
-/* On Desktop, constrain width of reel UI to mobile-like ratio if preferred, or full width. 
-   User asked for "scrollable reel show it direct overlay". 
-   We'll keep full overlay but maybe center content.
-*/
-@media (min-width: 768px) {
-    .reel-content-wrapper {
-        width: 100%;
-        max-width: 450px; /* Phone size on desktop */
-        height: 100%;
-        position: relative;
-        background: black;
-        overflow: hidden;
-    }
-    .reel-ui-layer {
-        position: absolute;
-        inset: 0;
-    }
-}
-
 .reel-interact-btn {
     pointer-events: auto;
     display: flex;
@@ -730,6 +691,30 @@ transform: translateX(20px);
     color: white;
 }
 
+/* Reel Nav Bar */
+.reel-nav-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    padding: 12px 0;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    margin-top: auto;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(5px);
+    pointer-events: auto;
+    border-radius: 20px 20px 0 0;
+}
+.reel-nav-item {
+    color: white;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    cursor: pointer;
+}
+.reel-nav-item:hover, .reel-nav-item.active {
+    opacity: 1;
+}
+
 /* Spinning Music Indicator */
 .reel-audio-btn {
     width: 36px;
@@ -744,7 +729,7 @@ transform: translateX(20px);
     animation: spin 4s linear infinite;
 }
 
-/* Desktop Styles Standard */
+/* Desktop Styles */
 @media (min-width: 768px) {
     .post-modal-layout {
         flex-direction: row;
@@ -1032,6 +1017,9 @@ transform: translateX(20px);
     padding-bottom: 4px;
     border-bottom: 2px solid transparent;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 .explore-tab-btn.active {
     color: #1f1f1f;
@@ -1180,53 +1168,66 @@ transform: translateX(20px);
              <div id="video-play-overlay" class="play-pause-overlay"><i data-lucide="play" class="play-pause-icon"></i></div>
         </div>
 
-        <!-- REEL UI CONTAINER (Unified for Mobile & Desktop Force) -->
-        <div id="reel-container-wrapper" class="reel-container-fullscreen">
-            <div class="reel-content-wrapper relative w-full h-full flex flex-col">
-                <video id="reel-main-video" class="w-full h-full object-cover" playsinline loop></video>
-                
-                <div class="reel-ui-layer">
-                    <!-- Top -->
-                    <div class="flex justify-between items-start pointer-events-auto mt-2">
-                        <button onclick="closePostView()" class="text-white drop-shadow-md p-2"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
+        <!-- REEL UI LAYER (MOBILE VIDEO ONLY) -->
+        <div id="reel-ui-layer" class="reel-ui-layer md:hidden">
+            <!-- Top -->
+            <div class="flex justify-between items-start pointer-events-auto mt-2">
+                <button onclick="closePostView()" class="text-white drop-shadow-md p-2"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
+            </div>
+            
+            <!-- Bottom -->
+            <div class="flex items-end justify-between w-full h-full pb-16">
+                <!-- Left Info -->
+                <div class="flex flex-col gap-3 max-w-[80%] text-white drop-shadow-md pointer-events-auto pb-4 pl-1 mt-auto">
+                    <div class="flex items-center gap-2 cursor-pointer" id="reel-user-info-area">
+                        <img id="reel-user-avatar" src="" class="w-8 h-8 rounded-full border border-white/50 object-cover">
+                        <span id="reel-username" class="font-bold text-sm">Username</span>
+                        <button id="reel-follow-btn" class="bg-white/20 backdrop-blur text-xs px-2.5 py-1 rounded-md font-medium border border-white/30 hidden">Follow</button>
                     </div>
-                    
-                    <!-- Bottom -->
-                    <div class="flex items-end justify-between w-full">
-                        <!-- Left Info -->
-                        <div class="flex flex-col gap-3 max-w-[80%] text-white drop-shadow-md pointer-events-auto pb-2">
-                            <div class="flex items-center gap-2 cursor-pointer" id="reel-user-info-area">
-                                <img id="reel-user-avatar" src="" class="w-8 h-8 rounded-full border border-white/50 object-cover">
-                                <span id="reel-username" class="font-bold text-sm">Username</span>
-                                <button id="reel-follow-btn" class="bg-white/20 backdrop-blur text-xs px-2.5 py-1 rounded-md font-medium border border-white/30 hidden">Follow</button>
-                            </div>
-                            <div id="reel-caption" class="text-sm leading-snug opacity-90 break-words"></div>
-                        </div>
+                    <div id="reel-caption" class="text-sm leading-snug opacity-90 break-words"></div>
+                </div>
 
-                        <!-- Right Actions -->
-                        <div class="flex flex-col gap-5 items-center pointer-events-auto pb-2 mr-1">
-                            <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)">
-                                <i id="reel-like-icon" data-lucide="heart" class="reel-interact-icon"></i>
-                                <span id="reel-like-count" class="reel-interact-text">0</span>
-                            </div>
-                            <div class="reel-interact-btn cursor-pointer" onclick="toggleMobileCommentDrawer()">
-                                <i data-lucide="message-circle" class="reel-interact-icon"></i>
-                                <span id="reel-comment-count" class="reel-interact-text">0</span>
-                            </div>
-                            <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)">
-                                <i data-lucide="send" class="reel-interact-icon transform -rotate-12"></i>
-                            </div>
-                            <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)">
-                                <i id="reel-save-icon" data-lucide="bookmark" class="reel-interact-icon"></i>
-                            </div>
-                            <!-- Music/Audio Indicator -->
-                            <div class="reel-interact-btn mt-2">
-                                <div class="reel-audio-btn">
-                                    <i data-lucide="disc" class="w-5 h-5 text-white"></i>
-                                </div>
-                            </div>
+                <!-- Right Actions -->
+                <div class="flex flex-col gap-5 items-center pointer-events-auto pb-4 mr-1 mt-auto">
+                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)">
+                        <i id="reel-like-icon" data-lucide="heart" class="reel-interact-icon"></i>
+                        <span id="reel-like-count" class="reel-interact-text">0</span>
+                    </div>
+                    <div class="reel-interact-btn cursor-pointer" onclick="toggleMobileCommentDrawer()">
+                        <i data-lucide="message-circle" class="reel-interact-icon"></i>
+                        <span id="reel-comment-count" class="reel-interact-text">0</span>
+                    </div>
+                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)">
+                        <i data-lucide="send" class="reel-interact-icon transform -rotate-12"></i>
+                    </div>
+                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)">
+                        <i id="reel-save-icon" data-lucide="bookmark" class="reel-interact-icon"></i>
+                    </div>
+                    <!-- Music/Audio Indicator -->
+                    <div class="reel-interact-btn mt-2">
+                        <div class="reel-audio-btn">
+                            <i data-lucide="disc" class="w-5 h-5 text-white"></i>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Internal Video Footer Nav -->
+            <div class="reel-nav-bar">
+                <div class="reel-nav-item" onclick="closePostView(); switchView('feed')">
+                    <i data-lucide="home" class="w-6 h-6"></i>
+                </div>
+                <div class="reel-nav-item" onclick="closePostView(); switchView('explore')">
+                    <i data-lucide="compass" class="w-6 h-6"></i>
+                </div>
+                <div class="reel-nav-item" onclick="closePostView(); openCreateMenu()">
+                    <i data-lucide="plus-square" class="w-6 h-6"></i>
+                </div>
+                <div class="reel-nav-item" onclick="closePostView(); switchView('notifications')">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                </div>
+                <div class="reel-nav-item" onclick="closePostView(); showProfile(auth.currentUser ? auth.currentUser.uid : null)">
+                    <i data-lucide="user" class="w-6 h-6"></i>
                 </div>
             </div>
         </div>
@@ -1684,26 +1685,18 @@ Change
     </div>
 </div>
  <!-- SEARCH / EXPLORE VIEW -->
-<div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-white pt-12 md:pt-2">
-    <!-- Desktop/Mobile Unified Header for Explore -->
-    <div id="explore-header-container" class="sticky top-0 bg-white z-20 transition-all duration-300">
-      <!-- Default Explore Header State -->
-      <div id="explore-nav-default" class="flex items-center justify-between px-4 h-14 border-b border-gray-100">
-         <div class="flex gap-0 md:gap-4 w-full justify-around md:justify-start">
-             <button id="tab-explore-foryou" onclick="switchExploreMainTab('foryou')" class="explore-tab-btn active">For You</button>
-             <button id="tab-explore-trending" onclick="switchExploreMainTab('trending')" class="explore-tab-btn">Trending</button>
-             <button id="tab-explore-video" onclick="switchExploreMainTab('video')" class="explore-tab-btn">Videos</button>
+<div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-white">
+    <div id="explore-header-container" class="sticky top-0 bg-white z-20">
+      <div class="flex items-center justify-between px-4 h-14 border-b border-gray-100">
+         <div class="flex gap-4 w-full">
+             <button id="tab-explore-posts" onclick="switchExploreMainTab('posts')" class="explore-tab-btn active"><i data-lucide="grid" class="w-4 h-4"></i> Posts</button>
+             <button id="tab-explore-people" onclick="switchExploreMainTab('people')" class="explore-tab-btn"><i data-lucide="users" class="w-4 h-4"></i> People</button>
+             <button id="tab-explore-tags" onclick="switchExploreMainTab('tags')" class="explore-tab-btn"><i data-lucide="hash" class="w-4 h-4"></i> Tags</button>
          </div>
-         <button onclick="toggleExploreSearchMode()" class="icon-btn ml-4"><i data-lucide="search" class="w-5 h-5"></i></button>
+         <button onclick="toggleExploreSearch()" class="icon-btn shrink-0"><i data-lucide="search" class="w-5 h-5"></i></button>
       </div>
-      
-      <!-- Search Active State (Initially Hidden) -->
-      <div id="explore-nav-search" class="hidden flex items-center gap-3 px-4 h-14 border-b border-gray-100 bg-white">
-          <button onclick="toggleExploreSearchMode()" class="icon-btn -ml-2"><i data-lucide="arrow-left" class="w-5 h-5 text-gray-700"></i></button>
-          <div class="flex-1 relative">
-              <input type="text" id="mobile-explore-search" class="w-full bg-gray-100 rounded-full py-2 pl-4 pr-10 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Search Explore..." oninput="handleSearch(this.value)">
-              <button onclick="document.getElementById('mobile-explore-search').value=''; handleSearch('')" class="absolute right-3 top-2 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-4 h-4"></i></button>
-          </div>
+      <div id="explore-search-bar" class="hidden px-4 py-2 bg-white border-b border-gray-100">
+          <input type="text" id="mobile-explore-search" class="w-full bg-gray-100 rounded-xl py-2 px-4 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Search..." oninput="handleSearch(this.value)">
       </div>
     </div>
     
@@ -1851,7 +1844,7 @@ let activeNotifTab = 'friends';
 let activeNetworkTab = 'people';
 window.replyingToCommentId = null;
 window.currentViewingProfileId = null;
-window.activeExploreTab = 'foryou'; // Default tab
+window.activeExploreTab = 'posts'; // Changed default to posts
 window.currentProfileTab = 'posts';
 
 // Global Vars for App Logic
@@ -1892,8 +1885,10 @@ if(feedView) {
         const currentScroll = feedView.scrollTop;
         const header = document.getElementById('main-header');
         if (currentScroll > lastScrollTop && currentScroll > 60) {
+            // Scrolling down
             header.style.transform = 'translateY(-100%)';
         } else {
+            // Scrolling up
             header.style.transform = 'translateY(0)';
         }
         lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
@@ -2002,10 +1997,12 @@ window.saveUsername = async function() {
     const input = document.getElementById('new-username-input');
     const val = input.value.trim().toLowerCase();
     
+    // Simple Validation
     if(val.length < 3) { showToast("Too short", true); return; }
     if(/\s/.test(val)) { showToast("No spaces allowed", true); return; }
     if(!/^[a-z0-9_.]+$/.test(val)) { showToast("Letters, numbers, underscores only", true); return; }
 
+    // Check uniqueness (Client side scan for demo, backend rule better)
     const q = query(collection(db, "users"), where("username", "==", val));
     const snap = await getDocs(q);
     if(!snap.empty) { showToast("Username taken", true); return; }
@@ -2080,15 +2077,17 @@ if(activeNetwork && activeNetworkTab === 'posts') renderNetwork();
 
 const activeExplore = document.querySelector('#view-explore:not(.hidden)');
 if(activeExplore) {
-    const searchVal = document.getElementById('mobile-explore-search').value;
+    const searchVal = document.getElementById('global-search').value || document.getElementById('mobile-explore-search').value;
     handleSearch(searchVal);
 }
 
 const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
 if(activePostView && window.currentViewingPostId) {
+    // Check if the current post was modified
     const currentPost = posts.find(p => p.id === window.currentViewingPostId);
     if(currentPost) {
         renderCommentsInModal(window.currentViewingPostId);
+        // Realtime update for stats in overlay
         updatePostViewStats(window.currentViewingPostId);
     }
 }
@@ -2114,6 +2113,7 @@ if(unread) badge.style.display = 'block';
 else badge.style.display = 'none';
 }
 
+// Notification Sound Logic
 if(!isFirstNotifLoad) {
     snapshot.docChanges().forEach(change => {
         if(change.type === 'added') {
@@ -2137,18 +2137,22 @@ window.updatePostViewStats = function(postId) {
     const post = posts.find(p => p.id === postId);
     if (!post) return;
     
+    // Desktop Stats
     const deskLikeCount = document.getElementById('post-view-likes-count');
     if (deskLikeCount) {
         deskLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
     }
     
+    // Mobile Stats
     const mobLikeCount = document.getElementById('mobile-like-count');
     if (mobLikeCount) {
         mobLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
+        // Ensure visibility respects settings
         const showLikes = post.settings?.showLikes !== false;
         mobLikeCount.style.display = showLikes ? 'block' : 'none';
     }
 
+    // Reel Mode Stats
     const reelLikeCount = document.getElementById('reel-like-count');
     const reelCommCount = document.getElementById('reel-comment-count');
     const reelLikeIcon = document.getElementById('reel-like-icon');
@@ -2157,6 +2161,7 @@ window.updatePostViewStats = function(postId) {
     if(reelLikeCount) reelLikeCount.innerText = post.likes ? post.likes.length : 0;
     if(reelCommCount) reelCommCount.innerText = post.comments ? post.comments.length : 0;
     
+    // Update Reel Icons state
     if(reelLikeIcon) {
         const isLiked = post.likes && post.likes.includes(currentUser.id);
         if(isLiked) {
@@ -2310,26 +2315,33 @@ const desktopNavItems = document.querySelectorAll('.nav-item');
 const mainHeader = document.getElementById('main-header');
 const mobileBottomNav = document.getElementById('mobile-bottom-nav');
 const mobileNotifHeader = document.getElementById('mobile-notifications-header');
+const mobileExploreHeader = document.getElementById('mobile-explore-header');
 
-// Main Header Logic
+// Global Main Header Reset (Shows by default)
 if(mainHeader) {
-    if (viewName === 'profile' || viewName === 'explore' || viewName === 'notifications') {
-        // Hide main header on profile, explore, notifications views
-        mainHeader.classList.add('hidden');
-    } else {
-        mainHeader.classList.remove('hidden');
-        mainHeader.style.transform = 'translateY(0)';
-    }
+    mainHeader.classList.remove('hidden');
+    mainHeader.style.transform = 'translateY(0)';
 }
-
 if(mobileBottomNav) mobileBottomNav.classList.remove('hidden');
 if(mobileNotifHeader) mobileNotifHeader.classList.add('hidden', 'flex'); 
+if(mobileExploreHeader) mobileExploreHeader.classList.add('hidden');
+
+// HIDE MAIN HEADER ON PROFILE VIEW (Desktop & Mobile)
+if (viewName === 'profile') {
+    if(mainHeader) mainHeader.classList.add('hidden');
+}
 
 // Handle Mobile Specific Header/Footer Logic
 if (window.innerWidth < 768) {
     if (viewName === 'notifications') {
+        if(mainHeader) mainHeader.classList.add('hidden');
+        // Footer (mobileBottomNav) is kept VISIBLE for notifications
         if(mobileNotifHeader) mobileNotifHeader.classList.remove('hidden');
         if(mobileNotifHeader) mobileNotifHeader.classList.add('flex');
+    } else if (viewName === 'explore') {
+        if(mainHeader) mainHeader.classList.add('hidden');
+        // Explore now uses its own internal header, so we hide global mobile header.
+        // We DO NOT hide mobile-bottom-nav anymore for Explore
     }
 }
 
@@ -2366,7 +2378,7 @@ if(document.getElementById('feed-container').children.length === 0) renderFeed()
 const nav = document.getElementById('nav-explore'); if(nav) nav.classList.add('active');
 if(mobileNavItems[1]) mobileNavItems[1].classList.add('active');
 // Trigger explore render logic
-switchExploreMainTab('foryou');
+switchExploreMainTab('posts');
 } else if (viewName === 'network') {
 const nav = document.getElementById('nav-network'); if(nav) nav.classList.add('active');
 if(document.getElementById('network-content').children.length === 0) renderNetwork();
@@ -2379,6 +2391,8 @@ if(badge) badge.style.display = 'none';
 } else if (viewName === 'saved') {
 const nav = document.getElementById('nav-saved'); if(nav) nav.classList.add('active');
 if(document.getElementById('saved-container').children.length === 0) renderSaved();
+} else if (viewName === 'ai') {
+// No mobile nav item for AI directly, usually accessed via button or gesture
 } else if (viewName === 'announcements') {
 const nav = document.getElementById('nav-announcements'); if(nav) nav.classList.add('active');
 }
@@ -2490,6 +2504,7 @@ mediaHTML = isVideo
 </div>`;
 }
 
+// Updated Hashtag Parsing with Click Handler
 let tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag" onclick="event.stopPropagation(); openHashtag(\'$1\')">#$1</span>'));
 let officialBadge = author.isOfficial ? `<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>` : '';
 let lockIcon = settings.privacy === 'private' || author?.settings?.privateNetwork ? `<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>` : '';
@@ -2500,6 +2515,7 @@ const likeCountDisplay = settings.showLikes
 : '';
 const commentCountDisplay = settings.showComments ? `<span id="comment-count-${post.id}" class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span>` : '';
 
+// Collab Display Logic - ONLY SHOW ACCEPTED COLLABORATORS
 let acceptedCollabs = [];
 if(post.collaborators) {
     acceptedCollabs = post.collaborators.filter(c => c.status === 'accepted');
@@ -2513,6 +2529,7 @@ if(acceptedCollabs.length > 0) {
     </div>`;
 }
 
+// LIKED BY LOGIC
 let likedByHTML = '';
 if (post.likes && post.likes.length > 0 && currentUser.following) {
     const friendLikes = post.likes.filter(id => currentUser.following.includes(id));
@@ -2576,12 +2593,14 @@ window.openHashtag = function(tag) {
     if(!tag) return;
     const searchVal = `#${tag}`;
     switchView('explore');
+    switchExploreMainTab('tags');
     
-    // Force search mode active to show the input
-    toggleExploreSearchMode();
-    const input = document.getElementById('mobile-explore-search');
-    if(input) input.value = searchVal;
-    
+    // Update inputs
+    const headerInput = document.getElementById('global-search');
+    const mobileInput = document.getElementById('mobile-explore-search');
+    if(headerInput) headerInput.value = searchVal;
+    if(mobileInput) mobileInput.value = searchVal;
+
     handleSearch(searchVal);
 }
 
@@ -2591,29 +2610,18 @@ window.switchExploreMainTab = function(tabName) {
     const tabs = document.querySelectorAll('.explore-tab-btn');
     tabs.forEach(t => t.classList.remove('active'));
     
-    if(tabName === 'foryou') document.getElementById('tab-explore-foryou').classList.add('active');
-    else if(tabName === 'trending') document.getElementById('tab-explore-trending').classList.add('active');
-    else document.getElementById('tab-explore-video').classList.add('active');
+    if(tabName === 'posts') document.getElementById('tab-explore-posts').classList.add('active');
+    else if(tabName === 'people') document.getElementById('tab-explore-people').classList.add('active');
+    else if(tabName === 'tags') document.getElementById('tab-explore-tags').classList.add('active');
     
+    // Trigger logic
     handleSearch(document.getElementById('mobile-explore-search').value);
 }
 
-window.toggleExploreSearchMode = function() {
-    const navDefault = document.getElementById('explore-nav-default');
-    const navSearch = document.getElementById('explore-nav-search');
-    const isSearchActive = !navSearch.classList.contains('hidden');
-    
-    if(isSearchActive) {
-        // Close Search
-        navSearch.classList.add('hidden');
-        navDefault.classList.remove('hidden');
-        document.getElementById('mobile-explore-search').value = '';
-        handleSearch('');
-    } else {
-        // Open Search
-        navDefault.classList.add('hidden');
-        navSearch.classList.remove('hidden');
-        navSearch.classList.add('flex');
+window.toggleExploreSearch = function() {
+    const bar = document.getElementById('explore-search-bar');
+    bar.classList.toggle('hidden');
+    if(!bar.classList.contains('hidden')) {
         document.getElementById('mobile-explore-search').focus();
     }
 }
@@ -2623,67 +2631,113 @@ window.handleSearch = function(query) {
         switchView('explore');
     }
 
+    const headerInput = document.getElementById('global-search');
+    const mobileInput = document.getElementById('mobile-explore-search');
+
+    if(headerInput && headerInput.value !== query) headerInput.value = query;
+    if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
+
     const view = document.getElementById('explore-results');
     const term = query ? query.toLowerCase().trim() : '';
     
-    let filteredPosts = [...posts];
-    
-    // Tab Filtering Logic
-    if(window.activeExploreTab === 'video') {
-        filteredPosts = filteredPosts.filter(p => p.media && (p.media.includes('video') || p.media.endsWith('.mp4')));
-    } else if (window.activeExploreTab === 'trending') {
-        // Simple trending logic: sort by likes desc
-        filteredPosts.sort((a,b) => (b.likes ? b.likes.length : 0) - (a.likes ? a.likes.length : 0));
-    } else {
-        // For You: Shuffle random for now
-        if(!term) filteredPosts = filteredPosts.sort(() => 0.5 - Math.random());
-    }
-    
-    // Search Term Filtering
-    if(term) {
-        const keywords = term.split(" ").filter(k => k.length > 0);
-        filteredPosts = filteredPosts.filter(p => {
-            const content = (p.content || '').toLowerCase();
-            return keywords.some(k => content.includes(k));
-        });
-    }
-    
-    // Render Grid
-    let html = '';
-    if(filteredPosts.length === 0) {
-        html = `<div class="text-center py-20 text-gray-400"><p>No posts found.</p></div>`;
-    } else {
-        html = `<div class="grid grid-cols-3 gap-0.5 md:gap-4">`;
-        filteredPosts.forEach(p => {
-            let content = '';
-            let clickAction = '';
-            
-            // Check if Video Tab
-            if (window.activeExploreTab === 'video') {
-                clickAction = `openReelView('${p.id}')`;
-            } else {
-                clickAction = `openPostView('${p.id}')`;
-            }
+    view.innerHTML = '';
 
-            if (p.media) {
-                if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
-                        content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
-                        // If general tab, video click opens post view normally, unless specified otherwise. 
-                        // Prompt said "when u press the video show the reel".
-                        // So if item is video, open Reel View.
-                        clickAction = `openReelView('${p.id}')`;
-                } else {
-                        content = `<img src="${p.media}" class="w-full h-full object-cover">`;
-                }
-            } else {
-                content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
-            }
-            html += `<div class="relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity" onclick="${clickAction}">${content}</div>`;
+    if(window.activeExploreTab === 'people') {
+        const filteredUsers = users.filter(u => 
+            u.name.toLowerCase().includes(term) || (u.username && u.username.toLowerCase().includes(term))
+        );
+        
+        if(filteredUsers.length === 0) {
+            view.innerHTML = `<div class="text-center py-20 text-gray-400">No users found.</div>`;
+        } else {
+            const list = document.createElement('div');
+            list.className = "space-y-2 p-4";
+            filteredUsers.forEach(u => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between p-3 bg-white border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50";
+                div.onclick = () => showProfile(u.id);
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${u.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover">
+                        <div>
+                            <div class="font-bold text-gray-900">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="inline w-3 h-3 text-blue-500"></i>':''}</div>
+                            <div class="text-xs text-gray-500">@${u.username || 'user'}</div>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+            view.appendChild(list);
+        }
+    } 
+    else if(window.activeExploreTab === 'tags') {
+        // Collect all tags from posts
+        const allTags = new Set();
+        posts.forEach(p => {
+            const tags = p.content.match(/#\w+/g);
+            if(tags) tags.forEach(t => allTags.add(t.toLowerCase()));
         });
-        html += `</div>`;
+        
+        const filteredTags = Array.from(allTags).filter(t => t.includes(term));
+        
+        if(filteredTags.length === 0) {
+            view.innerHTML = `<div class="text-center py-20 text-gray-400">No tags found.</div>`;
+        } else {
+            const list = document.createElement('div');
+            list.className = "space-y-2 p-4";
+            filteredTags.forEach(t => {
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-3 p-4 bg-white border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50";
+                div.onclick = () => { handleSearch(t); switchExploreMainTab('posts'); }; // Click tag -> switch to posts
+                div.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600">#</div>
+                    <div class="font-bold text-gray-900">${t}</div>
+                `;
+                list.appendChild(div);
+            });
+            view.appendChild(list);
+        }
+    }
+    else {
+        // POSTS
+        let filteredPosts = [...posts];
+        if(term) {
+            const keywords = term.split(" ").filter(k => k.length > 0);
+            filteredPosts = filteredPosts.filter(p => {
+                const content = (p.content || '').toLowerCase();
+                return keywords.some(k => content.includes(k));
+            });
+        } else {
+            // Random mix if empty
+            filteredPosts = filteredPosts.sort(() => 0.5 - Math.random());
+        }
+        
+        if(filteredPosts.length === 0) {
+            view.innerHTML = `<div class="text-center py-20 text-gray-400">No posts found.</div>`;
+        } else {
+            const grid = document.createElement('div');
+            grid.className = "grid grid-cols-3 gap-0.5 md:gap-4";
+            filteredPosts.forEach(p => {
+                let content = '';
+                if (p.media) {
+                    if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
+                            content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
+                    } else {
+                            content = `<img src="${p.media}" class="w-full h-full object-cover">`;
+                    }
+                } else {
+                    content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
+                }
+                const item = document.createElement('div');
+                item.className = "relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity";
+                item.onclick = () => openPostView(p.id);
+                item.innerHTML = content;
+                grid.appendChild(item);
+            });
+            view.appendChild(grid);
+        }
     }
     
-    view.innerHTML = html;
     refreshIcons();
 }
 
@@ -3560,7 +3614,6 @@ window.currentViewingPostId = postId;
 // Reset Classes
 const overlay = document.getElementById('post-view-overlay');
 overlay.classList.remove('mobile-reel-view');
-overlay.classList.remove('reel-view-active');
 
 const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
 const dateStr = formatDate(post.timestamp);
@@ -3593,7 +3646,35 @@ if(showLikes) {
     mobileLikeCount.style.display = 'none';
 }
 
+// MOBILE ELEMENTS POPULATION (Reel View)
+document.getElementById('reel-user-avatar').src = author.avatar;
+document.getElementById('reel-username').innerText = author.name;
+
+// Caption Read More Logic
+const reelCaption = document.getElementById('reel-caption');
+const fullContent = post.content;
+reelCaption.removeAttribute('data-expanded'); // Reset state
+reelCaption.style.maxHeight = '';
+reelCaption.style.overflowY = '';
+
+if(fullContent.length > 80) {
+    reelCaption.innerHTML = `<span>${fullContent.substring(0, 80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">more</span>`;
+    reelCaption.dataset.full = fullContent;
+} else {
+    reelCaption.innerHTML = fullContent;
+}
+
 updatePostViewStats(postId);
+
+// Fix Profile Redirect in Reel UI
+const userInfoArea = document.getElementById('reel-user-info-area');
+if(userInfoArea) {
+    userInfoArea.onclick = (e) => {
+        e.stopPropagation();
+        closePostView();
+        showProfile(author.id);
+    };
+}
 
 // Media Logic 
 mediaContainer.classList.remove('hidden'); 
@@ -3610,10 +3691,10 @@ if (post.media) {
          const videoEl = document.createElement('video');
          videoEl.src = post.media;
          videoEl.className = "stage-content rounded-lg shadow-2xl"; 
-         videoEl.controls = false; 
+         videoEl.controls = false; // Custom controls
          videoEl.playsInline = true;
          videoEl.autoplay = true;
-         videoEl.muted = false; 
+         videoEl.muted = false; // Try sound on desktop
          videoEl.loop = true;
 
          // Toggle Play/Pause Logic
@@ -3629,17 +3710,17 @@ if (post.media) {
          };
          
          videoEl.onclick = togglePlay;
-         playOverlay.onclick = togglePlay; 
+         playOverlay.onclick = togglePlay; // Ensure overlay click also toggles
 
-         // Standard mobile behavior for non-forced reels
+         // Mobile Reel Logic Check
          if(window.innerWidth < 768) {
              videoEl.onloadedmetadata = function() {
+                 // Reel Mode if video is vertical-ish (or always for mobile video?)
+                 // Let's force reel mode for all mobile videos for "immersive design"
                  overlay.classList.add('mobile-reel-view');
-                 overlay.classList.add('reel-view-active');
-                 this.className = "w-full h-full object-cover";
+                 this.className = "w-full h-full object-cover"; // Full bleed
                  this.muted = false; 
                  this.play().catch(() => { this.muted = true; this.play(); });
-                 populateReelUI(post, author); // Call helper to fill reel UI
              };
          }
          mediaContainer.insertBefore(videoEl, playOverlay);
@@ -3736,60 +3817,6 @@ overlay.classList.add('flex');
 refreshIcons();
 }
 
-// New helper to open specifically in Reel Mode (For Desktop Explore)
-window.openReelView = function(postId) {
-    const post = posts.find(p => p.id === postId);
-    if(!post) return;
-    window.currentViewingPostId = postId;
-    const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
-
-    const overlay = document.getElementById('post-view-overlay');
-    overlay.classList.add('reel-view-active'); // Forces full screen mobile layout style via CSS
-    
-    populateReelUI(post, author);
-    
-    // Set video source in the dedicated reel container
-    const videoEl = document.getElementById('reel-main-video');
-    videoEl.src = post.media;
-    videoEl.muted = false;
-    videoEl.play();
-
-    overlay.classList.remove('hidden');
-    overlay.classList.add('flex');
-    refreshIcons();
-}
-
-function populateReelUI(post, author) {
-    document.getElementById('reel-user-avatar').src = author.avatar;
-    document.getElementById('reel-username').innerText = author.name;
-
-    // Caption Read More Logic
-    const reelCaption = document.getElementById('reel-caption');
-    const fullContent = post.content;
-    reelCaption.removeAttribute('data-expanded'); 
-    reelCaption.style.maxHeight = '';
-    reelCaption.style.overflowY = '';
-
-    if(fullContent.length > 80) {
-        reelCaption.innerHTML = `<span>${fullContent.substring(0, 80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); toggleReelCaption('${post.id}')">more</span>`;
-        reelCaption.dataset.full = fullContent;
-    } else {
-        reelCaption.innerHTML = fullContent;
-    }
-
-    updatePostViewStats(post.id);
-
-    // Fix Profile Redirect in Reel UI
-    const userInfoArea = document.getElementById('reel-user-info-area');
-    if(userInfoArea) {
-        userInfoArea.onclick = (e) => {
-            e.stopPropagation();
-            closePostView();
-            showProfile(author.id);
-        };
-    }
-}
-
 window.toggleReelCaption = function(postId) {
     const el = document.getElementById('reel-caption');
     if(!el || !el.dataset.full) return;
@@ -3798,11 +3825,15 @@ window.toggleReelCaption = function(postId) {
     const fullText = el.dataset.full;
 
     if (isExpanded) {
+        // Collapse
         el.innerHTML = `<span>${fullText.substring(0, 80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">more</span>`;
         el.setAttribute('data-expanded', 'false');
         el.style.overflowY = 'hidden';
         el.style.maxHeight = '';
     } else {
+        // Expand
+        // Using innerText for full content to avoid HTML injection issues, but support marked if needed. 
+        // For simplicity and safety in caption, using textContent + custom less button.
         el.innerHTML = `<span>${fullText}</span> <span class="font-bold text-gray-300 cursor-pointer block mt-1" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">less</span>`;
         el.setAttribute('data-expanded', 'true');
         el.style.overflowY = 'auto';
@@ -3822,14 +3853,10 @@ document.getElementById('post-view-overlay').classList.remove('flex');
 const drawer = document.querySelector('.discussion-panel');
 if(drawer) drawer.classList.remove('open');
 
-// Stop videos
-const reelVideo = document.getElementById('reel-main-video');
-if(reelVideo) reelVideo.pause();
-const stageVideo = document.querySelector('#post-view-media-container video');
-if(stageVideo) stageVideo.pause();
-
 window.currentViewingPostId = null;
 window.replyingToCommentId = null;
+const video = document.querySelector('#post-view-media-container video');
+if(video) video.pause();
 }
 
 function renderCommentsInModal(postId) {
@@ -3869,7 +3896,7 @@ const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
 const canDelete = isMyComment || isAdmin;
 
 const replies = allComments.filter(r => r.parentId === c.id);
-const timeAgo = "Now"; 
+const timeAgo = "Now"; // Simplified for this context
 
 let html = `
 <div class="comment-row ${isMyComment ? 'me' : ''}">

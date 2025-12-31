@@ -1004,27 +1004,6 @@ transform: translateX(20px);
     border-color: #1f1f1f;
 }
 
-.category-chip {
-    padding: 6px 16px;
-    border-radius: 9999px;
-    font-size: 13px;
-    font-weight: 600;
-    white-space: nowrap;
-    border: 1px solid #e5e7eb;
-    color: #4b5563;
-    background: white;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.category-chip.active {
-    background: #1f1f1f;
-    color: white;
-    border-color: #1f1f1f;
-}
-.category-chip:hover:not(.active) {
-    background: #f9fafb;
-}
-
 /* Mobile Bottom Nav Z-Index Handling */
 #mobile-bottom-nav {
     z-index: 70 !important; /* Higher than Post Overlay */
@@ -1669,10 +1648,6 @@ Change
           <button onclick="switchExploreSubTab('posts')" class="flex-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-black focus:text-black focus:border-black" id="subtab-posts">Posts</button>
           <button onclick="switchExploreSubTab('tags')" class="flex-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-black focus:text-black focus:border-black" id="subtab-tags">Tags</button>
       </div>
-
-      <div id="explore-categories" class="flex gap-2 overflow-x-auto px-4 py-3 no-scrollbar border-b border-gray-100">
-          <!-- Chips generated via JS -->
-      </div>
     </div>
     
     <div id="explore-results" class="px-0 md:px-0 space-y-0 pt-0 pb-20">
@@ -1820,8 +1795,7 @@ let activeNetworkTab = 'people';
 window.replyingToCommentId = null;
 window.currentViewingProfileId = null;
 window.activeExploreTab = 'explore'; 
-window.activeExploreCategory = 'For You'; 
-window.activeExploreSubTab = 'for-you'; // Added sub-tab state
+window.activeExploreSubTab = 'for-you'; 
 window.currentProfileTab = 'posts';
 
 // Global Vars for App Logic
@@ -2590,11 +2564,8 @@ window.switchExploreMainTab = function(tabName) {
     if(tabName === 'explore') document.getElementById('tab-explore-main').classList.add('active');
     else document.getElementById('tab-explore-video').classList.add('active');
     
-    // Reset category if switching
-    if(tabName === 'video') window.activeExploreCategory = 'All';
-    else if(!window.activeExploreCategory) window.activeExploreCategory = 'For You';
+    // No categories to reset
     
-    renderExploreCategories();
     handleSearch(document.getElementById('mobile-explore-search').value);
 }
 
@@ -2621,28 +2592,6 @@ window.toggleExploreSearch = function() {
     if(!bar.classList.contains('hidden')) {
         document.getElementById('mobile-explore-search').focus();
     }
-}
-
-window.renderExploreCategories = function() {
-    const container = document.getElementById('explore-categories');
-    const categories = ['For You', 'News', 'Music', 'Education', 'Nature', 'Poem', 'History'];
-    let html = '';
-    
-    // "All" logic implicitly handled by category selection or tab
-    // If in Video tab, maybe different cats? For now stick to same.
-    
-    categories.forEach(cat => {
-        const isActive = window.activeExploreCategory === cat;
-        html += `<button onclick="selectExploreCategory('${cat}')" class="category-chip ${isActive ? 'active' : ''}">${cat}</button>`;
-    });
-    
-    container.innerHTML = html;
-}
-
-window.selectExploreCategory = function(cat) {
-    window.activeExploreCategory = cat;
-    renderExploreCategories();
-    handleSearch(document.getElementById('mobile-explore-search').value);
 }
 
 window.handleSearch = function(query) {
@@ -2713,12 +2662,8 @@ window.handleSearch = function(query) {
         filteredPosts = filteredPosts.filter(p => p.content.includes('#'));
     }
 
-    // 3. Category Filtering (Simulation)
-    if(window.activeExploreCategory && window.activeExploreCategory !== 'For You') {
-        const cat = window.activeExploreCategory.toLowerCase();
-        filteredPosts = filteredPosts.filter(p => p.content.toLowerCase().includes(cat));
-    } else if (window.activeExploreCategory === 'For You' && !term) {
-        // Randomize for "For You" if no search term
+    // 3. For You Logic (Randomize if no search)
+    if (window.activeExploreSubTab === 'for-you' && !term) {
         filteredPosts = filteredPosts.sort(() => 0.5 - Math.random());
     }
     
@@ -2748,6 +2693,7 @@ window.handleSearch = function(query) {
             } else {
                 content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
             }
+            // Ensure direct opening of post (reel view handled inside openPostView logic)
             html += `<div class="relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity" onclick="openPostView('${p.id}')">${content}</div>`;
         });
         html += `</div>`;
@@ -3701,6 +3647,18 @@ playOverlay.className = 'play-pause-overlay';
 playOverlay.innerHTML = '<i data-lucide="play" class="play-pause-icon"></i>';
 mediaContainer.appendChild(playOverlay);
 
+let forceReelMode = false;
+// Check if user clicked from Video Tab in Explore or it's a mobile video
+if (window.innerWidth < 768) {
+    if (post.media && (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video'))) {
+        forceReelMode = true;
+    }
+}
+
+if (forceReelMode) {
+    overlay.classList.add('mobile-reel-view');
+}
+
 if (post.media) {
     const isVideo = post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video');
     if (isVideo) {
@@ -3728,17 +3686,15 @@ if (post.media) {
          videoEl.onclick = togglePlay;
          playOverlay.onclick = togglePlay; // Ensure overlay click also toggles
 
-         // Mobile Reel Logic Check
-         if(window.innerWidth < 768) {
-             videoEl.onloadedmetadata = function() {
-                 // Reel Mode if video is vertical-ish (or always for mobile video?)
-                 // Let's force reel mode for all mobile videos for "immersive design"
-                 overlay.classList.add('mobile-reel-view');
-                 this.className = "w-full h-full object-cover"; // Full bleed
-                 this.muted = false; 
-                 this.play().catch(() => { this.muted = true; this.play(); });
-             };
+         if (forceReelMode) {
+             videoEl.className = "w-full h-full object-cover"; // Full bleed
+             videoEl.muted = false; 
+             // Auto play handling
+             setTimeout(() => {
+                 videoEl.play().catch(() => { videoEl.muted = true; videoEl.play(); });
+             }, 100);
          }
+         
          mediaContainer.insertBefore(videoEl, playOverlay);
     } else {
          mediaContainer.innerHTML = `<img src="${post.media}" class="stage-content rounded-lg shadow-2xl">`;

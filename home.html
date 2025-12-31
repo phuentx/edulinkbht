@@ -653,59 +653,6 @@ transform: translateX(20px);
     gap: 0;
 }
 
-/* REEL MODE CSS (MOBILE) */
-.mobile-reel-view .mobile-header,
-.mobile-reel-view .mobile-footer {
-    display: none !important;
-}
-.mobile-reel-view .reel-ui-layer {
-    display: flex !important;
-}
-.reel-ui-layer {
-    display: none;
-    flex-direction: column;
-    justify-content: space-between;
-    position: absolute;
-    inset: 0;
-    z-index: 40;
-    padding: 16px 12px 30px;
-    /* Improved Gradient for text readability */
-    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.4) 100%);
-    pointer-events: none; /* Let clicks pass through to video */
-}
-.reel-interact-btn {
-    pointer-events: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-}
-.reel-interact-icon {
-    width: 32px;
-    height: 32px;
-    color: white;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-}
-.reel-interact-text {
-    font-size: 11px;
-    font-weight: 600;
-    color: white;
-}
-
-/* Music Indicator (No Spin) */
-.reel-audio-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    border: 2px solid white;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #1f1f1f;
-}
-
 /* Desktop Styles */
 @media (min-width: 768px) {
     .post-modal-layout {
@@ -754,7 +701,7 @@ transform: translateX(20px);
     }
 }
 
-/* Mobile Post View Layout */
+/* Mobile Post View Layout - Normalized for all content types */
 @media (max-width: 767px) {
     .post-modal-layout {
         display: flex;
@@ -990,6 +937,40 @@ transform: translateX(20px);
     color: white; backdrop-filter: blur(4px);
 }
 
+.explore-tab-btn {
+    font-size: 16px;
+    font-weight: 700;
+    color: #9ca3af;
+    padding-bottom: 4px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+.explore-tab-btn.active {
+    color: #1f1f1f;
+    border-color: #1f1f1f;
+}
+
+.category-chip {
+    padding: 6px 16px;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid #e5e7eb;
+    color: #4b5563;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.category-chip.active {
+    background: #1f1f1f;
+    color: white;
+    border-color: #1f1f1f;
+}
+.category-chip:hover:not(.active) {
+    background: #f9fafb;
+}
+
 </style>
 </head>
 <body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
@@ -1069,15 +1050,6 @@ transform: translateX(20px);
     </div>
 </div>
 
-<!-- MOBILE EXPLORE HEADER -->
-<div id="mobile-explore-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex items-center gap-3 px-3 h-16 border-b border-gray-100 hidden">
-    <div class="relative flex-1">
-         <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
-         <input type="text" id="mobile-explore-search" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Search users, posts & tags..." oninput="handleSearch(this.value)">
-    </div>
-    <button onclick="switchView('feed')" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
-</div>
-
 <!-- THREAD OVERLAY (Redesigned) -->
 <div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div>
@@ -1118,51 +1090,6 @@ transform: translateX(20px);
         <div id="post-view-media-container" class="stage-panel group relative">
              <!-- Media Injected Here -->
              <div id="video-play-overlay" class="play-pause-overlay"><i data-lucide="play" class="play-pause-icon"></i></div>
-        </div>
-
-        <!-- REEL UI LAYER (MOBILE ONLY) -->
-        <div id="reel-ui-layer" class="reel-ui-layer md:hidden">
-            <!-- Top -->
-            <div class="flex justify-between items-start pointer-events-auto mt-2">
-                <button onclick="closePostView()" class="text-white drop-shadow-md p-2"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
-            </div>
-            
-            <!-- Bottom -->
-            <div class="flex items-end justify-between w-full">
-                <!-- Left Info -->
-                <div class="flex flex-col gap-3 max-w-[80%] text-white drop-shadow-md pointer-events-auto pb-2">
-                    <div class="flex items-center gap-2 cursor-pointer" id="reel-user-info-area">
-                        <img id="reel-user-avatar" src="" class="w-8 h-8 rounded-full border border-white/50 object-cover">
-                        <span id="reel-username" class="font-bold text-sm">Username</span>
-                        <button id="reel-follow-btn" class="bg-white/20 backdrop-blur text-xs px-2.5 py-1 rounded-md font-medium border border-white/30 hidden">Follow</button>
-                    </div>
-                    <div id="reel-caption" class="text-sm leading-snug opacity-90 break-words"></div>
-                </div>
-
-                <!-- Right Actions -->
-                <div class="flex flex-col gap-5 items-center pointer-events-auto pb-2 mr-1">
-                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)">
-                        <i id="reel-like-icon" data-lucide="heart" class="reel-interact-icon"></i>
-                        <span id="reel-like-count" class="reel-interact-text">0</span>
-                    </div>
-                    <div class="reel-interact-btn cursor-pointer" onclick="toggleMobileCommentDrawer()">
-                        <i data-lucide="message-circle" class="reel-interact-icon"></i>
-                        <span id="reel-comment-count" class="reel-interact-text">0</span>
-                    </div>
-                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)">
-                        <i data-lucide="send" class="reel-interact-icon transform -rotate-12"></i>
-                    </div>
-                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)">
-                        <i id="reel-save-icon" data-lucide="bookmark" class="reel-interact-icon"></i>
-                    </div>
-                    <!-- Music/Audio Indicator (No Spin) -->
-                    <div class="reel-interact-btn mt-2">
-                        <div class="reel-audio-btn">
-                            <i data-lucide="disc" class="w-5 h-5 text-white"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- 3. Mobile Footer (Static, Visible on Mobile) -->
@@ -1619,13 +1546,24 @@ Change
 </div>
  <!-- SEARCH / EXPLORE VIEW -->
 <div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-white">
-    <h2 class="text-2xl font-bold mb-4 px-4 md:px-0 hidden md:block pt-6">Explore</h2>
-    <div id="explore-results" class="px-0 md:px-0 space-y-0 pt-16 md:pt-0 pb-0 md:pb-0">
+    <div id="explore-header-container" class="sticky top-0 bg-white z-20">
+      <div class="flex items-center justify-between px-4 h-14 border-b border-gray-100">
+         <div class="flex gap-6">
+             <button id="tab-explore-main" onclick="switchExploreMainTab('explore')" class="explore-tab-btn active">Explore</button>
+             <button id="tab-explore-video" onclick="switchExploreMainTab('video')" class="explore-tab-btn">Videos</button>
+         </div>
+         <button onclick="toggleExploreSearch()" class="icon-btn"><i data-lucide="search" class="w-5 h-5"></i></button>
+      </div>
+      <div id="explore-search-bar" class="hidden px-4 py-2 bg-white border-b border-gray-100">
+          <input type="text" id="mobile-explore-search" class="w-full bg-gray-100 rounded-xl py-2 px-4 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Search..." oninput="handleSearch(this.value)">
+      </div>
+      <div id="explore-categories" class="flex gap-2 overflow-x-auto px-4 py-3 no-scrollbar border-b border-gray-100">
+          <!-- Chips generated via JS -->
+      </div>
+    </div>
+    
+    <div id="explore-results" class="px-0 md:px-0 space-y-0 pt-0 pb-20">
         <!-- Default State -->
-        <div class="text-center py-20 text-gray-400">
-            <h3 class="text-lg font-bold text-gray-800 mb-2">Search & Discover</h3>
-            <p class="text-gray-500 text-sm mb-6 flex items-center justify-center gap-2">Find new people and ideas <i data-lucide="search" class="w-4 h-4"></i></p>
-        </div>
     </div>
 </div>
 </main>
@@ -1768,7 +1706,8 @@ let activeNotifTab = 'friends';
 let activeNetworkTab = 'people';
 window.replyingToCommentId = null;
 window.currentViewingProfileId = null;
-window.activeExploreTab = 'posts'; // Default to posts/grid
+window.activeExploreTab = 'explore'; // Default tab
+window.activeExploreCategory = 'For You'; // Default category
 window.currentProfileTab = 'posts';
 
 // Global Vars for App Logic
@@ -2001,8 +1940,8 @@ if(activeNetwork && activeNetworkTab === 'posts') renderNetwork();
 
 const activeExplore = document.querySelector('#view-explore:not(.hidden)');
 if(activeExplore) {
-const searchVal = document.getElementById('global-search').value || document.getElementById('mobile-explore-search').value;
-handleSearch(searchVal);
+    const searchVal = document.getElementById('global-search').value || document.getElementById('mobile-explore-search').value;
+    handleSearch(searchVal);
 }
 
 const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
@@ -2074,37 +2013,6 @@ window.updatePostViewStats = function(postId) {
         // Ensure visibility respects settings
         const showLikes = post.settings?.showLikes !== false;
         mobLikeCount.style.display = showLikes ? 'block' : 'none';
-    }
-
-    // Reel Mode Stats
-    const reelLikeCount = document.getElementById('reel-like-count');
-    const reelCommCount = document.getElementById('reel-comment-count');
-    const reelLikeIcon = document.getElementById('reel-like-icon');
-    const reelSaveIcon = document.getElementById('reel-save-icon');
-
-    if(reelLikeCount) reelLikeCount.innerText = post.likes ? post.likes.length : 0;
-    if(reelCommCount) reelCommCount.innerText = post.comments ? post.comments.length : 0;
-    
-    // Update Reel Icons state
-    if(reelLikeIcon) {
-        const isLiked = post.likes && post.likes.includes(currentUser.id);
-        if(isLiked) {
-            reelLikeIcon.classList.add('fill-red-500', 'text-red-500');
-            reelLikeIcon.classList.remove('text-white');
-        } else {
-            reelLikeIcon.classList.remove('fill-red-500', 'text-red-500');
-            reelLikeIcon.classList.add('text-white');
-        }
-    }
-    if(reelSaveIcon) {
-        const isSaved = savedPosts.includes(postId);
-        if(isSaved) {
-            reelSaveIcon.classList.add('fill-yellow-500', 'text-yellow-500');
-            reelSaveIcon.classList.remove('text-white');
-        } else {
-            reelSaveIcon.classList.remove('fill-yellow-500', 'text-yellow-500');
-            reelSaveIcon.classList.add('text-white');
-        }
     }
 }
 
@@ -2264,8 +2172,8 @@ if (window.innerWidth < 768) {
         if(mobileNotifHeader) mobileNotifHeader.classList.add('flex');
     } else if (viewName === 'explore') {
         if(mainHeader) mainHeader.classList.add('hidden');
+        // Explore now uses its own internal header, so we hide global mobile header but don't need the 'mobile-explore-header' logic anymore
         if(mobileBottomNav) mobileBottomNav.classList.add('hidden');
-        if(mobileExploreHeader) mobileExploreHeader.classList.remove('hidden');
     }
 }
 
@@ -2301,7 +2209,8 @@ if(document.getElementById('feed-container').children.length === 0) renderFeed()
 } else if (viewName === 'explore') {
 const nav = document.getElementById('nav-explore'); if(nav) nav.classList.add('active');
 if(mobileNavItems[1]) mobileNavItems[1].classList.add('active');
-handleSearch(document.getElementById('mobile-explore-search').value);
+// Trigger explore render logic
+switchExploreMainTab('explore');
 } else if (viewName === 'network') {
 const nav = document.getElementById('nav-network'); if(nav) nav.classList.add('active');
 if(document.getElementById('network-content').children.length === 0) renderNetwork();
@@ -2500,7 +2409,7 @@ ${likedByHTML}
 <i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}"></i>
 </button>
 ${likeCountDisplay}
-<button class="action-btn comment ml-2" onclick="event.stopPropagation(); openPostView('${post.id}')"><i data-lucide="message-square" class="w-5 h-5"></i> ${commentCountDisplay}</button>
+<button class="action-btn comment ml-2" onclick="event.stopPropagation(); openPostView('${post.id}')"><i data-lucide="message-circle" class="w-5 h-5"></i> ${commentCountDisplay}</button>
 </div>
 <div class="flex items-center gap-1">
 <button id="save-btn-${post.id}" class="action-btn bookmark" onclick="event.stopPropagation(); toggleSave('${post.id}')"><i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-yellow-500 text-yellow-500' : ''}"></i></button>
@@ -2523,9 +2432,120 @@ window.openHashtag = function(tag) {
     if(headerInput) headerInput.value = searchVal;
     if(mobileInput) mobileInput.value = searchVal;
 
-    // Force Tags tab
-    window.activeExploreTab = 'tags';
+    // Force Tags tab if needed, otherwise search all
     handleSearch(searchVal);
+}
+
+// EXPLORE FUNCTIONS
+window.switchExploreMainTab = function(tabName) {
+    window.activeExploreTab = tabName;
+    const tabs = document.querySelectorAll('.explore-tab-btn');
+    tabs.forEach(t => t.classList.remove('active'));
+    
+    if(tabName === 'explore') document.getElementById('tab-explore-main').classList.add('active');
+    else document.getElementById('tab-explore-video').classList.add('active');
+    
+    // Reset category if switching
+    if(tabName === 'video') window.activeExploreCategory = 'All';
+    else if(!window.activeExploreCategory) window.activeExploreCategory = 'For You';
+    
+    renderExploreCategories();
+    handleSearch(document.getElementById('mobile-explore-search').value);
+}
+
+window.toggleExploreSearch = function() {
+    const bar = document.getElementById('explore-search-bar');
+    bar.classList.toggle('hidden');
+    if(!bar.classList.contains('hidden')) {
+        document.getElementById('mobile-explore-search').focus();
+    }
+}
+
+window.renderExploreCategories = function() {
+    const container = document.getElementById('explore-categories');
+    const categories = ['For You', 'News', 'Music', 'Education', 'Nature', 'Poem', 'History'];
+    let html = '';
+    
+    // "All" logic implicitly handled by category selection or tab
+    // If in Video tab, maybe different cats? For now stick to same.
+    
+    categories.forEach(cat => {
+        const isActive = window.activeExploreCategory === cat;
+        html += `<button onclick="selectExploreCategory('${cat}')" class="category-chip ${isActive ? 'active' : ''}">${cat}</button>`;
+    });
+    
+    container.innerHTML = html;
+}
+
+window.selectExploreCategory = function(cat) {
+    window.activeExploreCategory = cat;
+    renderExploreCategories();
+    handleSearch(document.getElementById('mobile-explore-search').value);
+}
+
+window.handleSearch = function(query) {
+    if(document.getElementById('view-explore').classList.contains('hidden')) {
+        switchView('explore');
+    }
+
+    const headerInput = document.getElementById('global-search');
+    const mobileInput = document.getElementById('mobile-explore-search');
+
+    if(headerInput && headerInput.value !== query) headerInput.value = query;
+    if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
+
+    const view = document.getElementById('explore-results');
+    const term = query ? query.toLowerCase().trim() : '';
+    
+    let filteredPosts = [...posts];
+    
+    // 1. Tab Filtering
+    if(window.activeExploreTab === 'video') {
+        filteredPosts = filteredPosts.filter(p => p.media && (p.media.includes('video') || p.media.endsWith('.mp4')));
+    }
+    
+    // 2. Category Filtering (Simulation)
+    if(window.activeExploreCategory && window.activeExploreCategory !== 'For You') {
+        const cat = window.activeExploreCategory.toLowerCase();
+        filteredPosts = filteredPosts.filter(p => p.content.toLowerCase().includes(cat));
+    } else if (window.activeExploreCategory === 'For You' && !term) {
+        // Randomize for "For You" if no search term
+        filteredPosts = filteredPosts.sort(() => 0.5 - Math.random());
+    }
+    
+    // 3. Search Term Filtering
+    if(term) {
+        const keywords = term.split(" ").filter(k => k.length > 0);
+        filteredPosts = filteredPosts.filter(p => {
+            const content = (p.content || '').toLowerCase();
+            return keywords.some(k => content.includes(k));
+        });
+    }
+    
+    // Render Grid
+    let html = '';
+    if(filteredPosts.length === 0) {
+        html = `<div class="text-center py-20 text-gray-400"><p>No posts found.</p></div>`;
+    } else {
+        html = `<div class="grid grid-cols-3 gap-0.5 md:gap-4">`;
+        filteredPosts.forEach(p => {
+            let content = '';
+            if (p.media) {
+                if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
+                        content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
+                } else {
+                        content = `<img src="${p.media}" class="w-full h-full object-cover">`;
+                }
+            } else {
+                content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
+            }
+            html += `<div class="relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity" onclick="openPostView('${p.id}')">${content}</div>`;
+        });
+        html += `</div>`;
+    }
+    
+    view.innerHTML = html;
+    refreshIcons();
 }
 
 window.openCollabSelector = function() {
@@ -2679,22 +2699,6 @@ if(mobileLikeBtn && window.currentViewingPostId === postId) {
     } else {
         mobileLikeBtn.classList.add('fill-red-500', 'text-red-500');
         if(mobileCountSpan) mobileCountSpan.innerText = (parseInt(mobileCountSpan.innerText) || 0) + 1;
-    }
-}
-
-// Optimistic Reel UI Update
-const reelLikeIcon = document.getElementById('reel-like-icon');
-const reelCount = document.getElementById('reel-like-count');
-if(reelLikeIcon && window.currentViewingPostId === postId) {
-    const isLiked = reelLikeIcon.classList.contains('text-red-500');
-    reelLikeIcon.classList.remove('fill-red-500', 'text-red-500', 'text-white');
-    let count = parseInt(reelCount.innerText) || 0;
-    if(isLiked) {
-        reelLikeIcon.classList.add('text-white');
-        reelCount.innerText = Math.max(0, count - 1);
-    } else {
-        reelLikeIcon.classList.add('fill-red-500', 'text-red-500');
-        reelCount.innerText = count + 1;
     }
 }
 
@@ -3392,213 +3396,6 @@ if(netView && !netView.classList.contains('hidden')) renderNetwork();
 refreshIcons();
 }
 
-window.openUserList = function(type, userId) {
-const user = users.find(u => u.id === userId);
-if(!user) return;
-
-if(user.settings?.privateNetwork && user.id !== currentUser.id && !currentUser.following.includes(user.id)) return;
-
-const overlay = document.getElementById('user-list-overlay');
-const title = document.getElementById('user-list-title');
-const content = document.getElementById('user-list-content');
-
-title.innerText = type === 'following' ? 'Following' : 'Followers';
-content.innerHTML = '';
-
-const targetIds = type === 'following' ? user.following : user.followers;
-
-if(!targetIds || targetIds.length === 0) {
-content.innerHTML = `<div class="text-center text-gray-400 py-8">No users found.</div>`;
-} else {
-targetIds.forEach(tid => {
-const targetUser = users.find(u => u.id === tid);
-if(targetUser) {
-const isMe = targetUser.id === currentUser.id;
-const amFollowing = currentUser.following.includes(targetUser.id);
-let btn = '';
-if(!isMe) {
-btn = `<button onclick="toggleFollow('${targetUser.id}')" class="text-xs px-3 py-1 rounded-full font-medium ${amFollowing ? 'bg-gray-100 text-gray-700' : 'bg-blue-600 text-white'}">${amFollowing ? 'Unfollow' : 'Follow'}</button>`;
-}
-const div = document.createElement('div');
-div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
-div.onclick = (e) => {
-if(e.target.tagName !== 'BUTTON') { closeUserList(); showProfile(targetUser.id); }
-};
-div.innerHTML = `<div class="flex items-center gap-3"><img src="${targetUser.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${targetUser.name}</div><div class="text-xs text-gray-500 truncate w-32">${targetUser.bio}</div></div></div>${btn}`;
-content.appendChild(div);
-}
-});
-}
-overlay.classList.remove('hidden');
-}
-
-window.closeUserList = function() { document.getElementById('user-list-overlay').classList.add('hidden'); }
-
-// Updated Switch Explore Tab Function
-window.switchExploreTab = function(tabName) {
-window.activeExploreTab = tabName;
-const searchVal = document.getElementById('global-search').value || document.getElementById('mobile-explore-search').value;
-handleSearch(searchVal); // Re-run search with new tab state
-}
-
-window.handleSearch = function(query) {
-if(document.getElementById('view-explore').classList.contains('hidden')) {
-switchView('explore');
-}
-
-const headerInput = document.getElementById('global-search');
-const mobileInput = document.getElementById('mobile-explore-search');
-
-if(headerInput && headerInput.value !== query) headerInput.value = query;
-if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
-
-const view = document.getElementById('explore-results');
-
-// Tab Interface
-let html = `
-<div class="tab-group mb-0 md:mb-4 bg-white sticky top-16 md:top-0 z-10 border-b border-gray-200">
-<button onclick="switchExploreTab('people')" class="tab-btn ${window.activeExploreTab === 'people' ? 'active' : ''}"><i data-lucide="user" class="w-4 h-4"></i> People</button>
-<button onclick="switchExploreTab('posts')" class="tab-btn ${window.activeExploreTab === 'posts' ? 'active' : ''}"><i data-lucide="grid-3x3" class="w-4 h-4"></i> Posts</button>
-<button onclick="switchExploreTab('tags')" class="tab-btn ${window.activeExploreTab === 'tags' ? 'active' : ''}"><i data-lucide="hash" class="w-4 h-4"></i> Tags</button>
-</div>
-`;
-
-// Default Content (Random Explore) if query is empty
-if(!query || query.trim() === '') {
-    // Show random posts by default when query is empty, regardless of tab (except People maybe, but Grid is better)
-    // Let's default to Grid view of random posts to make it look "alive"
-    const randomPosts = [...posts].sort(() => 0.5 - Math.random()).slice(0, 15);
-    
-    if(window.activeExploreTab === 'people') {
-         // Show random users
-         const randomUsers = [...users].sort(() => 0.5 - Math.random()).slice(0, 10);
-         html += `<div class="p-4 space-y-4">`;
-         html += `<h3 class="font-bold text-gray-500 text-xs uppercase mb-2">Suggested People</h3>`;
-         randomUsers.forEach(u => {
-             html += `
-            <div class="flex items-center gap-3 cursor-pointer" onclick="showProfile('${u.id}')">
-            <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover bg-gray-50 border border-gray-100">
-            <div>
-            <div class="font-bold text-sm text-gray-900">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>' : ''}</div>
-            <div class="text-xs text-gray-500 line-clamp-1">${u.bio || 'No bio'}</div>
-            </div>
-            </div>`;
-         });
-         html += `</div>`;
-    } else {
-        // Grid View
-        html += `<div class="grid grid-cols-3 gap-0.5 md:gap-4">`;
-        randomPosts.forEach(p => {
-            let content = '';
-            if (p.media) {
-                if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
-                        content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
-                } else {
-                        content = `<img src="${p.media}" class="w-full h-full object-cover">`;
-                }
-            } else {
-                content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
-            }
-            html += `<div class="relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity" onclick="openPostView('${p.id}')">${content}</div>`;
-        });
-        html += `</div>`;
-    }
-    
-    view.innerHTML = html;
-    refreshIcons();
-    return;
-}
-
-const term = query.toLowerCase().trim();
-const cleanTerm = term.replace('#', ''); 
-const keywords = term.split(" ").filter(k => k.length > 0);
-
-const foundUsers = users.filter(u => {
-const name = (u.name || '').toLowerCase();
-const bio = (u.bio || "").toLowerCase();
-return keywords.some(k => name.includes(k) || bio.includes(k));
-});
-
-const foundPosts = posts.filter(p => {
-const content = (p.content || '').toLowerCase();
-if (window.activeExploreTab === 'tags') {
-    return content.includes('#' + cleanTerm) || content.includes(term);
-}
-return keywords.some(k => content.includes(k));
-});
-
-// People Results
-const hiddenPeople = window.activeExploreTab === 'people' ? '' : 'hidden';
-html += `<div id="results-people" class="flex flex-col ${hiddenPeople}">`;
-if(foundUsers.length) {
-foundUsers.forEach(u => {
-html += `
-<div class="flex items-center gap-3 p-4 bg-white border-b border-gray-100 last:border-0 md:border md:rounded-xl md:mb-2 cursor-pointer hover:bg-gray-50 transition-colors" onclick="showProfile('${u.id}')">
-<img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover bg-gray-50 border border-gray-100">
-<div>
-<div class="font-bold text-sm text-gray-900">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>' : ''}</div>
-<div class="text-xs text-gray-500 line-clamp-1">${u.bio || 'No bio'}</div>
-</div>
-</div>`;
-});
-} else {
-html += `<div class="text-gray-400 text-sm p-4 text-center italic">No people found matching "${query}"</div>`;
-}
-html += `</div>`;
-
-// Posts & Tags Results (Using Grid)
-const hiddenPosts = (window.activeExploreTab === 'posts' || window.activeExploreTab === 'tags') ? '' : 'hidden';
-html += `<div id="results-posts" class="${hiddenPosts}"></div>`;
-
-view.innerHTML = html;
-
-// Append posts elements manually as Grid Items
-const postsDiv = document.getElementById('results-posts');
-
-// Apply Grid Classes directly
-postsDiv.className = `grid grid-cols-3 gap-0.5 md:gap-4 ${hiddenPosts}`;
-
-if(foundPosts.length) {
-foundPosts.forEach(p => {
-// Create Grid Item
-const div = document.createElement('div');
-div.className = "relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity";
-div.onclick = () => openPostView(p.id);
-
-let content = '';
-if (p.media) {
-    if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
-            content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
-    } else {
-            content = `<img src="${p.media}" class="w-full h-full object-cover">`;
-    }
-} else {
-    // Text Tile
-    content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
-}
-
-div.innerHTML = content;
-postsDiv.appendChild(div);
-});
-} else {
-postsDiv.className = `p-4 text-center ${hiddenPosts}`;
-postsDiv.innerHTML = `<div class="text-gray-400 text-sm italic">No posts found matching "${query}"</div>`;
-}
-
-refreshIcons();
-}
-
-function linkify(text) {
-var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-return text.replace(urlRegex, function(url) {
-return '<a href="' + url + '" target="_blank" class="text-blue-200 underline hover:text-white" onclick="event.stopPropagation()">' + url + '</a>';
-});
-}
-
-window.deleteMessage = async function(msgId) {
-showAlert("Unsend this message?", async () => { await deleteDoc(doc(db, "messages", msgId)); });
-}
-
 // Open Post View - Refactored for new UI
 window.openPostView = function(postId) {
 const post = posts.find(p => p.id === postId);
@@ -3640,35 +3437,7 @@ if(showLikes) {
     mobileLikeCount.style.display = 'none';
 }
 
-// MOBILE ELEMENTS POPULATION (Reel View)
-document.getElementById('reel-user-avatar').src = author.avatar;
-document.getElementById('reel-username').innerText = author.name;
-
-// Caption Read More Logic
-const reelCaption = document.getElementById('reel-caption');
-const fullContent = post.content;
-reelCaption.removeAttribute('data-expanded'); // Reset state
-reelCaption.style.maxHeight = '';
-reelCaption.style.overflowY = '';
-
-if(fullContent.length > 80) {
-    reelCaption.innerHTML = `<span>${fullContent.substring(0, 80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">more</span>`;
-    reelCaption.dataset.full = fullContent;
-} else {
-    reelCaption.innerHTML = fullContent;
-}
-
 updatePostViewStats(postId);
-
-// Fix Profile Redirect in Reel UI
-const userInfoArea = document.getElementById('reel-user-info-area');
-if(userInfoArea) {
-    userInfoArea.onclick = (e) => {
-        e.stopPropagation();
-        closePostView();
-        showProfile(author.id);
-    };
-}
 
 // Media Logic 
 mediaContainer.classList.remove('hidden'); 
@@ -3706,17 +3475,10 @@ if (post.media) {
          videoEl.onclick = togglePlay;
          playOverlay.onclick = togglePlay; // Ensure overlay click also toggles
 
-         // Mobile Reel Logic Check
+         // Mobile Video Logic (Standard View now)
          if(window.innerWidth < 768) {
-             videoEl.onloadedmetadata = function() {
-                 // Reel Mode if < 60s
-                 if(this.duration < 60) {
-                     overlay.classList.add('mobile-reel-view');
-                     this.className = "w-full h-full object-cover"; // Full bleed
-                     this.muted = false; 
-                     this.play().catch(() => { this.muted = true; this.play(); });
-                 }
-             };
+             videoEl.className = "w-full h-auto max-h-[60vh] object-contain"; 
+             // Don't override overlay class to mobile-reel-view
          }
          mediaContainer.insertBefore(videoEl, playOverlay);
     } else {
@@ -3813,27 +3575,7 @@ refreshIcons();
 }
 
 window.toggleReelCaption = function(postId) {
-    const el = document.getElementById('reel-caption');
-    if(!el || !el.dataset.full) return;
-
-    const isExpanded = el.getAttribute('data-expanded') === 'true';
-    const fullText = el.dataset.full;
-
-    if (isExpanded) {
-        // Collapse
-        el.innerHTML = `<span>${fullText.substring(0, 80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">more</span>`;
-        el.setAttribute('data-expanded', 'false');
-        el.style.overflowY = 'hidden';
-        el.style.maxHeight = '';
-    } else {
-        // Expand
-        // Using innerText for full content to avoid HTML injection issues, but support marked if needed. 
-        // For simplicity and safety in caption, using textContent + custom less button.
-        el.innerHTML = `<span>${fullText}</span> <span class="font-bold text-gray-300 cursor-pointer block mt-1" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">less</span>`;
-        el.setAttribute('data-expanded', 'true');
-        el.style.overflowY = 'auto';
-        el.style.maxHeight = '200px';
-    }
+    // Deprecated for now since we moved to standard view, but keep for fallback
 }
 
 window.toggleMobileCommentDrawer = function() {

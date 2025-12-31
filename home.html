@@ -1653,22 +1653,22 @@ Change
 <div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-white">
     <div id="explore-header-container" class="sticky top-0 bg-white z-20 shadow-sm transition-transform duration-300">
       <!-- Search Input -->
-      <div class="px-4 py-2 pt-3 bg-white">
+      <div class="px-4 py-3 md:py-6 bg-white transition-all">
           <div class="relative group">
-              <i data-lucide="search" class="absolute left-3.5 top-2.5 w-5 h-5 text-gray-400 group-focus-within:text-[#0b57d0] transition-colors"></i>
-              <input type="text" id="mobile-explore-search" class="w-full bg-[#f0f2f5] text-[#1f1f1f] rounded-full py-2.5 pl-11 pr-4 text-[15px] outline-none focus:bg-white focus:ring-2 focus:ring-[#0b57d0]/20 focus:shadow-md transition-all placeholder-gray-500 font-medium" placeholder="Search EduLink..." oninput="handleSearch(this.value)">
+              <i data-lucide="search" class="absolute left-3.5 top-2.5 md:top-3 w-5 h-5 text-gray-400 group-focus-within:text-[#0b57d0] transition-colors"></i>
+              <input type="text" id="mobile-explore-search" class="w-full bg-[#f0f2f5] text-[#1f1f1f] rounded-full py-2.5 md:py-3.5 pl-11 pr-4 text-[15px] md:text-[16px] outline-none focus:bg-white focus:ring-2 focus:ring-[#0b57d0]/20 focus:shadow-md transition-all placeholder-gray-500 font-medium" placeholder="Search EduLink..." oninput="handleSearch(this.value)">
           </div>
       </div>
       
-      <!-- Tabs -->
-      <div class="flex items-center w-full border-b border-gray-100 mt-1">
-         <button id="tab-explore-main" onclick="switchExploreMainTab('explore')" class="flex-1 py-3 text-[15px] font-bold text-[#1f1f1f] border-b-[3px] border-[#1f1f1f] transition-all hover:bg-gray-50 relative">
+      <!-- Tabs (Unified Style) -->
+      <div class="tab-group mt-2">
+         <button id="tab-explore-main" onclick="switchExploreMainTab('explore')" class="tab-btn active">
             For You
          </button>
-         <button id="tab-explore-video" onclick="switchExploreMainTab('video')" class="flex-1 py-3 text-[15px] font-medium text-gray-500 border-b-[3px] border-transparent transition-all hover:bg-gray-50 hover:text-gray-700 relative">
+         <button id="tab-explore-video" onclick="switchExploreMainTab('video')" class="tab-btn">
             Videos
          </button>
-         <button id="tab-explore-latest" onclick="switchExploreMainTab('latest')" class="flex-1 py-3 text-[15px] font-medium text-gray-500 border-b-[3px] border-transparent transition-all hover:bg-gray-50 hover:text-gray-700 relative">
+         <button id="tab-explore-latest" onclick="switchExploreMainTab('latest')" class="tab-btn">
             Latest
          </button>
       </div>
@@ -2602,14 +2602,14 @@ window.switchExploreMainTab = function(tabName) {
     tabs.forEach(t => {
         const btn = document.getElementById(`tab-explore-${t}`);
         if(btn) {
-            btn.className = "flex-1 py-3 text-[15px] font-medium text-gray-500 border-b-[3px] border-transparent transition-all hover:bg-gray-50 hover:text-gray-700 relative";
+            btn.classList.remove('active');
         }
     });
 
     // Activate selected
     const activeBtn = document.getElementById(`tab-explore-${tabName === 'explore' ? 'main' : tabName}`);
     if(activeBtn) {
-        activeBtn.className = "flex-1 py-3 text-[15px] font-bold text-[#1f1f1f] border-b-[3px] border-[#1f1f1f] transition-all hover:bg-gray-50 relative";
+        activeBtn.classList.add('active');
     }
     
     // Logic for content

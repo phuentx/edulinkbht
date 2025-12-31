@@ -653,6 +653,59 @@ transform: translateX(20px);
     gap: 0;
 }
 
+/* REEL MODE CSS (MOBILE) */
+.mobile-reel-view .mobile-header,
+.mobile-reel-view .mobile-footer {
+    display: none !important;
+}
+.mobile-reel-view .reel-ui-layer {
+    display: flex !important;
+}
+.reel-ui-layer {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    padding: 16px 12px 30px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.4) 100%);
+    pointer-events: none; 
+}
+.reel-interact-btn {
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.reel-interact-icon {
+    width: 32px;
+    height: 32px;
+    color: white;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+.reel-interact-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+}
+
+/* Spinning Music Indicator */
+.reel-audio-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid white;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1f1f1f;
+    animation: spin 4s linear infinite;
+}
+
 /* Desktop Styles */
 @media (min-width: 768px) {
     .post-modal-layout {
@@ -701,19 +754,19 @@ transform: translateX(20px);
     }
 }
 
-/* Mobile Post View Layout - Normalized for all content types */
+/* Mobile Post View Layout */
 @media (max-width: 767px) {
     .post-modal-layout {
         display: flex;
         flex-direction: column;
-        background: #fff; /* White background for the whole modal */
+        background: #fff; 
         width: 100vw;
-        height: 100%; /* Full height */
-        overflow: hidden; /* No scroll on body */
+        height: 100%; 
+        overflow: hidden; 
     }
 
     .mobile-header {
-        display: flex; /* Ensure it's displayed */
+        display: flex; 
         flex-shrink: 0;
         height: 60px;
         align-items: center;
@@ -725,8 +778,8 @@ transform: translateX(20px);
     }
 
     .stage-panel {
-        flex: 1; /* Grow to fill space */
-        background: #000; /* Dark background for media */
+        flex: 1; 
+        background: #000; 
         width: 100%;
         position: relative;
         display: flex;
@@ -742,12 +795,11 @@ transform: translateX(20px);
     }
 
     .mobile-footer {
-        display: block; /* Ensure display */
+        display: block; 
         flex-shrink: 0;
         background: #fff;
         border-top: 1px solid #f0f0f0;
         padding: 12px 16px;
-        /* Handle safe area for iPhone home bar */
         padding-bottom: calc(12px + env(safe-area-inset-bottom, 20px)); 
         z-index: 20;
     }
@@ -793,12 +845,10 @@ transform: translateX(20px);
         transform: translateY(0);
     }
     
-    /* Hide Caption Box inside drawer to avoid duplication */
     .caption-box {
         display: none !important;
     }
     
-    /* Mobile Drawer Header with Close Button */
     .discussion-header {
         border-radius: 20px 20px 0 0;
         background: white;
@@ -1077,7 +1127,7 @@ transform: translateX(20px);
     <!-- Floating Stage Layout -->
     <div class="post-modal-layout scale-in relative z-10">
         
-        <!-- 1. Mobile Header (Static, Visible on Mobile) -->
+        <!-- 1. Mobile Header (Standard) -->
         <div class="mobile-header md:hidden">
             <div class="flex items-center gap-3 cursor-pointer" onclick="closePostView(); if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
                 <img id="mobile-post-pfp" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
@@ -1092,7 +1142,52 @@ transform: translateX(20px);
              <div id="video-play-overlay" class="play-pause-overlay"><i data-lucide="play" class="play-pause-icon"></i></div>
         </div>
 
-        <!-- 3. Mobile Footer (Static, Visible on Mobile) -->
+        <!-- REEL UI LAYER (MOBILE VIDEO ONLY) -->
+        <div id="reel-ui-layer" class="reel-ui-layer md:hidden">
+            <!-- Top -->
+            <div class="flex justify-between items-start pointer-events-auto mt-2">
+                <button onclick="closePostView()" class="text-white drop-shadow-md p-2"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
+            </div>
+            
+            <!-- Bottom -->
+            <div class="flex items-end justify-between w-full">
+                <!-- Left Info -->
+                <div class="flex flex-col gap-3 max-w-[80%] text-white drop-shadow-md pointer-events-auto pb-2">
+                    <div class="flex items-center gap-2 cursor-pointer" id="reel-user-info-area">
+                        <img id="reel-user-avatar" src="" class="w-8 h-8 rounded-full border border-white/50 object-cover">
+                        <span id="reel-username" class="font-bold text-sm">Username</span>
+                        <button id="reel-follow-btn" class="bg-white/20 backdrop-blur text-xs px-2.5 py-1 rounded-md font-medium border border-white/30 hidden">Follow</button>
+                    </div>
+                    <div id="reel-caption" class="text-sm leading-snug opacity-90 break-words"></div>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="flex flex-col gap-5 items-center pointer-events-auto pb-2 mr-1">
+                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)">
+                        <i id="reel-like-icon" data-lucide="heart" class="reel-interact-icon"></i>
+                        <span id="reel-like-count" class="reel-interact-text">0</span>
+                    </div>
+                    <div class="reel-interact-btn cursor-pointer" onclick="toggleMobileCommentDrawer()">
+                        <i data-lucide="message-circle" class="reel-interact-icon"></i>
+                        <span id="reel-comment-count" class="reel-interact-text">0</span>
+                    </div>
+                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)">
+                        <i data-lucide="send" class="reel-interact-icon transform -rotate-12"></i>
+                    </div>
+                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)">
+                        <i id="reel-save-icon" data-lucide="bookmark" class="reel-interact-icon"></i>
+                    </div>
+                    <!-- Music/Audio Indicator -->
+                    <div class="reel-interact-btn mt-2">
+                        <div class="reel-audio-btn">
+                            <i data-lucide="disc" class="w-5 h-5 text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Mobile Footer (Standard - Hidden in Reel Mode) -->
         <div class="mobile-footer md:hidden">
             <div class="mobile-actions-bar">
                 <div class="mobile-action-group">
@@ -2014,6 +2109,37 @@ window.updatePostViewStats = function(postId) {
         const showLikes = post.settings?.showLikes !== false;
         mobLikeCount.style.display = showLikes ? 'block' : 'none';
     }
+
+    // Reel Mode Stats
+    const reelLikeCount = document.getElementById('reel-like-count');
+    const reelCommCount = document.getElementById('reel-comment-count');
+    const reelLikeIcon = document.getElementById('reel-like-icon');
+    const reelSaveIcon = document.getElementById('reel-save-icon');
+
+    if(reelLikeCount) reelLikeCount.innerText = post.likes ? post.likes.length : 0;
+    if(reelCommCount) reelCommCount.innerText = post.comments ? post.comments.length : 0;
+    
+    // Update Reel Icons state
+    if(reelLikeIcon) {
+        const isLiked = post.likes && post.likes.includes(currentUser.id);
+        if(isLiked) {
+            reelLikeIcon.classList.add('fill-red-500', 'text-red-500');
+            reelLikeIcon.classList.remove('text-white');
+        } else {
+            reelLikeIcon.classList.remove('fill-red-500', 'text-red-500');
+            reelLikeIcon.classList.add('text-white');
+        }
+    }
+    if(reelSaveIcon) {
+        const isSaved = savedPosts.includes(postId);
+        if(isSaved) {
+            reelSaveIcon.classList.add('fill-yellow-500', 'text-yellow-500');
+            reelSaveIcon.classList.remove('text-white');
+        } else {
+            reelSaveIcon.classList.remove('fill-yellow-500', 'text-yellow-500');
+            reelSaveIcon.classList.add('text-white');
+        }
+    }
 }
 
 function updateUserInterface() {
@@ -2172,8 +2298,8 @@ if (window.innerWidth < 768) {
         if(mobileNotifHeader) mobileNotifHeader.classList.add('flex');
     } else if (viewName === 'explore') {
         if(mainHeader) mainHeader.classList.add('hidden');
-        // Explore now uses its own internal header, so we hide global mobile header but don't need the 'mobile-explore-header' logic anymore
-        if(mobileBottomNav) mobileBottomNav.classList.add('hidden');
+        // Explore now uses its own internal header, so we hide global mobile header.
+        // We DO NOT hide mobile-bottom-nav anymore for Explore
     }
 }
 
@@ -2687,7 +2813,7 @@ if(overlayLikeBtn && window.currentViewingPostId === postId) {
     }
 }
 
-// Optimistic UI Update for Mobile Overlay
+// Optimistic UI Update for Mobile Overlay (Standard)
 const mobileLikeBtn = document.getElementById('mobile-action-like');
 const mobileCountSpan = document.getElementById('mobile-like-count');
 if(mobileLikeBtn && window.currentViewingPostId === postId) {
@@ -2699,6 +2825,22 @@ if(mobileLikeBtn && window.currentViewingPostId === postId) {
     } else {
         mobileLikeBtn.classList.add('fill-red-500', 'text-red-500');
         if(mobileCountSpan) mobileCountSpan.innerText = (parseInt(mobileCountSpan.innerText) || 0) + 1;
+    }
+}
+
+// Optimistic Reel UI Update
+const reelLikeIcon = document.getElementById('reel-like-icon');
+const reelCount = document.getElementById('reel-like-count');
+if(reelLikeIcon && window.currentViewingPostId === postId) {
+    const isLiked = reelLikeIcon.classList.contains('text-red-500');
+    reelLikeIcon.classList.remove('fill-red-500', 'text-red-500', 'text-white');
+    let count = parseInt(reelCount.innerText) || 0;
+    if(isLiked) {
+        reelLikeIcon.classList.add('text-white');
+        reelCount.innerText = Math.max(0, count - 1);
+    } else {
+        reelLikeIcon.classList.add('fill-red-500', 'text-red-500');
+        reelCount.innerText = count + 1;
     }
 }
 
@@ -2781,7 +2923,7 @@ if(overlaySaveBtn && window.currentViewingPostId === postId) {
     }
 }
 
-// Optimistic UI Mobile Overlay
+// Optimistic UI Mobile Overlay (Standard)
 const mobSaveBtn = document.getElementById('mobile-action-save');
 if(mobSaveBtn && window.currentViewingPostId === postId) {
     const isMobSaved = mobSaveBtn.classList.contains('text-yellow-500');
@@ -3233,7 +3375,7 @@ window.renderProfileContent = function(userId, tab) {
         targetPosts.forEach(p => {
             let content = '';
             if (p.media) {
-                if (p.media.includes('video') || p.media.endsWith('.mp4')) {
+                if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
                      content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
                 } else {
                      content = `<img src="${p.media}" class="w-full h-full object-cover">`;
@@ -3425,7 +3567,7 @@ document.getElementById('post-view-likes-count').innerText = likeCountText;
 document.getElementById('post-view-avatar').onclick = () => showProfile(author.id);
 document.getElementById('post-view-username').onclick = () => showProfile(author.id);
 
-// MOBILE ELEMENTS POPULATION (Standard View)
+// MOBILE ELEMENTS POPULATION (Standard View - Default)
 document.getElementById('mobile-post-pfp').src = author.avatar;
 document.getElementById('mobile-post-username').innerText = author.name;
 document.getElementById('mobile-post-caption').innerHTML = tagsHTML;
@@ -3437,7 +3579,35 @@ if(showLikes) {
     mobileLikeCount.style.display = 'none';
 }
 
+// MOBILE ELEMENTS POPULATION (Reel View)
+document.getElementById('reel-user-avatar').src = author.avatar;
+document.getElementById('reel-username').innerText = author.name;
+
+// Caption Read More Logic
+const reelCaption = document.getElementById('reel-caption');
+const fullContent = post.content;
+reelCaption.removeAttribute('data-expanded'); // Reset state
+reelCaption.style.maxHeight = '';
+reelCaption.style.overflowY = '';
+
+if(fullContent.length > 80) {
+    reelCaption.innerHTML = `<span>${fullContent.substring(0, 80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">more</span>`;
+    reelCaption.dataset.full = fullContent;
+} else {
+    reelCaption.innerHTML = fullContent;
+}
+
 updatePostViewStats(postId);
+
+// Fix Profile Redirect in Reel UI
+const userInfoArea = document.getElementById('reel-user-info-area');
+if(userInfoArea) {
+    userInfoArea.onclick = (e) => {
+        e.stopPropagation();
+        closePostView();
+        showProfile(author.id);
+    };
+}
 
 // Media Logic 
 mediaContainer.classList.remove('hidden'); 
@@ -3475,10 +3645,16 @@ if (post.media) {
          videoEl.onclick = togglePlay;
          playOverlay.onclick = togglePlay; // Ensure overlay click also toggles
 
-         // Mobile Video Logic (Standard View now)
+         // Mobile Reel Logic Check
          if(window.innerWidth < 768) {
-             videoEl.className = "w-full h-auto max-h-[60vh] object-contain"; 
-             // Don't override overlay class to mobile-reel-view
+             videoEl.onloadedmetadata = function() {
+                 // Reel Mode if video is vertical-ish (or always for mobile video?)
+                 // Let's force reel mode for all mobile videos for "immersive design"
+                 overlay.classList.add('mobile-reel-view');
+                 this.className = "w-full h-full object-cover"; // Full bleed
+                 this.muted = false; 
+                 this.play().catch(() => { this.muted = true; this.play(); });
+             };
          }
          mediaContainer.insertBefore(videoEl, playOverlay);
     } else {
@@ -3575,7 +3751,27 @@ refreshIcons();
 }
 
 window.toggleReelCaption = function(postId) {
-    // Deprecated for now since we moved to standard view, but keep for fallback
+    const el = document.getElementById('reel-caption');
+    if(!el || !el.dataset.full) return;
+
+    const isExpanded = el.getAttribute('data-expanded') === 'true';
+    const fullText = el.dataset.full;
+
+    if (isExpanded) {
+        // Collapse
+        el.innerHTML = `<span>${fullText.substring(0, 80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">more</span>`;
+        el.setAttribute('data-expanded', 'false');
+        el.style.overflowY = 'hidden';
+        el.style.maxHeight = '';
+    } else {
+        // Expand
+        // Using innerText for full content to avoid HTML injection issues, but support marked if needed. 
+        // For simplicity and safety in caption, using textContent + custom less button.
+        el.innerHTML = `<span>${fullText}</span> <span class="font-bold text-gray-300 cursor-pointer block mt-1" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">less</span>`;
+        el.setAttribute('data-expanded', 'true');
+        el.style.overflowY = 'auto';
+        el.style.maxHeight = '200px';
+    }
 }
 
 window.toggleMobileCommentDrawer = function() {

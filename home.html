@@ -1650,46 +1650,47 @@ Change
     </div>
 </div>
  <!-- SEARCH / EXPLORE VIEW -->
-<div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-white">
-    <div id="explore-header-container" class="sticky top-0 bg-white z-20 shadow-sm transition-transform duration-300">
-      <!-- Search Input -->
-      <div class="px-4 py-3 md:py-6 bg-white transition-all">
-          <div class="relative group">
-              <i data-lucide="search" class="absolute left-3.5 top-2.5 md:top-3 w-5 h-5 text-gray-400 group-focus-within:text-[#0b57d0] transition-colors"></i>
-              <input type="text" id="mobile-explore-search" class="w-full bg-[#f0f2f5] text-[#1f1f1f] rounded-full py-2.5 md:py-3.5 pl-11 pr-4 text-[15px] md:text-[16px] outline-none focus:bg-white focus:ring-2 focus:ring-[#0b57d0]/20 focus:shadow-md transition-all placeholder-gray-500 font-medium" placeholder="Search EduLink..." oninput="handleSearch(this.value)">
-          </div>
-      </div>
-      
-      <!-- Tabs (Unified Style) -->
-      <div class="tab-group mt-2">
-         <button id="tab-explore-main" onclick="switchExploreMainTab('explore')" class="tab-btn active">
-            For You
-         </button>
-         <button id="tab-explore-video" onclick="switchExploreMainTab('video')" class="tab-btn">
-            Videos
-         </button>
-         <button id="tab-explore-latest" onclick="switchExploreMainTab('latest')" class="tab-btn">
-            Latest
-         </button>
-      </div>
-
-      <!-- Categories -->
-      <div id="explore-categories" class="flex gap-2 overflow-x-auto px-4 py-3 no-scrollbar bg-white">
-          <!-- Chips generated via JS -->
-      </div>
+<div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-0 hidden bg-white">
+    <!-- Mobile Header: Sticky Search + Tabs -->
+    <div id="explore-header-container" class="sticky top-0 bg-white z-20 border-b border-gray-100 md:hidden">
+        <div class="px-4 py-2">
+            <div class="relative bg-gray-100 rounded-xl flex items-center px-3 py-2">
+                <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i>
+                <input type="text" id="mobile-explore-search" class="bg-transparent border-none outline-none text-sm w-full" placeholder="Search..." oninput="handleSearch(this.value)">
+            </div>
+        </div>
+        <div class="tab-group">
+            <button id="tab-explore-main" onclick="switchExploreMainTab('explore')" class="tab-btn active">
+                <i data-lucide="grid" class="w-5 h-5"></i>
+            </button>
+            <button id="tab-explore-video" onclick="switchExploreMainTab('video')" class="tab-btn">
+                <i data-lucide="play-circle" class="w-5 h-5"></i>
+            </button>
+            <button id="tab-explore-people" onclick="switchExploreMainTab('people')" class="tab-btn">
+                <i data-lucide="users" class="w-5 h-5"></i>
+            </button>
+        </div>
     </div>
-    
-    <div id="explore-content-wrapper" class="px-0 md:px-0 pb-20">
-        <!-- People Results Section -->
-        <div id="explore-people-results" class="hidden flex-col gap-2 p-4 border-b border-gray-100 mb-4">
-            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">People</h3>
-            <div id="explore-people-list" class="space-y-3"></div>
-        </div>
 
-        <!-- Post Grid Section -->
-        <div id="explore-results" class="space-y-0 pt-0">
-            <!-- Default State -->
+    <!-- Desktop Header: Centered Container, Hidden on Mobile -->
+    <div class="hidden md:flex justify-center border-b border-gray-100 bg-white sticky top-0 z-20">
+        <div class="max-w-4xl w-full flex">
+             <button id="tab-explore-main-d" onclick="switchExploreMainTab('explore')" class="tab-btn active flex items-center justify-center gap-2">
+                <i data-lucide="grid" class="w-4 h-4"></i> <span class="text-sm font-medium">Posts</span>
+            </button>
+            <button id="tab-explore-video-d" onclick="switchExploreMainTab('video')" class="tab-btn flex items-center justify-center gap-2">
+                <i data-lucide="play-circle" class="w-4 h-4"></i> <span class="text-sm font-medium">Videos</span>
+            </button>
+            <button id="tab-explore-people-d" onclick="switchExploreMainTab('people')" class="tab-btn flex items-center justify-center gap-2">
+                <i data-lucide="users" class="w-4 h-4"></i> <span class="text-sm font-medium">People</span>
+            </button>
         </div>
+    </div>
+
+    <div id="explore-content-wrapper" class="pb-20 max-w-5xl mx-auto md:py-6">
+        <!-- Results -->
+        <div id="explore-people-results" class="hidden flex-col gap-2 p-4"></div>
+        <div id="explore-results" class="space-y-0 pt-0"></div>
     </div>
 </div>
 </main>
@@ -2597,27 +2598,31 @@ window.openHashtag = function(tag) {
 window.switchExploreMainTab = function(tabName) {
     window.activeExploreTab = tabName;
     
-    // Reset all tabs
-    const tabs = ['main', 'video', 'latest'];
-    tabs.forEach(t => {
+    // Mobile Tabs
+    const mobileTabs = ['main', 'video', 'people'];
+    mobileTabs.forEach(t => {
         const btn = document.getElementById(`tab-explore-${t}`);
-        if(btn) {
-            btn.classList.remove('active');
-        }
+        if(btn) btn.classList.remove('active');
+    });
+    
+    // Desktop Tabs
+    const deskTabs = ['main-d', 'video-d', 'people-d'];
+    deskTabs.forEach(t => {
+        const btn = document.getElementById(`tab-explore-${t}`);
+        if(btn) btn.classList.remove('active');
     });
 
-    // Activate selected
-    const activeBtn = document.getElementById(`tab-explore-${tabName === 'explore' ? 'main' : tabName}`);
-    if(activeBtn) {
-        activeBtn.classList.add('active');
-    }
+    // Set Active
+    const targetMobile = document.getElementById(`tab-explore-${tabName === 'explore' ? 'main' : tabName}`);
+    const targetDesk = document.getElementById(`tab-explore-${tabName === 'explore' ? 'main' : tabName}-d`);
     
-    // Logic for content
+    if(targetMobile) targetMobile.classList.add('active');
+    if(targetDesk) targetDesk.classList.add('active');
+    
+    // Reset category logic (simplified)
     if(tabName === 'video') window.activeExploreCategory = 'All';
-    else if(tabName === 'latest') window.activeExploreCategory = 'Latest';
-    else if(!window.activeExploreCategory || window.activeExploreCategory === 'All' || window.activeExploreCategory === 'Latest') window.activeExploreCategory = 'For You';
+    else window.activeExploreCategory = 'For You';
     
-    renderExploreCategories();
     handleSearch(document.getElementById('mobile-explore-search').value);
 }
 
@@ -2631,29 +2636,9 @@ window.toggleExploreSearch = function() {
     }
 }
 
-window.renderExploreCategories = function() {
-    const container = document.getElementById('explore-categories');
-    
-    // Hide categories if search is active (simple check on visibility of search bar or content)
-    // Actually, let's just make sure it's visible by default
-    container.classList.remove('hidden');
+// Removed renderExploreCategories as requested
 
-    const categories = ['For You', 'News', 'Music', 'Education', 'Nature', 'Poem', 'History'];
-    let html = '';
-    
-    categories.forEach(cat => {
-        const isActive = window.activeExploreCategory === cat;
-        html += `<button onclick="selectExploreCategory('${cat}')" class="category-chip ${isActive ? 'active' : ''}">${cat}</button>`;
-    });
-    
-    container.innerHTML = html;
-}
-
-window.selectExploreCategory = function(cat) {
-    window.activeExploreCategory = cat;
-    renderExploreCategories();
-    handleSearch(document.getElementById('mobile-explore-search').value);
-}
+// Removed selectExploreCategory as requested
 
 window.handleSearch = function(query) {
     if(document.getElementById('view-explore').classList.contains('hidden')) {
@@ -2663,40 +2648,41 @@ window.handleSearch = function(query) {
     const term = query ? query.toLowerCase().trim() : '';
     const headerInput = document.getElementById('global-search');
     const mobileInput = document.getElementById('mobile-explore-search');
-    const categoryBar = document.getElementById('explore-categories');
-    const peopleSection = document.getElementById('explore-people-results');
-    const peopleList = document.getElementById('explore-people-list');
-
+    
+    // People List Elements
+    const peopleList = document.getElementById('explore-people-results');
+    
     // Sync inputs
     if(headerInput && headerInput.value !== query) headerInput.value = query;
     if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
 
-    // Logic: Hide categories if user is searching
-    if(term.length > 0) {
-        if(categoryBar) categoryBar.classList.add('hidden');
-        if(peopleSection) peopleSection.classList.remove('hidden');
-        if(peopleSection) peopleSection.classList.add('flex');
-    } else {
-        if(categoryBar) categoryBar.classList.remove('hidden');
-        if(peopleSection) peopleSection.classList.add('hidden');
-        if(peopleSection) peopleSection.classList.remove('flex');
-    }
-
     const view = document.getElementById('explore-results');
     
-    // --- 1. User/People Filtering ---
-    if(term.length > 0) {
-        const matchedUsers = users.filter(u => {
-            const name = (u.name || "").toLowerCase();
-            const username = (u.username || "").toLowerCase();
-            return name.includes(term) || username.includes(term);
-        });
+    // Logic: Show people list if tab is 'people' OR if searching
+    const showPeopleList = window.activeExploreTab === 'people' || term.length > 0;
+    
+    if(showPeopleList) {
+        peopleList.classList.remove('hidden');
+        peopleList.classList.add('flex');
+        
+        let filteredUsers = users;
+        if(term.length > 0) {
+             filteredUsers = users.filter(u => {
+                const name = (u.name || "").toLowerCase();
+                const username = (u.username || "").toLowerCase();
+                return name.includes(term) || username.includes(term);
+            });
+        } else {
+            // Suggest random/all users if tab is 'people' but no search
+            // For now just show first 10
+            filteredUsers = users.slice(0, 10);
+        }
 
         peopleList.innerHTML = '';
-        if(matchedUsers.length > 0) {
-            matchedUsers.slice(0, 5).forEach(u => { // Limit to 5 for brevity
+        if(filteredUsers.length > 0) {
+            filteredUsers.forEach(u => {
                 const div = document.createElement('div');
-                div.className = "flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer";
+                div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer border border-gray-100 mb-1";
                 div.onclick = () => showProfile(u.id);
                 div.innerHTML = `
                     <div class="flex items-center gap-3">
@@ -2710,34 +2696,40 @@ window.handleSearch = function(query) {
                 peopleList.appendChild(div);
             });
         } else {
-            peopleList.innerHTML = `<div class="text-gray-400 text-xs italic">No people found</div>`;
+            peopleList.innerHTML = `<div class="text-gray-400 text-xs italic text-center py-4">No people found</div>`;
         }
+    } else {
+        peopleList.classList.add('hidden');
+        peopleList.classList.remove('flex');
     }
 
-    // --- 2. Post Filtering ---
+    // --- Post Grid Logic ---
+    // Hide Grid if 'People' tab is active AND not searching specific text (focus on people list)
+    // Actually Instagram shows both if searching. 
+    // Let's stick to: If 'People' tab, hide posts grid unless we want a mixed view.
+    // Requirement: "Tab of user profile tab". Profile has tabs. 
+    
+    if (window.activeExploreTab === 'people' && !term) {
+        view.innerHTML = ''; // Clear grid
+        return;
+    }
+
+    // Filter Posts
     let filteredPosts = [...posts];
     
-    // Tab Filtering
     if(window.activeExploreTab === 'video') {
         filteredPosts = filteredPosts.filter(p => p.media && (p.media.includes('video') || p.media.endsWith('.mp4')));
     }
     
-    // Category Filtering (Only if NO search term)
-    if(!term && window.activeExploreCategory && window.activeExploreCategory !== 'For You') {
-        const cat = window.activeExploreCategory.toLowerCase();
-        filteredPosts = filteredPosts.filter(p => p.content.toLowerCase().includes(cat));
-    } else if (!term && window.activeExploreCategory === 'For You') {
-        // Randomize for "For You" if no search term
-        filteredPosts = filteredPosts.sort(() => 0.5 - Math.random());
-    }
-    
-    // Search Term Filtering (Overwrites Category logic usually)
     if(term) {
         const keywords = term.split(" ").filter(k => k.length > 0);
         filteredPosts = filteredPosts.filter(p => {
             const content = (p.content || '').toLowerCase();
             return keywords.some(k => content.includes(k));
         });
+    } else {
+        // Randomize for explore feel
+        filteredPosts = filteredPosts.sort(() => 0.5 - Math.random());
     }
     
     // Render Grid
@@ -2745,7 +2737,6 @@ window.handleSearch = function(query) {
     if(filteredPosts.length === 0) {
         html = `<div class="text-center py-20 text-gray-400"><p>No posts found.</p></div>`;
     } else {
-        // Updated Grid Classes for Desktop: md:grid-cols-4 lg:grid-cols-5
         html = `<div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0.5 md:gap-4">`;
         filteredPosts.forEach(p => {
             let content = '';

@@ -700,32 +700,135 @@ transform: translateX(20px);
     }
 }
 
-/* Mobile */
+/* Mobile & Overlay Mobile Logic */
+.mobile-ui-layer { display: none; }
+
 @media (max-width: 767px) {
     .post-modal-layout {
-        background: white;
+        background: black;
+        position: relative;
     }
     .stage-panel {
         width: 100%;
-        height: 40vh;
+        height: 100%;
         background: #000;
         display: flex;
         align-items: center;
         justify-content: center;
-        position: relative;
+        position: absolute;
+        inset: 0;
+        z-index: 1;
     }
-    .discussion-panel {
-        flex: 1;
+    .stage-content {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    
+    /* New Mobile Overlay Elements */
+    .mobile-ui-layer {
+        display: block;
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        pointer-events: none;
+    }
+    
+    /* Top Right Floating Badge */
+    .mobile-top-badge {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        padding: 4px 12px 4px 4px;
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: white;
+        font-weight: 600;
+        font-size: 13px;
+        border: 1px solid rgba(255,255,255,0.1);
+        pointer-events: auto;
+        cursor: pointer;
+    }
+
+    /* Bottom Gradient Area */
+    .mobile-bottom-gradient {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 40%, transparent 100%);
+        padding: 60px 20px 30px 20px;
+        color: white;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
-        position: relative;
-        z-index: 10;
+        gap: 12px;
+        pointer-events: auto;
+    }
+    
+    .mobile-caption-text {
+        font-size: 14px;
+        line-height: 1.5;
+        max-height: 80px;
+        overflow-y: auto;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .mobile-actions-bar {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-top: 4px;
+    }
+    
+    .mobile-action-icon {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        color: white;
+        cursor: pointer;
+    }
+    
+    .mobile-action-label {
+        font-size: 10px;
+        font-weight: 500;
+        opacity: 0.9;
+    }
+
+    /* Drawer Logic for Comments */
+    .discussion-panel {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 70vh;
         background: white;
-        border-top-left-radius: 24px;
-        border-top-right-radius: 24px;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
-        margin-top: -20px;
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+        border-radius: 24px 24px 0 0;
+        transform: translateY(110%); /* Hidden by default */
+        transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
+    }
+    
+    .discussion-panel.open {
+        transform: translateY(0);
+    }
+    
+    /* Hide Caption Box inside drawer to avoid duplication */
+    .caption-box {
+        display: none !important;
+    }
+    
+    /* Mobile Drawer Header with Close Button */
+    .discussion-header {
+        border-radius: 24px 24px 0 0;
+        background: white;
     }
 }
 
@@ -949,26 +1052,65 @@ transform: translateX(20px);
         <div id="post-view-media-container" class="stage-panel">
              <!-- Media Injected Here -->
         </div>
-        <!-- Mobile Close Button (Absolute) -->
-        <button onclick="closePostView()" class="md:hidden absolute top-4 right-4 z-50 bg-black/50 text-white p-2 rounded-full backdrop-blur-sm"><i data-lucide="x" class="w-6 h-6"></i></button>
 
-        <!-- Right Panel: Conversation -->
+        <!-- Mobile-Only UI Overlay Layer -->
+        <div class="mobile-ui-layer md:hidden">
+            <!-- Top Right: PFP & Name -->
+            <div class="mobile-top-badge" onclick="if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
+                <img id="mobile-post-pfp" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
+                <span id="mobile-post-username" class="mr-2">User</span>
+            </div>
+
+            <!-- Bottom Gradient Area -->
+            <div class="mobile-bottom-gradient">
+                <div id="mobile-post-caption" class="mobile-caption-text">
+                    <!-- Caption Text -->
+                </div>
+                <div class="mobile-actions-bar">
+                    <div class="mobile-action-icon" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)">
+                        <i id="mobile-action-like" data-lucide="heart" class="w-7 h-7"></i>
+                        <span id="mobile-like-count" class="mobile-action-label">0</span>
+                    </div>
+                    <div class="mobile-action-icon" onclick="toggleMobileCommentDrawer()">
+                        <i data-lucide="message-circle" class="w-7 h-7"></i>
+                        <span class="mobile-action-label">Comment</span>
+                    </div>
+                    <div class="mobile-action-icon">
+                         <i data-lucide="send" class="w-7 h-7"></i>
+                         <span class="mobile-action-label">Share</span>
+                    </div>
+                     <div class="mobile-action-icon ml-auto" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)">
+                        <i id="mobile-action-save" data-lucide="bookmark" class="w-7 h-7"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Close Button (Absolute Top Left) -->
+        <button onclick="closePostView()" class="md:hidden absolute top-4 left-4 z-50 bg-black/50 text-white p-2 rounded-full backdrop-blur-sm"><i data-lucide="chevron-down" class="w-6 h-6"></i></button>
+
+        <!-- Right Panel: Conversation (Desktop) / Comment Drawer (Mobile) -->
         <div class="discussion-panel">
              <!-- Sticky Header -->
              <div class="discussion-header">
                   <div class="flex items-center gap-3">
-                      <img id="post-view-avatar" class="w-10 h-10 rounded-full border border-gray-100 object-cover cursor-pointer hover:ring-2 hover:ring-blue-100 transition-all">
-                      <div class="flex flex-col">
-                          <span id="post-view-username" class="font-bold text-sm text-gray-900 cursor-pointer hover:underline">Username</span>
-                          <span class="text-[11px] text-gray-400 font-medium" id="post-view-date">Just now</span>
+                      <!-- Hide info on mobile header since it's in floating badge? Or keep for Drawer context -->
+                      <div class="flex items-center gap-3 md:flex hidden">
+                          <img id="post-view-avatar" class="w-10 h-10 rounded-full border border-gray-100 object-cover cursor-pointer hover:ring-2 hover:ring-blue-100 transition-all">
+                          <div class="flex flex-col">
+                              <span id="post-view-username" class="font-bold text-sm text-gray-900 cursor-pointer hover:underline">Username</span>
+                              <span class="text-[11px] text-gray-400 font-medium" id="post-view-date">Just now</span>
+                          </div>
                       </div>
+                      <span class="md:hidden font-bold text-lg">Comments</span>
                   </div>
                   <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+                  <button onclick="toggleMobileCommentDrawer()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
              </div>
 
              <!-- Scroll Area -->
              <div id="post-view-scroll" class="discussion-scroll scroll-smooth">
-                  <!-- Caption Section -->
+                  <!-- Caption Section (Desktop Only - Hidden on Mobile via CSS to avoid dupes) -->
                   <div id="post-view-caption-area" class="caption-box">
                       <!-- Caption Injected -->
                   </div>
@@ -979,7 +1121,7 @@ transform: translateX(20px);
 
              <!-- Sticky Footer -->
              <div class="discussion-footer">
-                  <div class="flex justify-between items-center mb-3 px-1">
+                  <div class="flex justify-between items-center mb-3 px-1 hidden md:flex">
                        <div class="flex gap-4">
                            <i id="post-view-like-btn" data-lucide="heart" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
                            <i data-lucide="message-circle" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="document.getElementById('comment-input-desktop').focus()"></i>
@@ -3104,8 +3246,9 @@ window.currentViewingPostId = postId;
 
 const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
 const dateStr = formatDate(post.timestamp);
+const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
 
-// Reset UI
+// Desktop Only Elements
 const mediaContainer = document.getElementById('post-view-media-container');
 const captionArea = document.getElementById('post-view-caption-area');
 const overlay = document.getElementById('post-view-overlay');
@@ -3113,15 +3256,32 @@ const overlay = document.getElementById('post-view-overlay');
 document.getElementById('post-view-avatar').src = author.avatar;
 document.getElementById('post-view-username').innerText = author.name;
 document.getElementById('post-view-date').innerText = dateStr;
-document.getElementById('post-view-likes-count').innerText = `${post.likes ? post.likes.length : 0} likes`;
+
+// Settings Logic for Desktop
+const showLikes = post.settings?.showLikes !== false; // Default true
+const likeCountText = showLikes ? `${post.likes ? post.likes.length : 0} likes` : '';
+document.getElementById('post-view-likes-count').innerText = likeCountText;
 document.getElementById('post-view-avatar').onclick = () => showProfile(author.id);
 document.getElementById('post-view-username').onclick = () => showProfile(author.id);
 
-// Media Logic
+// MOBILE ELEMENTS POPULATION
+document.getElementById('mobile-post-pfp').src = author.avatar;
+document.getElementById('mobile-post-username').innerText = author.name;
+document.getElementById('mobile-post-caption').innerHTML = tagsHTML;
+// Hide mobile like count if settings prevent it
+const mobileLikeCount = document.getElementById('mobile-like-count');
+if(showLikes) {
+    mobileLikeCount.style.display = 'block';
+    mobileLikeCount.innerText = post.likes ? post.likes.length : 0;
+} else {
+    mobileLikeCount.style.display = 'none';
+}
+
+// Media Logic (Shared Container for Desktop/Mobile Stage)
 mediaContainer.classList.remove('hidden'); // Always show container
 if (post.media) {
     if (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video')) {
-         mediaContainer.innerHTML = `<video src="${post.media}" class="stage-content rounded-lg shadow-2xl" controls autoplay muted></video>`;
+         mediaContainer.innerHTML = `<video src="${post.media}" class="stage-content rounded-lg shadow-2xl" controls autoplay muted playsinline></video>`;
     } else {
          mediaContainer.innerHTML = `<img src="${post.media}" class="stage-content rounded-lg shadow-2xl">`;
     }
@@ -3134,8 +3294,7 @@ if (post.media) {
         </div>`;
 }
 
-// Caption
-const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
+// Caption (Desktop Only)
 captionArea.innerHTML = `
     <div class="flex gap-3">
         <img src="${author.avatar}" class="w-8 h-8 rounded-full border border-gray-100 object-cover shrink-0 cursor-pointer" onclick="showProfile('${author.id}')">
@@ -3152,7 +3311,7 @@ captionArea.innerHTML = `
 // Comments
 renderCommentsInModal(postId);
 
-// Like Button State
+// Like Button State (Desktop)
 const likeBtn = document.getElementById('post-view-like-btn');
 const isLiked = post.likes && post.likes.includes(currentUser.id);
 likeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-gray-700');
@@ -3163,7 +3322,16 @@ if(isLiked) {
 }
 likeBtn.onclick = () => toggleLike(postId);
 
-// Save Button State
+// Like Button State (Mobile)
+const mobLikeBtn = document.getElementById('mobile-action-like');
+mobLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-white');
+if(isLiked) {
+     mobLikeBtn.classList.add('fill-red-500', 'text-red-500');
+} else {
+     mobLikeBtn.classList.add('text-white');
+}
+
+// Save Button State (Desktop)
 const saveBtn = document.getElementById('post-view-save-btn');
 const isSaved = savedPosts.includes(postId);
 saveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-gray-700');
@@ -3174,15 +3342,33 @@ if(isSaved) {
 }
 saveBtn.onclick = () => toggleSave(postId);
 
+// Save Button State (Mobile)
+const mobSaveBtn = document.getElementById('mobile-action-save');
+mobSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-white');
+if(isSaved) {
+     mobSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
+} else {
+     mobSaveBtn.classList.add('text-white');
+}
+
 
 overlay.classList.remove('hidden');
 overlay.classList.add('flex');
 refreshIcons();
 }
 
+window.toggleMobileCommentDrawer = function() {
+    const drawer = document.querySelector('.discussion-panel');
+    if(drawer) drawer.classList.toggle('open');
+}
+
 window.closePostView = function() {
 document.getElementById('post-view-overlay').classList.add('hidden');
 document.getElementById('post-view-overlay').classList.remove('flex');
+// Close drawer if open
+const drawer = document.querySelector('.discussion-panel');
+if(drawer) drawer.classList.remove('open');
+
 window.currentViewingPostId = null;
 window.replyingToCommentId = null;
 const video = document.querySelector('#post-view-media-container video');
@@ -3196,7 +3382,15 @@ const container = document.getElementById('post-view-comments');
 let html = '';
 
 // Update Like Count dynamically if open
-document.getElementById('post-view-likes-count').innerText = `${post.likes ? post.likes.length : 0} likes`;
+const showLikes = post.settings?.showLikes !== false;
+const likeText = showLikes ? `${post.likes ? post.likes.length : 0} likes` : '';
+document.getElementById('post-view-likes-count').innerText = likeText;
+// Also update mobile like text
+const mobLikeCount = document.getElementById('mobile-like-count');
+if(mobLikeCount) {
+    mobLikeCount.innerText = post.likes ? post.likes.length : 0;
+    mobLikeCount.style.display = showLikes ? 'block' : 'none';
+}
 
 if(post.comments) {
     const topLevel = post.comments.filter(c => !c.parentId);

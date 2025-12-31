@@ -667,7 +667,7 @@ transform: translateX(20px);
     position: absolute;
     inset: 0;
     z-index: 40;
-    padding: 16px 12px 30px;
+    padding: 16px 12px 0px; /* Adjusted padding */
     background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.4) 100%);
     pointer-events: none; 
 }
@@ -697,22 +697,31 @@ transform: translateX(20px);
     justify-content: space-around;
     align-items: center;
     width: 100%;
-    padding: 12px 0;
-    border-top: 1px solid rgba(255,255,255,0.2);
+    padding: 14px 0 calc(14px + env(safe-area-inset-bottom, 20px));
+    border-top: 1px solid rgba(255,255,255,0.15);
     margin-top: auto;
-    background: rgba(0,0,0,0.3);
-    backdrop-filter: blur(5px);
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
     pointer-events: auto;
-    border-radius: 20px 20px 0 0;
 }
 .reel-nav-item {
-    color: white;
-    opacity: 0.7;
-    transition: opacity 0.2s;
+    color: #98a2b3;
+    transition: all 0.2s;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
 }
-.reel-nav-item:hover, .reel-nav-item.active {
-    opacity: 1;
+.reel-nav-item.active {
+    color: white;
+}
+.reel-nav-item:hover {
+    color: white;
+}
+.reel-nav-item i {
+    width: 24px;
+    height: 24px;
 }
 
 /* Spinning Music Indicator */
@@ -1011,19 +1020,20 @@ transform: translateX(20px);
 }
 
 .explore-tab-btn {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 600;
     color: #9ca3af;
-    padding-bottom: 4px;
-    border-bottom: 2px solid transparent;
+    padding: 8px 16px;
+    border-radius: 20px;
     transition: all 0.2s;
     display: flex;
     align-items: center;
     gap: 6px;
+    background: transparent;
 }
 .explore-tab-btn.active {
     color: #1f1f1f;
-    border-color: #1f1f1f;
+    background: #f3f4f6;
 }
 
 .category-chip {
@@ -1176,7 +1186,7 @@ transform: translateX(20px);
             </div>
             
             <!-- Bottom -->
-            <div class="flex items-end justify-between w-full h-full pb-16">
+            <div class="flex items-end justify-between w-full h-full pb-4">
                 <!-- Left Info -->
                 <div class="flex flex-col gap-3 max-w-[80%] text-white drop-shadow-md pointer-events-auto pb-4 pl-1 mt-auto">
                     <div class="flex items-center gap-2 cursor-pointer" id="reel-user-info-area">
@@ -1212,22 +1222,22 @@ transform: translateX(20px);
                 </div>
             </div>
 
-            <!-- Internal Video Footer Nav -->
+            <!-- Internal Video Footer Nav (The OG Footer requested) -->
             <div class="reel-nav-bar">
                 <div class="reel-nav-item" onclick="closePostView(); switchView('feed')">
-                    <i data-lucide="home" class="w-6 h-6"></i>
+                    <i data-lucide="home"></i>
                 </div>
                 <div class="reel-nav-item" onclick="closePostView(); switchView('explore')">
-                    <i data-lucide="compass" class="w-6 h-6"></i>
+                    <i data-lucide="compass"></i>
                 </div>
                 <div class="reel-nav-item" onclick="closePostView(); openCreateMenu()">
-                    <i data-lucide="plus-square" class="w-6 h-6"></i>
+                    <i data-lucide="plus-square"></i>
                 </div>
                 <div class="reel-nav-item" onclick="closePostView(); switchView('notifications')">
-                    <i data-lucide="bell" class="w-6 h-6"></i>
+                    <i data-lucide="bell"></i>
                 </div>
                 <div class="reel-nav-item" onclick="closePostView(); showProfile(auth.currentUser ? auth.currentUser.uid : null)">
-                    <i data-lucide="user" class="w-6 h-6"></i>
+                    <img id="reel-footer-avatar" src="" class="w-6 h-6 rounded-full border border-gray-400">
                 </div>
             </div>
         </div>
@@ -1687,16 +1697,18 @@ Change
  <!-- SEARCH / EXPLORE VIEW -->
 <div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-white">
     <div id="explore-header-container" class="sticky top-0 bg-white z-20">
-      <div class="flex items-center justify-between px-4 h-14 border-b border-gray-100">
-         <div class="flex gap-4 w-full">
+      <div class="flex flex-col border-b border-gray-100">
+          <div class="px-4 py-3 bg-white">
+              <div class="relative">
+                  <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
+                  <input type="text" id="mobile-explore-search" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all" placeholder="Search..." oninput="handleSearch(this.value)">
+              </div>
+          </div>
+          <div class="flex px-4 pb-2 gap-2 overflow-x-auto no-scrollbar">
              <button id="tab-explore-posts" onclick="switchExploreMainTab('posts')" class="explore-tab-btn active"><i data-lucide="grid" class="w-4 h-4"></i> Posts</button>
              <button id="tab-explore-people" onclick="switchExploreMainTab('people')" class="explore-tab-btn"><i data-lucide="users" class="w-4 h-4"></i> People</button>
              <button id="tab-explore-tags" onclick="switchExploreMainTab('tags')" class="explore-tab-btn"><i data-lucide="hash" class="w-4 h-4"></i> Tags</button>
-         </div>
-         <button onclick="toggleExploreSearch()" class="icon-btn shrink-0"><i data-lucide="search" class="w-5 h-5"></i></button>
-      </div>
-      <div id="explore-search-bar" class="hidden px-4 py-2 bg-white border-b border-gray-100">
-          <input type="text" id="mobile-explore-search" class="w-full bg-gray-100 rounded-xl py-2 px-4 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Search..." oninput="handleSearch(this.value)">
+          </div>
       </div>
     </div>
     
@@ -1844,7 +1856,7 @@ let activeNotifTab = 'friends';
 let activeNetworkTab = 'people';
 window.replyingToCommentId = null;
 window.currentViewingProfileId = null;
-window.activeExploreTab = 'posts'; // Changed default to posts
+window.activeExploreTab = 'posts'; 
 window.currentProfileTab = 'posts';
 
 // Global Vars for App Logic
@@ -2199,6 +2211,7 @@ const edBio = document.getElementById('edit-bio'); if(edBio) edBio.value = curre
 const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = currentUser.avatar;
 const edBanner = document.getElementById('edit-banner-link'); if(edBanner) edBanner.value = currentUser.banner || '';
 const threadAv = document.getElementById('thread-input-avatar'); if(threadAv) threadAv.src = currentUser.avatar;
+const reelFooterAv = document.getElementById('reel-footer-avatar'); if(reelFooterAv) reelFooterAv.src = currentUser.avatar;
 
 const bannerPos = currentUser.bannerPos || 50;
 const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
@@ -2699,7 +2712,7 @@ window.handleSearch = function(query) {
         }
     }
     else {
-        // POSTS
+        // POSTS (Instagram Style Grid)
         let filteredPosts = [...posts];
         if(term) {
             const keywords = term.split(" ").filter(k => k.length > 0);
@@ -2716,20 +2729,22 @@ window.handleSearch = function(query) {
             view.innerHTML = `<div class="text-center py-20 text-gray-400">No posts found.</div>`;
         } else {
             const grid = document.createElement('div');
-            grid.className = "grid grid-cols-3 gap-0.5 md:gap-4";
+            // Instagram Style Grid: 3 columns, tiny gap
+            grid.className = "grid grid-cols-3 gap-0.5";
             filteredPosts.forEach(p => {
                 let content = '';
                 if (p.media) {
                     if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
-                            content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
+                            // Video Icon Overlay
+                            content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center bg-black/10"><i data-lucide="play" class="w-6 h-6 text-white drop-shadow-md fill-white"></i></div>`;
                     } else {
                             content = `<img src="${p.media}" class="w-full h-full object-cover">`;
                     }
                 } else {
-                    content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
+                    content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-100 overflow-hidden leading-tight font-medium">${p.content.substring(0,60)}...</div>`;
                 }
                 const item = document.createElement('div');
-                item.className = "relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity";
+                item.className = "relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-90 transition-opacity";
                 item.onclick = () => openPostView(p.id);
                 item.innerHTML = content;
                 grid.appendChild(item);

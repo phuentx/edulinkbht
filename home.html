@@ -1473,7 +1473,7 @@ Change
 <div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
 
 <!-- NOTIFICATIONS VIEW (Now Main) -->
-<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-32 md:pt-6">
+<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-[220px] md:pt-6">
     <div class="flex justify-between items-center mb-4 px-4 md:px-0 hidden md:flex">
         <h2 class="text-2xl font-bold">Notifications</h2>
         <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
@@ -1897,7 +1897,15 @@ handleSearch(searchVal);
 }
 
 const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
-if(activePostView && window.currentViewingPostId) renderCommentsInModal(window.currentViewingPostId);
+if(activePostView && window.currentViewingPostId) {
+    // Check if the current post was modified
+    const currentPost = posts.find(p => p.id === window.currentViewingPostId);
+    if(currentPost) {
+        renderCommentsInModal(window.currentViewingPostId);
+        // Realtime update for stats in overlay
+        updatePostViewStats(window.currentViewingPostId);
+    }
+}
 
 const threadOverlay = document.getElementById('thread-overlay');
 if (!threadOverlay.classList.contains('hidden') && window.threadPostId && window.threadParentCommentId) {
@@ -1938,6 +1946,26 @@ if(activeNotif) renderNotifications();
 refreshIcons();
 });
 
+}
+
+window.updatePostViewStats = function(postId) {
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+    
+    // Desktop Stats
+    const deskLikeCount = document.getElementById('post-view-likes-count');
+    if (deskLikeCount) {
+        deskLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
+    }
+    
+    // Mobile Stats
+    const mobLikeCount = document.getElementById('mobile-like-count');
+    if (mobLikeCount) {
+        mobLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
+        // Ensure visibility respects settings
+        const showLikes = post.settings?.showLikes !== false;
+        mobLikeCount.style.display = showLikes ? 'block' : 'none';
+    }
 }
 
 function updateUserInterface() {
@@ -3413,9 +3441,42 @@ if(showLikes) {
 
 // Media Logic (Shared Container for Desktop/Mobile Stage)
 mediaContainer.classList.remove('hidden'); // Always show container
+mediaContainer.innerHTML = ''; // Clear previous
+
 if (post.media) {
     if (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video')) {
-         mediaContainer.innerHTML = `<video src="${post.media}" class="stage-content rounded-lg shadow-2xl" controls autoplay muted playsinline></video>`;
+         const videoEl = document.createElement('video');
+         videoEl.src = post.media;
+         videoEl.className = "stage-content rounded-lg shadow-2xl"; // Default Desktop Style
+         videoEl.controls = true;
+         videoEl.playsInline = true;
+         videoEl.autoplay = true;
+         videoEl.muted = true; // Auto-play usually requires muted
+
+         // Mobile Reel Logic Check
+         if(window.innerWidth < 768) {
+             videoEl.onloadedmetadata = function() {
+                 // Reel Mode if < 60s
+                 if(this.duration < 60) {
+                     this.className = "w-full h-full object-cover"; // Full bleed
+                     this.controls = false;
+                     this.loop = true;
+                     this.muted = false; // Try unmuted
+                     this.play().catch(() => {
+                         this.muted = true; 
+                         this.play();
+                     });
+                     
+                     // Tap to Toggle Sound
+                     this.onclick = (e) => {
+                         e.stopPropagation();
+                         this.muted = !this.muted;
+                         showToast(this.muted ? "Muted" : "Unmuted");
+                     };
+                 }
+             };
+         }
+         mediaContainer.appendChild(videoEl);
     } else {
          mediaContainer.innerHTML = `<img src="${post.media}" class="stage-content rounded-lg shadow-2xl">`;
     }

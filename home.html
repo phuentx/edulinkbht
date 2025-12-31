@@ -10,7 +10,6 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
-<script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Google+Sans:wght@400;500;700&display=swap');
 
@@ -654,11 +653,11 @@ transform: translateX(20px);
 }
 
 /* REEL MODE CSS (MOBILE) */
-.mobile-reel-view .mobile-header,
-.mobile-reel-view .mobile-footer {
+#post-view-overlay.is-reel .mobile-header,
+#post-view-overlay.is-reel .mobile-footer {
     display: none !important;
 }
-.mobile-reel-view .reel-ui-layer {
+#post-view-overlay.is-reel .reel-ui-layer {
     display: flex !important;
 }
 .reel-ui-layer {
@@ -679,23 +678,32 @@ transform: translateX(20px);
     align-items: center;
     gap: 4px;
     text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    margin-bottom: 16px;
 }
 .reel-interact-icon {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     color: white;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    stroke-width: 2px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 .reel-interact-text {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     color: white;
 }
 
-/* Music Indicator (No Spin) */
+/* Music Spin Animation */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.spin-slow {
+    animation: spin 4s linear infinite;
+}
 .reel-audio-btn {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
     border: 2px solid white;
     overflow: hidden;
@@ -1135,7 +1143,7 @@ transform: translateX(20px);
                         <span id="reel-username" class="font-bold text-sm">Username</span>
                         <button id="reel-follow-btn" class="bg-white/20 backdrop-blur text-xs px-2.5 py-1 rounded-md font-medium border border-white/30 hidden">Follow</button>
                     </div>
-                    <div id="reel-caption" class="text-sm leading-snug opacity-90 break-words"></div>
+                    <div id="reel-caption" class="text-sm leading-snug line-clamp-2 opacity-90"></div>
                 </div>
 
                 <!-- Right Actions -->
@@ -1154,9 +1162,9 @@ transform: translateX(20px);
                     <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)">
                         <i id="reel-save-icon" data-lucide="bookmark" class="reel-interact-icon"></i>
                     </div>
-                    <!-- Music/Audio Indicator (No Spin) -->
+                    <!-- Music/Audio Indicator -->
                     <div class="reel-interact-btn mt-2">
-                        <div class="reel-audio-btn">
+                        <div class="reel-audio-btn spin-slow">
                             <i data-lucide="disc" class="w-5 h-5 text-white"></i>
                         </div>
                     </div>
@@ -1581,17 +1589,42 @@ Change
 <div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
 
 <!-- NOTIFICATIONS VIEW (Now Main) -->
-<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-[220px] md:pt-6">
-    <div class="flex justify-between items-center mb-4 px-4 md:px-0 hidden md:flex">
-        <h2 class="text-2xl font-bold">Notifications</h2>
-        <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
+<!-- RESTRUCTURED FOR FLEXBOX SCROLLING -->
+<div id="view-notifications" class="flex-1 h-full hidden bg-[#f9fafb] md:bg-[#fff] flex flex-col pt-16 md:pt-0">
+    <!-- Non-fixed header content that sits naturally at top -->
+    <div class="shrink-0 bg-white md:pt-6">
+        <div class="flex justify-between items-center mb-0 md:mb-4 px-4 h-14 md:h-auto border-b md:border-none border-gray-100">
+            <h2 class="text-lg md:text-2xl font-bold text-[#1f1f1f]">Notifications</h2>
+            <div class="flex gap-4 items-center">
+                <button onclick="toggleNotifMenu()" class="icon-btn md:hidden"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
+                <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline hidden md:block">Clear All</button>
+            </div>
+            
+            <!-- Mobile Menu Dropdown -->
+            <div id="notif-menu-dropdown" class="absolute right-4 top-12 bg-white border border-gray-100 shadow-xl rounded-xl z-50 w-48 hidden flex-col overflow-hidden">
+                  <button onclick="toggleNotifSelection()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium border-b border-gray-50 text-gray-700">Select</button>
+                  <button onclick="deleteSelectedNotifs()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete Selected</button>
+                  <button onclick="clearAllNotifications()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete All</button>
+            </div>
+        </div>
+        
+        <!-- Mobile Search Bar -->
+        <div class="px-4 pb-2 md:hidden">
+           <div class="relative">
+               <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
+               <input type="text" id="notif-search" placeholder="Search notifications..." oninput="handleNotifSearch(this.value)" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
+           </div>
+       </div>
+
+        <div class="tab-group mb-0 mx-0 w-full">
+            <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i> Following</button>
+            <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i> Others</button>
+            <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button>
+        </div>
     </div>
-    <div class="tab-group mb-4 mx-0 md:mx-0 hidden md:flex">
-        <button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i> Following</button>
-        <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i> Others</button>
-        <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button>
-    </div>
-    <div id="notification-list" class="w-full"></div>
+    
+    <!-- Scrollable List Area -->
+    <div id="notification-list" class="flex-1 overflow-y-auto w-full"></div>
 </div>
 
 <!-- ANNOUNCEMENTS VIEW (Admin) -->
@@ -2669,31 +2702,33 @@ if(overlayLikeBtn && window.currentViewingPostId === postId) {
 // Optimistic UI Update for Mobile Overlay
 const mobileLikeBtn = document.getElementById('mobile-action-like');
 const mobileCountSpan = document.getElementById('mobile-like-count');
-if(mobileLikeBtn && window.currentViewingPostId === postId) {
-    const isMobileLiked = mobileLikeBtn.classList.contains('text-red-500');
-    mobileLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-[#1f1f1f]');
-    if(isMobileLiked) {
-        mobileLikeBtn.classList.add('text-[#1f1f1f]');
-        if(mobileCountSpan) mobileCountSpan.innerText = Math.max(0, (parseInt(mobileCountSpan.innerText) || 0) - 1);
-    } else {
-        mobileLikeBtn.classList.add('fill-red-500', 'text-red-500');
-        if(mobileCountSpan) mobileCountSpan.innerText = (parseInt(mobileCountSpan.innerText) || 0) + 1;
-    }
-}
+const reelLikeBtn = document.getElementById('reel-action-like');
+const reelLikeCount = document.getElementById('reel-like-count');
 
-// Optimistic Reel UI Update
-const reelLikeIcon = document.getElementById('reel-like-icon');
-const reelCount = document.getElementById('reel-like-count');
-if(reelLikeIcon && window.currentViewingPostId === postId) {
-    const isLiked = reelLikeIcon.classList.contains('text-red-500');
-    reelLikeIcon.classList.remove('fill-red-500', 'text-red-500', 'text-white');
-    let count = parseInt(reelCount.innerText) || 0;
-    if(isLiked) {
-        reelLikeIcon.classList.add('text-white');
-        reelCount.innerText = Math.max(0, count - 1);
-    } else {
-        reelLikeIcon.classList.add('fill-red-500', 'text-red-500');
-        reelCount.innerText = count + 1;
+if(window.currentViewingPostId === postId) {
+    // Normal Mobile
+    if(mobileLikeBtn) {
+        const isMobileLiked = mobileLikeBtn.classList.contains('text-red-500');
+        mobileLikeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-[#1f1f1f]');
+        if(isMobileLiked) {
+            mobileLikeBtn.classList.add('text-[#1f1f1f]');
+            if(mobileCountSpan) mobileCountSpan.innerText = Math.max(0, (parseInt(mobileCountSpan.innerText) || 0) - 1);
+        } else {
+            mobileLikeBtn.classList.add('fill-red-500', 'text-red-500');
+            if(mobileCountSpan) mobileCountSpan.innerText = (parseInt(mobileCountSpan.innerText) || 0) + 1;
+        }
+    }
+    
+    // Reel
+    if(reelLikeBtn) {
+        const isReelLiked = reelLikeBtn.classList.contains('fill-red-500');
+        reelLikeBtn.classList.remove('fill-red-500', 'text-red-500');
+        if(isReelLiked) {
+            if(reelLikeCount) reelLikeCount.innerText = Math.max(0, (parseInt(reelLikeCount.innerText) || 0) - 1);
+        } else {
+            reelLikeBtn.classList.add('fill-red-500', 'text-red-500');
+            if(reelLikeCount) reelLikeCount.innerText = (parseInt(reelLikeCount.innerText) || 0) + 1;
+        }
     }
 }
 
@@ -2778,25 +2813,25 @@ if(overlaySaveBtn && window.currentViewingPostId === postId) {
 
 // Optimistic UI Mobile Overlay
 const mobSaveBtn = document.getElementById('mobile-action-save');
-if(mobSaveBtn && window.currentViewingPostId === postId) {
-    const isMobSaved = mobSaveBtn.classList.contains('text-yellow-500');
-    mobSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-[#1f1f1f]');
-    if(isMobSaved) {
-        mobSaveBtn.classList.add('text-[#1f1f1f]');
-    } else {
-        mobSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
-    }
-}
+const reelSaveBtn = document.getElementById('reel-action-save');
 
-// Optimistic Reel UI
-const reelSaveIcon = document.getElementById('reel-save-icon');
-if(reelSaveIcon && window.currentViewingPostId === postId) {
-    const isSaved = reelSaveIcon.classList.contains('text-yellow-500');
-    reelSaveIcon.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-white');
-    if(isSaved) {
-        reelSaveIcon.classList.add('text-white');
-    } else {
-        reelSaveIcon.classList.add('fill-yellow-500', 'text-yellow-500');
+if(window.currentViewingPostId === postId) {
+    if(mobSaveBtn) {
+        const isMobSaved = mobSaveBtn.classList.contains('text-yellow-500');
+        mobSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-[#1f1f1f]');
+        if(isMobSaved) {
+            mobSaveBtn.classList.add('text-[#1f1f1f]');
+        } else {
+            mobSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
+        }
+    }
+    
+    if(reelSaveBtn) {
+        const isReelSaved = reelSaveBtn.classList.contains('fill-yellow-500');
+        reelSaveBtn.classList.remove('fill-yellow-500', 'text-yellow-500');
+        if(!isReelSaved) {
+            reelSaveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
+        }
     }
 }
 
@@ -3399,7 +3434,7 @@ window.currentViewingPostId = postId;
 
 // Reset Classes
 const overlay = document.getElementById('post-view-overlay');
-overlay.classList.remove('mobile-reel-view');
+overlay.classList.remove('is-reel'); // Used to be .mobile-reel-view or .is-reel based on previous logic
 
 const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
 const dateStr = formatDate(post.timestamp);
@@ -3435,17 +3470,7 @@ if(showLikes) {
 // MOBILE ELEMENTS POPULATION (Reel View)
 document.getElementById('reel-user-avatar').src = author.avatar;
 document.getElementById('reel-username').innerText = author.name;
-
-// Caption Read More Logic
-const reelCaption = document.getElementById('reel-caption');
-const fullContent = post.content;
-if(fullContent.length > 80) {
-    reelCaption.innerHTML = `<span>${fullContent.substring(0, 80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); expandReelCaption('${postId}')">more</span>`;
-    reelCaption.dataset.full = fullContent;
-} else {
-    reelCaption.innerHTML = fullContent;
-}
-
+document.getElementById('reel-caption').innerHTML = tagsHTML;
 updatePostViewStats(postId);
 
 // Fix Profile Redirect in Reel UI
@@ -3465,7 +3490,7 @@ const playOverlay = document.createElement('div');
 playOverlay.id = 'video-play-overlay';
 playOverlay.className = 'play-pause-overlay';
 playOverlay.innerHTML = '<i data-lucide="play" class="play-pause-icon"></i>';
-mediaContainer.appendChild(playOverlay);
+// Add it after setting video but prepare logic
 
 if (post.media) {
     const isVideo = post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video');
@@ -3473,10 +3498,10 @@ if (post.media) {
          const videoEl = document.createElement('video');
          videoEl.src = post.media;
          videoEl.className = "stage-content rounded-lg shadow-2xl"; 
-         videoEl.controls = false; // Custom controls
+         videoEl.controls = false; 
          videoEl.playsInline = true;
          videoEl.autoplay = true;
-         videoEl.muted = false; // Try sound on desktop
+         videoEl.muted = false; 
          videoEl.loop = true;
 
          // Toggle Play/Pause Logic
@@ -3492,21 +3517,22 @@ if (post.media) {
          };
          
          videoEl.onclick = togglePlay;
-         playOverlay.onclick = togglePlay; // Ensure overlay click also toggles
+         playOverlay.onclick = togglePlay; 
 
          // Mobile Reel Logic Check
          if(window.innerWidth < 768) {
              videoEl.onloadedmetadata = function() {
                  // Reel Mode if < 60s
                  if(this.duration < 60) {
-                     overlay.classList.add('mobile-reel-view');
+                     overlay.classList.add('is-reel');
                      this.className = "w-full h-full object-cover"; // Full bleed
                      this.muted = false; 
                      this.play().catch(() => { this.muted = true; this.play(); });
                  }
              };
          }
-         mediaContainer.insertBefore(videoEl, playOverlay);
+         mediaContainer.appendChild(videoEl);
+         mediaContainer.appendChild(playOverlay);
     } else {
          mediaContainer.innerHTML = `<img src="${post.media}" class="stage-content rounded-lg shadow-2xl">`;
     }
@@ -3600,23 +3626,24 @@ overlay.classList.add('flex');
 refreshIcons();
 }
 
-window.expandReelCaption = function(postId) {
-    const el = document.getElementById('reel-caption');
-    if(el && el.dataset.full) {
-        el.innerHTML = marked.parse(el.dataset.full);
-        el.style.maxHeight = '200px';
-        el.style.overflowY = 'auto';
-    }
-}
-
 window.toggleMobileCommentDrawer = function() {
     const drawer = document.querySelector('.discussion-panel');
     if(drawer) drawer.classList.toggle('open');
 }
 
+window.toggleVideoPlay = function(container) {
+    if(!document.getElementById('post-view-overlay').classList.contains('is-reel')) return;
+    const video = container.querySelector('video');
+    if(video) {
+        if(video.paused) video.play();
+        else video.pause();
+    }
+}
+
 window.closePostView = function() {
 document.getElementById('post-view-overlay').classList.add('hidden');
 document.getElementById('post-view-overlay').classList.remove('flex');
+document.getElementById('post-view-overlay').classList.remove('is-reel'); // Reset class
 // Close drawer if open
 const drawer = document.querySelector('.discussion-panel');
 if(drawer) drawer.classList.remove('open');

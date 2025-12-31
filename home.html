@@ -1000,21 +1000,6 @@ transform: translateX(20px);
     border-color: #1f1f1f;
 }
 
-.search-tab-btn {
-    flex: 1;
-    text-align: center;
-    padding: 10px 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: #6b7280;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-}
-.search-tab-btn.active {
-    color: #1f1f1f;
-    border-color: #1f1f1f;
-}
-
 .category-chip {
     padding: 6px 16px;
     border-radius: 9999px;
@@ -1090,7 +1075,7 @@ transform: translateX(20px);
 <div id="global-post-menu" class="post-options-menu"></div>
 
 <!-- MOBILE NOTIFICATIONS HEADER -->
-<div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
+<div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0 shadow-sm">
    <div class="h-14 flex items-center justify-between px-4 shrink-0 relative">
       <span class="font-bold text-lg text-[#1f1f1f]">Notifications</span>
       <div class="relative">
@@ -1102,13 +1087,13 @@ transform: translateX(20px);
           </div>
       </div>
    </div>
-   <div class="px-4 pb-2">
+   <div class="px-4 pb-3">
        <div class="relative">
            <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
            <input type="text" id="notif-search" placeholder="Search notifications..." oninput="handleNotifSearch(this.value)" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
        </div>
    </div>
-   <div class="tab-group mb-0 mx-0 w-full">
+   <div class="tab-group mb-0 mx-0 w-full px-2">
         <button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i> Following</button>
         <button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i> Others</button>
         <button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button>
@@ -1619,7 +1604,7 @@ Change
 <div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
 
 <!-- NOTIFICATIONS VIEW (Now Main) -->
-<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-[140px] md:pt-6">
+<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-[154px] md:pt-6">
     <div class="flex justify-between items-center mb-4 px-4 md:px-0 hidden md:flex">
         <h2 class="text-2xl font-bold">Notifications</h2>
         <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
@@ -1665,8 +1650,10 @@ Change
     <!-- Mobile Explore Header (Instagram Style) -->
     <div id="mobile-explore-header" class="md:hidden sticky top-0 bg-white z-30 flex flex-col transition-all border-b border-gray-100">
          <!-- Search Row -->
-         <div class="flex items-center p-3 gap-2">
-             <button id="explore-back-btn" onclick="exitSearchMode()" class="hidden icon-btn w-10 h-10 border border-gray-200"><i data-lucide="arrow-left" class="w-5 h-5 text-gray-700"></i></button>
+         <div class="flex items-center p-3 gap-3">
+             <button id="explore-back-btn" onclick="exitSearchMode()" class="hidden w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                 <i data-lucide="arrow-left" class="w-5 h-5 text-gray-700"></i>
+             </button>
              <div class="flex-1 relative bg-gray-100 rounded-xl transition-all group focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100">
                  <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400 group-focus-within:text-blue-500"></i>
                  <input type="text" id="mobile-explore-search" class="w-full bg-transparent py-2 pl-9 pr-4 text-sm outline-none text-gray-900 placeholder-gray-500" placeholder="Search..." oninput="handleSearch(this.value)" onfocus="enterSearchMode()">
@@ -1674,10 +1661,10 @@ Change
          </div>
          
          <!-- Search Mode Tabs (Hidden by default) -->
-         <div id="mobile-explore-tabs" class="hidden flex w-full border-t border-gray-100">
-             <button onclick="setSearchTab('people')" id="stab-people" class="search-tab-btn">People</button>
-             <button onclick="setSearchTab('posts')" id="stab-posts" class="search-tab-btn active">Posts</button>
-             <button onclick="setSearchTab('tags')" id="stab-tags" class="search-tab-btn">Tags</button>
+         <div id="mobile-explore-tabs" class="hidden tab-group px-4 border-none">
+             <button onclick="setSearchTab('people')" id="stab-people" class="tab-btn">People</button>
+             <button onclick="setSearchTab('posts')" id="stab-posts" class="tab-btn active">Posts</button>
+             <button onclick="setSearchTab('tags')" id="stab-tags" class="tab-btn">Tags</button>
          </div>
 
          <!-- Default Categories (Hidden in search mode) -->
@@ -2673,8 +2660,12 @@ window.exitSearchMode = function() {
 window.setSearchTab = function(tab) {
     window.exploreSearchTab = tab;
     // Update UI active state
-    document.querySelectorAll('.search-tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(`stab-${tab}`).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    // Specifically target explore tabs, might overlap with other .tab-btn logic if not careful
+    // Adding specific ID selector
+    const stab = document.getElementById(`stab-${tab}`);
+    if(stab) stab.classList.add('active');
+    
     handleSearch(document.getElementById('mobile-explore-search').value);
 }
 
@@ -4320,8 +4311,12 @@ window.exitSearchMode = function() {
 window.setSearchTab = function(tab) {
     window.exploreSearchTab = tab;
     // Update UI active state
-    document.querySelectorAll('.search-tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(`stab-${tab}`).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    // Specifically target explore tabs, might overlap with other .tab-btn logic if not careful
+    // Adding specific ID selector
+    const stab = document.getElementById(`stab-${tab}`);
+    if(stab) stab.classList.add('active');
+    
     handleSearch(document.getElementById('mobile-explore-search').value);
 }
 

@@ -653,7 +653,7 @@ transform: translateX(20px);
     gap: 0;
 }
 
-/* Desktop */
+/* Desktop Styles */
 @media (min-width: 768px) {
     .post-modal-layout {
         flex-direction: row;
@@ -662,6 +662,7 @@ transform: translateX(20px);
         height: 85vh;
         gap: 16px;
         align-items: center;
+        background: transparent;
     }
 
     /* Media Stage (Left) */
@@ -700,65 +701,62 @@ transform: translateX(20px);
     }
 }
 
-/* Mobile & Overlay Mobile Logic */
-.mobile-ui-layer { display: none; }
-
+/* Mobile Post View Layout */
 @media (max-width: 767px) {
     .post-modal-layout {
-        background: white;
-        height: 100vh;
-        width: 100vw;
-        position: relative;
-    }
-    /* Hide desktop panels */
-    .stage-panel, .discussion-panel {
-        display: none !important;
-    }
-    
-    .mobile-ui-layer {
         display: flex;
         flex-direction: column;
-        height: 100%;
-        width: 100%;
-        background: white;
-        overflow: hidden;
-        pointer-events: auto;
-        position: relative;
-        z-index: 10;
+        background: #fff; /* White background for the whole modal */
+        width: 100vw;
+        height: 100%; /* Full height */
+        overflow: hidden; /* No scroll on body */
     }
-    
+
     .mobile-header {
-        height: 56px;
-        display: flex;
+        display: flex; /* Ensure it's displayed */
+        flex-shrink: 0;
+        height: 60px;
         align-items: center;
         justify-content: space-between;
         padding: 0 16px;
-        background: white;
         border-bottom: 1px solid #f0f0f0;
-        flex-shrink: 0;
+        background: #fff;
+        z-index: 20;
     }
-    
-    .mobile-content-area {
-        flex: 1;
-        overflow-y: auto;
-        background: white;
+
+    .stage-panel {
+        flex: 1; /* Grow to fill space */
+        background: #000; /* Dark background for media */
+        width: 100%;
+        position: relative;
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
     }
     
+    .stage-content {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
     .mobile-footer {
-        background: white;
+        display: block; /* Ensure display */
+        flex-shrink: 0;
+        background: #fff;
         border-top: 1px solid #f0f0f0;
         padding: 12px 16px;
-        flex-shrink: 0;
-        padding-bottom: env(safe-area-inset-bottom, 20px);
+        /* Handle safe area for iPhone home bar */
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 20px)); 
+        z-index: 20;
     }
 
     .mobile-actions-bar {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
     
     .mobile-action-group {
@@ -767,9 +765,43 @@ transform: translateX(20px);
         gap: 16px;
     }
 
-    /* Mobile Comments Section inside Scroll */
-    .mobile-comments-section {
-        padding: 16px;
+    .mobile-caption-text {
+        font-size: 14px;
+        line-height: 1.5;
+        max-height: 80px;
+        overflow-y: auto;
+        color: #1f1f1f;
+    }
+
+    /* Discussion panel (Drawer) stays absolute/fixed */
+    .discussion-panel {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 75vh;
+        background: #fff;
+        z-index: 50;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+        transform: translateY(100%);
+        transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+        display: flex;
+        flex-direction: column;
+    }
+    .discussion-panel.open {
+        transform: translateY(0);
+    }
+    
+    /* Hide Caption Box inside drawer to avoid duplication */
+    .caption-box {
+        display: none !important;
+    }
+    
+    /* Mobile Drawer Header with Close Button */
+    .discussion-header {
+        border-radius: 20px 20px 0 0;
+        background: white;
     }
 }
 
@@ -885,10 +917,9 @@ transform: translateX(20px);
     align-items: center;
     background: #f3f4f6;
     border-radius: 24px;
-    padding: 8px 16px;
+    padding: 4px 6px 4px 16px;
     transition: all 0.2s;
     border: 1px solid transparent;
-    min-height: 44px;
 }
 .chat-input-wrapper:focus-within {
     background: #fff;
@@ -968,7 +999,7 @@ transform: translateX(20px);
            <input type="text" id="notif-search" placeholder="Search notifications..." oninput="handleNotifSearch(this.value)" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
        </div>
    </div>
-   <div class="tab-group mb-0 mx-0 w-full bg-white">
+   <div class="tab-group mb-0 mx-0 w-full">
         <button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i> Following</button>
         <button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i> Others</button>
         <button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button>
@@ -1011,97 +1042,86 @@ transform: translateX(20px);
     <!-- Floating Stage Layout -->
     <div class="post-modal-layout scale-in relative z-10">
         
-        <!-- Mobile Layout -->
-        <div class="mobile-ui-layer md:hidden">
-            <!-- Mobile Header -->
-            <div class="mobile-header">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="closePostView(); if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
-                    <img id="mobile-post-pfp" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
-                    <span id="mobile-post-username" class="font-bold text-sm text-[#1f1f1f]">User</span>
-                </div>
-                <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 w-9 h-9 border border-gray-200"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
+        <!-- 1. Mobile Header (Static, Visible on Mobile) -->
+        <div class="mobile-header md:hidden">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="closePostView(); if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
+                <img id="mobile-post-pfp" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
+                <span id="mobile-post-username" class="font-bold text-sm text-[#1f1f1f]">User</span>
             </div>
+            <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 w-9 h-9 border border-gray-200"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
+        </div>
 
-            <!-- Mobile Content -->
-            <div class="mobile-content-area">
-                <div id="mobile-media-container" class="w-full bg-gray-50 flex items-center justify-center"></div>
-                <div class="p-4 border-b border-gray-100">
-                    <div id="mobile-post-caption" class="text-sm text-gray-900 leading-relaxed mb-2"></div>
-                    <div id="mobile-post-date" class="text-xs text-gray-400"></div>
+        <!-- 2. Media Stage -->
+        <div id="post-view-media-container" class="stage-panel">
+             <!-- Media Injected Here -->
+        </div>
+
+        <!-- 3. Mobile Footer (Static, Visible on Mobile) -->
+        <div class="mobile-footer md:hidden">
+            <div class="mobile-actions-bar">
+                <div class="mobile-action-group">
+                    <i id="mobile-action-like" data-lucide="heart" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)"></i>
+                    <i data-lucide="message-circle" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="toggleMobileCommentDrawer()"></i>
+                    <i data-lucide="send" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)"></i>
                 </div>
-                <div id="mobile-comments-list" class="flex-1 p-4 space-y-4 pb-20"></div>
+                <i id="mobile-action-save" data-lucide="bookmark" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)"></i>
             </div>
-
-            <!-- Mobile Footer -->
-            <div class="mobile-footer">
-                <div class="mobile-actions-bar">
-                    <div class="mobile-action-group">
-                        <i id="mobile-action-like" data-lucide="heart" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)"></i>
-                        <i data-lucide="message-circle" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="document.getElementById('mobile-comment-input').focus()"></i>
-                        <i data-lucide="send" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)"></i>
-                    </div>
-                    <i id="mobile-action-save" data-lucide="bookmark" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)"></i>
-                </div>
-                <div id="mobile-like-count" class="text-sm font-bold text-[#1f1f1f] mb-3">0 likes</div>
-                
-                <!-- Mobile Input Area -->
-                <div id="mobile-input-container" class="chat-input-wrapper">
-                    <textarea id="mobile-comment-input" placeholder="Add a comment..." class="flex-1 max-h-20 bg-transparent outline-none text-sm resize-none h-5 py-0.5 text-gray-800 placeholder-gray-400" onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitCommentMobile(); }"></textarea>
-                    <button onclick="submitCommentMobile()" class="text-[#0b57d0] font-bold text-sm px-3 py-1 hover:bg-blue-50 rounded-full transition-colors">Post</button>
-                </div>
-                <div id="mobile-comments-off-msg" class="hidden text-center text-sm text-gray-500 italic py-2">The creator turned off the comments</div>
+            <div id="mobile-like-count" class="text-sm font-bold text-[#1f1f1f] mb-1">0 likes</div>
+            <div id="mobile-post-caption" class="mobile-caption-text">
+                <!-- Caption Text -->
             </div>
         </div>
 
-        <!-- Desktop Layout (Hidden on Mobile) -->
-        <div class="hidden md:flex flex-row w-full h-full">
-            <!-- Left Stage -->
-            <div id="post-view-media-container" class="stage-panel">
-                 <!-- Media Injected Here -->
-            </div>
-
-            <!-- Right Panel -->
-            <div class="discussion-panel">
-                 <!-- Sticky Header -->
-                 <div class="discussion-header">
-                      <div class="flex items-center gap-3">
+        <!-- 4. Right Panel: Conversation (Desktop) / Comment Drawer (Mobile) -->
+        <div class="discussion-panel">
+             <!-- Sticky Header -->
+             <div class="discussion-header">
+                  <div class="flex items-center gap-3">
+                      <!-- Hide info on mobile header since it's in main layout -->
+                      <div class="flex items-center gap-3 md:flex hidden">
                           <img id="post-view-avatar" class="w-10 h-10 rounded-full border border-gray-100 object-cover cursor-pointer hover:ring-2 hover:ring-blue-100 transition-all">
                           <div class="flex flex-col">
                               <span id="post-view-username" class="font-bold text-sm text-gray-900 cursor-pointer hover:underline">Username</span>
                               <span class="text-[11px] text-gray-400 font-medium" id="post-view-date">Just now</span>
                           </div>
                       </div>
-                      <button onclick="closePostView()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
-                 </div>
+                      <span class="md:hidden font-bold text-lg">Comments</span>
+                  </div>
+                  <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+                  <button onclick="toggleMobileCommentDrawer()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+             </div>
 
-                 <!-- Scroll Area -->
-                 <div id="post-view-scroll" class="discussion-scroll scroll-smooth">
-                      <div id="post-view-caption-area" class="caption-box"></div>
-                      <div id="post-view-comments" class="comments-list"></div>
-                 </div>
+             <!-- Scroll Area -->
+             <div id="post-view-scroll" class="discussion-scroll scroll-smooth">
+                  <!-- Caption Section (Desktop Only - Hidden on Mobile via CSS to avoid dupes) -->
+                  <div id="post-view-caption-area" class="caption-box">
+                      <!-- Caption Injected -->
+                  </div>
+                  
+                  <!-- Realtime Chat/Comments -->
+                  <div id="post-view-comments" class="comments-list"></div>
+             </div>
 
-                 <!-- Sticky Footer -->
-                 <div class="discussion-footer">
-                      <div class="flex justify-between items-center mb-3 px-1">
-                           <div class="flex gap-4">
-                               <i id="post-view-like-btn" data-lucide="heart" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
-                               <i data-lucide="message-circle" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="document.getElementById('comment-input-desktop').focus()"></i>
-                               <i data-lucide="send" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)"></i>
-                           </div>
-                           <div class="flex gap-4 items-center">
-                               <span class="font-bold text-sm text-gray-900" id="post-view-likes-count">0 likes</span>
-                               <i id="post-view-save-btn" data-lucide="bookmark" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
-                           </div>
-                      </div>
+             <!-- Sticky Footer -->
+             <div class="discussion-footer">
+                  <div class="flex justify-between items-center mb-3 px-1 hidden md:flex">
+                       <div class="flex gap-4">
+                           <i id="post-view-like-btn" data-lucide="heart" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
+                           <i data-lucide="message-circle" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="document.getElementById('comment-input-desktop').focus()"></i>
+                           <i data-lucide="send" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)"></i>
+                       </div>
+                       <div class="flex gap-4 items-center">
+                           <span class="font-bold text-sm text-gray-900" id="post-view-likes-count">0 likes</span>
+                           <i id="post-view-save-btn" data-lucide="bookmark" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
+                       </div>
+                  </div>
 
-                      <!-- Input Capsule -->
-                      <div class="chat-input-wrapper desktop-input">
-                          <textarea id="comment-input-desktop" placeholder="Add a comment..." class="flex-1 max-h-20 bg-transparent outline-none text-sm resize-none h-5 py-0.5 text-gray-800 placeholder-gray-400" onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitCommentDesktop(); }"></textarea>
-                          <button onclick="submitCommentDesktop()" class="text-[#0b57d0] font-bold text-sm px-3 py-1 hover:bg-blue-50 rounded-full transition-colors">Post</button>
-                      </div>
-                      <div id="comments-off-msg" class="hidden text-center text-sm text-gray-500 italic py-2">The creator turned off the comments</div>
-                 </div>
-            </div>
+                  <!-- Input Capsule -->
+                  <div class="chat-input-wrapper">
+                      <textarea id="comment-input-desktop" placeholder="Add a comment..." class="flex-1 max-h-20 bg-transparent outline-none text-sm resize-none h-5 py-0.5 text-gray-800 placeholder-gray-400" onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitCommentDesktop(); }"></textarea>
+                      <button onclick="submitCommentDesktop()" class="text-[#0b57d0] font-bold text-sm px-3 py-1 hover:bg-blue-50 rounded-full transition-colors">Post</button>
+                  </div>
+             </div>
         </div>
     </div>
 </div>
@@ -1453,7 +1473,7 @@ Change
 <div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
 
 <!-- NOTIFICATIONS VIEW (Now Main) -->
-<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-40 md:pt-6">
+<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-32 md:pt-6">
     <div class="flex justify-between items-center mb-4 px-4 md:px-0 hidden md:flex">
         <h2 class="text-2xl font-bold">Notifications</h2>
         <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
@@ -3382,53 +3402,16 @@ document.getElementById('post-view-username').onclick = () => showProfile(author
 document.getElementById('mobile-post-pfp').src = author.avatar;
 document.getElementById('mobile-post-username').innerText = author.name;
 document.getElementById('mobile-post-caption').innerHTML = tagsHTML;
-document.getElementById('mobile-post-date').innerText = dateStr;
-
 // Hide mobile like count if settings prevent it
 const mobileLikeCount = document.getElementById('mobile-like-count');
 if(showLikes) {
     mobileLikeCount.style.display = 'block';
-    mobileLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
+    mobileLikeCount.innerText = post.likes ? post.likes.length : 0;
 } else {
     mobileLikeCount.style.display = 'none';
 }
 
-// Mobile Comment Input Logic
-const mobileInputArea = document.getElementById('mobile-input-container');
-const mobileOffMsg = document.getElementById('mobile-comments-off-msg');
-const mobileCommentsList = document.getElementById('mobile-comments-list');
-
-if (post.settings && post.settings.allowComments === false) {
-    mobileInputArea.classList.add('hidden');
-    mobileOffMsg.classList.remove('hidden');
-} else {
-    mobileInputArea.classList.remove('hidden');
-    mobileOffMsg.classList.add('hidden');
-}
-
-// Mobile Comments Render
-mobileCommentsList.innerHTML = '';
-if(post.comments) {
-    const topLevel = post.comments.filter(c => !c.parentId);
-    topLevel.forEach(c => { 
-        mobileCommentsList.innerHTML += createCommentHTML(c, post.comments, postId, true); 
-    });
-}
-
-// Mobile Media Logic
-const mobileMediaContainer = document.getElementById('mobile-media-container');
-if (post.media) {
-    if (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video')) {
-         mobileMediaContainer.innerHTML = `<video src="${post.media}" class="w-full max-h-[50vh] object-contain" controls autoplay muted playsinline></video>`;
-    } else {
-         mobileMediaContainer.innerHTML = `<img src="${post.media}" class="w-full max-h-[50vh] object-contain">`;
-    }
-    mobileMediaContainer.classList.remove('hidden');
-} else {
-    mobileMediaContainer.classList.add('hidden');
-}
-
-// Desktop Media Logic (Shared Container for Desktop/Mobile Stage)
+// Media Logic (Shared Container for Desktop/Mobile Stage)
 mediaContainer.classList.remove('hidden'); // Always show container
 if (post.media) {
     if (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video')) {
@@ -3459,7 +3442,7 @@ captionArea.innerHTML = `
     </div>
 `;
 
-// Comments Desktop
+// Comments
 renderCommentsInModal(postId);
 
 // Like Button State (Desktop)
@@ -3502,20 +3485,24 @@ if(isSaved) {
      mobSaveBtn.classList.add('text-[#1f1f1f]');
 }
 
-// Comment Permission Logic (Desktop)
-const inputContainer = document.querySelector('.desktop-input');
+// Comment Permission Logic
+const inputContainer = document.querySelector('.chat-input-wrapper');
 if (post.settings && post.settings.allowComments === false) {
     if(inputContainer) inputContainer.classList.add('hidden');
     let msg = document.getElementById('comments-off-msg');
     if(!msg) {
-        // Handled by HTML structure now
+        msg = document.createElement('div');
+        msg.id = 'comments-off-msg';
+        msg.className = 'text-center text-sm text-gray-500 italic py-2';
+        msg.innerText = 'The creator turned off the comments';
+        document.querySelector('.discussion-footer').appendChild(msg);
     } else {
-        msg.classList.remove('hidden');
+        msg.style.display = 'block';
     }
 } else {
     if(inputContainer) inputContainer.classList.remove('hidden');
     const msg = document.getElementById('comments-off-msg');
-    if(msg) msg.classList.add('hidden');
+    if(msg) msg.style.display = 'none';
 }
 
 overlay.classList.remove('hidden');
@@ -3524,9 +3511,8 @@ refreshIcons();
 }
 
 window.toggleMobileCommentDrawer = function() {
-    // Focus mobile input if drawer logic was intended, but now we have full screen
-    const input = document.getElementById('mobile-comment-input');
-    if(input) input.focus();
+    const drawer = document.querySelector('.discussion-panel');
+    if(drawer) drawer.classList.toggle('open');
 }
 
 window.closePostView = function() {
@@ -3540,8 +3526,6 @@ window.currentViewingPostId = null;
 window.replyingToCommentId = null;
 const video = document.querySelector('#post-view-media-container video');
 if(video) video.pause();
-const mobileVideo = document.querySelector('#mobile-media-container video');
-if(mobileVideo) mobileVideo.pause();
 }
 
 function renderCommentsInModal(postId) {
@@ -3557,7 +3541,7 @@ document.getElementById('post-view-likes-count').innerText = likeText;
 // Also update mobile like text
 const mobLikeCount = document.getElementById('mobile-like-count');
 if(mobLikeCount) {
-    mobLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
+    mobLikeCount.innerText = post.likes ? post.likes.length : 0;
     mobLikeCount.style.display = showLikes ? 'block' : 'none';
 }
 
@@ -3717,34 +3701,14 @@ await updateDoc(postRef, { comments: comments });
 
 window.replyToComment = function(commentId, username) {
 const input = document.getElementById('comment-input-desktop');
-if(input && window.getComputedStyle(input).display !== 'none') {
-    input.value = `@${username} `;
-    input.focus();
-} else {
-    const mobInput = document.getElementById('mobile-comment-input');
-    if(mobInput) {
-        mobInput.value = `@${username} `;
-        mobInput.focus();
-    }
-}
+input.value = `@${username} `;
+input.focus();
 window.replyingToCommentId = commentId;
 }
 
 window.submitCommentDesktop = async function() {
 const txt = document.getElementById('comment-input-desktop').value.trim();
 if(!txt || !window.currentViewingPostId) return;
-await submitCommentLogic(txt);
-document.getElementById('comment-input-desktop').value = "";
-}
-
-window.submitCommentMobile = async function() {
-const txt = document.getElementById('mobile-comment-input').value.trim();
-if(!txt || !window.currentViewingPostId) return;
-await submitCommentLogic(txt);
-document.getElementById('mobile-comment-input').value = "";
-}
-
-async function submitCommentLogic(txt) {
 const postRef = doc(db, "posts", window.currentViewingPostId);
 const commentId = "c-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
 const newComment = { id: commentId, authorId: currentUser.id, content: txt, timestamp: Date.now(), likes: [], parentId: window.replyingToCommentId };
@@ -3754,6 +3718,7 @@ if (window.replyingToCommentId) {
 const parentComment = post.comments.find(c => c.id === window.replyingToCommentId);
 if (parentComment && parentComment.authorId !== currentUser.id) sendNotification(parentComment.authorId, 'reply', 'replied to your comment', window.currentViewingPostId);
 } else if(post && post.authorId !== currentUser.id) { sendNotification(post.authorId, 'comment', 'commented on your post', window.currentViewingPostId); }
+document.getElementById('comment-input-desktop').value = "";
 window.replyingToCommentId = null;
 }
 

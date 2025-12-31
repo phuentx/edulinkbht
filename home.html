@@ -643,124 +643,214 @@ transform: translateX(20px);
     border: 1px solid #e5e7eb;
 }
 
-/* Network Card Style */
-.network-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 20px;
-    overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    position: relative;
+/* --- CINEMATIC POST OVERLAY --- */
+.post-modal-layout {
     display: flex;
     flex-direction: column;
-}
-.network-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.15);
-    border-color: #d1d5db;
-}
-.network-banner {
-    height: 90px;
-    background: linear-gradient(135deg, #a8c7fa 0%, #e8f0fe 100%);
-    width: 100%;
-}
-.network-avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 4px solid #ffffff;
-    object-fit: cover;
-    margin-top: -40px;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: #f3f4f6;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-.network-info {
-    padding: 12px 20px 24px;
-    text-align: center;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-.network-name {
-    font-weight: 700;
-    color: #1f1f1f;
-    font-size: 17px;
-    margin-bottom: 2px;
-}
-.network-username {
-    font-size: 13px;
-    color: #6b7280;
-    font-weight: 500;
-    margin-bottom: 8px;
-}
-.network-bio {
-    font-size: 13px;
-    color: #4b5563;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    margin-bottom: 20px;
-    line-height: 1.5;
-    min-height: 40px;
-}
-.network-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: auto;
-}
-.network-btn {
-    flex: 1;
-    padding: 8px 0;
-    border-radius: 99px;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    cursor: pointer;
-}
-.network-btn.primary {
-    background-color: #0b57d0;
-    color: white;
-}
-.network-btn.primary:hover {
-    background-color: #0842a0;
-}
-.network-btn.secondary {
-    background-color: #f3f4f6;
-    color: #374151;
-}
-.network-btn.secondary:hover {
-    background-color: #e5e7eb;
-}
-.network-btn.danger {
-    background-color: #fef2f2;
-    color: #dc2626;
-}
-.network-btn.danger:hover {
-    background-color: #fee2e2;
-}
-
-/* Reels/Shorts/YouTube Style Viewer */
-.post-view-bg {
-    background-color: #0f0f0f; /* YouTube Dark Mode Background */
-}
-.post-view-container {
-    background-color: #0f0f0f;
     width: 100%;
     height: 100%;
+    overflow: hidden;
+    gap: 0;
 }
-.post-view-media-container {
-    background-color: #000;
+
+/* Desktop */
+@media (min-width: 768px) {
+    .post-modal-layout {
+        flex-direction: row;
+        width: 90vw;
+        max-width: 1200px;
+        height: 85vh;
+        gap: 16px;
+        align-items: center;
+    }
+
+    /* Media Stage (Left) */
+    .stage-panel {
+        flex: 1;
+        height: 100%;
+        background: radial-gradient(circle at center, #2e2e2e 0%, #1a1a1a 100%);
+        border-radius: 24px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+        min-width: 0; 
+    }
+
+    .stage-content {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    /* Conversation Panel (Right) */
+    .discussion-panel {
+        width: 420px;
+        height: 100%;
+        background: #ffffff;
+        border-radius: 24px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 15px 40px -10px rgba(0,0,0,0.15);
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+    .post-modal-layout {
+        background: white;
+    }
+    .stage-panel {
+        width: 100%;
+        height: 40vh;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .discussion-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+        z-index: 10;
+        background: white;
+        border-top-left-radius: 24px;
+        border-top-right-radius: 24px;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        margin-top: -20px;
+    }
+}
+
+.discussion-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--outline);
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 10;
 }
+
+.discussion-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    background: #fdfdfd;
+}
+
+.caption-box {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--outline);
+    background: #fff;
+}
+
+.comments-list {
+    padding: 12px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.discussion-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--outline);
+    background: #fff;
+    z-index: 10;
+}
+
+/* Chat-Style Comments */
+.comment-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+.comment-content-box {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.comment-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.comment-bubble {
+    background: #f3f4f6;
+    padding: 8px 12px;
+    border-radius: 0 16px 16px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--on-surface);
+    position: relative;
+}
+.comment-actions-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+    padding-left: 2px;
+}
+.comment-action-link {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.comment-action-link:hover { color: var(--on-surface); }
+
+/* My Comment Variation */
+.comment-row.me {
+    flex-direction: row-reverse;
+}
+.comment-row.me .comment-meta {
+    justify-content: flex-end;
+}
+.comment-row.me .comment-bubble {
+    background: #eff6ff; /* Light Blue */
+    border-radius: 16px 0 16px 16px;
+    color: #1e3a8a;
+}
+.comment-row.me .comment-actions-row {
+    justify-content: flex-end;
+    padding-right: 2px;
+}
+
+.action-bar-icon {
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+.action-bar-icon:hover { background: var(--hover-bg); }
+
+.chat-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: #f3f4f6;
+    border-radius: 24px;
+    padding: 4px 6px 4px 16px;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+.chat-input-wrapper:focus-within {
+    background: #fff;
+    border-color: #0b57d0;
+    box-shadow: 0 0 0 3px rgba(11, 87, 208, 0.1);
+}
+
 </style>
 </head>
 <body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
@@ -848,72 +938,63 @@ transform: translateX(20px);
     </div>
 </div>
 
-<!-- Post View Overlay (Redesigned for YouTube Style) -->
-<div id="post-view-overlay" class="fixed inset-0 z-[999] hidden">
-    <!-- Overlay Backdrop -->
-    <div class="absolute inset-0 bg-black/95 transition-opacity" onclick="closePostView()"></div>
+<!-- NEW ORIGINAL POST OVERLAY -->
+<div id="post-view-overlay" class="fixed inset-0 z-[60] hidden flex justify-center items-center">
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onclick="closePostView()"></div>
     
-    <!-- Modal Container -->
-    <div id="post-view-modal-container" class="absolute inset-0 flex items-center justify-center pointer-events-none p-0 md:p-6">
+    <!-- Floating Stage Layout -->
+    <div class="post-modal-layout scale-in relative z-10">
         
-        <!-- Inner Content (Pointer Events Auto) -->
-        <div class="w-full h-full md:w-[1280px] md:h-[90vh] bg-black md:bg-white md:rounded-xl shadow-2xl flex flex-col md:flex-row overflow-hidden pointer-events-auto relative">
-             
-             <!-- Close Button (Mobile Only) -->
-             <button onclick="closePostView()" class="absolute top-4 left-4 z-50 p-2 bg-black/50 rounded-full text-white md:hidden hover:bg-black/70"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
+        <!-- Left Stage: Immersive Media -->
+        <div id="post-view-media-container" class="stage-panel">
+             <!-- Media Injected Here -->
+        </div>
+        <!-- Mobile Close Button (Absolute) -->
+        <button onclick="closePostView()" class="md:hidden absolute top-4 right-4 z-50 bg-black/50 text-white p-2 rounded-full backdrop-blur-sm"><i data-lucide="x" class="w-6 h-6"></i></button>
 
-             <!-- Left Side: Media (Video Player) -->
-             <div id="post-view-media-container" class="flex-1 bg-black relative flex items-center justify-center h-full group select-none">
-                  <!-- Video or Image injected here -->
+        <!-- Right Panel: Conversation -->
+        <div class="discussion-panel">
+             <!-- Sticky Header -->
+             <div class="discussion-header">
+                  <div class="flex items-center gap-3">
+                      <img id="post-view-avatar" class="w-10 h-10 rounded-full border border-gray-100 object-cover cursor-pointer hover:ring-2 hover:ring-blue-100 transition-all">
+                      <div class="flex flex-col">
+                          <span id="post-view-username" class="font-bold text-sm text-gray-900 cursor-pointer hover:underline">Username</span>
+                          <span class="text-[11px] text-gray-400 font-medium" id="post-view-date">Just now</span>
+                      </div>
+                  </div>
+                  <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
              </div>
 
-             <!-- Right Side: Comments & Details Container -->
-             <div id="post-view-right-panel" class="w-full md:w-[400px] bg-white flex flex-col h-[50vh] md:h-full border-l border-gray-100 absolute bottom-0 md:static z-20 rounded-t-2xl md:rounded-none transform transition-transform duration-300">
+             <!-- Scroll Area -->
+             <div id="post-view-scroll" class="discussion-scroll scroll-smooth">
+                  <!-- Caption Section -->
+                  <div id="post-view-caption-area" class="caption-box">
+                      <!-- Caption Injected -->
+                  </div>
                   
-                  <!-- Header -->
-                  <div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white rounded-t-2xl md:rounded-none">
-                       <div class="flex items-center gap-3">
-                           <img id="post-view-avatar" class="w-9 h-9 rounded-full border border-gray-200 object-cover cursor-pointer">
-                           <div class="flex flex-col">
-                                <span id="post-view-username" class="font-bold text-sm text-gray-900 cursor-pointer hover:underline leading-tight">Username</span>
-                                <span id="post-view-date" class="text-[11px] text-gray-400 leading-tight">Date</span>
-                           </div>
+                  <!-- Realtime Chat/Comments -->
+                  <div id="post-view-comments" class="comments-list"></div>
+             </div>
+
+             <!-- Sticky Footer -->
+             <div class="discussion-footer">
+                  <div class="flex justify-between items-center mb-3 px-1">
+                       <div class="flex gap-4">
+                           <i id="post-view-like-btn" data-lucide="heart" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
+                           <i data-lucide="message-circle" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="document.getElementById('comment-input-desktop').focus()"></i>
+                           <i data-lucide="send" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
                        </div>
-                       <!-- Close Button (Desktop) -->
-                       <button onclick="closePostView()" class="hidden md:flex icon-btn hover:bg-gray-100" title="Close (Esc)"><i data-lucide="x" class="w-6 h-6"></i></button>
-                       <!-- Minimize on Mobile -->
-                       <button onclick="toggleMobileComments()" class="md:hidden icon-btn hover:bg-gray-100"><i data-lucide="chevron-down" class="w-6 h-6"></i></button>
+                       <div class="flex gap-4 items-center">
+                           <span class="font-bold text-sm text-gray-900" id="post-view-likes-count">0 likes</span>
+                           <i id="post-view-save-btn" data-lucide="bookmark" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
+                       </div>
                   </div>
 
-                  <!-- Scrollable Content -->
-                  <div id="post-view-scroll" class="flex-1 overflow-y-auto p-4 scroll-smooth min-h-0 bg-white">
-                       <!-- Caption / Text Only Content -->
-                       <div id="post-view-caption-area" class="mb-4 pb-4 border-b border-gray-100 text-sm text-gray-800 leading-relaxed">
-                           <!-- Injected via JS -->
-                       </div>
-                       
-                       <!-- Realtime Comments List -->
-                       <div class="font-bold text-xs text-gray-500 uppercase tracking-wider mb-3">Comments</div>
-                       <div id="post-view-comments" class="space-y-4"></div>
-                  </div>
-
-                  <!-- Footer Actions -->
-                  <div class="border-t border-gray-100 p-3 bg-white shrink-0 z-20 pb-safe">
-                       <div class="flex justify-between items-center mb-2 px-1">
-                            <div class="flex gap-4">
-                                <button id="post-view-like-btn" class="hover:opacity-60 transition-opacity"><i data-lucide="heart" class="w-6 h-6"></i></button>
-                                <button class="hover:opacity-60 transition-opacity" onclick="document.getElementById('comment-input-desktop').focus()"><i data-lucide="message-circle" class="w-6 h-6"></i></button>
-                                <button class="hover:opacity-60 transition-opacity"><i data-lucide="send" class="w-6 h-6"></i></button>
-                            </div>
-                            <button id="post-view-save-btn" class="hover:opacity-60 transition-opacity"><i data-lucide="bookmark" class="w-6 h-6"></i></button>
-                       </div>
-                       <div class="font-bold text-sm mb-2 px-1" id="post-view-likes-count">0 likes</div>
-
-                       <!-- Comment Input -->
-                       <div class="flex items-center gap-2 border-t border-gray-100 pt-3">
-                           <textarea id="comment-input-desktop" placeholder="Add a comment..." class="flex-1 max-h-20 bg-transparent outline-none text-sm resize-none h-9 py-2 px-3 bg-gray-50 rounded-full focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all" onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitCommentDesktop(); }"></textarea>
-                           <button onclick="submitCommentDesktop()" class="text-blue-600 font-bold text-sm hover:text-blue-800 px-2">Post</button>
-                       </div>
+                  <!-- Input Capsule -->
+                  <div class="chat-input-wrapper">
+                      <textarea id="comment-input-desktop" placeholder="Add a comment..." class="flex-1 max-h-20 bg-transparent outline-none text-sm resize-none h-5 py-0.5 text-gray-800 placeholder-gray-400" onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitCommentDesktop(); }"></textarea>
+                      <button onclick="submitCommentDesktop()" class="text-[#0b57d0] font-bold text-sm px-3 py-1 hover:bg-blue-50 rounded-full transition-colors">Post</button>
                   </div>
              </div>
         </div>
@@ -1959,57 +2040,32 @@ const container = document.getElementById('network-content');
 container.innerHTML = "";
 
 if (activeNetworkTab === 'people') {
-// REDESIGNED NETWORK GRID - VISUALLY STUNNING CARDS
 const grid = document.createElement('div');
-grid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 md:px-0";
+grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4 px-4 md:px-0";
 
 if (!currentUser || !currentUser.following) {
-container.innerHTML += `<div class="flex flex-col items-center justify-center py-20 opacity-60"><p>Loading network...</p></div>`;
+container.innerHTML += `<div class="flex flex-col items-center justify-center py-10 opacity-60"><p>Loading...</p></div>`;
 return;
 }
 
 const followingUsers = users.filter(u => currentUser.following.includes(u.id));
 
 if(followingUsers.length === 0) {
-container.innerHTML += `
-    <div class="flex flex-col items-center justify-center py-20 opacity-60 text-center">
-        <div class="bg-blue-50 p-6 rounded-full mb-4"><i data-lucide="users" class="w-12 h-12 text-blue-500"></i></div>
-        <h3 class="text-lg font-bold text-gray-800">Your network is empty</h3>
-        <p class="text-gray-500 mt-2">Start following people to see them here.</p>
-        <button onclick="switchView('explore')" class="mt-6 px-6 py-2 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-colors">Discover People</button>
-    </div>`;
+container.innerHTML += `<div class="flex flex-col items-center justify-center py-10 opacity-60"><p>You aren't following anyone yet.</p></div>`;
 return;
 }
 
 followingUsers.forEach(user => {
-const bannerUrl = user.banner || 'linear-gradient(135deg, #a8c7fa 0%, #e8f0fe 100%)';
-const isImageBanner = bannerUrl.startsWith('http');
-const bannerStyle = isImageBanner ? `background-image: url('${bannerUrl}'); background-size: cover; background-position: center;` : `background: ${bannerUrl};`;
-
 const card = document.createElement('div');
-card.className = "network-card group cursor-pointer";
+card.className = "bg-white p-4 rounded-xl border border-gray-100 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer";
 card.onclick = () => showProfile(user.id);
 card.innerHTML = `
-<div class="network-banner" style="${bannerStyle}"></div>
-<div class="px-4 pb-4 flex flex-col items-center -mt-10">
-    <img src="${user.avatar}" class="w-20 h-20 rounded-full border-4 border-white shadow-sm object-cover bg-white">
-    <div class="mt-2 text-center w-full">
-        <h4 class="font-bold text-gray-900 text-lg flex items-center justify-center gap-1">
-            ${user.name} 
-            ${user.isOfficial ? '<i data-lucide="badge-check" class="w-5 h-5 text-blue-500 fill-white"></i>' : ''}
-        </h4>
-        <div class="text-sm text-gray-500 font-medium">@${user.username || 'user'}</div>
-        <p class="text-sm text-gray-600 mt-3 line-clamp-2 min-h-[40px] px-2 leading-relaxed">${user.bio || 'No bio available'}</p>
-    </div>
-    <div class="flex gap-3 mt-5 w-full">
-        <button onclick="event.stopPropagation(); toggleFollow('${user.id}')" class="flex-1 py-2 rounded-full font-semibold text-sm transition-all border flex items-center justify-center gap-2 ${followingUsers.some(u => u.id === user.id) ? 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-red-600 hover:border-red-200' : 'bg-blue-600 border-transparent text-white hover:bg-blue-700'}">
-            ${followingUsers.some(u => u.id === user.id) ? 'Following' : 'Follow'}
-        </button>
-        <button onclick="event.stopPropagation(); showProfile('${user.id}')" class="px-3 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 border border-transparent">
-            <i data-lucide="user" class="w-5 h-5"></i>
-        </button>
-    </div>
+<img src="${user.avatar}" class="w-12 h-12 rounded-full border border-gray-100 bg-gray-50 object-cover">
+<div>
+<h4 class="font-bold text-gray-900">${user.name} ${user.isOfficial ? '<i data-lucide="badge-check" class="w-4 h-4 inline text-blue-500"></i>' : ''}</h4>
+<p class="text-xs text-gray-500 line-clamp-1">${user.bio}</p>
 </div>
+<button onclick="event.stopPropagation(); toggleFollow('${user.id}')" class="ml-auto text-xs border border-gray-200 px-3 py-1 rounded-full hover:bg-gray-50">Unfollow</button>
 `;
 grid.appendChild(card);
 });
@@ -2070,9 +2126,9 @@ let mediaHTML = "";
 if (post.media) {
 const isVideo = post.media.startsWith('data:video') || post.media.includes('.mp4') || post.media.includes('.webm');
 mediaHTML = isVideo
-? `<div class="mt-3 rounded-xl overflow-hidden bg-black relative"><video src="${post.media}" class="w-full max-h-[500px] object-contain bg-black" controls onclick="event.stopPropagation()"></video></div>`
-: `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer relative" onclick="event.stopPropagation(); openLightbox('${post.media}', 'image')">
-<img src="${post.media}" class="w-full max-h-[500px] object-cover bg-gray-50">
+? `<div class="mt-3 rounded-xl overflow-hidden"><video src="${post.media}" class="w-full max-h-[400px]" controls onclick="event.stopPropagation()"></video></div>`
+: `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer" onclick="event.stopPropagation(); openLightbox('${post.media}', 'image')">
+<img src="${post.media}" class="w-full max-h-[400px] object-cover bg-gray-50">
 </div>`;
 }
 
@@ -3040,137 +3096,98 @@ window.deleteMessage = async function(msgId) {
 showAlert("Unsend this message?", async () => { await deleteDoc(doc(db, "messages", msgId)); });
 }
 
-// Open Post View - Refactored for Reels/Shorts Style Viewer
+// Open Post View - Refactored for new UI
 window.openPostView = function(postId) {
-    const post = posts.find(p => p.id === postId);
-    if(!post) return;
-    window.currentViewingPostId = postId;
+const post = posts.find(p => p.id === postId);
+if(!post) return;
+window.currentViewingPostId = postId;
 
-    const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
-    const dateStr = formatDate(post.timestamp);
+const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
+const dateStr = formatDate(post.timestamp);
 
-    // Get Elements
-    const overlay = document.getElementById('post-view-overlay');
-    const mediaContainer = document.getElementById('post-view-media-container');
-    const captionArea = document.getElementById('post-view-caption-area');
-    
-    // Set Header Data
-    document.getElementById('post-view-avatar').src = author.avatar;
-    document.getElementById('post-view-username').innerText = author.name;
-    document.getElementById('post-view-date').innerText = dateStr;
-    document.getElementById('post-view-likes-count').innerText = `${post.likes ? post.likes.length : 0} likes`;
-    
-    document.getElementById('post-view-avatar').onclick = () => { closePostView(); showProfile(author.id); };
-    document.getElementById('post-view-username').onclick = () => { closePostView(); showProfile(author.id); };
+// Reset UI
+const mediaContainer = document.getElementById('post-view-media-container');
+const captionArea = document.getElementById('post-view-caption-area');
+const overlay = document.getElementById('post-view-overlay');
 
-    // Determine Media Type & Layout Style
-    let isVideo = false;
-    if (post.media && (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video'))) {
-        isVideo = true;
-    }
+document.getElementById('post-view-avatar').src = author.avatar;
+document.getElementById('post-view-username').innerText = author.name;
+document.getElementById('post-view-date').innerText = dateStr;
+document.getElementById('post-view-likes-count').innerText = `${post.likes ? post.likes.length : 0} likes`;
+document.getElementById('post-view-avatar').onclick = () => showProfile(author.id);
+document.getElementById('post-view-username').onclick = () => showProfile(author.id);
 
-    // Media Injection (Reels/YouTube Style)
-    if (isVideo) {
-        mediaContainer.innerHTML = `
-            <video id="main-video-player" src="${post.media}" class="w-full h-full max-h-[90vh] object-contain focus:outline-none" controls autoplay playsinline loop></video>
-        `;
-        // Keyboard Support Logic for Video
-        setTimeout(() => {
-            const v = document.getElementById('main-video-player');
-            if(v) v.focus();
-        }, 100);
-    } else if (post.media) {
-        mediaContainer.innerHTML = `<img src="${post.media}" class="w-full h-full object-contain">`;
+// Media Logic
+mediaContainer.classList.remove('hidden'); // Always show container
+if (post.media) {
+    if (post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video')) {
+         mediaContainer.innerHTML = `<video src="${post.media}" class="stage-content rounded-lg shadow-2xl" controls autoplay muted></video>`;
     } else {
-        mediaContainer.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-500"><i data-lucide="image-off" class="w-16 h-16 mb-2 opacity-50"></i><span class="text-sm font-medium">No Media</span></div>`;
+         mediaContainer.innerHTML = `<img src="${post.media}" class="stage-content rounded-lg shadow-2xl">`;
     }
-
-    // Caption
-    const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
-    captionArea.innerHTML = tagsHTML;
-
-    // Comments
-    renderCommentsInModal(postId);
-
-    // Like Button
-    const likeBtn = document.getElementById('post-view-like-btn');
-    const isLiked = post.likes && post.likes.includes(currentUser.id);
-    likeBtn.innerHTML = `<i data-lucide="heart" class="w-6 h-6 ${isLiked ? 'fill-red-500 text-red-500' : 'text-black'}"></i>`;
-    likeBtn.onclick = () => toggleLike(postId);
-
-    // Save Button
-    const isSaved = savedPosts.includes(post.id);
-    const saveBtn = document.getElementById('post-view-save-btn');
-    saveBtn.innerHTML = `<i data-lucide="bookmark" class="w-6 h-6 ${isSaved ? 'fill-yellow-500 text-yellow-500' : 'text-black'}"></i>`;
-    saveBtn.onclick = () => toggleSave(postId);
-
-    // Show Overlay
-    overlay.classList.remove('hidden');
-    
-    // Reset mobile comments drawer state
-    const rightPanel = document.getElementById('post-view-right-panel');
-    rightPanel.style.transform = ''; // Clear inline styles
-    
-    refreshIcons();
+} else {
+    // No Media Placeholder
+    mediaContainer.innerHTML = `
+        <div class="flex flex-col items-center justify-center h-full text-white opacity-40">
+            <i data-lucide="image-off" class="w-16 h-16 mb-2"></i>
+            <span class="text-sm font-medium">No Media</span>
+        </div>`;
 }
 
-// Add Global Key Listener for Modal
-document.addEventListener('keydown', (e) => {
-    if (document.getElementById('post-view-overlay').classList.contains('hidden')) return;
-    
-    if (e.key === 'Escape') {
-        closePostView();
-    } else if (e.code === 'Space') {
-        const video = document.getElementById('main-video-player');
-        if (video && document.activeElement.tagName !== 'TEXTAREA' && document.activeElement.tagName !== 'INPUT') {
-            e.preventDefault(); // Prevent scroll
-            if (video.paused) video.play();
-            else video.pause();
-        }
-    }
-});
+// Caption
+const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
+captionArea.innerHTML = `
+    <div class="flex gap-3">
+        <img src="${author.avatar}" class="w-8 h-8 rounded-full border border-gray-100 object-cover shrink-0 cursor-pointer" onclick="showProfile('${author.id}')">
+        <div>
+             <div class="flex items-center gap-1.5 mb-0.5">
+                <span class="font-bold text-sm cursor-pointer" onclick="showProfile('${author.id}')">${author.name}</span>
+                ${author.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 text-blue-500 fill-blue-50"></i>' : ''}
+             </div>
+             <div class="text-sm text-gray-800 leading-snug">${tagsHTML}</div>
+        </div>
+    </div>
+`;
 
-// Click on background to play/pause (Youtube Style)
-document.addEventListener('click', (e) => {
-    const mediaContainer = document.getElementById('post-view-media-container');
-    if (mediaContainer && !mediaContainer.classList.contains('hidden') && mediaContainer.contains(e.target)) {
-        // Check if click was on controls (browser native controls handle their own clicks usually, but just in case)
-        if (e.target.tagName !== 'VIDEO') { // Clicking on black space
-             const video = document.getElementById('main-video-player');
-             if(video) {
-                 if(video.paused) video.play(); else video.pause();
-             }
-        }
-    }
-});
+// Comments
+renderCommentsInModal(postId);
 
+// Like Button State
+const likeBtn = document.getElementById('post-view-like-btn');
+const isLiked = post.likes && post.likes.includes(currentUser.id);
+likeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-gray-700');
+if(isLiked) {
+    likeBtn.classList.add('fill-red-500', 'text-red-500');
+} else {
+    likeBtn.classList.add('text-gray-700');
+}
+likeBtn.onclick = () => toggleLike(postId);
+
+// Save Button State
+const saveBtn = document.getElementById('post-view-save-btn');
+const isSaved = savedPosts.includes(postId);
+saveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-gray-700');
+if(isSaved) {
+    saveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
+} else {
+    saveBtn.classList.add('text-gray-700');
+}
+saveBtn.onclick = () => toggleSave(postId);
+
+
+overlay.classList.remove('hidden');
+overlay.classList.add('flex');
+refreshIcons();
+}
 
 window.closePostView = function() {
-    const overlay = document.getElementById('post-view-overlay');
-    overlay.classList.add('hidden');
-    window.currentViewingPostId = null;
-    window.replyingToCommentId = null;
-    
-    const video = document.querySelector('#post-view-media-container video');
-    if(video) {
-        video.pause();
-        video.src = "";
-    }
+document.getElementById('post-view-overlay').classList.add('hidden');
+document.getElementById('post-view-overlay').classList.remove('flex');
+window.currentViewingPostId = null;
+window.replyingToCommentId = null;
+const video = document.querySelector('#post-view-media-container video');
+if(video) video.pause();
 }
-
-// Mobile Comment Toggle Logic (Sliding Drawer)
-window.toggleMobileComments = function() {
-    const panel = document.getElementById('post-view-right-panel');
-    
-    if (panel.classList.contains('minimized')) {
-        panel.style.transform = 'translateY(0)';
-        panel.classList.remove('minimized');
-    } else {
-        panel.style.transform = 'translateY(100%)';
-        panel.classList.add('minimized');
-    }
-}
-
 
 function renderCommentsInModal(postId) {
 const post = posts.find(p => p.id === postId);
@@ -3201,33 +3218,35 @@ const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
 const canDelete = isMyComment || isAdmin;
 
 const replies = allComments.filter(r => r.parentId === c.id);
+const timeAgo = "Now"; // Simplified for this context
 
 let html = `
-<div class="flex gap-3 mb-2 group">
-    <img src="${cAuthor.avatar}" class="w-8 h-8 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover cursor-pointer" onclick="showProfile('${c.authorId}')">
-    <div class="flex-1">
-        <div class="text-sm">
-            <span class="font-bold mr-1 cursor-pointer" onclick="showProfile('${c.authorId}')">${cAuthor.name}</span>
-            <span class="text-gray-900">${c.content}</span>
+<div class="comment-row ${isMyComment ? 'me' : ''}">
+    <img src="${cAuthor.avatar}" class="w-8 h-8 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover cursor-pointer hover:opacity-80 transition-opacity" onclick="showProfile('${c.authorId}')">
+    <div class="comment-content-box">
+        <div class="comment-meta">
+            <span class="font-bold text-gray-900 cursor-pointer" onclick="showProfile('${c.authorId}')">${cAuthor.name}</span>
+            <span class="text-[10px] opacity-60">• ${timeAgo}</span>
         </div>
-        <div class="flex items-center gap-3 mt-1 text-xs text-gray-500 font-medium">
-            <span>Now</span>
-            ${likeCount > 0 ? `<span>${likeCount} like${likeCount > 1 ? 's' : ''}</span>` : ''}
-            <button class="hover:text-gray-900" onclick="replyToComment('${c.id}', '${cAuthor.name}')">Reply</button>
-            ${canDelete ? `<button onclick="deleteComment('${postId}', '${c.id}')" class="text-red-500 hover:text-red-700">Delete</button>` : ''}
+        <div class="comment-bubble group relative">
+            ${c.content}
+            <button onclick="toggleCommentLike('${postId}', '${c.id}')" class="absolute -right-2 -bottom-2 bg-white rounded-full p-1 shadow-sm border border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                 <i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'}"></i>
+            </button>
         </div>
-        
+        <div class="comment-actions-row">
+            ${likeCount > 0 ? `<span class="text-[10px] font-bold text-gray-500">${likeCount} like${likeCount!==1?'s':''}</span>` : ''}
+            <span class="comment-action-link" onclick="replyToComment('${c.id}', '${cAuthor.name}')">Reply</span>
+            ${canDelete ? `<span onclick="deleteComment('${postId}', '${c.id}')" class="comment-action-link text-red-500 hover:text-red-700">Delete</span>` : ''}
+        </div>
         ${showRepliesLink && replies.length > 0 ? 
-            `<div class="mt-2 pl-2 border-l-2 border-gray-100">
-                <button onclick="openThread('${postId}', '${c.id}')" class="text-xs font-semibold text-gray-500 hover:text-gray-800 flex items-center gap-2">
-                    <div class="w-8 h-[1px] bg-gray-300"></div> View ${replies.length} replies
+            `<div class="mt-2 pl-2">
+                <button onclick="openThread('${postId}', '${c.id}')" class="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1">
+                    View ${replies.length} replies
                 </button>
              </div>` : ''
         }
     </div>
-    <button onclick="toggleCommentLike('${postId}', '${c.id}')" class="self-start pt-1">
-        <i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'}"></i>
-    </button>
 </div>
 `;
 return html;

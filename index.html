@@ -627,12 +627,11 @@
                         displayName: name,
                         photoURL: `https://api.dicebear.com/9.x/lorelei/svg?seed=${name}&backgroundColor=transparent`
                     });
-                    alert("Account created! Welcome, " + name);
                 } else {
                     await signInWithEmailAndPassword(auth, email, pass);
-                    alert("Logged in successfully!");
                 }
-                closeOverlay();
+                // Redirect on success
+                window.location.href = "home.html";
             } catch (err) {
                 console.error(err);
                 alert("Error: " + err.message);
@@ -645,8 +644,7 @@
         // AUTH LISTENER
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                getStartedBtn.innerText = "Workspace";
-                console.log("User is logged in:", user.email);
+                window.location.href = "home.html";
             }
         });
     </script>

@@ -2691,8 +2691,8 @@ window.handleSearch = function(query) {
 
     const view = document.getElementById('explore-results');
     
-    // Logic: Show people list if tab is 'people' OR if searching
-    const showPeopleList = window.activeExploreTab === 'people' || term.length > 0;
+    // Logic: Show people list ONLY if tab is 'people'
+    const showPeopleList = window.activeExploreTab === 'people';
     
     if(showPeopleList) {
         peopleList.classList.remove('hidden');
@@ -2731,23 +2731,17 @@ window.handleSearch = function(query) {
         } else {
             peopleList.innerHTML = `<div class="text-gray-400 text-xs italic text-center py-4">No people found</div>`;
         }
+        
+        // Hide Post Grid when in People tab
+        view.innerHTML = '';
+        return; 
+
     } else {
         peopleList.classList.add('hidden');
         peopleList.classList.remove('flex');
     }
 
-    // --- Post Grid Logic ---
-    // Hide Grid if 'People' tab is active AND not searching specific text (focus on people list)
-    // Actually Instagram shows both if searching. 
-    // Let's stick to: If 'People' tab, hide posts grid unless we want a mixed view.
-    // Requirement: "Tab of user profile tab". Profile has tabs. 
-    
-    if (window.activeExploreTab === 'people' && !term) {
-        view.innerHTML = ''; // Clear grid
-        return;
-    }
-
-    // Filter Posts
+    // Filter Posts (for non-people tabs)
     let filteredPosts = [...posts];
     
     if(window.activeExploreTab === 'video') {
@@ -3744,7 +3738,7 @@ if (post.media) {
          videoEl.className = "stage-content rounded-lg shadow-2xl"; 
          videoEl.controls = false; // Custom controls
          videoEl.playsInline = true;
-         videoEl.autoplay = true;
+         // videoEl.autoplay = true;  <-- Remove
          videoEl.muted = false; // Try sound on desktop
          videoEl.loop = true;
 
@@ -3761,18 +3755,20 @@ if (post.media) {
          };
          
          videoEl.onclick = togglePlay;
-         playOverlay.onclick = togglePlay; // Ensure overlay click also toggles
+         playOverlay.onclick = togglePlay; 
+         
+         // Set initial state
+         playOverlay.classList.add('show');
 
          // Mobile Reel Logic Check
          if(window.innerWidth < 768) {
              videoEl.onloadedmetadata = function() {
                  // Reel Mode if video is vertical-ish (or always for mobile video?)
-                 // Let's force reel mode for all mobile videos for "immersive design"
                  overlay.classList.add('mobile-reel-view');
                  document.body.classList.add('reel-mode'); // Hide global nav
                  this.className = "w-full h-full object-cover"; // Full bleed
                  this.muted = false; 
-                 this.play().catch(() => { this.muted = true; this.play(); });
+                 // this.play().catch(() => { this.muted = true; this.play(); }); <-- Remove play call
              };
          }
          mediaContainer.insertBefore(videoEl, playOverlay);

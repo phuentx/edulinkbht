@@ -692,14 +692,7 @@ transform: translateX(20px);
     color: white;
 }
 
-/* Music Spin Animation */
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-.spin-slow {
-    animation: spin 4s linear infinite;
-}
+/* Music Indicator (No Spin) */
 .reel-audio-btn {
     width: 36px;
     height: 36px;
@@ -1142,7 +1135,7 @@ transform: translateX(20px);
                         <span id="reel-username" class="font-bold text-sm">Username</span>
                         <button id="reel-follow-btn" class="bg-white/20 backdrop-blur text-xs px-2.5 py-1 rounded-md font-medium border border-white/30 hidden">Follow</button>
                     </div>
-                    <div id="reel-caption" class="text-sm leading-snug line-clamp-2 opacity-90"></div>
+                    <div id="reel-caption" class="text-sm leading-snug opacity-90 break-words"></div>
                 </div>
 
                 <!-- Right Actions -->
@@ -1161,9 +1154,9 @@ transform: translateX(20px);
                     <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)">
                         <i id="reel-save-icon" data-lucide="bookmark" class="reel-interact-icon"></i>
                     </div>
-                    <!-- Music/Audio Indicator -->
+                    <!-- Music/Audio Indicator (No Spin) -->
                     <div class="reel-interact-btn mt-2">
-                        <div class="reel-audio-btn spin-slow">
+                        <div class="reel-audio-btn">
                             <i data-lucide="disc" class="w-5 h-5 text-white"></i>
                         </div>
                     </div>
@@ -3442,7 +3435,17 @@ if(showLikes) {
 // MOBILE ELEMENTS POPULATION (Reel View)
 document.getElementById('reel-user-avatar').src = author.avatar;
 document.getElementById('reel-username').innerText = author.name;
-document.getElementById('reel-caption').innerHTML = post.content.substring(0, 100) + (post.content.length > 100 ? "..." : ""); // Simple trunc for reel
+
+// Caption Read More Logic
+const reelCaption = document.getElementById('reel-caption');
+const fullContent = post.content;
+if(fullContent.length > 80) {
+    reelCaption.innerHTML = `<span>${fullContent.substring(0, 80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); expandReelCaption('${postId}')">more</span>`;
+    reelCaption.dataset.full = fullContent;
+} else {
+    reelCaption.innerHTML = fullContent;
+}
+
 updatePostViewStats(postId);
 
 // Fix Profile Redirect in Reel UI
@@ -3595,6 +3598,15 @@ if (post.settings && post.settings.allowComments === false) {
 overlay.classList.remove('hidden');
 overlay.classList.add('flex');
 refreshIcons();
+}
+
+window.expandReelCaption = function(postId) {
+    const el = document.getElementById('reel-caption');
+    if(el && el.dataset.full) {
+        el.innerHTML = marked.parse(el.dataset.full);
+        el.style.maxHeight = '200px';
+        el.style.overflowY = 'auto';
+    }
 }
 
 window.toggleMobileCommentDrawer = function() {

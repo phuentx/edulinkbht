@@ -61,14 +61,18 @@
         @media (min-width: 1024px) { .hero-jigsaw { grid-template-columns: 1.1fr 0.9fr; height: 600px; gap: 20px; } }
 
         .card { background: var(--bg-grad); border-radius: 40px; position: relative; overflow: hidden; }
+        
+        .card-left { padding: 60px 30px; }
+        .card-right { height: 400px; } /* Mobile height */
+
         @media (min-width: 1024px) {
-            .card-left { border-top-right-radius: 0; border-bottom-right-radius: 65px; padding: 100px 70px; }
-            .card-right { border-top-left-radius: 0; border-bottom-right-radius: 0; }
+            .card-left { border-top-right-radius: 0; border-bottom-right-radius: 65px; padding: 100px 70px; height: auto; }
+            .card-right { border-top-left-radius: 0; border-bottom-right-radius: 0; height: auto; }
             .notch-bridge { position: absolute; top: 0; left: 55%; transform: translateX(-50%); width: 260px; height: 120px; background: var(--white); z-index: 10; border-bottom-left-radius: 60px; border-bottom-right-radius: 60px; display: flex; align-items: center; justify-content: center; }
             .arrow-notch { position: absolute; bottom: 0; right: 0; width: 150px; height: 150px; background: var(--white); z-index: 10; border-top-left-radius: 75px; display: flex; align-items: center; justify-content: center; }
         }
 
-        .card-left h1 { font-size: clamp(44px, 6vw, 80px); line-height: 1.1; margin-bottom: 25px; letter-spacing: -2px; }
+        .card-left h1 { font-size: clamp(36px, 8vw, 80px); line-height: 1.1; margin-bottom: 25px; letter-spacing: -2px; }
         .card-left p { color: var(--text-gray); font-size: 18px; max-width: 480px; margin-bottom: 40px; line-height: 1.6; }
         
         .btn-group { display: flex; gap: 15px; flex-wrap: wrap; }
@@ -84,9 +88,9 @@
         .arr-circ:hover { transform: rotate(45deg) scale(1.1); background: var(--primary); }
 
         /* --- SHOWCASE SECTION --- */
-        .showcase { text-align: center; padding: 120px 0; position: relative; }
-        .showcase h2 { font-size: clamp(36px, 5vw, 72px); margin-bottom: 20px; position: relative; z-index: 2; letter-spacing: -1.5px; line-height: 1.1; }
-        .showcase p { color: var(--text-gray); font-size: 18px; margin-bottom: 80px; position: relative; z-index: 2; }
+        .showcase { text-align: center; padding: 80px 0; position: relative; }
+        .showcase h2 { font-size: clamp(32px, 6vw, 72px); margin-bottom: 20px; position: relative; z-index: 2; letter-spacing: -1.5px; line-height: 1.1; }
+        .showcase p { color: var(--text-gray); font-size: 18px; margin-bottom: 60px; position: relative; z-index: 2; padding: 0 20px; }
 
         .visual-area { 
             position: relative; max-width: 1100px; margin: 0 auto; height: 800px; 
@@ -143,7 +147,7 @@
         /* --- SECTION 3: ALL TO KNOW ABOUT US --- */
         .section-best { padding: 60px 0 140px 0; }
         .best-header { display: flex; align-items: baseline; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
-        .best-title { font-family: 'Playfair Display', serif; font-size: clamp(40px, 6vw, 80px); font-weight: 700; line-height: 1; letter-spacing: -2px; color: var(--text-dark); }
+        .best-title { font-family: 'Playfair Display', serif; font-size: clamp(32px, 6vw, 80px); font-weight: 700; line-height: 1; letter-spacing: -2px; color: var(--text-dark); }
         .best-title i { font-style: italic; font-weight: 700; }
         .see-all { font-size: 14px; font-weight: 700; text-decoration: none; color: var(--text-dark); display: flex; align-items: center; gap: 5px; margin-left: 20px; transition: 0.3s; }
         .see-all:hover { color: var(--primary); gap: 10px; }
@@ -154,8 +158,8 @@
         }
 
         .b-card { position: relative; border-radius: 40px; overflow: hidden; }
-        .b-card-lg { height: 600px; background: #eee; } 
-        @media (max-width: 1024px) { .b-card-lg { height: 500px; } }
+        .b-card-lg { height: 500px; background: #eee; } 
+        @media (min-width: 1024px) { .b-card-lg { height: 600px; } }
         
         .b-img-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
         .b-card:hover .b-img-bg { transform: scale(1.05); }
@@ -176,12 +180,25 @@
         .tag-white { background: white; padding: 6px 16px; border-radius: 100px; font-size: 11px; font-weight: 700; width: fit-content; color: var(--text-dark); }
         .tag-blur { background: rgba(255,255,255,0.25); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 6px 16px; border-radius: 100px; font-size: 11px; font-weight: 700; width: fit-content; }
 
+        /* Updated Responsive Travel Box */
         .travel-float-box { 
-            position: absolute; top: 60px; right: 60px; background: white; padding: 25px 35px; 
-            border-radius: 20px; max-width: 340px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); z-index: 5;
+            position: absolute; background: white; padding: 25px 35px; 
+            border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); z-index: 5;
             transition: 0.4s ease;
         }
-        .travel-float-box:hover { transform: translateY(-5px); box-shadow: 0 30px 60px rgba(0,0,0,0.2); }
+        
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .travel-float-box { top: 60px; right: 60px; max-width: 340px; }
+            .travel-float-box:hover { transform: translateY(-5px); box-shadow: 0 30px 60px rgba(0,0,0,0.2); }
+        }
+
+        /* Mobile */
+        @media (max-width: 1023px) {
+            .travel-float-box { bottom: 20px; left: 20px; right: 20px; width: auto; max-width: none; padding: 20px; }
+            .arrow-circle-white { display: none; } /* Hide the floating arrow on mobile to prevent clutter */
+        }
+
         .travel-float-box h3 { font-family: 'Playfair Display', serif; font-size: 32px; line-height: 1.1; margin-top: 8px; font-weight: 700; color: #000; }
         .travel-cat { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -218,10 +235,6 @@
         }
         .btn-picks:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
 
-        @media (max-width: 1024px) {
-            .travel-float-box { position: relative; top: auto; right: auto; margin: 20px; max-width: none; }
-        }
-
 
         /* --- UPDATED TRUST CLOUD (LOOP & SKY TEXTURE) --- */
         .trust-cloud { 
@@ -251,10 +264,13 @@
         .trust-item.sans { font-family: 'Inter', sans-serif; font-weight: 600; letter-spacing: -0.5px; }
         .trust-item:hover { opacity: 1; color: var(--primary); transform: scale(1.05); }
 
+        /* --- MOBILE MEDIA QUERIES --- */
         @media (max-width: 1024px) {
             .connector-svg, .bg-spot, .notch-bridge, .arrow-notch { display: none; }
             .visual-area { height: auto; display: flex; flex-direction: column; align-items: center; gap: 20px; background: none; }
-            .phone-frame, .ui-card { position: relative; left: auto; top: auto; right: auto; transform: none !important; width: 90%; animation: none; }
+            .phone-frame, .ui-card { position: relative; left: auto; top: auto; right: auto; transform: none !important; width: 100%; max-width: 400px; animation: none; }
+            .card-stat, .card-sale, .card-vid, .card-ig { margin-bottom: 10px; }
+            .hero-jigsaw { display: flex; flex-direction: column; gap: 20px; }
         }
 
         /* --- LOGIN OVERLAY (UPDATED) --- */

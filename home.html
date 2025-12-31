@@ -654,6 +654,10 @@ transform: translateX(20px);
 }
 
 /* REEL MODE CSS (MOBILE) */
+body.reel-mode #mobile-bottom-nav {
+    display: none !important;
+}
+
 .mobile-reel-view .mobile-header,
 .mobile-reel-view .mobile-footer {
     display: none !important;
@@ -1650,7 +1654,7 @@ Change
     </div>
 </div>
  <!-- SEARCH / EXPLORE VIEW -->
-<div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-0 hidden bg-white">
+<div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:pt-20 hidden bg-white">
     <!-- Mobile Header: Sticky Search + Tabs -->
     <div id="explore-header-container" class="sticky top-0 bg-white z-20 border-b border-gray-100 md:hidden">
         <div class="px-4 py-2">
@@ -1672,22 +1676,22 @@ Change
         </div>
     </div>
 
-    <!-- Desktop Header: Centered Container, Hidden on Mobile -->
-    <div class="hidden md:flex justify-center border-b border-gray-100 bg-white sticky top-0 z-20">
-        <div class="max-w-4xl w-full flex">
-             <button id="tab-explore-main-d" onclick="switchExploreMainTab('explore')" class="tab-btn active flex items-center justify-center gap-2">
-                <i data-lucide="grid" class="w-4 h-4"></i> <span class="text-sm font-medium">Posts</span>
+    <!-- Desktop Header: Tabs below header -->
+    <div class="hidden md:block w-full bg-white z-10 border-b border-gray-100">
+        <div class="max-w-5xl mx-auto tab-group border-b-0 px-0 justify-center">
+             <button id="tab-explore-main-d" onclick="switchExploreMainTab('explore')" class="tab-btn active max-w-[120px]">
+                <i data-lucide="grid" class="w-4 h-4"></i> Posts
             </button>
-            <button id="tab-explore-video-d" onclick="switchExploreMainTab('video')" class="tab-btn flex items-center justify-center gap-2">
-                <i data-lucide="play-circle" class="w-4 h-4"></i> <span class="text-sm font-medium">Videos</span>
+            <button id="tab-explore-video-d" onclick="switchExploreMainTab('video')" class="tab-btn max-w-[120px]">
+                <i data-lucide="play-circle" class="w-4 h-4"></i> Videos
             </button>
-            <button id="tab-explore-people-d" onclick="switchExploreMainTab('people')" class="tab-btn flex items-center justify-center gap-2">
-                <i data-lucide="users" class="w-4 h-4"></i> <span class="text-sm font-medium">People</span>
+            <button id="tab-explore-people-d" onclick="switchExploreMainTab('people')" class="tab-btn max-w-[120px]">
+                <i data-lucide="users" class="w-4 h-4"></i> People
             </button>
         </div>
     </div>
 
-    <div id="explore-content-wrapper" class="pb-20 max-w-5xl mx-auto md:py-6">
+    <div id="explore-content-wrapper" class="pb-20 max-w-5xl mx-auto py-6">
         <!-- Results -->
         <div id="explore-people-results" class="hidden flex-col gap-2 p-4"></div>
         <div id="explore-results" class="space-y-0 pt-0"></div>
@@ -3631,6 +3635,7 @@ window.currentViewingPostId = postId;
 // Reset Classes
 const overlay = document.getElementById('post-view-overlay');
 overlay.classList.remove('mobile-reel-view');
+document.body.classList.remove('reel-mode'); // Reset body class
 
 const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
 const dateStr = formatDate(post.timestamp);
@@ -3735,6 +3740,7 @@ if (post.media) {
                  // Reel Mode if video is vertical-ish (or always for mobile video?)
                  // Let's force reel mode for all mobile videos for "immersive design"
                  overlay.classList.add('mobile-reel-view');
+                 document.body.classList.add('reel-mode'); // Hide global nav
                  this.className = "w-full h-full object-cover"; // Full bleed
                  this.muted = false; 
                  this.play().catch(() => { this.muted = true; this.play(); });
@@ -3866,6 +3872,8 @@ window.toggleMobileCommentDrawer = function() {
 window.closePostView = function() {
 document.getElementById('post-view-overlay').classList.add('hidden');
 document.getElementById('post-view-overlay').classList.remove('flex');
+document.body.classList.remove('reel-mode'); // Restore global nav
+
 // Close drawer if open
 const drawer = document.querySelector('.discussion-panel');
 if(drawer) drawer.classList.remove('open');

@@ -734,11 +734,11 @@ transform: translateX(20px);
         pointer-events: none;
     }
     
-    /* Top Right Floating Badge */
+    /* Top Left Floating Badge (Moved from Right) */
     .mobile-top-badge {
         position: absolute;
         top: 16px;
-        right: 16px;
+        left: 16px; /* NEW POSITION */
         background: rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(10px);
         padding: 4px 12px 4px 4px;
@@ -1141,7 +1141,7 @@ transform: translateX(20px);
         </div>
         
         <!-- Mobile Close Button (Absolute Top Left) -->
-        <button onclick="closePostView()" class="md:hidden absolute top-4 left-4 z-50 bg-black/50 text-white w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-sm"><i data-lucide="chevron-down" class="w-6 h-6"></i></button>
+        <button onclick="closePostView()" class="md:hidden absolute top-4 right-4 z-50 bg-black/50 text-white w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-sm"><i data-lucide="chevron-down" class="w-6 h-6"></i></button>
 
         <!-- Right Panel: Conversation (Desktop) / Comment Drawer (Mobile) -->
         <div class="discussion-panel">
@@ -2355,6 +2355,24 @@ if(acceptedCollabs.length > 0) {
     </div>`;
 }
 
+// LIKED BY LOGIC
+let likedByHTML = '';
+if (post.likes && post.likes.length > 0 && currentUser.following) {
+    const friendLikes = post.likes.filter(id => currentUser.following.includes(id));
+    if (friendLikes.length > 0) {
+        const firstFriend = users.find(u => u.id === friendLikes[0]);
+        if (firstFriend) {
+            const othersCount = friendLikes.length - 1;
+            const othersText = othersCount > 0 ? ` and ${othersCount} others` : '';
+            likedByHTML = `
+            <div class="flex items-center mt-3 ml-1">
+                <img src="${firstFriend.avatar}" class="w-5 h-5 rounded-full border border-white -mr-1 z-10">
+                <span class="text-[11px] text-gray-500 ml-2">Liked by <span class="font-bold text-gray-900">${firstFriend.name}</span>${othersText}</span>
+            </div>`;
+        }
+    }
+}
+
 div.innerHTML = `
 <div class="p-4 md:p-5">
 <div class="post-header">
@@ -2378,6 +2396,7 @@ ${collabIcon}
 <div class="post-body" data-raw-text="${post.content.replace(/"/g, '&quot;')}">${tagsHTML}</div>
 ${mediaHTML}
 </div>
+${likedByHTML}
 <div class="post-actions">
 <div class="flex items-center gap-1">
 <button id="like-btn-${post.id}" class="action-btn like" onclick="event.stopPropagation(); toggleLike('${post.id}')">
@@ -3025,26 +3044,26 @@ window.renderProfileContent = function(userId, tab) {
         const links = user.links || [];
         const isOwner = userId === currentUser.id;
         
-        let html = '<div class="max-w-md mx-auto py-6 space-y-4">';
+        let html = '<div class="max-w-4xl mx-auto py-6 space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 px-2">';
         
         if (isOwner) {
-            html += `<button onclick="document.getElementById('add-link-modal').classList.remove('hidden')" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center justify-center gap-2"><i data-lucide="plus" class="w-5 h-5"></i> Add New Link</button>`;
+            html += `<button onclick="document.getElementById('add-link-modal').classList.remove('hidden')" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center justify-center gap-2 h-full"><i data-lucide="plus" class="w-5 h-5"></i> Add New Link</button>`;
         }
         
         if (links.length === 0) {
-            html += `<div class="text-center text-gray-400 py-10">No links added yet.</div>`;
+            if(!isOwner) html += `<div class="col-span-2 text-center text-gray-400 py-10">No links added yet.</div>`;
         } else {
             links.forEach((link, idx) => {
                 html += `
                 <a href="${link.url}" target="_blank" class="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200 group relative">
-                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-200 mr-4">
+                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-200 mr-4 shrink-0">
                         <i data-lucide="link" class="w-5 h-5 text-blue-600"></i>
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="font-bold text-gray-900 truncate">${link.title}</div>
                         <div class="text-xs text-gray-500 truncate">${link.url}</div>
                     </div>
-                    <i data-lucide="external-link" class="w-4 h-4 text-gray-400"></i>
+                    <i data-lucide="external-link" class="w-4 h-4 text-gray-400 ml-2"></i>
                     ${isOwner ? `<button onclick="event.preventDefault(); deleteLink(${idx})" class="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50"><i data-lucide="trash-2" class="w-3 h-3"></i></button>` : ''}
                 </a>
                 `;
@@ -3052,6 +3071,18 @@ window.renderProfileContent = function(userId, tab) {
         }
         html += '</div>';
         contentArea.innerHTML = html;
+        refreshIcons();
+        return;
+    }
+    
+    // Privacy Check for Likes Tab
+    if (tab === 'liked' && userId !== currentUser.id) {
+        contentArea.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-20 text-gray-400 opacity-60">
+                <i data-lucide="lock" class="w-16 h-16 mb-2"></i>
+                <p>This user's likes are private.</p>
+            </div>
+        `;
         refreshIcons();
         return;
     }

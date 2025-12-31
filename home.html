@@ -1647,8 +1647,8 @@ Change
     </div>
 </div>
  <!-- SEARCH / EXPLORE VIEW -->
-<div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-white">
-    <div id="explore-header-container" class="sticky top-0 bg-white z-20">
+<div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-white pt-16 md:pt-6">
+    <div id="explore-header-container" class="md:hidden sticky top-0 bg-white z-20 absolute w-full left-0 right-0">
       <div class="flex items-center justify-between px-4 h-14 border-b border-gray-100">
          <span class="text-lg font-bold text-[#1f1f1f]">Explore</span>
          <button onclick="toggleExploreSearch()" class="icon-btn"><i data-lucide="search" class="w-5 h-5"></i></button>
@@ -1658,7 +1658,8 @@ Change
       </div>
     </div>
     
-    <div id="explore-results" class="px-0 md:px-0 space-y-0 pt-0 pb-20">
+    <!-- DESKTOP EXPLORE: Uses Main Header Search, Just Grid -->
+    <div id="explore-results" class="px-0 md:px-0 space-y-0 pt-16 md:pt-0 pb-20">
         <!-- Default State -->
     </div>
 </div>
@@ -1803,6 +1804,7 @@ let activeNetworkTab = 'people';
 window.replyingToCommentId = null;
 window.currentViewingProfileId = null;
 window.activeExploreTab = 'explore'; 
+window.activeExploreSubTab = 'for-you'; 
 window.currentProfileTab = 'posts';
 
 // Global Vars for App Logic

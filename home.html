@@ -241,7 +241,7 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.share-btn:hover { background-color: #f3f4f6; color: var(--on-surface); }
 
 /* --- COMPOSE & CREATE MENUS --- */
-#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #add-link-modal {
+#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #add-link-modal, #promo-modal {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
 }
@@ -1070,6 +1070,31 @@ body.reel-mode #mobile-bottom-nav {
     </div>
 </div>
 
+<!-- PROMO EDIT MODAL -->
+<div id="promo-modal" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+    <div class="bg-white w-[90%] max-w-[400px] rounded-2xl shadow-2xl p-6 relative">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Edit Promo</h3>
+        <div class="space-y-4 mb-6">
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase">Image URL</label>
+                <div class="flex gap-2">
+                    <input type="text" id="promo-img-url" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 font-medium text-gray-900 placeholder-gray-300">
+                    <button onclick="document.getElementById('promo-file-input').click()" class="icon-btn bg-gray-100 hover:bg-gray-200"><i data-lucide="upload" class="w-4 h-4"></i></button>
+                </div>
+                <input type="file" id="promo-file-input" class="hidden" accept="image/*" onchange="handlePromoFile(event)">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase">Target Link</label>
+                <input type="url" id="promo-target-url" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 font-medium text-gray-900 placeholder-gray-300">
+            </div>
+        </div>
+        <div class="flex justify-end gap-3">
+            <button onclick="document.getElementById('promo-modal').classList.add('hidden')" class="px-4 py-2 text-gray-600 font-bold text-sm hover:bg-gray-100 rounded-lg">Cancel</button>
+            <button onclick="savePromo()" class="px-4 py-2 bg-[#0b57d0] text-white font-bold text-sm rounded-lg hover:bg-blue-700">Save</button>
+        </div>
+    </div>
+</div>
+
 <!-- Post Options Global Menu -->
 <div id="global-post-menu" class="post-options-menu"></div>
 
@@ -1701,10 +1726,23 @@ Change
     
     <div class="flex-1 overflow-y-auto p-5">
         <!-- Who to Follow -->
-        <div>
+        <div class="mb-8">
             <h3 class="text-lg font-bold text-[#1f1f1f] mb-4">Who to follow</h3>
             <div id="who-to-follow-list" class="flex flex-col gap-4">
                 <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- Promoted Section -->
+        <div id="promo-section" class="hidden">
+            <div class="relative group rounded-xl overflow-hidden cursor-pointer">
+                <a id="promo-link" href="#" target="_blank" class="block w-full h-full">
+                    <img id="promo-image" src="" class="w-full h-auto object-cover rounded-xl border border-gray-200 hover:opacity-95 transition-opacity">
+                </a>
+                <button id="edit-promo-btn" onclick="openPromoModal(event)" class="absolute top-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 hidden z-20">
+                    <i data-lucide="edit-2" class="w-4 h-4"></i>
+                </button>
+                <div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-md font-medium uppercase tracking-wide backdrop-blur-sm pointer-events-none">Promoted</div>
             </div>
         </div>
     </div>
@@ -1783,6 +1821,7 @@ window.threadPostId = null;
 let currentEventCoverBlob = null;
 let currentAvatarBlob = null;
 let currentBannerBlob = null;
+window.currentPromoBlob = null;
 
 // NOTIFICATION STATE
 window.notifSelectionMode = false;
@@ -1944,6 +1983,28 @@ renderRightSidebar();
 refreshIcons();
 });
 
+// Listener for Promo
+onSnapshot(doc(db, "global", "promo"), (docSnap) => {
+    if(docSnap.exists()) {
+        const data = docSnap.data();
+        const section = document.getElementById('promo-section');
+        const img = document.getElementById('promo-image');
+        const link = document.getElementById('promo-link');
+        
+        if(data.imageUrl) {
+            section.classList.remove('hidden');
+            img.src = data.imageUrl;
+            link.href = data.linkUrl || '#';
+        } else {
+            // Hide if explicitly no image, unless admin might want to edit it
+            // For now hide it for regular users if empty
+            if(currentUser && currentUser.email !== 'edulinkbht@gmail.com') {
+                section.classList.add('hidden');
+            }
+        }
+    }
+});
+
 const qPosts = query(collection(db, "posts"), orderBy("timestamp", "desc"));
 onSnapshot(qPosts, { includeMetadataChanges: true }, (snapshot) => {
 posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
@@ -2070,6 +2131,7 @@ function renderWhoToFollow() {
     );
 
     // Shuffle and pick 5
+    // Randomize on every call (which happens on refresh/update)
     const shuffled = candidates.sort(() => 0.5 - Math.random()).slice(0, 5);
 
     if(shuffled.length === 0) {
@@ -2091,6 +2153,69 @@ function renderWhoToFollow() {
             `;
             list.appendChild(div);
         });
+    }
+}
+
+// PROMO ADMIN FUNCTIONS
+window.openPromoModal = function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    const modal = document.getElementById('promo-modal');
+    modal.classList.remove('hidden');
+    // Pre-fill if exists
+    const img = document.getElementById('promo-image');
+    const link = document.getElementById('promo-link');
+    if(img.src) document.getElementById('promo-img-url').value = img.src;
+    if(link.href) document.getElementById('promo-target-url').value = link.href;
+}
+
+window.handlePromoFile = function(event) {
+    const file = event.target.files[0];
+    if(file) {
+        window.currentPromoBlob = file;
+        showToast("Image selected, click Save to upload");
+    }
+}
+
+window.savePromo = async function() {
+    const btn = event.target;
+    const oldText = btn.innerText;
+    btn.innerText = "Saving...";
+    btn.disabled = true;
+
+    let imgUrl = document.getElementById('promo-img-url').value.trim();
+    const linkUrl = document.getElementById('promo-target-url').value.trim();
+
+    if(window.currentPromoBlob) {
+        try {
+            imgUrl = await uploadToImgHippo(window.currentPromoBlob);
+        } catch(e) {
+            console.error(e);
+            showToast("Upload failed");
+            btn.innerText = oldText;
+            btn.disabled = false;
+            return;
+        }
+    }
+
+    if(!imgUrl) {
+        showToast("Image URL required");
+        btn.innerText = oldText;
+        btn.disabled = false;
+        return;
+    }
+
+    try {
+        await setDoc(doc(db, "global", "promo"), { imageUrl: imgUrl, linkUrl: linkUrl });
+        showToast("Promo updated!");
+        document.getElementById('promo-modal').classList.add('hidden');
+        window.currentPromoBlob = null;
+    } catch(e) {
+        console.error(e);
+        showToast("Error saving promo");
+    } finally {
+        btn.innerText = oldText;
+        btn.disabled = false;
     }
 }
 
@@ -2184,6 +2309,12 @@ adminLink.innerHTML = `<i data-lucide="megaphone" class="w-5 h-5"></i> <span cla
 adminLink.onclick = function() { switchView('announcements'); return false; };
 nav.appendChild(adminLink);
 }
+// Show Admin Edit Button on Promo
+const promoEditBtn = document.getElementById('edit-promo-btn');
+if(promoEditBtn) promoEditBtn.classList.remove('hidden');
+// Show Promo Section for Admin even if empty (so they can add one)
+const promoSection = document.getElementById('promo-section');
+if(promoSection) promoSection.classList.remove('hidden');
 }
 refreshIcons();
 }
@@ -4210,4 +4341,4 @@ window.insertCodeBlock = function() { const ta = document.getElementById('compos
 refreshIcons();
 </script>
 </body>
- </html>
+</html>

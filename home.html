@@ -243,7 +243,7 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.share-btn:hover { background-color: #f3f4f6; color: var(--on-surface); }
 
 /* --- COMPOSE & CREATE MENUS --- */
-#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal {
+#compose-modal, #create-menu-modal, #event-modal-box, #mentorship-modal-box, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #post-options-modal-box {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
 }
@@ -391,48 +391,63 @@ z-index: 100; transform-origin: top right; transform: scale(0.95); opacity: 0; p
 .hashtag { color: var(--primary); font-weight: 500; cursor: pointer; padding: 2px 6px; border-radius: 6px; }
 .hashtag:hover { background: #eff4ff; }
 
-/* --- POST MENU STYLES --- */
-.post-options-menu {
-position: absolute;
-background: var(--surface);
-border: 1px solid var(--outline);
-border-radius: 12px;
-box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-width: 160px;
-z-index: 50;
-opacity: 0;
-pointer-events: none;
-transform: scale(0.95);
-transition: all 0.1s ease-out;
-padding: 6px;
+/* --- POST OPTION MODAL STYLES --- */
+#post-options-modal-container {
+    transition: opacity 0.2s;
 }
-.post-options-menu.active {
-opacity: 1;
-pointer-events: auto;
-transform: scale(1);
+#post-options-modal-box {
+    transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+    background: white;
+    z-index: 100;
 }
-.post-option-item {
-display: flex;
-align-items: center;
-gap: 10px;
-padding: 10px;
-font-size: 14px;
-color: var(--on-surface);
-cursor: pointer;
-border-radius: 8px;
-transition: background 0.1s;
-font-weight: 500;
+@media (max-width: 768px) {
+    #post-options-modal-box {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        border-radius: 20px 20px 0 0;
+        transform: translateY(100%);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    #post-options-modal-container.active #post-options-modal-box {
+        transform: translateY(0);
+    }
 }
-.post-option-item:hover {
-background: var(--hover-bg);
-color: var(--on-surface);
+@media (min-width: 769px) {
+    #post-options-modal-box {
+        border-radius: 20px;
+        transform: scale(0.95);
+        max-width: 320px;
+        width: 100%;
+        position: relative;
+    }
+    #post-options-modal-container.active #post-options-modal-box {
+        transform: scale(1);
+    }
 }
-.post-option-item.danger {
-color: #d92d20;
+
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--on-surface);
+    cursor: pointer;
+    border-bottom: 1px solid var(--outline);
+    transition: background-color 0.2s;
 }
-.post-option-item.danger:hover {
-background: #fef2f2;
-color: #b91c1c;
+.option-item:last-child {
+    border-bottom: none;
+}
+.option-item:hover {
+    background-color: var(--hover-bg);
+}
+.option-item.danger {
+    color: #ef4444;
 }
 
 /* --- UPDATED TABS STYLE (Twitter/X Style) --- */
@@ -643,9 +658,92 @@ transform: translateX(20px);
     border: 1px solid #e5e7eb;
 }
 
+/* Creator Like Badge */
+.creator-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* Immersive YouTube Style Lightbox Overlay */
+#lightbox-overlay-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
+  padding: 80px 20px 40px 20px;
+  color: white;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#lightbox-overlay-info * {
+  pointer-events: auto;
+}
+
+.yt-creator-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.yt-creator-pfp {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.3);
+    object-fit: cover;
+}
+.yt-creator-name {
+    font-weight: 700;
+    font-size: 16px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.yt-follow-btn {
+    background: white;
+    color: black;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-left: 8px;
+    transition: opacity 0.2s;
+}
+.yt-follow-btn:hover { opacity: 0.9; }
+
+.yt-caption {
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.9);
+    max-width: 600px;
+    max-height: 100px;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+/* Close/Back UI */
+.yt-header-ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+    display: flex;
+    justify-content: space-between;
+    z-index: 60;
+    pointer-events: none;
+}
+.yt-header-ui * { pointer-events: auto; }
+
 </style>
 </head>
-<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
+<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]">
 <!-- LOADING OVERLAY -->
 <div id="app-loader"><div class="loader-spinner"></div></div>
 <!-- CUSTOM ALERT MODAL -->
@@ -672,8 +770,12 @@ transform: translateX(20px);
 </div>
 </div>
 
-<!-- Post Options Global Menu -->
-<div id="global-post-menu" class="post-options-menu"></div>
+<!-- POST OPTIONS OVERLAY MODAL -->
+<div id="post-options-modal-container" class="fixed inset-0 z-[75] flex items-center justify-center bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none" onclick="hidePostMenu()">
+    <div id="post-options-modal-box" class="flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+        <!-- Content injected via JS -->
+    </div>
+</div>
 
 <!-- MOBILE NOTIFICATIONS HEADER -->
 <div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
@@ -786,10 +888,17 @@ transform: translateX(20px);
     </div>
 </div>
 
-<div id="lightbox" class="fixed inset-0 bg-black/95 z-[9999] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300" onclick="closeLightbox()">
-<button class="absolute top-8 right-8 text-white/70 hover:text-white bg-white/10 rounded-full p-3 hover:bg-white/20"><i data-lucide="x" class="w-8 h-8"></i></button>
-<div id="lightbox-wrapper" class="w-full h-full flex justify-center items-center p-6"></div>
+<div id="lightbox" class="fixed inset-0 bg-black z-[9999] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="yt-header-ui">
+        <button onclick="closeLightbox()" class="text-white hover:bg-white/10 rounded-full p-2 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+        <div class="flex gap-2">
+            <button class="text-white hover:bg-white/10 rounded-full p-2"><i data-lucide="share" class="w-6 h-6"></i></button>
+            <button class="text-white hover:bg-white/10 rounded-full p-2"><i data-lucide="more-vertical" class="w-6 h-6"></i></button>
+        </div>
+    </div>
+    <div id="lightbox-wrapper" class="w-full h-full flex justify-center items-center relative"></div>
 </div>
+
 <div id="toast" class="toast">
 <i id="toast-icon" data-lucide="check-circle-2" class="w-5 h-5 text-[#c4eed0]"></i><span id="toast-msg">Action Completed</span>
 </div>
@@ -1005,7 +1114,7 @@ Change
 <div class="compose-tools">
     <div class="tool-group">
         <button onclick="document.getElementById('media-input').click()" class="tool-btn" title="Upload Media"><i data-lucide="image" class="w-5 h-5"></i></button>
-        <button onclick="promptForImageLink()" class="tool-btn" title="Image Link"><i data-lucide="link" class="w-5 h-5"></i></button>
+        <button onclick="promptForLink()" class="tool-btn" title="Add Link"><i data-lucide="link" class="w-5 h-5"></i></button>
         <button onclick="insertCodeBlock()" class="tool-btn" title="Add Code"><i data-lucide="code-2" class="w-5 h-5"></i></button>
         <button onclick="openCollabSelector()" class="tool-btn text-gray-600 bg-gray-50" title="Tag Collaborators"><i data-lucide="users" class="w-5 h-5"></i></button>
         <button class="tool-btn" title="More"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
@@ -1911,8 +2020,12 @@ let mediaHTML = "";
 if (post.media) {
 const isVideo = post.media.startsWith('data:video') || post.media.includes('.mp4') || post.media.includes('.webm');
 mediaHTML = isVideo
-? `<div class="mt-3 rounded-xl overflow-hidden"><video src="${post.media}" class="w-full max-h-[400px]" controls onclick="event.stopPropagation()"></video></div>`
-: `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer" onclick="event.stopPropagation(); openLightbox('${post.media}', 'image')">
+? `<div class="mt-3 rounded-xl overflow-hidden relative cursor-pointer group" onclick="event.stopPropagation(); openLightbox('${post.id}')">
+    <video src="${post.media}" class="w-full max-h-[400px] object-cover pointer-events-none"></video>
+    <div class="absolute top-2 right-2 bg-black/60 p-1.5 rounded-full text-white"><i data-lucide="maximize-2" class="w-4 h-4"></i></div>
+    <div class="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-colors"><i data-lucide="play" class="w-12 h-12 text-white/90 fill-white/20"></i></div>
+   </div>`
+: `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer" onclick="event.stopPropagation(); openLightbox('${post.id}')">
 <img src="${post.media}" class="w-full max-h-[400px] object-cover bg-gray-50">
 </div>`;
 }
@@ -2964,21 +3077,37 @@ document.getElementById('post-view-likes-count').innerText = `${post.likes ? pos
 if(post.comments) {
     const topLevel = post.comments.filter(c => !c.parentId);
     topLevel.forEach(c => { 
-        html += createCommentHTML(c, post.comments, postId, true); 
+        html += createCommentHTML(c, post.comments, postId, true, post.authorId); 
     });
 }
 container.innerHTML = html;
 refreshIcons();
 }
 
-// Updated createCommentHTML to handle reply threading
-function createCommentHTML(c, allComments, postId, showRepliesLink = true) {
+// Updated createCommentHTML to handle reply threading & creator like badge
+function createCommentHTML(c, allComments, postId, showRepliesLink = true, postAuthorId = null) {
 const cAuthor = users.find(u => u.id === c.authorId) || { name: 'Unknown', avatar: '' };
 const isLiked = c.likes && c.likes.includes(currentUser.id);
 const likeCount = c.likes ? c.likes.length : 0;
 const isMyComment = c.authorId === currentUser.id;
 const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
 const canDelete = isMyComment || isAdmin;
+
+// Check if Creator liked this comment
+const creatorLiked = postAuthorId && c.likes && c.likes.includes(postAuthorId);
+let creatorBadgeHTML = '';
+if(creatorLiked) {
+    const creator = users.find(u => u.id === postAuthorId);
+    if(creator) {
+        creatorBadgeHTML = `
+        <div class="relative inline-block w-4 h-4 ml-1 top-1">
+            <img src="${creator.avatar}" class="w-full h-full rounded-full border border-white" title="Liked by Author">
+            <div class="absolute -bottom-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white flex items-center justify-center">
+               <i data-lucide="heart" class="w-1 h-1 text-white fill-white"></i>
+            </div>
+        </div>`;
+    }
+}
 
 const replies = allComments.filter(r => r.parentId === c.id);
 
@@ -3005,9 +3134,12 @@ let html = `
              </div>` : ''
         }
     </div>
-    <button onclick="toggleCommentLike('${postId}', '${c.id}')" class="self-start pt-1">
-        <i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'}"></i>
-    </button>
+    <div class="flex flex-col items-center">
+        <button onclick="toggleCommentLike('${postId}', '${c.id}')" class="pt-1">
+            <i data-lucide="heart" class="w-3 h-3 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'}"></i>
+        </button>
+        ${creatorBadgeHTML}
+    </div>
 </div>
 `;
 return html;
@@ -3040,13 +3172,13 @@ window.renderThreadContent = function(postId, commentId) {
     const container = document.getElementById('thread-content');
     
     // Render Parent Comment (Full styling, no "View replies" button)
-    let html = `<div class="p-4 border-b border-gray-100 bg-white">` + createCommentHTML(parentComment, post.comments, postId, false) + `</div>`;
+    let html = `<div class="p-4 border-b border-gray-100 bg-white">` + createCommentHTML(parentComment, post.comments, postId, false, post.authorId) + `</div>`;
     
     // Render Replies
     html += `<div class="p-4 pl-8 space-y-4">`;
     if (replies.length > 0) {
         replies.forEach(r => {
-             html += createCommentHTML(r, post.comments, postId, false);
+             html += createCommentHTML(r, post.comments, postId, false, post.authorId);
         });
     } else {
         html += `<div class="text-center text-gray-400 text-sm py-4">No replies yet.</div>`;
@@ -3136,19 +3268,46 @@ document.getElementById('comment-input-desktop').value = "";
 window.replyingToCommentId = null;
 }
 
-window.promptForImageLink = function() {
-const url = prompt("Enter Image URL:");
+window.promptForLink = function() {
+const url = prompt("Enter URL (Image, Video, or Website):");
 if(url && (url.startsWith('http') || url.startsWith('data:'))) {
-window.currentMedia = url;
-window.currentMediaType = 'image';
-const container = document.getElementById('media-preview-container');
-container.classList.remove('hidden');
-const img = document.getElementById('media-preview-img');
-img.src = window.currentMedia;
-img.classList.remove('hidden');
-document.getElementById('media-preview-video').classList.add('hidden');
-showToast("Image link added");
+    // Check if it's media
+    const isImage = /\.(jpeg|jpg|gif|png|webp)$/i.test(url) || url.startsWith('data:image');
+    const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(url) || url.startsWith('data:video');
+    
+    if (isImage) {
+        window.currentMedia = url;
+        window.currentMediaType = 'image';
+        showMediaPreview();
+    } else if (isVideo) {
+        window.currentMedia = url;
+        window.currentMediaType = 'video';
+        showMediaPreview();
+    } else {
+        // Generic Link - append to text
+        const ta = document.getElementById('compose-text');
+        ta.value += `\n[Link](${url})`;
+        showToast("Link added to text");
+    }
 }
+}
+
+function showMediaPreview() {
+    const container = document.getElementById('media-preview-container');
+    container.classList.remove('hidden');
+    const img = document.getElementById('media-preview-img');
+    const vid = document.getElementById('media-preview-video');
+    
+    if(window.currentMediaType === 'video') {
+        vid.src = window.currentMedia;
+        vid.classList.remove('hidden');
+        img.classList.add('hidden');
+    } else {
+        img.src = window.currentMedia;
+        img.classList.remove('hidden');
+        vid.classList.add('hidden');
+    }
+    showToast("Media Attached");
 }
 
 window.sendAnnouncement = async function() {
@@ -3181,27 +3340,36 @@ window.publishEvent = function() { showToast("Events feature connected to backen
 
 // Post Logic
 window.showPostOptions = function(event, postId, authorId) {
-event.stopPropagation();
-const menu = document.getElementById('global-post-menu');
-const btn = event.currentTarget;
-const rect = btn.getBoundingClientRect();
-const isAuthor = authorId === currentUser.id;
-const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
-const canEdit = isAuthor;
-const canDelete = isAuthor || isAdmin;
-
-let menuContent = '';
-if(canEdit) { menuContent += `<div class="post-option-item" onclick="editPost('${postId}')"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit</div>`; }
-if(canDelete) { menuContent += `<div class="post-option-item danger" onclick="deletePost('${postId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>`; }
-if(!isAuthor) { menuContent += `<div class="post-option-item" onclick="showToast('Post Saved')"><i data-lucide="bookmark" class="w-4 h-4"></i> Save</div><div class="post-option-item danger" onclick="showToast('Reported')"><i data-lucide="flag" class="w-4 h-4"></i> Report</div>`; }
-
-menu.innerHTML = menuContent;
-refreshIcons();
-menu.style.top = (rect.bottom + window.scrollY) + 'px';
-menu.style.left = (rect.right - 160) + 'px';
-menu.classList.add('active');
+    event.stopPropagation();
+    const isAuthor = authorId === currentUser.id;
+    const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
+    const canEdit = isAuthor;
+    const canDelete = isAuthor || isAdmin;
+    
+    const container = document.getElementById('post-options-modal-container');
+    const box = document.getElementById('post-options-modal-box');
+    
+    let menuContent = '';
+    if(canEdit) { menuContent += `<div class="option-item" onclick="editPost('${postId}'); hidePostMenu()"><i data-lucide="edit-2" class="w-5 h-5"></i> Edit Post</div>`; }
+    if(canDelete) { menuContent += `<div class="option-item danger" onclick="deletePost('${postId}'); hidePostMenu()"><i data-lucide="trash-2" class="w-5 h-5"></i> Delete Post</div>`; }
+    if(!isAuthor) { 
+        menuContent += `<div class="option-item" onclick="showToast('Post Saved'); hidePostMenu()"><i data-lucide="bookmark" class="w-5 h-5"></i> Save Post</div>`;
+        menuContent += `<div class="option-item danger" onclick="showToast('Reported'); hidePostMenu()"><i data-lucide="flag" class="w-5 h-5"></i> Report Post</div>`; 
+    }
+    menuContent += `<div class="option-item" onclick="hidePostMenu()"><i data-lucide="x" class="w-5 h-5"></i> Cancel</div>`;
+    
+    box.innerHTML = menuContent;
+    refreshIcons();
+    container.classList.remove('opacity-0', 'pointer-events-none');
+    setTimeout(() => container.classList.add('active'), 10);
 }
-window.hidePostMenu = function() { document.getElementById('global-post-menu').classList.remove('active'); }
+
+window.hidePostMenu = function() { 
+    const container = document.getElementById('post-options-modal-container');
+    container.classList.remove('active');
+    setTimeout(() => container.classList.add('opacity-0', 'pointer-events-none'), 200);
+}
+
 window.editPost = function(postId) { const post = posts.find(p => p.id === postId); if(!post) return; document.getElementById('compose-text').value = post.content; window.editingPostId = postId; document.getElementById('compose-title-text').innerText = "Edit Post"; document.getElementById('btn-publish').innerText = "Update"; openCompose(); }
 window.deletePost = async function(postId) { showAlert("Delete this post?", async () => { await deleteDoc(doc(db, "posts", postId)); showToast("Post deleted"); }); }
 window.openCompose = function() { 
@@ -3227,7 +3395,7 @@ window.toggleNewtonExpand = function() { document.body.classList.toggle('mode-fo
 window.handleInput = function(textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight) + 'px'; if(textarea.value === '') textarea.style.height = 'auto'; }
 window.togglePlusMenu = function() { if(window.isModelMenuOpen) toggleModelMenu(); window.isPlusMenuOpen = !window.isPlusMenuOpen; const menu = document.getElementById('plus-menu'); const icon = document.getElementById('plus-icon'); if(window.isPlusMenuOpen) { menu.classList.add('active'); icon.style.transform = "rotate(45deg)"; } else { menu.classList.remove('active'); icon.style.transform = "rotate(0deg)"; } }
 window.toggleModelMenu = function() { if(window.isPlusMenuOpen) togglePlusMenu(); window.isModelMenuOpen = !window.isModelMenuOpen; const menu = document.getElementById('model-menu'); if(window.isModelMenuOpen) menu.classList.add('active'); else menu.classList.remove('active'); }
-window.handleFileSelect = function(event) { const file = event.target.files[0]; if (file) { window.currentMediaBlob = file; const reader = new FileReader(); reader.onload = function(e) { window.currentMedia = e.target.result; window.currentMediaType = file.type.startsWith('video') ? 'video' : 'image'; const container = document.getElementById('media-preview-container'); container.classList.remove('hidden'); if(window.currentMediaType === 'video') { const vid = document.getElementById('media-preview-video'); vid.src = window.currentMedia; vid.classList.remove('hidden'); document.getElementById('media-preview-img').classList.add('hidden'); } else { const img = document.getElementById('media-preview-img'); img.src = window.currentMedia; img.classList.remove('hidden'); document.getElementById('media-preview-video').classList.add('hidden'); } showToast("Media Uploaded"); }; reader.readAsDataURL(file); } }
+window.handleFileSelect = function(event) { const file = event.target.files[0]; if (file) { window.currentMediaBlob = file; const reader = new FileReader(); reader.onload = function(e) { window.currentMedia = e.target.result; window.currentMediaType = file.type.startsWith('video') ? 'video' : 'image'; showMediaPreview(); }; reader.readAsDataURL(file); } }
 window.removeMedia = function() { window.currentMedia = null; window.currentMediaType = null; window.mediaVisionLog = ""; window.currentMediaBlob = null; document.getElementById('media-preview-container').classList.add('hidden'); document.getElementById('media-input').value = ""; }
 
 // ImgHippo Upload
@@ -3269,12 +3437,6 @@ mediaUrl = await getDownloadURL(mediaRef);
 }
 }
 
-// Send Collab Notifications
-if(window.selectedCollaborators && window.selectedCollaborators.length > 0) {
-    // Logic inside publish because we need post ID first? No, we need ID first.
-    // So we add doc then notify.
-}
-
 const postData = {
 authorId: currentUser.id,
 content: textRaw,
@@ -3302,7 +3464,6 @@ if(window.editingPostId) {
     postId = docRef.id;
     showToast("Posted!"); 
     
-    // Notify Collaborators
     if(window.selectedCollaborators && window.selectedCollaborators.length > 0) {
         window.selectedCollaborators.forEach(c => {
             sendNotification(c.id, 'collab_request', 'invited you to collaborate on a post', postId);
@@ -3311,8 +3472,96 @@ if(window.editingPostId) {
 } 
 closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; refreshIcons(); } }
 window.showToast = function(message, isError = false) { const toast = document.getElementById('toast'); const toastMsg = document.getElementById('toast-msg'); const icon = document.getElementById('toast-icon'); toastMsg.innerText = message; if (isError) { toast.style.backgroundColor = '#d93025'; icon.setAttribute('data-lucide', 'alert-circle'); icon.classList.remove('text-[#c4eed0]'); icon.classList.add('text-white'); } else { toast.style.backgroundColor = '#303134'; icon.setAttribute('data-lucide', 'check-circle-2'); icon.classList.add('text-[#c4eed0]'); } refreshIcons(); toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3000); }
-window.openLightbox = function(src, type = 'image') { const wrapper = document.getElementById('lightbox-wrapper'); const lightbox = document.getElementById('lightbox'); if (type === 'video' || src.includes('.mp4') || src.includes('data:video') || src.includes('.webm')) { wrapper.innerHTML = `<video src="${src}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`; } else { wrapper.innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; } lightbox.classList.add('active'); lightbox.classList.remove('pointer-events-none'); lightbox.classList.remove('opacity-0'); }
-window.closeLightbox = function() { const lightbox = document.getElementById('lightbox'); lightbox.classList.remove('active'); lightbox.classList.add('pointer-events-none'); lightbox.classList.add('opacity-0'); const video = lightbox.querySelector('video'); if(video) video.pause(); }
+
+// YouTube Immersive Fullscreen Video Logic
+window.openLightbox = function(postId) { 
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+    
+    const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=fallback' };
+    const wrapper = document.getElementById('lightbox-wrapper');
+    const lightbox = document.getElementById('lightbox'); 
+    
+    const isVideo = post.media && (post.media.includes('.mp4') || post.media.includes('data:video') || post.media.includes('.webm') || post.media.includes('.mov'));
+    
+    let content = '';
+    let overlayHTML = '';
+
+    if (isVideo) { 
+        // Cinematic YouTube-Style Video Player
+        content = `
+            <video id="yt-player" src="${post.media}" controls autoplay playsinline class="w-full h-full object-contain bg-black shadow-2xl"></video>
+        `; 
+        
+        overlayHTML = `
+            <div id="lightbox-overlay-info">
+                <div class="yt-creator-row">
+                    <img src="${author.avatar}" class="yt-creator-pfp cursor-pointer" onclick="closeLightbox(); showProfile('${author.id}')">
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2">
+                            <span class="yt-creator-name cursor-pointer" onclick="closeLightbox(); showProfile('${author.id}')">${author.name}</span>
+                            ${author.isOfficial ? '<i data-lucide="badge-check" class="w-4 h-4 text-blue-400"></i>' : ''}
+                            <button class="yt-follow-btn" onclick="toggleFollow('${author.id}')">Follow</button>
+                        </div>
+                        <span class="text-xs text-white/60">@${author.username || author.name.toLowerCase().replace(/\s/g, '')}</span>
+                    </div>
+                </div>
+                <div class="yt-caption">
+                    <p>${marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'))}</p>
+                </div>
+                <div class="flex items-center gap-6 mt-2">
+                    <div class="flex flex-col items-center gap-1 cursor-pointer hover:text-red-400 transition-colors" onclick="toggleLike('${post.id}')">
+                        <i data-lucide="heart" class="w-6 h-6"></i>
+                        <span class="text-[10px] font-bold">${post.likes ? post.likes.length : 0}</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 cursor-pointer hover:text-blue-400 transition-colors" onclick="closeLightbox(); openPostView('${post.id}')">
+                        <i data-lucide="message-square" class="w-6 h-6"></i>
+                        <span class="text-[10px] font-bold">${post.comments ? post.comments.length : 0}</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 cursor-pointer hover:text-yellow-400 transition-colors" onclick="toggleSave('${post.id}')">
+                        <i data-lucide="bookmark" class="w-6 h-6"></i>
+                        <span class="text-[10px] font-bold">Save</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else { 
+        // Standard Image View
+        content = `<img src="${post.media}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; 
+        overlayHTML = `
+            <div id="lightbox-overlay-info" class="bg-black/40">
+                <div class="yt-creator-row">
+                    <img src="${author.avatar}" class="yt-creator-pfp" onclick="closeLightbox(); showProfile('${author.id}')">
+                    <span class="yt-creator-name">${author.name}</span>
+                </div>
+                <div class="yt-caption mt-2"><p>${post.content}</p></div>
+            </div>
+        `;
+    }
+    
+    wrapper.innerHTML = content + overlayHTML; 
+    lightbox.classList.add('opacity-100'); 
+    lightbox.classList.remove('pointer-events-none'); 
+    refreshIcons();
+
+    // Ensure audio works if muted by browser
+    const player = document.getElementById('yt-player');
+    if(player) {
+        player.play().catch(() => {
+            player.muted = true;
+            player.play();
+            showToast("Video muted. Click to enable sound.");
+        });
+    }
+}
+
+window.closeLightbox = function() { 
+    const lightbox = document.getElementById('lightbox'); 
+    lightbox.classList.add('pointer-events-none'); 
+    lightbox.classList.remove('opacity-100'); 
+    const video = lightbox.querySelector('video'); 
+    if(video) video.pause(); 
+}
 
 // AI - Restored
 let conversationHistory = [];

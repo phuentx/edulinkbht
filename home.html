@@ -1021,6 +1021,16 @@ transform: translateX(20px);
     background: #f9fafb;
 }
 
+/* Explore Desktop Grid Tweaks */
+@media (min-width: 1024px) {
+    #explore-results .grid {
+        gap: 16px !important;
+    }
+    #explore-results .aspect-square {
+        border-radius: 12px;
+    }
+}
+
 </style>
 </head>
 <body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
@@ -1652,13 +1662,22 @@ Change
       <div id="explore-search-bar" class="hidden px-4 py-2 bg-white border-b border-gray-100">
           <input type="text" id="mobile-explore-search" class="w-full bg-gray-100 rounded-xl py-2 px-4 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Search..." oninput="handleSearch(this.value)">
       </div>
-      <div id="explore-categories" class="flex gap-2 overflow-x-auto px-4 py-3 no-scrollbar border-b border-gray-100">
+      <div id="explore-categories" class="flex gap-2 overflow-x-auto px-4 py-3 no-scrollbar border-b border-gray-100 transition-all duration-300">
           <!-- Chips generated via JS -->
       </div>
     </div>
     
-    <div id="explore-results" class="px-0 md:px-0 space-y-0 pt-0 pb-20">
-        <!-- Default State -->
+    <div id="explore-content-wrapper" class="px-0 md:px-0 pb-20">
+        <!-- People Results Section -->
+        <div id="explore-people-results" class="hidden flex-col gap-2 p-4 border-b border-gray-100 mb-4">
+            <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">People</h3>
+            <div id="explore-people-list" class="space-y-3"></div>
+        </div>
+
+        <!-- Post Grid Section -->
+        <div id="explore-results" class="space-y-0 pt-0">
+            <!-- Default State -->
+        </div>
     </div>
 </div>
 </main>
@@ -2589,11 +2608,13 @@ window.toggleExploreSearch = function() {
 
 window.renderExploreCategories = function() {
     const container = document.getElementById('explore-categories');
+    
+    // Hide categories if search is active (simple check on visibility of search bar or content)
+    // Actually, let's just make sure it's visible by default
+    container.classList.remove('hidden');
+
     const categories = ['For You', 'News', 'Music', 'Education', 'Nature', 'Poem', 'History'];
     let html = '';
-    
-    // "All" logic implicitly handled by category selection or tab
-    // If in Video tab, maybe different cats? For now stick to same.
     
     categories.forEach(cat => {
         const isActive = window.activeExploreCategory === cat;
@@ -2614,32 +2635,78 @@ window.handleSearch = function(query) {
         switchView('explore');
     }
 
+    const term = query ? query.toLowerCase().trim() : '';
     const headerInput = document.getElementById('global-search');
     const mobileInput = document.getElementById('mobile-explore-search');
+    const categoryBar = document.getElementById('explore-categories');
+    const peopleSection = document.getElementById('explore-people-results');
+    const peopleList = document.getElementById('explore-people-list');
 
+    // Sync inputs
     if(headerInput && headerInput.value !== query) headerInput.value = query;
     if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
 
+    // Logic: Hide categories if user is searching
+    if(term.length > 0) {
+        if(categoryBar) categoryBar.classList.add('hidden');
+        if(peopleSection) peopleSection.classList.remove('hidden');
+        if(peopleSection) peopleSection.classList.add('flex');
+    } else {
+        if(categoryBar) categoryBar.classList.remove('hidden');
+        if(peopleSection) peopleSection.classList.add('hidden');
+        if(peopleSection) peopleSection.classList.remove('flex');
+    }
+
     const view = document.getElementById('explore-results');
-    const term = query ? query.toLowerCase().trim() : '';
     
+    // --- 1. User/People Filtering ---
+    if(term.length > 0) {
+        const matchedUsers = users.filter(u => {
+            const name = (u.name || "").toLowerCase();
+            const username = (u.username || "").toLowerCase();
+            return name.includes(term) || username.includes(term);
+        });
+
+        peopleList.innerHTML = '';
+        if(matchedUsers.length > 0) {
+            matchedUsers.slice(0, 5).forEach(u => { // Limit to 5 for brevity
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer";
+                div.onclick = () => showProfile(u.id);
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${u.avatar}" class="w-10 h-10 rounded-full border border-gray-100 object-cover">
+                        <div>
+                            <div class="font-bold text-sm text-gray-900">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>':''}</div>
+                            <div class="text-xs text-gray-500">@${u.username || 'user'}</div>
+                        </div>
+                    </div>
+                `;
+                peopleList.appendChild(div);
+            });
+        } else {
+            peopleList.innerHTML = `<div class="text-gray-400 text-xs italic">No people found</div>`;
+        }
+    }
+
+    // --- 2. Post Filtering ---
     let filteredPosts = [...posts];
     
-    // 1. Tab Filtering
+    // Tab Filtering
     if(window.activeExploreTab === 'video') {
         filteredPosts = filteredPosts.filter(p => p.media && (p.media.includes('video') || p.media.endsWith('.mp4')));
     }
     
-    // 2. Category Filtering (Simulation)
-    if(window.activeExploreCategory && window.activeExploreCategory !== 'For You') {
+    // Category Filtering (Only if NO search term)
+    if(!term && window.activeExploreCategory && window.activeExploreCategory !== 'For You') {
         const cat = window.activeExploreCategory.toLowerCase();
         filteredPosts = filteredPosts.filter(p => p.content.toLowerCase().includes(cat));
-    } else if (window.activeExploreCategory === 'For You' && !term) {
+    } else if (!term && window.activeExploreCategory === 'For You') {
         // Randomize for "For You" if no search term
         filteredPosts = filteredPosts.sort(() => 0.5 - Math.random());
     }
     
-    // 3. Search Term Filtering
+    // Search Term Filtering (Overwrites Category logic usually)
     if(term) {
         const keywords = term.split(" ").filter(k => k.length > 0);
         filteredPosts = filteredPosts.filter(p => {
@@ -2653,7 +2720,8 @@ window.handleSearch = function(query) {
     if(filteredPosts.length === 0) {
         html = `<div class="text-center py-20 text-gray-400"><p>No posts found.</p></div>`;
     } else {
-        html = `<div class="grid grid-cols-3 gap-0.5 md:gap-4">`;
+        // Updated Grid Classes for Desktop: md:grid-cols-4 lg:grid-cols-5
+        html = `<div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0.5 md:gap-4">`;
         filteredPosts.forEach(p => {
             let content = '';
             if (p.media) {
@@ -2665,7 +2733,7 @@ window.handleSearch = function(query) {
             } else {
                 content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
             }
-            html += `<div class="relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity" onclick="openPostView('${p.id}')">${content}</div>`;
+            html += `<div class="relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity rounded-none md:rounded-xl" onclick="openPostView('${p.id}')">${content}</div>`;
         });
         html += `</div>`;
     }

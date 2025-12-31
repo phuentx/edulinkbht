@@ -3,665 +3,531 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduLink - Workspace</title>
-    
-    <link rel="icon" type="image/png" href="https://i.imghippo.com/files/vgr8207c.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+    <title>EduLink | Innovation & Change</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500;1,600;1,700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Notion Palette */
-            --bg-body: #FFFFFF;
-            --bg-secondary: #F7F7F5; 
-            --text-main: #37352F;    
-            --text-sub: #9B9A97;     
-            --border: #E0E0E0;
-            --accent: #2383E2;       
-            --radius: 6px; 
-            --star-color: #F5A623; 
-            --error: #EB5757;
-            --success: #27AE60;
+            --primary: #2383E2; 
+            --white: #ffffff;
+            --text-dark: #1a1a1a;
+            --text-gray: #6B7280;
+            --bg-grad: linear-gradient(135deg, #FFFBED 0%, #E9F2FF 100%);
+            --notion-border: #edece9;
+            --line-color: rgba(35, 131, 226, 0.35);
+            --hover-shadow: 0 30px 60px rgba(0,0,0,0.12);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes flow { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+        @keyframes float { 
+            0% { transform: translateY(0px) rotate(var(--r, 0deg)); } 
+            50% { transform: translateY(-20px) rotate(var(--r, 0deg)); } 
+            100% { transform: translateY(0px) rotate(var(--r, 0deg)); } 
+        }
+        @keyframes pulseGlow {
+            0% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.15); }
+            100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        html {
-            scroll-behavior: smooth;
-            scrollbar-width: none; 
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            overflow-x: hidden;
-            overflow-y: scroll; 
-            -ms-overflow-style: none; 
-        }
-
+        html, body { scrollbar-width: none; -ms-overflow-style: none; background: var(--white); overflow-x: hidden; }
         body::-webkit-scrollbar { display: none; }
 
-        /* --- SCREEN ONE: SPLIT LAYOUT --- */
-        .screen-one {
-            height: 100vh;
-            width: 100%;
-            display: flex;
-            position: relative;
-            border-bottom: 1px solid var(--border);
-            background: white;
-            z-index: 10;
+        body { font-family: 'Inter', sans-serif; color: var(--text-dark); }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 600; }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; animation: fadeIn 0.8s ease-out forwards; }
+
+        /* --- NAVIGATION --- */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 30px 0; }
+        .logo { font-size: 24px; font-weight: 400; letter-spacing: -0.5px; cursor: pointer; }
+        nav { display: none; gap: 40px; }
+        @media (min-width: 1024px) { nav { display: flex; } }
+        nav a { text-decoration: none; color: var(--text-gray); font-weight: 500; font-size: 14px; transition: 0.2s; }
+        nav a:hover { color: var(--primary); }
+        
+        .btn-black { background: #000; color: white; padding: 12px 28px; border-radius: 50px; border: none; cursor: pointer; font-weight: 500; transition: all 0.3s ease; }
+        .btn-black:hover { transform: scale(1.05); background: #333; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+        /* --- HERO SECTION --- */
+        .hero-jigsaw { display: grid; grid-template-columns: 1fr; gap: 15px; position: relative; margin-bottom: 60px; }
+        @media (min-width: 1024px) { .hero-jigsaw { grid-template-columns: 1.1fr 0.9fr; height: 600px; gap: 20px; } }
+
+        .card { background: var(--bg-grad); border-radius: 40px; position: relative; overflow: hidden; }
+        @media (min-width: 1024px) {
+            .card-left { border-top-right-radius: 0; border-bottom-right-radius: 65px; padding: 100px 70px; }
+            .card-right { border-top-left-radius: 0; border-bottom-right-radius: 0; }
+            .notch-bridge { position: absolute; top: 0; left: 55%; transform: translateX(-50%); width: 260px; height: 120px; background: var(--white); z-index: 10; border-bottom-left-radius: 60px; border-bottom-right-radius: 60px; display: flex; align-items: center; justify-content: center; }
+            .arrow-notch { position: absolute; bottom: 0; right: 0; width: 150px; height: 150px; background: var(--white); z-index: 10; border-top-left-radius: 75px; display: flex; align-items: center; justify-content: center; }
         }
 
-        /* LEFT SIDE */
-        .left-panel {
-            flex: 1.4; 
-            background-color: var(--bg-secondary);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-right: 1px solid var(--border);
-            height: 100%;
-        }
+        .card-left h1 { font-size: clamp(44px, 6vw, 80px); line-height: 1.1; margin-bottom: 25px; letter-spacing: -2px; }
+        .card-left p { color: var(--text-gray); font-size: 18px; max-width: 480px; margin-bottom: 40px; line-height: 1.6; }
+        
+        .btn-group { display: flex; gap: 15px; flex-wrap: wrap; }
+        .btn { padding: 16px 32px; border-radius: 100px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .btn-p { background: var(--primary); color: white; }
+        .btn-p:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(35, 131, 226, 0.3); }
+        .btn-w { background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); color: #000; border: 1px solid white; }
 
-        .left-panel::before {
-            content: ""; position: absolute; inset: 0;
-            background-image: radial-gradient(#d3d1cb 1px, transparent 1px);
+        .av-group { display: flex; align-items: center; }
+        .av-img { width: 50px; height: 50px; border-radius: 50%; border: 3px solid white; margin-left: -15px; transition: transform 0.3s; }
+
+        .arr-circ { width: 80px; height: 80px; background: #000; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.4s ease; cursor: pointer; }
+        .arr-circ:hover { transform: rotate(45deg) scale(1.1); background: var(--primary); }
+
+        /* --- SHOWCASE SECTION --- */
+        .showcase { text-align: center; padding: 120px 0; position: relative; }
+        .showcase h2 { font-size: clamp(36px, 5vw, 72px); margin-bottom: 20px; position: relative; z-index: 2; letter-spacing: -1.5px; line-height: 1.1; }
+        .showcase p { color: var(--text-gray); font-size: 18px; margin-bottom: 80px; position: relative; z-index: 2; }
+
+        .visual-area { 
+            position: relative; max-width: 1100px; margin: 0 auto; height: 800px; 
+            background-image: radial-gradient(rgba(0,0,0,0.04) 1.5px, transparent 1.5px);
             background-size: 40px 40px;
-            opacity: 0.5; pointer-events: none; z-index: 0;
         }
 
-        /* Marquee Container */
-        .marquee-container {
-            display: flex;
-            gap: 80px; 
-            height: 120vh;
-            transform: translateY(-5%);
-            position: relative;
-            z-index: 5;
-        }
-
-        .marquee-col {
-            display: flex; flex-direction: column; gap: 32px;
-            width: 260px; z-index: 2; 
-        }
-
-        .scroll-up { animation: scrollUp 80s linear infinite; }
-        .scroll-down { animation: scrollDown 85s linear infinite; }
-
-        @keyframes scrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
-        @keyframes scrollDown { 0% { transform: translateY(-50%); } 100% { transform: translateY(0); } }
-
-        .gallery-card {
-            border-radius: var(--radius); 
-            overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.08);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06); 
-            background: white; 
-            height: 320px; flex-shrink: 0;
-            position: relative;
-        }
-        .gallery-card::after {
-            content: ""; position: absolute; inset: 0;
-            border-radius: var(--radius);
-            border: 1px solid rgba(0,0,0,0.05);
+        .bg-spot { 
+            position: absolute; top: 50%; left: 50%; 
+            width: 85%; height: 650px; 
+            background: radial-gradient(circle, #FFF4CC 0%, rgba(255,255,255,0) 75%); 
+            filter: blur(80px); z-index: 0; border-radius: 50%; 
+            animation: pulseGlow 8s ease-in-out infinite;
             pointer-events: none;
         }
-        .gallery-card img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.9); }
 
-        /* --- GLOWING AI BAR --- */
-        .ai-floating-bar {
-            position: absolute; bottom: 40px; width: 85%; max-width: 500px;
-            background: #FFFFFF;
-            box-shadow: 0 0 0 1px rgba(0,0,0,0.08), 0 8px 30px rgba(0,0,0,0.08);
-            border-radius: 12px;
-            padding: 12px 12px 12px 20px;
-            display: flex; align-items: center; justify-content: space-between;
-            z-index: 20;
-            border: 1px solid transparent;
-            transition: all 0.3s ease;
-            animation: slideUp 1s ease, aiGlowPulse 3s infinite alternate;
-        }
+        .connector-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .connector-path { fill: none; stroke: var(--line-color); stroke-width: 2.5; stroke-dasharray: 8, 8; animation: flow 25s linear infinite; }
 
-        .ai-floating-bar.ai-active-response {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 4px rgba(35, 131, 226, 0.2), 0 15px 40px rgba(35, 131, 226, 0.15);
-            transform: translateY(-5px);
-        }
-
-        @keyframes aiGlowPulse {
-            0% {
-                box-shadow: 0 0 0 1px rgba(35, 131, 226, 0.2), 0 8px 30px rgba(35, 131, 226, 0.15);
-                border-color: rgba(35, 131, 226, 0.3);
-            }
-            100% {
-                box-shadow: 0 0 0 4px rgba(35, 131, 226, 0.15), 0 15px 40px rgba(35, 131, 226, 0.25);
-                border-color: var(--accent);
-                transform: translateY(-2px);
-            }
-        }
+        /* --- PHONE POST UI --- */
+        .phone-frame { position: absolute; left: 50%; transform: translateX(-50%); top: 50px; width: 300px; height: 620px; background: #000; border-radius: 50px; padding: 12px; z-index: 5; box-shadow: 0 50px 100px rgba(0,0,0,0.15); transition: 0.5s ease; }
+        .phone-inner { width: 100%; height: 100%; border-radius: 40px; overflow: hidden; background: white; display: flex; flex-direction: column; }
         
-        .ai-input-wrapper { display: flex; align-items: center; gap: 12px; width: 100%; }
-        .sparkle-icon { color: #9D34DA; width: 20px; height: 20px; flex-shrink: 0; animation: spinSlow 10s linear infinite; }
-        @keyframes spinSlow { to { transform: rotate(360deg); } }
-        .real-ai-input { border: none; background: transparent; outline: none; font-size: 15px; color: var(--text-main); width: 100%; transition: color 0.3s ease; }
-        .real-ai-input.ai-answering { color: var(--accent); font-weight: 600; }
+        .phone-post-header { padding: 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: #eee; }
+        .user-name { font-size: 13px; font-weight: 700; color: #1a1a1a; }
+        .follow-btn { color: var(--primary); font-size: 12px; font-weight: 600; cursor: pointer; }
 
-        .ai-send-btn { 
-            width: 32px; height: 32px; 
-            background-color: var(--text-main); 
-            border-radius: 6px; 
-            display: flex; align-items: center; justify-content: center; 
-            color: white; cursor: pointer; transition: all 0.2s;
+        .phone-post-img { width: 100%; flex-grow: 1; object-fit: cover; }
+        
+        .phone-post-footer { padding: 15px; text-align: left; }
+        .post-actions { display: flex; gap: 15px; margin-bottom: 10px; }
+        .post-caption { font-size: 12px; line-height: 1.4; color: #444; }
+        .post-caption b { color: #000; margin-right: 5px; }
+
+        /* --- FLOATING CARDS --- */
+        .ui-card { 
+            position: absolute; background: white; border-radius: 24px; padding: 20px; 
+            box-shadow: 0 20px 45px rgba(0,0,0,0.08); z-index: 10; border: 1px solid rgba(0,0,0,0.02);
+            animation: float 6s ease-in-out infinite;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
-        .ai-send-btn:hover { background-color: var(--accent); }
-        .ai-send-btn svg { width: 16px; height: 16px; display: block; }
+        .ui-card:hover { transform: translateY(-15px) scale(1.05) !important; box-shadow: var(--hover-shadow); z-index: 20; }
+        
+        .card-stat { left: 4%; top: 400px; width: 220px; background: #FFD338; border: none; }
+        .card-sale { right: 4%; top: 80px; width: 240px; background: #D1FADF; }
+        .card-vid { left: 6%; top: 60px; width: 160px; height: 160px; --r: -6deg; border: 5px solid white; overflow: hidden; }
+        .card-ig { right: 6%; top: 480px; width: 210px; padding: 14px; --r: 3deg; }
+        .ig-img-wrap { border-radius: 12px; overflow: hidden; height: 130px; margin-bottom: 12px; }
+        .ig-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .ig-actions { display: flex; gap: 14px; align-items: center; opacity: 0.7; }
 
-        /* RIGHT SIDE */
-        .right-panel {
-            flex: 1; display: flex; justify-content: center; align-items: center;
-            background: white; padding: 40px; z-index: 30; height: 100%;
+        /* --- SECTION 3: ALL TO KNOW ABOUT US --- */
+        .section-best { padding: 60px 0 140px 0; }
+        .best-header { display: flex; align-items: baseline; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
+        .best-title { font-family: 'Playfair Display', serif; font-size: clamp(40px, 6vw, 80px); font-weight: 700; line-height: 1; letter-spacing: -2px; color: var(--text-dark); }
+        .best-title i { font-style: italic; font-weight: 700; }
+        .see-all { font-size: 14px; font-weight: 700; text-decoration: none; color: var(--text-dark); display: flex; align-items: center; gap: 5px; margin-left: 20px; transition: 0.3s; }
+        .see-all:hover { color: var(--primary); gap: 10px; }
+
+        .best-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+        @media (min-width: 1024px) { 
+            .best-grid { grid-template-columns: 2fr 1fr; height: 600px; } 
+        }
+
+        .b-card { position: relative; border-radius: 40px; overflow: hidden; }
+        .b-card-lg { height: 600px; background: #eee; } 
+        @media (max-width: 1024px) { .b-card-lg { height: 500px; } }
+        
+        .b-img-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .b-card:hover .b-img-bg { transform: scale(1.05); }
+
+        .grain-overlay {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.5;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            mix-blend-mode: overlay;
+        }
+
+        .b-tags { position: absolute; top: 30px; left: 30px; display: flex; flex-direction: column; gap: 12px; z-index: 2; }
+        .tag-white { background: white; padding: 6px 16px; border-radius: 100px; font-size: 11px; font-weight: 700; width: fit-content; color: var(--text-dark); }
+        .tag-blur { background: rgba(255,255,255,0.25); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 6px 16px; border-radius: 100px; font-size: 11px; font-weight: 700; width: fit-content; }
+
+        .travel-float-box { 
+            position: absolute; top: 60px; right: 60px; background: white; padding: 25px 35px; 
+            border-radius: 20px; max-width: 340px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); z-index: 5;
+            transition: 0.4s ease;
+        }
+        .travel-float-box:hover { transform: translateY(-5px); box-shadow: 0 30px 60px rgba(0,0,0,0.2); }
+        .travel-float-box h3 { font-family: 'Playfair Display', serif; font-size: 32px; line-height: 1.1; margin-top: 8px; font-weight: 700; color: #000; }
+        .travel-cat { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .arrow-circle-white { 
+            position: absolute; bottom: 30px; right: 30px; width: 56px; height: 56px; background: white; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s; z-index: 5; color: #000;
+        }
+        .arrow-circle-white:hover { transform: scale(1.1) rotate(45deg); }
+
+        .col-right { display: flex; flex-direction: column; gap: 24px; height: 100%; }
+        
+        .b-card-ads { 
+            background: #C4D5D1; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; 
+            flex: 1; min-height: 300px; transition: 0.3s;
+        }
+        .b-card-ads:hover { filter: brightness(0.98); }
+        .ads-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .ads-badge { border: 1px solid rgba(0,0,0,0.2); border-radius: 100px; padding: 4px 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .dot-black { width: 6px; height: 6px; background: black; border-radius: 50%; }
+        .ads-plus { width: 32px; height: 32px; background: rgba(255,255,255,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; cursor: pointer; color: #000; }
+        
+        .ads-content h3 { font-size: 32px; margin-top: 10px; line-height: 1.1; font-family: 'Playfair Display', serif; font-weight: 700; color: #000; }
+        .ads-sub { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 8px; color: #000; }
+        .ads-link { align-self: flex-end; font-size: 14px; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; color: #000; cursor: pointer; }
+
+        .b-card-sm { height: 276px; position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 25px; }
+        .pick-badge { position: absolute; top: 25px; right: 25px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.4); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px; z-index: 2; }
+        
+        .btn-picks { 
+            position: relative; z-index: 2; background: white; color: black; padding: 14px 28px; 
+            border-radius: 100px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; 
+            display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .btn-picks:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
+
+        @media (max-width: 1024px) {
+            .travel-float-box { position: relative; top: auto; right: auto; margin: 20px; max-width: none; }
+        }
+
+
+        /* --- UPDATED TRUST CLOUD (LOOP & SKY TEXTURE) --- */
+        .trust-cloud { 
+            border-top: none; 
+            padding: 80px 0; 
+            background: linear-gradient(180deg, #FFFFFF 0%, #D4E9FF 100%); 
+            overflow: hidden; 
             position: relative;
         }
-
-        .brand-logo-overlay {
-            position: absolute;
-            top: 30px; left: 40px; z-index: 50; 
-            display: flex; align-items: center; gap: 10px;
-            background: white; padding: 8px 14px; border-radius: 8px;
-            border: 1px solid rgba(0,0,0,0.0); 
-            transition: transform 0.2s ease; cursor: pointer;
+        .marquee-track {
+            display: flex;
+            gap: 80px;
+            width: max-content;
+            animation: marquee 30s linear infinite;
         }
-        .brand-logo-overlay:hover { transform: scale(1.02); background: #F7F7F5; }
-        .brand-logo-img { width: 24px; height: 24px; object-fit: contain; }
-        .brand-logo-text { font-weight: 700; font-size: 15px; color: var(--text-main); letter-spacing: -0.3px; }
-
-        .content-stack { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 32px; }
+        .marquee-track:hover { animation-play-state: paused; }
         
-        /* AUTH FORM STYLES - MAIN CARD */
-        .login-card { text-align: center; animation: fadeIn 0.8s ease; display: flex; flex-direction: column; gap: 20px; }
+        .trust-item { 
+            font-style: italic; 
+            font-size: clamp(20px, 4vw, 32px); 
+            opacity: 0.4; 
+            transition: 0.3s ease; 
+            cursor: default;
+            white-space: nowrap;
+        }
+        .trust-item.serif { font-family: 'Playfair Display', serif; font-weight: 500; }
+        .trust-item.sans { font-family: 'Inter', sans-serif; font-weight: 600; letter-spacing: -0.5px; }
+        .trust-item:hover { opacity: 1; color: var(--primary); transform: scale(1.05); }
+
+        @media (max-width: 1024px) {
+            .connector-svg, .bg-spot, .notch-bridge, .arrow-notch { display: none; }
+            .visual-area { height: auto; display: flex; flex-direction: column; align-items: center; gap: 20px; background: none; }
+            .phone-frame, .ui-card { position: relative; left: auto; top: auto; right: auto; transform: none !important; width: 90%; animation: none; }
+        }
+
+        /* --- LOGIN OVERLAY (UPDATED) --- */
+        .login-overlay { 
+            position: fixed; inset: 0; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); 
+            z-index: 2000; display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.3s ease; 
+        }
+        .login-overlay.active { display: flex; opacity: 1; }
+        .login-card { 
+            background: white; width: 90%; max-width: 440px; padding: 48px 40px; border-radius: 16px; 
+            border: 1px solid var(--notion-border); box-shadow: 0 30px 70px rgba(0,0,0,0.15); 
+            position: relative; transform: scale(0.9); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            display: flex; flex-direction: column;
+        }
+        .login-overlay.active .login-card { transform: scale(1); }
+        .close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; cursor: pointer; color: #acaba9; transition: 0.2s; }
+        .close-btn:hover { color: var(--text-dark); }
         
-        .avatar-frame {
-            width: 100px; height: 100px; margin: 0 auto;
-            border-radius: 12px; 
-            transform: rotate(-3deg);
-            background: white; padding: 5px;
-            border: 1px solid rgba(0,0,0,0.08);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
-            position: relative; cursor: pointer; 
-            transition: transform 0.3s ease;
-        }
-        .avatar-frame:hover { transform: rotate(0deg) scale(1.05); z-index: 50; }
-        .avatar-frame img { width: 100%; height: 100%; border-radius: 8px; object-fit: cover; }
+        .auth-title { font-size: 32px; font-weight: 700; margin-bottom: 24px; color: #37352f; text-align: center; }
+        
+        .auth-avatar-preview { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 24px; display: block; border: 1px solid #eee; background: #f9f9f9; object-fit: cover; }
+        
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 12px; font-weight: 600; color: #6b6b6b; margin-bottom: 8px; text-transform: uppercase; }
+        .input-group input { width: 100%; height: 46px; padding: 0 16px; background: #f7f7f5; border: 1px solid var(--notion-border); border-radius: 8px; outline: none; transition: 0.2s; }
+        .input-group input:focus { border-color: var(--primary); background: white; }
+        
+        .login-btn { width: 100%; height: 48px; background: #37352f; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .login-btn:hover { background: #000; transform: translateY(-1px); }
 
-        .avatar-tooltip {
-            position: absolute; bottom: 115%; left: 50%; transform: translateX(-50%) translateY(10px);
-            background: #232323; color: white; padding: 8px 12px; border-radius: 6px; font-size: 13px;
-            white-space: nowrap; opacity: 0; visibility: hidden; transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            pointer-events: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .avatar-tooltip::after {
-            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px;
-            border-width: 5px; border-style: solid; border-color: #232323 transparent transparent transparent;
-        }
-        .avatar-frame:hover .avatar-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
-
-        .title-group { margin-bottom: 12px; }
-        h1 { font-size: 32px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; letter-spacing: -0.5px; }
-        .subtitle-main { font-size: 16px; color: #37352F; font-weight: 500; margin-bottom: 6px; }
-
-        .btn-email-trigger {
-            width: 100%; padding: 12px 14px; background: var(--text-main);
-            color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 14px;
-            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn-email-trigger:hover { background: #000; transform: translateY(-1px); }
-        .btn-email-trigger svg { width: 18px; height: 18px; }
-
-        /* --- AUTH OVERLAY --- */
-        .auth-overlay-backdrop {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
-            display: none; justify-content: center; align-items: center;
-            z-index: 10000; opacity: 0; transition: opacity 0.3s ease;
-        }
-        .auth-overlay-backdrop.active { display: flex; opacity: 1; }
-
-        .auth-modal {
-            background: white; width: 90%; max-width: 400px;
-            border-radius: 16px; padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            position: relative; transform: translateY(20px);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            display: flex; flex-direction: column; gap: 16px;
-        }
-        .auth-overlay-backdrop.active .auth-modal { transform: translateY(0); }
-
-        .auth-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .auth-title { font-size: 20px; font-weight: 700; color: var(--text-main); }
-        .close-auth { cursor: pointer; padding: 4px; border-radius: 4px; transition: background 0.2s; }
-        .close-auth:hover { background: #F7F7F5; }
-
-        .auth-avatar-preview {
-            width: 70px; height: 70px; border-radius: 50%; background: #F7F7F5;
-            margin: 0 auto 10px; border: 1px solid var(--border); object-fit: cover;
-        }
-
-        .input-group { width: 100%; }
-        .auth-input {
-            width: 100%; padding: 10px 14px; border: 1px solid #E0E0E0; border-radius: 8px;
-            font-size: 14px; outline: none; transition: border-color 0.2s; background: #FAFAFA;
-        }
-        .auth-input:focus { border-color: var(--accent); background: white; }
-
-        .btn-submit-auth {
-            width: 100%; padding: 12px; background: var(--accent);
-            color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-submit-auth:hover { background: #1a73c9; }
-
-        .auth-toggle-text { font-size: 13px; color: var(--text-sub); text-align: center; margin-top: 10px; cursor: pointer; }
-        .auth-toggle-text span { color: var(--accent); font-weight: 600; }
+        .auth-toggle-text { font-size: 13px; color: var(--text-gray); text-align: center; margin-top: 16px; cursor: pointer; }
+        .auth-toggle-text span { color: var(--primary); font-weight: 600; }
         .auth-toggle-text span:hover { text-decoration: underline; }
-
+        
         .hidden { display: none; }
-
-        /* --- COMMUNITY & OTHER STYLES --- */
-        .community-card {
-            background: white; border: 1px solid var(--border); border-radius: 8px;
-            padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            animation: slideUp 1s ease 0.2s backwards; min-height: 200px;
-        }
-        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid #F0F0F0; padding-bottom: 8px; }
-        .header-title { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-sub); display: flex; align-items: center; gap: 6px; }
-        
-        .chat-list { display: flex; flex-direction: column; gap: 12px; }
-        .chat-row, .badge-row { opacity: 0; transform: translateY(10px); animation: messagePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        .chat-row { display: flex; gap: 10px; align-items: flex-start; }
-        @keyframes messagePop { to { opacity: 1; transform: translateY(0); } }
-        .chat-pfp { width: 28px; height: 28px; border-radius: 4px; background: #F7F7F5; border: 1px solid var(--border); flex-shrink: 0; }
-        .chat-bubble { background: #F7F7F5; padding: 8px 12px; border-radius: 6px; font-size: 13px; color: var(--text-main); line-height: 1.4; max-width: 240px; }
-        .user-name { font-weight: 600; font-size: 11px; color: var(--text-main); display: block; margin-bottom: 2px; }
-        .badge-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
-        .icon-circle { width: 20px; height: 20px; border: 1px solid var(--border); border-radius: 3px; display: flex; align-items: center; justify-content: center; color: var(--accent); }
-        .badge-text { font-size: 12px; color: var(--text-sub); }
-
-        /* --- SCREEN TWO --- */
-        .screen-two {
-            width: 100%; min-height: 100vh;
-            background-color: white;
-            background-image: linear-gradient(#F0F0F0 1px, transparent 1px), linear-gradient(90deg, #F0F0F0 1px, transparent 1px);
-            background-size: 40px 40px;
-            display: flex; flex-direction: column; align-items: center;
-            position: relative; padding: 80px 20px 40px;
-            overflow-y: auto; 
-        }
-        .screen-two::after {
-            content: ""; position: absolute; inset: 0;
-            background: radial-gradient(circle at center, rgba(255,255,255,1) 30%, rgba(255,255,255,0) 80%);
-            pointer-events: none; z-index: 0;
-        }
-        .reveal-on-scroll { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); }
-        .reveal-on-scroll.visible { opacity: 1; transform: translateY(0); }
-
-        /* --- REVIEWS --- */
-        .reviews-wrapper {
-            width: 100%; max-width: 1200px; position: relative; overflow: hidden; 
-            padding: 10px 0; border-top: 1px solid #F0F0F0; border-bottom: 1px solid #F0F0F0;
-            background: rgba(255,255,255,0.8); backdrop-filter: blur(5px); z-index: 10; margin-bottom: 60px;
-        }
-        .reviews-wrapper::before, .reviews-wrapper::after { content: ""; position: absolute; top: 0; width: 100px; height: 100%; z-index: 20; pointer-events: none; }
-        .reviews-wrapper::before { left: 0; background: linear-gradient(to right, #FFFFFF, transparent); }
-        .reviews-wrapper::after { right: 0; background: linear-gradient(to left, #FFFFFF, transparent); }
-        .reviews-track { display: flex; gap: 20px; width: max-content; animation: scrollHorizontal 80s linear infinite; }
-        .reviews-track:hover { animation-play-state: paused; }
-        @keyframes scrollHorizontal { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .review-card {
-            width: 280px; background: #FFFFFF; border: 1px solid var(--border); border-radius: 6px;
-            padding: 16px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); 
-            display: flex; flex-direction: column; gap: 10px; transition: transform 0.2s ease;
-        }
-        .review-card:hover { transform: translateY(-2px); border-color: #C0C0C0; }
-        .review-header { display: flex; align-items: center; gap: 10px; }
-        .review-pfp { width: 32px; height: 32px; border-radius: 4px; background: #F7F7F5; object-fit: cover; border: 1px solid rgba(0,0,0,0.05); }
-        .review-info { display: flex; flex-direction: column; }
-        .review-name { font-size: 13px; font-weight: 600; color: var(--text-main); }
-        .review-role { font-size: 11px; color: var(--text-sub); }
-        .review-text { font-size: 13px; color: #37352F; line-height: 1.5; }
-        .stars { color: var(--star-color); font-size: 12px; letter-spacing: 1px; }
-
-        /* --- TEAM TIMELINE --- */
-        .team-timeline-section {
-            width: 100%; max-width: 1200px; display: flex; flex-direction: column; align-items: center;
-            margin-bottom: 80px; z-index: 10; position: relative;
-        }
-        .team-headline { font-size: 32px; font-weight: 700; color: var(--text-main); margin-bottom: 70px; letter-spacing: -0.5px; }
-        .timeline-container { display: flex; justify-content: center; gap: 50px; position: relative; width: 100%; padding: 30px 0; }
-        .timeline-container::before { content: ""; position: absolute; top: 50%; left: 5%; right: 5%; height: 2px; background: #E0E0E0; z-index: 0; border-radius: 2px; }
-        .team-node { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; width: 220px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .team-card-inner {
-            background: #FFFFFF; border: 1px solid var(--border); border-radius: 16px; 
-            padding: 30px 15px; width: 100%; text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.3s ease;
-            cursor: default; position: relative; overflow: visible; 
-        }
-        .team-node:hover { transform: translateY(-10px); }
-        .team-node:hover .team-card-inner { box-shadow: 0 15px 40px rgba(0,0,0,0.08); border-color: var(--accent); }
-        .team-avatar {
-            width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 16px;
-            border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.06); background: #F7F7F5; transition: content 0.3s;
-        }
-        .team-name { font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
-        .team-role { font-size: 13px; color: var(--text-sub); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-        .team-quote-bubble {
-            position: absolute; top: 110%; left: 50%; transform: translateX(-50%) translateY(-10px);
-            width: 220px; background: #FFFFFF; border: 1px solid var(--accent); color: var(--accent);
-            padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; line-height: 1.4;
-            box-shadow: 0 4px 15px rgba(35, 131, 226, 0.15); opacity: 0; visibility: hidden;
-            transition: all 0.3s ease; pointer-events: none; z-index: 10;
-        }
-        .team-quote-bubble::before { content: ""; position: absolute; bottom: 100%; left: 50%; margin-left: -6px; border-width: 6px; border-style: solid; border-color: transparent transparent var(--accent) transparent; }
-        .team-node:hover .team-quote-bubble { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(5px); }
-
-        /* --- FOOTER --- */
-        .footer {
-            width: 100%; max-width: 1200px; border-top: 1px solid var(--border); padding: 40px 0;
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 13px; color: var(--text-sub); position: relative; z-index: 10;
-        }
-        .footer-links { display: flex; gap: 24px; }
-        .footer-links a { color: var(--text-sub); text-decoration: none; transition: color 0.2s; }
-        .footer-links a:hover { color: var(--text-main); text-decoration: underline; }
-
-        /* --- WELCOME OVERLAY (SHARED STYLES) --- */
-        .overlay-backdrop {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
-            display: none; justify-content: center; align-items: center;
-            z-index: 9999; opacity: 0; transition: opacity 0.4s ease;
-        }
-        .overlay-modal {
-            background: #FFFFFF; width: 90%; max-width: 420px;
-            border-radius: 16px; padding: 32px 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-            text-align: center; position: relative;
-            transform: translateY(20px); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .overlay-image-container {
-            width: 100%; height: 180px; margin-bottom: 24px;
-            border-radius: 12px; overflow: hidden; position: relative;
-            background: #F7F7F5;
-        }
-        .overlay-main-img { width: 100%; height: 100%; object-fit: cover; }
-        .decorative-avatar {
-            position: absolute; width: 40px; height: 40px; border-radius: 50%;
-            border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            background: white;
-        }
-        .dec-av-1 { top: 10px; right: 10px; }
-        .dec-av-2 { bottom: 10px; left: 10px; }
-        .overlay-title { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
-        .overlay-desc { font-size: 14px; color: var(--text-sub); line-height: 1.5; margin-bottom: 24px; }
-        .btn-primary-modal {
-            background: var(--text-main); color: white; width: 100%; padding: 12px;
-            border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s;
-        }
-        .btn-primary-modal:hover { background: #000; transform: translateY(-2px); }
-        .overlay-backdrop.active { display: flex; opacity: 1; }
-        .overlay-backdrop.active .overlay-modal { transform: translateY(0); }
-
-        /* --- CUSTOM ALERT CONTAINER --- */
-        .custom-alert-container {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px);
-            display: flex; align-items: center; gap: 12px;
-            background: #FFFFFF; padding: 12px 20px; border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05);
-            z-index: 10000; opacity: 0; pointer-events: none;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            min-width: 300px; max-width: 90%;
-        }
-        .custom-alert-container.active { transform: translateX(-50%) translateY(0); opacity: 1; }
-        .alert-avatar { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #eee; flex-shrink: 0; }
-        .alert-content { display: flex; flex-direction: column; }
-        .alert-title { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
-        .alert-msg { font-size: 12px; color: var(--text-sub); }
-        .alert-close { margin-left: auto; cursor: pointer; color: #ccc; }
-        .alert-close:hover { color: #333; }
-        
-        /* OTHER UTILS */
-        .community-avatar-wrapper { position: relative; margin-left: -15px; transition: transform 0.2s ease; z-index: 1; }
-        .community-avatar-wrapper:hover { transform: translateY(-5px); z-index: 20; }
-        .crowd-avatar-circle { width: 50px; height: 50px; border-radius: 50%; background: #fff; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: block; }
-        .community-avatar-wrapper:hover .crowd-avatar-circle { border-color: var(--accent); }
-        .community-group-container { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 900px; position: relative; z-index: 1; }
-        .invitation-highlight-wrapper {
-            display: flex; justify-content: center; margin-bottom: 10px; position: relative;
-            background: radial-gradient(closest-side, rgba(35, 131, 226, 0.08) 0%, rgba(255,255,255,0) 100%);
-            padding: 30px; border-radius: 50%; animation: pulseGlow 4s ease-in-out infinite;
-        }
-        @keyframes pulseGlow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-        .avatar-pile { display: flex; justify-content: center; padding-left: 10px; }
-        .central-image-container { width: 100%; position: relative; z-index: 5; margin-top: -10px; margin-bottom: 40px; }
-        .central-work-img { width: 100%; height: auto; display: block; mix-blend-mode: multiply; opacity: 0.95; }
-        .community-headline { font-size: 40px; font-weight: 700; letter-spacing: -1px; margin-bottom: 16px; text-align: center; color: var(--text-main); }
-        .community-tooltip { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%) translateY(10px); background: #232323; color: white; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; white-space: nowrap; opacity: 0; visibility: hidden; transition: all 0.2s ease; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .community-tooltip::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -4px; border-width: 4px; border-style: solid; border-color: #232323 transparent transparent transparent; }
-        .community-avatar-wrapper:hover .community-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
 
-    <div class="custom-alert-container" id="customAlert">
-        <img src="https://api.dicebear.com/9.x/bottts-neutral/svg?seed=System" class="alert-avatar" alt="Alert">
-        <div class="alert-content">
-            <span class="alert-title" id="alertTitle">Notification</span>
-            <span class="alert-msg" id="alertMsg">Something happened.</span>
-        </div>
-        <div class="alert-close" onclick="closeCustomAlert()">✕</div>
-    </div>
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-card">
+            <button class="close-btn" id="closeOverlayBtn"><i data-lucide="x" size="24"></i></button>
+            <h2 class="auth-title" id="authTitle">Welcome back</h2>
+            
+            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=User" class="auth-avatar-preview" id="authAvatar">
 
-    <div class="overlay-backdrop" id="welcomeOverlay">
-        <div class="overlay-modal">
-            <div class="overlay-image-container">
-                <img src="https://i.imghippo.com/files/wUb7431UjA.png" class="overlay-main-img" alt="Community">
-                <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Welcome1&backgroundColor=e0ffff" class="decorative-avatar dec-av-1" alt="">
-                <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Welcome2&backgroundColor=ffefd5" class="decorative-avatar dec-av-2" alt="">
-            </div>
-            <h2 class="overlay-title">Welcome to EduLink!</h2>
-            <p class="overlay-desc">Connect, collaborate, and grow with our community. We're excited to have you join our journey.</p>
-            <button class="btn-primary-modal" id="closeOverlayBtn">Join Us</button>
-        </div>
-    </div>
-
-    <div class="auth-overlay-backdrop" id="authOverlay">
-        <div class="auth-modal">
-            <div class="auth-header">
-                <span class="auth-title" id="overlayAuthTitle">Log In</span>
-                <div class="close-auth" id="closeAuthBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <form id="authForm" onsubmit="event.preventDefault();">
+                <div class="input-group hidden" id="groupName">
+                    <label>Display Name</label>
+                    <input type="text" id="inputName" placeholder="Your Name">
                 </div>
-            </div>
-            
-            <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=User" class="auth-avatar-preview" id="overlayAvatarPreview" alt="">
+                
+                <div class="input-group">
+                    <label>Work Email</label>
+                    <input type="email" id="inputEmail" placeholder="name@company.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="inputPass" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="login-btn" id="btnSubmit">Log in</button>
+            </form>
 
-            <div class="input-group hidden" id="overlayNameGroup">
-                <input type="text" id="overlayNameInput" class="auth-input" placeholder="Display Name">
-            </div>
-
-            <div class="input-group hidden" id="overlayUrlGroup">
-                <input type="text" id="overlayUrlInput" class="auth-input" placeholder="Profile Picture URL (Optional)">
-            </div>
-            
-            <div class="input-group">
-                <input type="email" id="overlayEmailInput" class="auth-input" placeholder="Email Address">
-            </div>
-            
-            <div class="input-group">
-                <input type="password" id="overlayPassInput" class="auth-input" placeholder="Password">
-            </div>
-
-            <button id="overlaySubmitBtn" class="btn-submit-auth">Log In</button>
-
-            <div class="auth-toggle-text" id="overlayToggleAuth">
+            <div class="auth-toggle-text" id="toggleAuth">
                 Don't have an account? <span>Create one</span>
             </div>
         </div>
     </div>
 
-    <div class="screen-one">
-        <div class="left-panel">
-            <div class="marquee-container">
-                <div class="marquee-col scroll-up">
-                    <div class="gallery-card"><img src="https://i.imghippo.com/files/mKXQ6766VHE.jpeg"></div>
-                    <div class="gallery-card"><img src="https://i.imghippo.com/files/MSeU9720hj.jpeg"></div>
-                    <div class="gallery-card"><img src="https://i.imghippo.com/files/BAm5876iL.jpeg"></div>
-                    <div class="gallery-card"><img src="https://i.imghippo.com/files/zUQv3054UtU.jpeg"></div>
-                    <div class="gallery-card"><img src="https://i.imghippo.com/files/mKXQ6766VHE.jpeg"></div>
-                    <div class="gallery-card"><img src="https://i.imghippo.com/files/MSeU9720hj.jpeg"></div>
-                </div>
-                <div class="marquee-col scroll-down">
-                    <div class="gallery-card"><img src="https://i.imghippo.com/files/WeTT3339kIA.jpeg"></div>
-                    <div class="gallery-card"><img src="https://i.imghippo.com/files/MVDl3017QY.jpeg"></div>
-                    <div class="gallery-card"><img src="https://i.imghippo.com/files/NaWq7558Gno.jpeg"></div>
-                    <div class="gallery-card"><img src="https://i.imghippo.com/files/BAm5876iL.jpeg"></div>
-                    <div class="gallery-card"><img src="https://i.imghippo.com/files/WeTT3339kIA.jpeg"></div>
-                    <div class="gallery-card"><img src="https://i.imghippo.com/files/MVDl3017QY.jpeg"></div>
+    <div class="container">
+        <header>
+            <div class="logo">EduLink <span style="font-size: 10px; opacity: 0.5; font-weight:700;">®</span></div>
+            <nav>
+                <a href="#">Products</a>
+                <a href="#">Showcase</a>
+                <a href="#">Pricing</a>
+            </nav>
+            <button id="getStartedBtn" class="btn-black">Get Started</button>
+        </header>
+
+        <section class="hero-jigsaw">
+            <div class="notch-bridge">
+                <div class="av-group">
+                    <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=A" class="av-img">
+                    <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=B" class="av-img">
+                    <div style="width:50px; height:50px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; margin-left:5px; font-weight:700; font-size:12px;">3k+</div>
                 </div>
             </div>
-            
-            <div class="ai-floating-bar">
-                <div class="ai-input-wrapper">
-                    <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.39 9.26L22 12L14.39 14.74L12 22L9.61 14.74L2 12L9.61 9.26L12 2Z" /></svg>
-                    <input type="text" class="real-ai-input" placeholder="Ask EduLink AI..." />
-                </div>
-                <div class="ai-send-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+            <div class="card card-left">
+                <h1>Make a change,<br><i>be</i> the change.</h1>
+                <p>Curating world-class mentorship and tools to transform your creative vision into global impact.</p>
+                <div class="btn-group">
+                    <button id="heroGetStartedBtn" class="btn btn-p">Get Started Free</button>
+                    <a href="#" class="btn btn-w"><i data-lucide="play-circle" size="22"></i> Watch Film</a>
                 </div>
             </div>
-        </div>
-
-        <div class="right-panel">
-            <div class="brand-logo-overlay">
-                <img src="https://i.imghippo.com/files/vgr8207c.png" class="brand-logo-img" alt="Logo">
-                <span class="brand-logo-text">EduLink</span>
-            </div>
-
-            <div class="content-stack">
-                <div class="login-card">
-                    <div class="avatar-frame">
-                        <img src="https://api.dicebear.com/9.x/lorelei/svg?seed=User&backgroundColor=transparent" alt="Avatar">
-                        <div class="avatar-tooltip"><span style="font-weight: 600;">Ngawang:</span> You are invited!</div>
-                    </div>
-                    
-                    <div class="title-group">
-                        <h1>Welcome Back</h1>
-                        <div class="subtitle-main">Access your workspace and AI tools.</div>
-                    </div>
-
-                    <button id="emailAuthTrigger" class="btn-email-trigger">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                        Continue with Email
-                    </button>
+            <div class="card card-right">
+                <img src="https://i.imghippo.com/files/RKf5890obo.png" style="width:100%; height:100%; object-fit:cover;">
+                <div class="arrow-notch">
+                    <div class="arr-circ"><i data-lucide="arrow-up-right" size="40"></i></div>
                 </div>
+            </div>
+        </section>
 
-                <div class="community-card">
-                    <div class="card-header">
-                        <span class="header-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg> Updates</span>
-                        <span style="font-size: 11px; color: #32D74B; font-weight: 600;">● Online</span>
-                    </div>
-                    <div class="chat-list" id="chat-list-container">
+        <section class="showcase">
+            <div class="bg-spot"></div>
+            <h2>AI-Driven Conversion<br>Growth Right Away</h2>
+            <p>From concept to conversion — manage everything in one workspace.</p>
+
+            <div class="visual-area">
+                <svg class="connector-svg" viewBox="0 0 1100 800">
+                    <path class="connector-path" d="M400 350 Q 250 350, 180 160" />
+                    <path class="connector-path" d="M400 450 Q 250 450, 180 500" />
+                    <path class="connector-path" d="M700 300 Q 850 300, 920 180" />
+                    <path class="connector-path" d="M700 500 Q 850 500, 900 580" />
+                </svg>
+
+                <div class="phone-frame">
+                    <div class="phone-inner">
+                        <div class="phone-post-header">
+                            <div class="user-info">
+                                <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Creative" class="user-avatar">
+                                <span class="user-name">alex_design</span>
+                            </div>
+                            <span class="follow-btn">Follow</span>
                         </div>
+                        
+                        <img src="https://i.imghippo.com/files/PUV6696ko.png" class="phone-post-img">
+
+                        <div class="phone-post-footer">
+                            <div class="post-actions">
+                                <i data-lucide="heart" size="20"></i>
+                                <i data-lucide="message-circle" size="20"></i>
+                                <i data-lucide="send" size="20"></i>
+                            </div>
+                            <div class="post-caption">
+                                <b>alex_design</b> Building something new today with EduLink! ✨ #creativity #impact
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ui-card card-stat">
+                    <i data-lucide="trending-up" size="24"></i>
+                    <span style="font-size: 34px; font-weight: 700; display: block; margin-top: 10px;">+40.2%</span>
+                    <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; opacity: 0.6;">Engagement</span>
+                </div>
+
+                <div class="ui-card card-sale">
+                    <div style="display:flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 26px; font-weight: 700;">$1,240</span>
+                        <i data-lucide="shopping-bag" size="24" opacity="0.4"></i>
+                    </div>
+                    <p style="font-size: 13px; color: #444; margin-top: 4px; font-weight:500;">Weekly Revenue</p>
+                </div>
+
+                <div class="ui-card card-vid">
+                    <img src="https://i.imghippo.com/files/fRGt5603uII.png" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+
+                <div class="ui-card card-ig">
+                    <div class="ig-img-wrap">
+                        <img src="https://i.imghippo.com/files/dHY4195dOA.png">
+                    </div>
+                    <div class="ig-actions">
+                        <i data-lucide="heart" size="20"></i>
+                        <i data-lucide="message-circle" size="20"></i>
+                        <i data-lucide="send" size="20"></i>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <!-- NEW SECTION: All to know about Us -->
+        <section class="section-best">
+            <div class="best-header">
+                <h2 class="best-title">
+                    <i>All</i> to know about Us
+                </h2>
+                <a href="#" class="see-all">
+                    Be a part of us <i data-lucide="arrow-right" size="18"></i>
+                </a>
+            </div>
+
+            <div class="best-grid">
+                <!-- Large Blog Card -->
+                <div class="b-card b-card-lg">
+                    <img src="https://i.imghippo.com/files/mIPL1722DKk.png" class="b-img-bg" alt="EduLink Blog">
+                    <div class="grain-overlay"></div>
+                    
+                    <div class="b-tags">
+                        <div class="tag-white">EduLink</div>
+                        <div class="tag-blur">• Blog</div>
+                    </div>
+
+                    <div class="travel-float-box">
+                        <div class="travel-cat">• Blog</div>
+                        <h3>The Prototype Of EduLink</h3>
+                    </div>
+
+                    <div class="arrow-circle-white">
+                        <i data-lucide="arrow-up-right" size="24"></i>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-right">
+                    <!-- Events Card -->
+                    <div class="b-card b-card-ads">
+                        <div class="ads-top">
+                            <div class="ads-badge">
+                                <span class="dot-black"></span> EVENTS
+                            </div>
+                            <div class="ads-plus">+</div>
+                        </div>
+
+                        <div class="ads-content">
+                            <div class="ads-sub">Updates</div>
+                            <h3>Get to know about the future of EduLink</h3>
+                        </div>
+
+                        <a href="#" class="ads-link">Learn more</a>
+                    </div>
+
+                    <!-- Policy Card -->
+                    <div class="b-card b-card-sm">
+                        <img src="https://i.imghippo.com/files/okly8861Yd.jpg" class="b-img-bg" alt="Policy">
+                        
+                        <div class="pick-badge">24</div>
+                        
+                        <button class="btn-picks">
+                            See our policy <i data-lucide="arrow-right" size="16"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
-    <div class="screen-two">
-        
-        <div class="community-group-container reveal-on-scroll">
-            <h2 class="community-headline">Join our small community</h2>
+    <!-- LOOPING TRUST CLOUD FOOTER (MOVED OUTSIDE CONTAINER) -->
+    <section class="trust-cloud">
+        <div class="marquee-track">
+            <!-- Content duplicated for seamless loop -->
+            <span class="trust-item serif">The Royal Academy</span>
+            <span class="trust-item sans">DGI</span>
+            <span class="trust-item serif">Gravitas</span>
+            <span class="trust-item sans">Newton</span>
+            
+            <span class="trust-item serif">The Royal Academy</span>
+            <span class="trust-item sans">DGI</span>
+            <span class="trust-item serif">Gravitas</span>
+            <span class="trust-item sans">Newton</span>
 
-            <div class="invitation-highlight-wrapper">
-                <div class="avatar-pile">
-                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=e3f2fd" alt=""><div class="community-tooltip">Personalized Tutor</div></div>
-                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=f3e5f5" alt=""><div class="community-tooltip">Healthy Environment</div></div>
-                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=e0f7fa" alt=""><div class="community-tooltip">AI Workspace</div></div>
-                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=e8f5e9" alt=""><div class="community-tooltip">Accurate Research</div></div>
-                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=fff3e0" alt=""><div class="community-tooltip">Plan and Grow Together</div></div>
-                    <div class="community-avatar-wrapper"><img class="crowd-avatar-circle" src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase&backgroundColor=ffebee" alt=""><div class="community-tooltip">Learn and Mentor</div></div>
-                </div>
-            </div>
+            <span class="trust-item serif">The Royal Academy</span>
+            <span class="trust-item sans">DGI</span>
+            <span class="trust-item serif">Gravitas</span>
+            <span class="trust-item sans">Newton</span>
 
-            <div class="central-image-container reveal-on-scroll">
-                <img src="https://i.imghippo.com/files/ij1473meM.png" alt="Working Together" class="central-work-img">
-            </div>
+            <span class="trust-item serif">The Royal Academy</span>
+            <span class="trust-item sans">DGI</span>
+            <span class="trust-item serif">Gravitas</span>
+            <span class="trust-item sans">Newton</span>
         </div>
-
-        <div class="reviews-wrapper reveal-on-scroll">
-            <div class="reviews-track">
-                <div class="review-card">
-                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Ngawang Tshogyal Phuentshok</div><div class="review-role">Founder</div></div></div>
-                    <div class="stars">★★★★★</div>
-                    <div class="review-text">Building EduLink has been a journey of connecting minds. It's the workspace I always wanted.</div>
-                </div>
-                <div class="review-card">
-                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Andrea" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Sonam Rigsel</div><div class="review-role">Co-founder</div></div></div>
-                    <div class="stars">★★★★★</div>
-                    <div class="review-text">Collaboration shouldn't be hard. We designed this to be intuitive and powerful.</div>
-                </div>
-                <div class="review-card">
-                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Andrea" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Jigdral</div><div class="review-role">Researcher</div></div></div>
-                    <div class="stars">★★★★☆</div>
-                    <div class="review-text">The ability to organize complex data while staying in sync with the team is a game changer.</div>
-                </div>
-                <div class="review-card">
-                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Andrea" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Jampel</div><div class="review-role">Researcher</div></div></div>
-                    <div class="stars">★★★★★</div>
-                    <div class="review-text">Fast, clean, and distraction-free. Perfect for deep dive research sessions.</div>
-                </div>
-                <div class="review-card">
-                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Vivian" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Yoesul Yangdon</div><div class="review-role">Student</div></div></div>
-                    <div class="stars">★★★★★</div>
-                    <div class="review-text">I use this for all my group projects now. It keeps everyone on the same page.</div>
-                </div>
-                 <div class="review-card">
-                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Vivian" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Ritisha Thara</div><div class="review-role">Student</div></div></div>
-                    <div class="stars">★★★★★</div>
-                    <div class="review-text">Finally, a tool that looks good and actually works for studying. Love the updates feed!</div>
-                </div>
-                 <div class="review-card">
-                    <div class="review-header"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase" class="review-pfp" alt=""><div class="review-info"><div class="review-name">Ngawang Tshogyal Phuentshok</div><div class="review-role">Founder</div></div></div>
-                    <div class="stars">★★★★★</div>
-                    <div class="review-text">Building EduLink has been a journey of connecting minds. It's the workspace I always wanted.</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="team-timeline-section reveal-on-scroll">
-            <div class="team-headline">Meet the Team</div>
-            <div class="timeline-container">
-                <div class="team-node"><div class="team-card-inner"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Joshua" data-hover="https://i.imghippo.com/files/fxd9122lfA.png" class="team-avatar" alt="Jigdral"><div class="team-name">Jigdral</div><div class="team-role">Researcher</div></div><div class="team-quote-bubble">"Education is the only thing that can help you get out of struggles"</div></div>
-                <div class="team-node"><div class="team-card-inner"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Sarah" data-hover="https://i.imghippo.com/files/ysU7129TyE.jpg" class="team-avatar" alt="Ngawang"><div class="team-name">Ngawang</div><div class="team-role">Founder</div></div><div class="team-quote-bubble">"Future of education is in your hand"</div></div>
-                <div class="team-node"><div class="team-card-inner"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Sadie" data-hover="https://i.imghippo.com/files/Nt9657Idk.jpeg" class="team-avatar" alt="Sonam"><div class="team-name">Sonam</div><div class="team-role">Co-Founder</div></div><div class="team-quote-bubble">"All it takes is one person"</div></div>
-                <div class="team-node"><div class="team-card-inner"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Robert" data-hover="https://i.imghippo.com/files/WFP4901nE.png" class="team-avatar" alt="Jampel"><div class="team-name">Jampel</div><div class="team-role">Researcher</div></div><div class="team-quote-bubble">"One ideology"</div></div>
-            </div>
-        </div>
-
-        <footer class="footer reveal-on-scroll">
-            <div>© 2024 EduLink. All rights reserved.</div>
-            <div class="footer-links"><a href="#">Blog</a><a href="#">Policy</a></div>
-        </footer>
-
-    </div>
+    </section>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        lucide.createIcons();
 
-        // --- NEW CONFIG ---
+        // IMPORT FIREBASE
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+        // FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
             authDomain: "edulinki.firebaseapp.com",
@@ -674,276 +540,115 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
 
-        // MAIN BUTTON
-        const emailAuthTrigger = document.getElementById('emailAuthTrigger');
+        // UI ELEMENTS
+        const overlay = document.getElementById('loginOverlay');
+        const closeBtn = document.getElementById('closeOverlayBtn');
+        const getStartedBtn = document.getElementById('getStartedBtn');
+        const heroGetStartedBtn = document.getElementById('heroGetStartedBtn');
+        const toggleAuthBtn = document.getElementById('toggleAuth');
+        
+        // FORM ELEMENTS
+        const authTitle = document.getElementById('authTitle');
+        const btnSubmit = document.getElementById('btnSubmit');
+        const groupName = document.getElementById('groupName');
+        const inputName = document.getElementById('inputName');
+        const inputEmail = document.getElementById('inputEmail');
+        const inputPass = document.getElementById('inputPass');
+        const authAvatar = document.getElementById('authAvatar');
 
-        // AUTH OVERLAY ELEMENTS
-        const authOverlay = document.getElementById('authOverlay');
-        const closeAuthBtn = document.getElementById('closeAuthBtn');
-        const overlayAuthTitle = document.getElementById('overlayAuthTitle');
-        const overlayAvatarPreview = document.getElementById('overlayAvatarPreview');
-        const overlayNameGroup = document.getElementById('overlayNameGroup');
-        const overlayNameInput = document.getElementById('overlayNameInput');
-        const overlayUrlGroup = document.getElementById('overlayUrlGroup');
-        const overlayUrlInput = document.getElementById('overlayUrlInput');
-        const overlayEmailInput = document.getElementById('overlayEmailInput');
-        const overlayPassInput = document.getElementById('overlayPassInput');
-        const overlaySubmitBtn = document.getElementById('overlaySubmitBtn');
-        const overlayToggleAuth = document.getElementById('overlayToggleAuth');
+        let isSignup = false;
 
-        // CUSTOM ALERT ELEMENTS
-        const customAlert = document.getElementById('customAlert');
-        const alertTitle = document.getElementById('alertTitle');
-        const alertMsg = document.getElementById('alertMsg');
+        // EVENT LISTENERS
+        function openOverlay() {
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            isSignup = false;
+            updateUI();
+        }
 
-        // STATE
-        let isSignupMode = false;
+        function closeOverlay() {
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
 
-        // --- FUNCTIONS ---
-
-        // Custom Alert Function
-        window.closeCustomAlert = () => { customAlert.classList.remove('active'); };
-        const showCustomAlert = (title, msg) => {
-            alertTitle.textContent = title;
-            alertMsg.textContent = msg;
-            customAlert.classList.add('active');
-            setTimeout(() => closeCustomAlert(), 4000);
-        };
-
-        // OPEN AUTH OVERLAY
-        emailAuthTrigger.addEventListener('click', () => {
-            authOverlay.classList.add('active');
-            // Reset to default (Login mode)
-            isSignupMode = false;
-            updateAuthModalUI();
-        });
-
-        // CLOSE AUTH OVERLAY
-        closeAuthBtn.addEventListener('click', () => {
-            authOverlay.classList.remove('active');
-        });
+        getStartedBtn.onclick = openOverlay;
+        heroGetStartedBtn.onclick = openOverlay;
+        closeBtn.onclick = closeOverlay;
 
         // TOGGLE LOGIN / SIGNUP
-        overlayToggleAuth.addEventListener('click', () => {
-            isSignupMode = !isSignupMode;
-            updateAuthModalUI();
-        });
+        toggleAuthBtn.onclick = () => {
+            isSignup = !isSignup;
+            updateUI();
+        };
 
-        function updateAuthModalUI() {
-            if (isSignupMode) {
-                // Switch to Signup
-                overlayAuthTitle.textContent = "Create Account";
-                overlayNameGroup.classList.remove('hidden');
-                overlayUrlGroup.classList.remove('hidden');
-                overlaySubmitBtn.textContent = "Sign Up";
-                overlayToggleAuth.innerHTML = `Already have an account? <span>Log In</span>`;
-                overlayAvatarPreview.src = "https://api.dicebear.com/9.x/lorelei/svg?seed=NewUser&backgroundColor=transparent";
+        function updateUI() {
+            if (isSignup) {
+                authTitle.innerText = "Create Account";
+                btnSubmit.innerText = "Sign Up";
+                toggleAuthBtn.innerHTML = `Already have an account? <span>Log in</span>`;
+                groupName.classList.remove('hidden');
+                authAvatar.src = "https://api.dicebear.com/9.x/lorelei/svg?seed=NewUser&backgroundColor=transparent";
             } else {
-                // Switch to Login
-                overlayAuthTitle.textContent = "Log In";
-                overlayNameGroup.classList.add('hidden');
-                overlayUrlGroup.classList.add('hidden');
-                overlaySubmitBtn.textContent = "Log In";
-                overlayToggleAuth.innerHTML = `Don't have an account? <span>Create one</span>`;
-                overlayAvatarPreview.src = "https://api.dicebear.com/9.x/lorelei/svg?seed=User&backgroundColor=transparent";
+                authTitle.innerText = "Welcome back";
+                btnSubmit.innerText = "Log in";
+                toggleAuthBtn.innerHTML = `Don't have an account? <span>Create one</span>`;
+                groupName.classList.add('hidden');
+                authAvatar.src = "https://api.dicebear.com/9.x/lorelei/svg?seed=User&backgroundColor=transparent";
             }
         }
 
-        // PREVIEW LOGIC
-        // 1. URL Input Change
-        overlayUrlInput.addEventListener('input', (e) => {
-            if (isSignupMode && e.target.value.length > 5) {
-                overlayAvatarPreview.src = e.target.value;
-            } else if (isSignupMode && overlayNameInput.value) {
-                // Fallback to name if URL cleared
-                overlayAvatarPreview.src = `https://api.dicebear.com/9.x/lorelei/svg?seed=${overlayNameInput.value}&backgroundColor=transparent`;
+        // DYNAMIC AVATAR
+        inputName.addEventListener('input', (e) => {
+            if(isSignup && e.target.value.length > 1) {
+                authAvatar.src = `https://api.dicebear.com/9.x/lorelei/svg?seed=${e.target.value}&backgroundColor=transparent`;
             }
         });
 
-        // 2. Name Input Change (if no URL)
-        overlayNameInput.addEventListener('input', (e) => {
-            if (isSignupMode && !overlayUrlInput.value && e.target.value.length > 1) {
-                overlayAvatarPreview.src = `https://api.dicebear.com/9.x/lorelei/svg?seed=${e.target.value}&backgroundColor=transparent`;
-            }
-        });
+        // HANDLE SUBMIT
+        btnSubmit.onclick = async () => {
+            const email = inputEmail.value;
+            const pass = inputPass.value;
+            const name = inputName.value;
 
-        // --- AUTH LOGIC ---
-
-        // Auto Redirect
-        onAuthStateChanged(auth, (user) => {
-            if (user) window.location.href = "home.html";
-        });
-
-        // SUBMIT CLICK
-        overlaySubmitBtn.addEventListener('click', async () => {
-            const email = overlayEmailInput.value;
-            const pass = overlayPassInput.value;
-            
             if (!email || !pass) {
-                showCustomAlert("Error", "Please enter email and password.");
+                alert("Please fill in email and password");
                 return;
             }
 
-            overlaySubmitBtn.textContent = "Processing...";
-            overlaySubmitBtn.style.opacity = "0.7";
+            btnSubmit.innerText = "Processing...";
+            btnSubmit.style.opacity = "0.7";
 
             try {
-                if (isSignupMode) {
-                    // SIGN UP LOGIC
-                    const name = overlayNameInput.value;
-                    const url = overlayUrlInput.value;
-
-                    if (!name) {
-                        showCustomAlert("Missing Info", "Please enter your name.");
-                        overlaySubmitBtn.textContent = "Sign Up"; 
-                        overlaySubmitBtn.style.opacity = "1";
-                        return;
-                    }
-                    
-                    // 1. Create User
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-                    const user = userCredential.user;
-
-                    // 2. Determine Photo URL (User Input or DiceBear)
-                    const finalPhotoURL = url && url.length > 5 ? url : `https://api.dicebear.com/9.x/lorelei/svg?seed=${name}&backgroundColor=transparent`;
-                    
-                    await updateProfile(user, {
+                if (isSignup) {
+                    if (!name) { alert("Please enter your name"); btnSubmit.innerText = "Sign Up"; return; }
+                    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                    await updateProfile(cred.user, { 
                         displayName: name,
-                        photoURL: finalPhotoURL
+                        photoURL: `https://api.dicebear.com/9.x/lorelei/svg?seed=${name}&backgroundColor=transparent`
                     });
-                    
-                    showCustomAlert("Success!", "Account created. Redirecting...");
-                    window.location.href = "home.html";
-
+                    alert("Account created! Welcome, " + name);
                 } else {
-                    // LOG IN LOGIC
                     await signInWithEmailAndPassword(auth, email, pass);
-                    showCustomAlert("Welcome Back", "Redirecting...");
-                    window.location.href = "home.html";
+                    alert("Logged in successfully!");
                 }
-            } catch (error) {
-                console.error(error);
-                let msg = error.message;
-                if (msg.includes("email-already-in-use")) msg = "Email already in use.";
-                if (msg.includes("invalid-credential")) msg = "Incorrect email or password.";
-                if (msg.includes("weak-password")) msg = "Password should be at least 6 chars.";
-                
-                showCustomAlert("Auth Error", msg);
-                overlaySubmitBtn.textContent = isSignupMode ? "Sign Up" : "Log In";
-                overlaySubmitBtn.style.opacity = "1";
+                closeOverlay();
+            } catch (err) {
+                console.error(err);
+                alert("Error: " + err.message);
+            } finally {
+                btnSubmit.style.opacity = "1";
+                btnSubmit.innerText = isSignup ? "Sign Up" : "Log in";
             }
-        });
-
-        // Live Chat Simulation Logic
-        const chatContainer = document.getElementById('chat-list-container');
-        const chatSequence = [
-            { type: 'badge', html: `<div class="badge-row"><div class="icon-circle"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg></div><span class="badge-text">Alex J. joined the workspace</span></div>`, delay: 800 },
-            { type: 'message', html: `<div class="chat-row"><img class="chat-pfp" src="https://api.dicebear.com/9.x/notionists/svg?seed=Maria" alt=""><div class="chat-bubble"><span class="user-name">Maria</span>Summary for Week 4?</div></div>`, delay: 2000 },
-            { type: 'typing', html: `<div class="chat-row" id="typing-row"><img class="chat-pfp" src="https://api.dicebear.com/9.x/notionists/svg?seed=James" alt=""><div class="chat-bubble" id="typing-bubble"><span class="user-name">James</span>Typing...</div></div>`, delay: 3500 },
-            { type: 'update', targetId: 'typing-bubble', content: `<span class="user-name">James</span>Just shared the notes! 📄`, delay: 5500 }
-        ];
-
-        function runChatSimulation() {
-            chatSequence.forEach(item => {
-                setTimeout(() => {
-                    if (item.type === 'update') {
-                        const el = document.getElementById(item.targetId);
-                        if (el) {
-                            el.style.opacity = '0.7'; 
-                            setTimeout(() => {
-                                el.innerHTML = item.content;
-                                el.style.opacity = '1';
-                            }, 150);
-                        }
-                    } else {
-                        const div = document.createElement('div');
-                        div.innerHTML = item.html;
-                        chatContainer.appendChild(div.firstElementChild);
-                    }
-                }, item.delay);
-            });
-        }
-
-        // SCROLL REVEAL OBSERVER
-        const observerOptions = { threshold: 0.15 };
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) entry.target.classList.add('visible');
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
-
-        // AI Logic
-        const aiInput = document.querySelector('.real-ai-input');
-        const aiSend = document.querySelector('.ai-send-btn');
-        const aiContainer = document.querySelector('.ai-floating-bar');
-
-        const handleAiInteraction = () => {
-            const userText = aiInput.value.trim();
-            if (!userText) return;
-
-            aiInput.value = "Thinking...";
-            aiInput.disabled = true; 
-            
-            setTimeout(() => {
-                aiInput.value = "Login to discover 🔒";
-                aiInput.classList.add('ai-answering');
-                aiContainer.classList.add('ai-active-response');
-                
-                setTimeout(() => {
-                    emailAuthTrigger.click(); // Trigger Email Auth Overlay
-                    showCustomAlert("AI Assistant", "Please log in to continue.");
-                    
-                    setTimeout(() => {
-                        aiInput.value = "";
-                        aiInput.placeholder = "Ask EduLink AI...";
-                        aiInput.disabled = false;
-                        aiInput.classList.remove('ai-answering');
-                        aiContainer.classList.remove('ai-active-response');
-                    }, 2000);
-                }, 1000);
-            }, 600);
         };
 
-        aiInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAiInteraction(); });
-        aiSend.addEventListener('click', () => handleAiInteraction());
-
-        // Start Chat
-        runChatSimulation();
-
-        // Team Hover Logic
-        document.querySelectorAll('.team-node').forEach(node => {
-            const img = node.querySelector('.team-avatar');
-            const originalSrc = img.src;
-            const hoverSrc = img.getAttribute('data-hover');
-            if (hoverSrc) {
-                const preloader = new Image(); preloader.src = hoverSrc;
-                node.addEventListener('mouseenter', () => { img.src = hoverSrc; });
-                node.addEventListener('mouseleave', () => { img.src = originalSrc; });
+        // AUTH LISTENER
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                getStartedBtn.innerText = "Workspace";
+                console.log("User is logged in:", user.email);
             }
         });
-
-        // Welcome Overlay Logic
-        const welcomeOverlay = document.getElementById('welcomeOverlay');
-        const closeWelcomeBtn = document.getElementById('closeOverlayBtn');
-        const hasSeenWelcome = localStorage.getItem('eduLinkWelcomeSeen');
-
-        if (!hasSeenWelcome) {
-            setTimeout(() => { welcomeOverlay.classList.add('active'); }, 500);
-        }
-
-        closeWelcomeBtn.addEventListener('click', () => {
-            welcomeOverlay.style.opacity = '0';
-            setTimeout(() => {
-                welcomeOverlay.classList.remove('active');
-                welcomeOverlay.style.display = 'none';
-            }, 400); 
-            localStorage.setItem('eduLinkWelcomeSeen', 'true');
-        });
-
     </script>
 </body>
 </html>

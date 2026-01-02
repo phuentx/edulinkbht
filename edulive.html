@@ -3,38 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edulinki Social Live</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Edulinki Real Live</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --primary: #FE2C55; --dark: #121212; --gray: #2f2f2f; }
+        :root { --primary: #FE2C55; --dark: #000000; --gray: #121212; --text: #ffffff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
-            margin: 0; background: #000; color: white;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0; background: var(--dark); color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden; height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* --- NAVIGATION & PAGES --- */
+        /* --- DEBUG / STATUS BAR --- */
+        #connection-status {
+            position: fixed; top: 0; left: 0; width: 100%; height: 4px;
+            background: #333; z-index: 9999;
+        }
+        #connection-status.connected { background: #00ff00; box-shadow: 0 0 10px #00ff00; }
+        #connection-status.error { background: #ff0000; }
+
+        /* --- NAVIGATION --- */
         .page {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; flex-direction: column;
-            background: #000; z-index: 1;
+            display: none; flex-direction: column; background: var(--dark); z-index: 1;
         }
         .page.active { display: flex; }
 
-        /* FOOTER NAV */
         .nav-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 55px;
             background: #000; border-top: 1px solid #222;
             display: flex; justify-content: space-around; align-items: center;
-            z-index: 100; padding-bottom: 5px;
+            z-index: 100;
         }
         .nav-item {
-            color: #888; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px;
-            text-decoration: none; cursor: pointer; width: 60px;
+            color: #666; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+            cursor: pointer; width: 60px;
         }
-        .nav-item i { font-size: 20px; }
         .nav-item.active { color: white; }
         .nav-create-btn {
             width: 45px; height: 30px; background: linear-gradient(90deg, #25F4EE 0%, #FE2C55 100%);
@@ -43,173 +48,180 @@
         .nav-create-btn i { color: black; font-size: 14px; }
 
         /* --- HOME FEED --- */
-        .feed-header { padding: 15px; font-weight: 700; font-size: 18px; border-bottom: 1px solid #222; }
-        .room-list { flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .top-bar { padding: 15px; font-weight: 800; font-size: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .refresh-btn { background: none; border: none; color: white; cursor: pointer; }
         
+        .room-grid { 
+            flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start;
+        }
         .room-card {
             background: #1a1a1a; border-radius: 8px; overflow: hidden; position: relative;
-            aspect-ratio: 9/16; cursor: pointer; border: 1px solid #333;
+            aspect-ratio: 3/4; cursor: pointer; border: 1px solid #333; animation: fadeIn 0.5s;
         }
-        .room-preview { width: 100%; height: 100%; object-fit: cover; background: #222; }
-        .room-overlay {
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .room-bg { width: 100%; height: 100%; background: #222; display: flex; align-items: center; justify-content: center; color: #444; }
+        .live-badge { position: absolute; top: 8px; left: 8px; background: var(--primary); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .card-overlay {
             position: absolute; bottom: 0; left: 0; width: 100%;
             background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
             padding: 10px;
         }
-        .room-badge { position: absolute; top: 8px; left: 8px; background: var(--primary); font-size: 10px; padding: 2px 6px; border-radius: 4px; }
-        .room-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-        .room-user { font-size: 11px; color: #ccc; display: flex; align-items: center; gap: 5px; }
+        .room-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .room-host { font-size: 11px; color: #ccc; }
 
         /* --- CREATE PAGE --- */
-        .create-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .create-input { background: #222; border: none; padding: 15px; border-radius: 8px; color: white; width: 100%; margin-bottom: 20px; font-size: 16px; }
-        .start-btn { background: var(--primary); color: white; border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; font-size: 16px; width: 100%; }
+        .create-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
+        .create-input { 
+            background: #222; border: 1px solid #333; padding: 15px; border-radius: 8px; 
+            color: white; width: 100%; margin-bottom: 20px; font-size: 16px; outline: none;
+        }
+        .create-input:focus { border-color: var(--primary); }
+        .start-btn { 
+            background: var(--primary); color: white; border: none; padding: 15px 40px; 
+            border-radius: 30px; font-weight: bold; font-size: 16px; width: 100%; cursor: pointer;
+        }
 
         /* --- LIVE ROOM --- */
-        .video-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: #111; }
-        #mainVideo { width: 100%; height: 100%; object-fit: cover; }
+        .video-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 0; }
+        video { width: 100%; height: 100%; object-fit: cover; }
         
-        /* PiP for Co-Host */
-        .pip-window {
-            position: absolute; top: 100px; right: 20px; width: 100px; height: 150px;
-            border-radius: 8px; overflow: hidden; border: 2px solid rgba(255,255,255,0.3);
-            z-index: 2; display: none; background: #000;
+        /* PiP (Guest) */
+        .pip-box {
+            position: absolute; top: 100px; right: 20px; width: 100px; height: 140px;
+            background: #000; border: 1px solid #444; border-radius: 8px; z-index: 2;
+            overflow: hidden; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-        .pip-window.active { display: block; }
-        #pipVideo { width: 100%; height: 100%; object-fit: cover; }
+        .pip-box.active { display: block; }
 
         /* UI Overlay */
         .live-ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
-        .live-ui * { pointer-events: auto; }
-        
+        .live-ui > * { pointer-events: auto; }
+
         .live-header { position: absolute; top: 20px; left: 15px; display: flex; align-items: center; gap: 10px; }
-        .host-pill { background: rgba(0,0,0,0.4); padding: 4px 12px 4px 4px; border-radius: 20px; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(5px); }
-        .avatar { width: 30px; height: 30px; background: #555; border-radius: 50%; border: 1px solid var(--primary); }
-        .viewer-count { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 4px; font-size: 12px; }
+        .host-info { background: rgba(0,0,0,0.3); padding: 4px 12px 4px 4px; border-radius: 20px; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(4px); }
+        .host-avatar { width: 30px; height: 30px; background: #555; border-radius: 50%; border: 1px solid var(--primary); }
+        
+        .close-btn { position: absolute; top: 20px; right: 15px; font-size: 24px; color: white; background: none; border: none; text-shadow: 0 2px 4px black; cursor: pointer; }
 
-        .close-btn { position: absolute; top: 60px; right: 20px; font-size: 24px; color: white; background: none; border: none; text-shadow: 0 2px 4px black; }
-
-        /* Chat & Actions */
-        .chat-container {
-            position: absolute; bottom: 80px; left: 15px; width: 75%; height: 250px;
+        /* Chat */
+        .chat-scroll {
+            position: absolute; bottom: 70px; left: 15px; width: 70%; height: 250px;
             overflow-y: scroll; display: flex; flex-direction: column; justify-content: flex-end;
             mask-image: linear-gradient(to top, black 80%, transparent 100%);
             -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%);
         }
-        .chat-msg { margin-bottom: 6px; font-size: 13px; text-shadow: 0 1px 2px black; }
+        .chat-msg { margin-bottom: 6px; font-size: 13px; text-shadow: 0 1px 2px black; animation: slideUp 0.2s; }
+        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .chat-name { font-weight: 700; color: #ddd; margin-right: 5px; }
 
-        .action-bar {
-            position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px;
+        .chat-controls {
+            position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px 15px; height: 60px;
             display: flex; gap: 10px; align-items: center; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
         }
-        .chat-input {
-            flex: 1; background: rgba(255,255,255,0.15); border: none; border-radius: 20px;
-            padding: 10px 15px; color: white; backdrop-filter: blur(4px);
-        }
-        .icon-btn {
-            background: none; border: none; color: white; font-size: 28px; width: 40px;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        /* Requests & Modals */
-        .request-btn {
+        .chat-input { flex: 1; background: rgba(255,255,255,0.15); border: none; border-radius: 20px; padding: 10px 15px; color: white; }
+        
+        /* Interactions */
+        .like-btn { color: #FE2C55; font-size: 28px; background: none; border: none; }
+        .join-btn {
             position: absolute; bottom: 100px; right: 15px;
-            background: linear-gradient(45deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%);
-            border: none; border-radius: 20px; padding: 8px 12px; color: white; font-size: 12px; font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); animation: pulse 2s infinite;
+            background: linear-gradient(45deg, #FF3CAC, #784BA0); border: none; border-radius: 20px;
+            padding: 8px 15px; color: white; font-weight: bold; font-size: 12px;
+            animation: pulse 2s infinite; display: none;
         }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        .modal {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #222; padding: 20px; border-radius: 12px; z-index: 200;
-            width: 80%; text-align: center; border: 1px solid #444; display: none;
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+            z-index: 200; display: none; align-items: center; justify-content: center;
         }
-        .modal h3 { margin-top: 0; }
-        .modal-btns { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-accept { flex: 1; background: #28a745; border: none; padding: 10px; border-radius: 6px; color: white; }
-        .btn-deny { flex: 1; background: #dc3545; border: none; padding: 10px; border-radius: 6px; color: white; }
+        .modal-box { background: #222; padding: 25px; border-radius: 12px; text-align: center; width: 80%; border: 1px solid #444; }
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-yes { flex: 1; background: #28a745; color: white; border: none; padding: 10px; border-radius: 6px; }
+        .btn-no { flex: 1; background: #dc3545; color: white; border: none; padding: 10px; border-radius: 6px; }
 
-        .floating-heart {
-            position: absolute; bottom: 80px; right: 20px; font-size: 30px;
-            animation: floatUp 2s ease-in-out forwards; pointer-events: none; z-index: 5;
-        }
-        @keyframes floatUp { 0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; } 100% { transform: translateY(-300px) scale(1.5) rotate(20deg); opacity: 0; } }
+        .floating-heart { position: absolute; bottom: 70px; right: 20px; font-size: 30px; animation: floatUp 2s forwards; pointer-events: none; z-index: 5; }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-300px) scale(1.5); opacity: 0; } }
 
     </style>
 </head>
 <body>
 
-    <div id="page-home" class="page active">
-        <div class="feed-header">Live Now</div>
-        <div class="room-list" id="roomList">
-            <div style="text-align:center; color:#666; width:200%; padding-top:50px;">Loading rooms...</div>
-        </div>
-        <div style="height: 60px;"></div> </div>
+    <div id="connection-status"></div>
 
-    <div id="page-create" class="page">
-        <div class="create-container">
-            <h2 style="margin-bottom: 30px;">Go Live</h2>
-            <input type="text" id="newRoomName" class="create-input" placeholder="Add a title (e.g., Chill Vibes)...">
-            <button id="btnGoLive" class="start-btn">Start Broadcast</button>
+    <div id="page-home" class="page active">
+        <div class="top-bar">
+            <span>Edulinki Live</span>
+            <button class="refresh-btn" onclick="loadRooms()"><i class="fas fa-sync-alt"></i></button>
+        </div>
+        <div class="room-grid" id="roomList">
+            <div style="grid-column: span 2; text-align:center; padding: 40px; color:#666;">
+                <i class="fas fa-spinner fa-spin"></i> Connecting to DB...
+            </div>
         </div>
         <div style="height: 60px;"></div>
     </div>
 
-    <div id="page-live" class="page" style="z-index: 200; background: #000;">
+    <div id="page-create" class="page">
+        <div class="create-wrap">
+            <h2>Start LIVE</h2>
+            <input type="text" id="roomTitle" class="create-input" placeholder="Title your stream..." value="My Awesome Live">
+            <button id="btnCreate" class="start-btn">Go Live Now</button>
+        </div>
+        <div style="height: 60px;"></div>
+    </div>
+
+    <div id="page-live" class="page" style="z-index: 200;">
         <div class="video-layer">
             <video id="mainVideo" autoplay playsinline></video>
-            <div id="pipContainer" class="pip-window">
+            <div id="pipContainer" class="pip-box">
                 <video id="pipVideo" autoplay playsinline></video>
             </div>
         </div>
 
         <div class="live-ui">
             <div class="live-header">
-                <div class="host-pill">
-                    <div class="avatar"></div>
-                    <div id="uiHostName" style="font-size: 12px; font-weight: 700;">Host</div>
+                <div class="host-info">
+                    <div class="host-avatar"></div>
+                    <div id="uiHostName" style="font-weight: 700; font-size: 13px;">Host</div>
                 </div>
             </div>
-            <button class="close-btn" id="btnCloseLive"><i class="fas fa-times"></i></button>
-            <div class="viewer-count"><i class="fas fa-eye"></i> <span id="uiViewerCount">1</span></div>
+            
+            <button class="close-btn" onclick="leaveRoom()"><i class="fas fa-times"></i></button>
+            <button id="btnJoinRequest" class="join-btn">Request to Join</button>
 
-            <button id="btnRequestJoin" class="request-btn" style="display:none;">
-                <i class="fas fa-video"></i> Request to Join
-            </button>
+            <div class="chat-scroll" id="chatList"></div>
 
-            <div class="chat-container" id="chatBox"></div>
-
-            <div class="action-bar">
-                <input type="text" id="chatInput" class="chat-input" placeholder="Say something...">
-                <button class="icon-btn" id="btnSendChat" style="font-size: 20px;"><i class="fas fa-paper-plane"></i></button>
-                <button class="icon-btn" id="btnLike" style="color: #FE2C55;"><i class="fas fa-heart"></i></button>
+            <div class="chat-controls">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Comment...">
+                <button onclick="sendLike()" class="like-btn"><i class="fas fa-heart"></i></button>
             </div>
         </div>
 
-        <div id="requestModal" class="modal">
-            <h3>Guest Request</h3>
-            <p><span id="requesterName">User</span> wants to join the video!</p>
-            <div class="modal-btns">
-                <button class="btn-accept" id="btnAcceptRequest">Accept</button>
-                <button class="btn-deny" id="btnDenyRequest">Deny</button>
+        <div id="requestModal" class="modal-overlay">
+            <div class="modal-box">
+                <h3 style="margin-top:0">Guest Request</h3>
+                <p><span id="reqName">User</span> wants to co-host.</p>
+                <div class="btn-row">
+                    <button class="btn-yes" id="btnAccept">Accept</button>
+                    <button class="btn-no" id="btnDeny">Deny</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="nav-footer">
-        <div class="nav-item active" onclick="navTo('home')"><i class="fas fa-home"></i><span>Home</span></div>
-        <div class="nav-item" onclick="navTo('create')">
-            <div class="nav-create-btn"><i class="fas fa-plus"></i></div>
-        </div>
+    <div class="nav-footer" id="navFooter">
+        <div class="nav-item active" onclick="nav('home')"><i class="fas fa-home"></i><span>Home</span></div>
+        <div class="nav-item" onclick="nav('create')"><div class="nav-create-btn"><i class="fas fa-plus"></i></div></div>
         <div class="nav-item"><i class="far fa-user"></i><span>Me</span></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, getDoc, updateDoc, deleteDoc, increment, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, deleteDoc, increment, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
+        // --- CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
             authDomain: "edulinki.firebaseapp.com",
@@ -219,320 +231,313 @@
             appId: "1:248886466474:web:160043201a6b28bafbbdd3"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            document.getElementById('connection-status').classList.add('connected');
+        } catch (e) {
+            console.error(e);
+            document.getElementById('connection-status').classList.add('error');
+            alert("Database Connection Error");
+        }
 
         // --- STATE ---
-        let myUserId = 'user_' + Math.random().toString(36).substr(2, 5);
-        let myUserName = 'User ' + Math.floor(Math.random() * 1000);
-        let currentRoomId = null;
+        const myId = 'u_' + Math.floor(Math.random()*10000);
+        const myName = 'User ' + Math.floor(Math.random()*100);
+        let currentRoom = null;
         let isHost = false;
         let pc = null;
         let localStream = null;
-        let unsubscribeRoom = null;
-        let unsubscribeChat = null;
-
-        // WebRTC Config
-        const servers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }] };
-
-        // --- DOM ELEMENTS ---
-        const pages = { home: document.getElementById('page-home'), create: document.getElementById('page-create'), live: document.getElementById('page-live') };
-        const roomList = document.getElementById('roomList');
-        const mainVideo = document.getElementById('mainVideo');
-        const pipVideo = document.getElementById('pipVideo');
-        const pipContainer = document.getElementById('pipContainer');
-        const chatBox = document.getElementById('chatBox');
+        let unsubRoom = null;
+        let unsubChat = null;
         
+        // ICE Config
+        const rtcConfig = { iceServers: [{ urls: 'stun:stun1.l.google.com:19302' }] };
+
         // --- NAVIGATION ---
-        window.navTo = (pageName) => {
-            Object.values(pages).forEach(p => p.classList.remove('active'));
-            pages[pageName].classList.add('active');
-            
-            // Toggle footer visibility (hide in live room)
-            document.querySelector('.nav-footer').style.display = (pageName === 'live') ? 'none' : 'flex';
+        window.nav = (p) => {
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+            document.getElementById('page-' + p).classList.add('active');
+            document.getElementById('navFooter').style.display = (p === 'live') ? 'none' : 'flex';
         };
 
-        // --- 1. FEED LOGIC ---
-        function loadRooms() {
-            const q = query(collection(db, 'rooms'), orderBy('createdAt', 'desc'), limit(20));
-            onSnapshot(q, (snapshot) => {
-                roomList.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    if(data.status === 'live') {
-                        const div = document.createElement('div');
-                        div.className = 'room-card';
-                        div.onclick = () => joinRoom(doc.id, data);
-                        div.innerHTML = `
-                            <div class="room-preview"></div>
-                            <div class="room-badge">LIVE</div>
-                            <div class="room-overlay">
-                                <div class="room-title">${data.title}</div>
-                                <div class="room-user"><i class="fas fa-user-circle"></i> ${data.hostName}</div>
+        // --- 1. REAL FEED LOGIC ---
+        window.loadRooms = () => {
+            const list = document.getElementById('roomList');
+            // Simplified query to avoid index errors
+            const q = query(collection(db, 'rooms')); 
+            
+            onSnapshot(q, (snap) => {
+                list.innerHTML = '';
+                let count = 0;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    if(d.status === 'live') {
+                        count++;
+                        const card = document.createElement('div');
+                        card.className = 'room-card';
+                        card.onclick = () => joinRoom(doc.id, d);
+                        card.innerHTML = `
+                            <div class="room-bg"><i class="fas fa-play fa-2x"></i></div>
+                            <div class="live-badge">LIVE</div>
+                            <div class="card-overlay">
+                                <div class="room-title">${d.title}</div>
+                                <div class="room-host">${d.hostName}</div>
                             </div>
                         `;
-                        roomList.appendChild(div);
+                        list.appendChild(card);
                     }
                 });
-                if(roomList.innerHTML === '') roomList.innerHTML = '<div style="padding:20px; text-align:center; color:#666">No one is live. Be the first!</div>';
+                if(count === 0) {
+                    list.innerHTML = `
+                        <div style="grid-column: span 2; text-align:center; padding: 40px; color:#888;">
+                            <i class="fas fa-ghost fa-2x"></i><br><br>
+                            No one is live right now.<br>
+                            Tap the <b>(+)</b> button to start!
+                        </div>`;
+                }
+            }, (error) => {
+                console.error(error);
+                list.innerHTML = `<div style="color:red; padding:20px;">Error: ${error.message}<br>Check Firebase Rules.</div>`;
             });
-        }
-        loadRooms();
+        };
+        loadRooms(); // Init
 
-        // --- 2. CREATE ROOM LOGIC ---
-        document.getElementById('btnGoLive').onclick = async () => {
-            const title = document.getElementById('newRoomName').value || "Chilling";
+        // --- 2. CREATE ROOM ---
+        document.getElementById('btnCreate').onclick = async () => {
+            const title = document.getElementById('roomTitle').value;
             const roomId = 'room_' + Date.now();
-            currentRoomId = roomId;
+            currentRoom = roomId;
             isHost = true;
 
-            // 1. Get Camera
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            mainVideo.srcObject = localStream;
-            mainVideo.muted = true; // Mute self
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('mainVideo').srcObject = localStream;
+                document.getElementById('mainVideo').muted = true;
 
-            // 2. Create DB Entry
-            await setDoc(doc(db, 'rooms', roomId), {
-                title: title,
-                hostId: myUserId,
-                hostName: myUserName,
-                status: 'live',
-                createdAt: Date.now(),
-                likes: 0,
-                guestRequest: null 
-            });
+                await setDoc(doc(db, 'rooms', roomId), {
+                    title: title,
+                    hostName: myName,
+                    hostId: myId,
+                    status: 'live',
+                    createdAt: Date.now()
+                });
 
-            // 3. Enter UI
-            enterLiveUI(roomId, title, myUserName);
-            setupHostLogic(roomId);
+                startLiveUI(roomId, myName);
+                initHostWebRTC();
+            } catch(e) {
+                alert("Error starting stream: " + e.message);
+            }
         };
 
-        // --- 3. JOIN LOGIC (Viewer) ---
-        async function joinRoom(roomId, data) {
-            currentRoomId = roomId;
+        // --- 3. JOIN ROOM ---
+        async function joinRoom(id, data) {
+            currentRoom = id;
             isHost = false;
+            document.getElementById('mainVideo').srcObject = null; // Clear prev
+            startLiveUI(id, data.hostName);
             
-            // Viewers don't get camera immediately. They just watch.
-            // Note: In this P2P demo, viewers can't see video unless they join.
-            // We will simulate the "View" by showing a placeholder or asking to join.
-            mainVideo.srcObject = null; // Clear video
+            // Show Request Button
+            const btn = document.getElementById('btnJoinRequest');
+            btn.style.display = 'block';
+            btn.innerText = 'Request to Join';
+            btn.disabled = false;
             
-            enterLiveUI(roomId, data.title, data.hostName);
-            setupViewerLogic(roomId);
+            initViewerWebRTC();
         }
 
         // --- SHARED UI LOGIC ---
-        function enterLiveUI(roomId, title, hostName) {
-            navTo('live');
+        function startLiveUI(roomId, hostName) {
+            nav('live');
             document.getElementById('uiHostName').innerText = hostName;
-            chatBox.innerHTML = ''; // Clear chat
-            
-            // Chat Listener
-            unsubscribeChat = onSnapshot(query(collection(db, `rooms/${roomId}/comments`), orderBy('ts', 'asc')), (snap) => {
-                snap.docChanges().forEach(change => {
-                    if(change.type === 'added') addChatMsg(change.doc.data());
-                });
+            document.getElementById('chatList').innerHTML = '';
+
+            // Listen to Room Updates (Requests, Status)
+            unsubRoom = onSnapshot(doc(db, 'rooms', roomId), (snap) => {
+                if(!snap.exists()) { leaveRoom(); return; }
+                const data = snap.data();
+                if(data.status === 'ended') { alert("Live ended"); leaveRoom(); return; }
+
+                // Like Animation
+                if(data.lastLike > Date.now() - 2000) showHeartAnim();
+
+                // Host: Handle Incoming Request
+                if(isHost && data.joinRequest && data.joinRequest.status === 'pending') {
+                    document.getElementById('requestModal').style.display = 'flex';
+                    document.getElementById('reqName').innerText = data.joinRequest.name;
+                    
+                    document.getElementById('btnAccept').onclick = async () => {
+                        document.getElementById('requestModal').style.display = 'none';
+                        await updateDoc(doc(db, 'rooms', roomId), { 'joinRequest.status': 'accepted' });
+                    };
+                    document.getElementById('btnDeny').onclick = async () => {
+                        document.getElementById('requestModal').style.display = 'none';
+                        await updateDoc(doc(db, 'rooms', roomId), { joinRequest: null });
+                    };
+                }
+
+                // Viewer: Handle Accepted Request
+                if(!isHost && data.joinRequest && data.joinRequest.uid === myId && data.joinRequest.status === 'accepted') {
+                    becomeCoHost();
+                }
             });
 
-            // Room Updates (Likes, Requests)
-            unsubscribeRoom = onSnapshot(doc(db, 'rooms', roomId), (snap) => {
-                const data = snap.data();
-                if(!data) { leaveRoom(); alert("Broadcast ended"); return; }
-                
-                // Update Like Count (simulated viewer count based on likes/random)
-                document.getElementById('uiViewerCount').innerText = Math.floor(data.likes / 2) + 1;
-
-                // Handle Likes Animation
-                if(data.lastLike > Date.now() - 2000) showFloatingHeart();
-
-                // Handle Join Requests
-                if(isHost && data.guestRequest && data.guestRequest.status === 'pending') {
-                    showRequestModal(data.guestRequest);
-                }
-                
-                // Handle Accepted Request (for the Guest)
-                if(!isHost && data.guestRequest && data.guestRequest.userId === myUserId && data.guestRequest.status === 'accepted') {
-                    startGuestWebRTC();
-                }
+            // Chat Sync
+            const chatQ = query(collection(db, `rooms/${roomId}/chat`), orderBy('ts', 'asc'), limit(50));
+            unsubChat = onSnapshot(chatQ, (snap) => {
+                snap.docChanges().forEach(c => {
+                    if(c.type === 'added') renderChat(c.doc.data());
+                });
             });
         }
 
         // --- CHAT & LIKES ---
-        function addChatMsg(data) {
+        document.getElementById('chatInput').onkeydown = (e) => {
+            if(e.key === 'Enter') sendChat();
+        };
+
+        async function sendChat() {
+            const txt = document.getElementById('chatInput').value;
+            if(!txt) return;
+            await addDoc(collection(db, `rooms/${currentRoom}/chat`), {
+                name: myName, msg: txt, ts: Date.now()
+            });
+            document.getElementById('chatInput').value = '';
+        }
+
+        function renderChat(d) {
             const div = document.createElement('div');
             div.className = 'chat-msg';
-            div.innerHTML = `<span class="chat-name">${data.name}:</span> ${data.msg}`;
-            chatBox.appendChild(div);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            div.innerHTML = `<span class="chat-name">${d.name}:</span> ${d.msg}`;
+            const list = document.getElementById('chatList');
+            list.appendChild(div);
+            list.scrollTop = list.scrollHeight;
         }
 
-        document.getElementById('btnSendChat').onclick = async () => {
-            const input = document.getElementById('chatInput');
-            if(!input.value) return;
-            await addDoc(collection(db, `rooms/${currentRoomId}/comments`), {
-                name: myUserName, msg: input.value, ts: Date.now()
-            });
-            input.value = '';
+        window.sendLike = async () => {
+            showHeartAnim();
+            await updateDoc(doc(db, 'rooms', currentRoom), { likes: increment(1), lastLike: Date.now() });
         };
 
-        document.getElementById('btnLike').onclick = async () => {
-            showFloatingHeart();
-            await updateDoc(doc(db, 'rooms', currentRoomId), {
-                likes: increment(1),
-                lastLike: Date.now()
+        function showHeartAnim() {
+            const h = document.createElement('div');
+            h.className = 'floating-heart';
+            h.innerHTML = '<i class="fas fa-heart"></i>';
+            h.style.color = `hsl(${Math.random()*360}, 80%, 60%)`;
+            h.style.right = (20 + Math.random()*50) + 'px';
+            document.body.appendChild(h);
+            setTimeout(() => h.remove(), 2000);
+        }
+
+        // --- JOIN REQUESTS ---
+        document.getElementById('btnJoinRequest').onclick = async () => {
+            const btn = document.getElementById('btnJoinRequest');
+            btn.innerText = 'Sent...';
+            btn.disabled = true;
+            await updateDoc(doc(db, 'rooms', currentRoom), {
+                joinRequest: { uid: myId, name: myName, status: 'pending' }
             });
         };
 
-        function showFloatingHeart() {
-            const heart = document.createElement('div');
-            heart.classList.add('floating-heart');
-            heart.innerHTML = '<i class="fas fa-heart"></i>';
-            heart.style.color = `hsl(${Math.random() * 360}, 80%, 60%)`;
-            heart.style.right = (20 + Math.random() * 50) + 'px';
-            document.body.appendChild(heart);
-            setTimeout(() => heart.remove(), 2000);
-        }
-
-        // --- REQUEST TO JOIN LOGIC ---
+        // --- WEBRTC CORE ---
         
-        // Viewer Button
-        function setupViewerLogic(roomId) {
-            const btn = document.getElementById('btnRequestJoin');
-            btn.style.display = 'block';
-            btn.onclick = async () => {
-                btn.innerText = "Request Sent...";
-                btn.disabled = true;
-                await updateDoc(doc(db, 'rooms', roomId), {
-                    guestRequest: { userId: myUserId, name: myUserName, status: 'pending' }
-                });
-            };
-        }
-
-        // Host Modal
-        function showRequestModal(req) {
-            const modal = document.getElementById('requestModal');
-            document.getElementById('requesterName').innerText = req.name;
-            modal.style.display = 'block';
-
-            document.getElementById('btnAcceptRequest').onclick = async () => {
-                modal.style.display = 'none';
-                await updateDoc(doc(db, 'rooms', currentRoomId), {
-                    'guestRequest.status': 'accepted'
-                });
-                startHostWebRTC(); // Host gets ready
-            };
-
-            document.getElementById('btnDenyRequest').onclick = async () => {
-                modal.style.display = 'none';
-                await updateDoc(doc(db, 'rooms', currentRoomId), { guestRequest: null });
-            };
-        }
-
-        // --- WEBRTC (HOST & GUEST) ---
-        // This connects the Host (Main Video) with the Guest (PiP Video)
-        
-        async function startHostWebRTC() {
-            pc = new RTCPeerConnection(servers);
-            
-            // Push my tracks (I am main)
+        // 1. Host Setup (Main Video is Me, PiP is Guest)
+        async function initHostWebRTC() {
+            pc = new RTCPeerConnection(rtcConfig);
             localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
-            // When I get their tracks (They are PiP)
-            pc.ontrack = (event) => {
-                pipContainer.classList.add('active');
-                pipVideo.srcObject = event.streams[0];
+            pc.ontrack = (e) => {
+                document.getElementById('pipContainer').classList.add('active');
+                document.getElementById('pipVideo').srcObject = e.streams[0];
             };
 
-            // ICE
-            const candidatesCol = collection(db, `rooms/${currentRoomId}/candidates`);
-            pc.onicecandidate = (e) => e.candidate && addDoc(candidatesCol, { candidate: e.candidate.toJSON(), type: 'offer_cand' });
+            const candidates = collection(db, `rooms/${currentRoom}/candidates`);
+            pc.onicecandidate = e => e.candidate && addDoc(candidates, { json: e.candidate.toJSON(), type: 'offer_ice' });
 
-            // Create Offer
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            await updateDoc(doc(db, 'rooms', currentRoom), { offer: { type: offer.type, sdp: offer.sdp } });
+
+            // Listen for Answer
+            onSnapshot(doc(db, 'rooms', currentRoom), async (s) => {
+                const d = s.data();
+                if(!pc.currentRemoteDescription && d?.answer) {
+                    await pc.setRemoteDescription(d.answer);
+                }
+            });
+            // Listen for Guest Candidates
+            onSnapshot(candidates, (s) => {
+                s.docChanges().forEach(c => {
+                    const d = c.doc.data();
+                    if(c.type === 'added' && d.type === 'answer_ice') pc.addIceCandidate(d.json);
+                });
+            });
+        }
+
+        // 2. Viewer Setup (Watch Host)
+        async function initViewerWebRTC() {
+            pc = new RTCPeerConnection(rtcConfig);
+            
+            pc.ontrack = (e) => {
+                document.getElementById('mainVideo').srcObject = e.streams[0];
+            };
+
+            const docRef = doc(db, 'rooms', currentRoom);
+            const snap = await getDoc(docRef); // Get Offer manually first
+            if(snap.exists() && snap.data().offer) {
+                await pc.setRemoteDescription(snap.data().offer);
+                // We don't create answer yet, only if we become co-host or if we want purely 1-way (requires complex setup)
+                // For this demo: We only establish full connection when co-hosting to keep it simple P2P
+                // *But wait*, to SEE the host, we need an Answer.
+                // Viewers send an Answer immediately to see the Host.
+                
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+                // Note: In real world, multiple viewers need SFU. P2P Mesh limit is 2-3.
+                // We will just answer to local logic for now, or update DB if we are the 'active' guest.
+                // For simplicity in this P2P demo: Viewers might not see video until they Join OR 
+                // we assume 1 Host - 1 Guest architecture.
+            }
+        }
+
+        // 3. Guest Becomes Active (Turn on Camera)
+        async function becomeCoHost() {
+            document.getElementById('btnJoinRequest').style.display = 'none';
+            localStream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
+            
+            document.getElementById('pipContainer').classList.add('active');
+            document.getElementById('pipVideo').srcObject = localStream; // My face
+            document.getElementById('pipVideo').muted = true;
+
+            localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
+            // Regenerate Negotiation
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
             
-            await updateDoc(doc(db, 'rooms', currentRoomId), { offer: { type: offer.type, sdp: offer.sdp } });
-
-            // Listen for Answer
-            onSnapshot(doc(db, 'rooms', currentRoomId), async (snap) => {
-                const data = snap.data();
-                if(!pc.currentRemoteDescription && data?.answer) {
-                    await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-                }
-            });
+            // This time update the ACTUAL answer slot for the Host to see
+            await updateDoc(doc(db, 'rooms', currentRoom), { answer: { type: offer.type, sdp: offer.sdp } });
             
-            // Listen for Candidate
-            onSnapshot(candidatesCol, (snap) => {
-                snap.docChanges().forEach(change => {
-                    const data = change.doc.data();
-                    if(change.type === 'added' && data.type === 'answer_cand') {
-                        pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-                    }
-                });
-            });
-        }
-
-        async function startGuestWebRTC() {
-            document.getElementById('btnRequestJoin').style.display = 'none';
+            // Send Candidates
+            const candidates = collection(db, `rooms/${currentRoom}/candidates`);
+            pc.onicecandidate = e => e.candidate && addDoc(candidates, { json: e.candidate.toJSON(), type: 'answer_ice' });
             
-            // 1. Get My Cam
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            
-            // I am PiP for myself, Main is Host
-            pipContainer.classList.add('active');
-            pipVideo.srcObject = localStream; // My face in small box
-            pipVideo.muted = true;
-
-            pc = new RTCPeerConnection(servers);
-            localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-
-            // Host is Main Video
-            pc.ontrack = (event) => {
-                mainVideo.srcObject = event.streams[0];
-            };
-
-            // ICE
-            const candidatesCol = collection(db, `rooms/${currentRoomId}/candidates`);
-            pc.onicecandidate = (e) => e.candidate && addDoc(candidatesCol, { candidate: e.candidate.toJSON(), type: 'answer_cand' });
-
-            // Get Offer
-            const roomSnap = await getDoc(doc(db, 'rooms', currentRoomId));
-            const roomData = roomSnap.data();
-            
-            await pc.setRemoteDescription(new RTCSessionDescription(roomData.offer));
-            
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            
-            await updateDoc(doc(db, 'rooms', currentRoomId), { answer: { type: answer.type, sdp: answer.sdp } });
-
             // Listen for Host Candidates
-            onSnapshot(candidatesCol, (snap) => {
-                snap.docChanges().forEach(change => {
-                    const data = change.doc.data();
-                    if(change.type === 'added' && data.type === 'offer_cand') {
-                        pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-                    }
+            onSnapshot(candidates, (s) => {
+                s.docChanges().forEach(c => {
+                    const d = c.doc.data();
+                    if(c.type === 'added' && d.type === 'offer_ice') pc.addIceCandidate(d.json);
                 });
             });
         }
 
-        // --- CLEANUP ---
-        function leaveRoom() {
-            if(unsubscribeChat) unsubscribeChat();
-            if(unsubscribeRoom) unsubscribeRoom();
-            if(pc) pc.close();
-            if(localStream) localStream.getTracks().forEach(t => t.stop());
-            
-            if(isHost && currentRoomId) {
-                updateDoc(doc(db, 'rooms', currentRoomId), { status: 'ended' });
+        window.leaveRoom = async () => {
+            if(isHost && currentRoom) {
+                await updateDoc(doc(db, 'rooms', currentRoom), { status: 'ended' });
             }
-            
-            pipContainer.classList.remove('active');
-            navTo('home');
-            window.location.reload(); // Hard reset for safety
-        }
-        document.getElementById('btnCloseLive').onclick = leaveRoom;
+            window.location.reload();
+        };
 
     </script>
 </body>

@@ -2,521 +2,482 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edulinki Live</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Edulinki Live Pro</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #fe2c55; /* TikTok Red */
-            --dark: #121212;
-            --overlay: rgba(0, 0, 0, 0.4);
+            --primary: #fe2c55;
+            --dark: #000;
+            --gray: #121212;
+            --text: #fff;
         }
+
+        /* RESET & LAYOUT FIX FOR MOBILE */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #000; color: #fff; overflow: hidden; height: 100vh; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--dark); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
 
-        /* --- APP CONTAINER --- */
-        #app { width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; }
+        /* MAIN APP CONTAINER using Flexbox to force Footer to bottom */
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100dvh; /* Dynamic Height for Mobile Browsers */
+            width: 100%;
+            position: relative;
+        }
 
-        /* --- VIEWS --- */
-        .view { flex: 1; display: none; flex-direction: column; position: relative; overflow-y: auto; }
-        .view.active { display: flex; }
+        /* MIDDLE CONTENT AREA (Scrollable) */
+        #main-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden; /* Prevent body scroll */
+            display: flex;
+            flex-direction: column;
+        }
 
-        /* --- FEED VIEW --- */
-        .feed-header { padding: 15px; background: rgba(0,0,0,0.8); position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(5px); }
-        .logo { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; }
-        .logo span { color: var(--primary); }
+        /* VIEWS */
+        .view {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            overflow-y: auto; /* Allow internal scrolling */
+            position: absolute;
+            top: 0; left: 0;
+            background: #000;
+        }
+        .view.active { display: flex; z-index: 10; }
+
+        /* --- FEED STYLES --- */
+        .feed-nav { padding: 15px; display: flex; justify-content: space-between; align-items: center; position: absolute; top: 0; width: 100%; z-index: 20; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
+        .logo { font-weight: 900; font-size: 1.2rem; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding-top: 60px; }
+        .card { aspect-ratio: 9/16; background: #222; position: relative; cursor: pointer; border-radius: 4px; overflow: hidden; }
+        .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+        .card-tag { position: absolute; top: 8px; left: 8px; background: var(--primary); font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 3px; }
+        .card-info { position: absolute; bottom: 0; width: 100%; padding: 10px; background: linear-gradient(transparent, #000); }
         
-        .room-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .room-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; aspect-ratio: 9/16; cursor: pointer; transition: transform 0.2s; }
-        .room-card:active { transform: scale(0.98); }
-        .room-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
-        .room-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px; background: linear-gradient(to top, black, transparent); }
-        .live-badge { position: absolute; top: 10px; left: 10px; background: var(--primary); padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
-        .room-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; text-shadow: 0 1px 2px black; }
-        .viewer-count { font-size: 0.7rem; color: #ddd; }
+        .empty-msg { text-align: center; margin-top: 50%; transform: translateY(-50%); color: #666; }
 
-        .empty-state { text-align: center; margin-top: 100px; color: #777; padding: 20px; }
-        .empty-state i { font-size: 3rem; margin-bottom: 10px; }
+        /* --- CREATE STYLES --- */
+        .create-wrap { flex: 1; display: flex; flex-direction: column; background: #1a1a1a; padding: 20px; align-items: center; justify-content: center; }
+        .preview-win { width: 100%; max-width: 350px; aspect-ratio: 9/16; background: #000; border-radius: 12px; overflow: hidden; position: relative; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .preview-win video { width: 100%; height: 100%; object-fit: cover; }
+        .create-controls { width: 100%; max-width: 350px; display: flex; gap: 10px; }
+        .inp-title { flex: 1; padding: 15px; background: #333; border: none; border-radius: 8px; color: white; font-size: 1rem; outline: none; }
+        .btn-go { background: var(--primary); color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold; font-size: 1rem; }
 
-        /* --- CREATE VIEW --- */
-        .create-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #1a1a1a; padding: 20px; }
-        .preview-box { width: 100%; max-width: 400px; aspect-ratio: 9/16; background: #000; border-radius: 15px; overflow: hidden; position: relative; border: 1px solid #333; margin-bottom: 20px; }
-        #previewVideo { width: 100%; height: 100%; object-fit: cover; }
-        .input-group { width: 100%; max-width: 400px; display: flex; gap: 10px; }
-        input[type="text"] { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #333; color: white; outline: none; }
-        .btn-live { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        /* --- LIVE ROOM VIEW (The TikTok Layout) --- */
-        .live-room { position: relative; background: #000; height: 100%; overflow: hidden; }
+        /* --- LIVE ROOM STYLES --- */
+        .room-layer-video { position: absolute; inset: 0; z-index: 1; background: #000; }
+        .room-layer-video video { width: 100%; height: 100%; object-fit: cover; }
         
-        /* Video Layer */
-        .video-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: flex; flex-direction: column; }
-        video { width: 100%; flex: 1; object-fit: cover; }
-        
-        /* If Guest Joins (Split Screen) */
-        .video-layer.split video { height: 50%; border-bottom: 1px solid #333; }
+        /* Split screen for Guest */
+        .room-layer-video.split { display: flex; flex-direction: column; }
+        .room-layer-video.split video { height: 50%; border-bottom: 1px solid #333; }
 
-        /* UI Overlay */
-        .ui-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 15px; background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%); }
+        .room-layer-ui { position: absolute; inset: 0; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 40px 15px 15px 15px; background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 20%, transparent 70%, rgba(0,0,0,0.9) 100%); }
         
-        /* Top Bar */
-        .top-bar { display: flex; align-items: center; gap: 10px; pointer-events: auto; }
-        .host-pill { background: rgba(60, 60, 60, 0.6); backdrop-filter: blur(10px); padding: 4px 15px 4px 4px; border-radius: 20px; display: flex; align-items: center; gap: 8px; }
-        .host-avatar { width: 32px; height: 32px; background: #ddd; border-radius: 50%; overflow: hidden; }
-        .host-avatar img { width: 100%; height: 100%; }
-        .host-info { display: flex; flex-direction: column; }
-        .host-name { font-size: 0.8rem; font-weight: bold; }
-        .host-stats { font-size: 0.6rem; color: #ccc; }
-        .btn-close { margin-left: auto; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        /* Top UI */
+        .host-badge { background: rgba(50,50,50,0.6); padding: 4px 12px 4px 4px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(5px); pointer-events: auto; }
+        .h-img { width: 30px; height: 30px; background: #ddd; border-radius: 50%; }
+        .h-txt { font-size: 0.8rem; font-weight: bold; }
+        .btn-exit { margin-left: auto; font-size: 1.5rem; color: white; background: none; border: none; pointer-events: auto; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 
-        /* Bottom Area (Chat & Comments) */
-        .bottom-area { display: flex; flex-direction: column; gap: 10px; justify-content: flex-end; height: 50%; pointer-events: auto; }
-        
-        .chat-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; mask-image: linear-gradient(to bottom, transparent, black 20%); -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%); }
-        .chat-msg { margin-bottom: 8px; font-size: 0.9rem; text-shadow: 0 1px 2px black; animation: fadeInUp 0.3s ease; }
-        .chat-user { font-weight: 700; color: rgba(255,255,255,0.7); margin-right: 5px; }
-        .chat-text { color: white; }
-        .chat-system { color: #ffd700; font-style: italic; font-size: 0.85rem; }
+        /* Bottom UI */
+        .chat-box { flex: 1; overflow-y: scroll; display: flex; flex-direction: column; justify-content: flex-end; mask-image: linear-gradient(transparent, black 20%); -webkit-mask-image: linear-gradient(transparent, black 20%); padding-bottom: 10px; pointer-events: auto; }
+        .msg { margin: 4px 0; font-size: 0.9rem; text-shadow: 0 1px 2px black; animation: popIn 0.2s ease; }
+        .msg b { color: rgba(255,255,255,0.8); margin-right: 5px; }
+        .msg.sys { color: #ffd700; font-style: italic; }
 
-        .action-bar { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; }
-        .comment-input { flex: 1; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 10px 15px; color: white; outline: none; backdrop-filter: blur(5px); }
-        .icon-btn { background: none; border: none; color: white; font-size: 1.8rem; cursor: pointer; text-shadow: 0 2px 5px rgba(0,0,0,0.5); transition: transform 0.1s; }
-        .icon-btn:active { transform: scale(1.2); }
-        .btn-request { background: linear-gradient(45deg, #00c6ff, #0072ff); font-size: 0.8rem; padding: 8px 12px; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,114,255,0.3); }
+        .controls-row { display: flex; align-items: center; gap: 10px; pointer-events: auto; }
+        .inp-chat { flex: 1; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 10px 15px; border-radius: 20px; outline: none; backdrop-filter: blur(5px); }
+        .act-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.1); color: white; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); transition: 0.1s; }
+        .act-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+        .act-btn.join { background: linear-gradient(135deg, #00c6ff, #0072ff); width: auto; padding: 0 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; }
 
         /* --- FOOTER NAV --- */
-        .footer-nav { height: 60px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; justify-content: space-around; z-index: 50; }
-        .nav-item { color: #777; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
-        .nav-item i { font-size: 1.4rem; }
-        .nav-item.active { color: white; }
-        .nav-create { width: 45px; height: 30px; background: linear-gradient(90deg, #00f2ea, #ff0050); border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; }
-        .nav-create::after { content: '+'; font-size: 1.5rem; font-weight: bold; color: black; background: white; height: 100%; width: 80%; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
+        #footer { 
+            height: 60px; 
+            background: #000; 
+            border-top: 1px solid #222; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center; 
+            flex-shrink: 0; /* CRITICAL: Prevents footer shrinking */
+            z-index: 100;
+        }
+        .nav-btn { color: #666; font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; width: 60px; }
+        .nav-btn i { font-size: 1.4rem; }
+        .nav-btn.active { color: white; }
+        .nav-btn.create-btn i { color: #000; background: white; padding: 2px 8px; border-radius: 6px; border-left: 2px solid #00f2ea; border-right: 2px solid #ff0050; font-size: 1rem; width: 40px; height: 26px; display: flex; align-items: center; justify-content: center; }
 
-        /* Animations */
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Floating Hearts Animation */
+        .floating-heart { position: absolute; bottom: 80px; right: 20px; font-size: 2rem; color: var(--primary); animation: floatUp 1.5s linear forwards; pointer-events: none; z-index: 99; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-200px) scale(1.5) rotate(20deg); } }
+        @keyframes popIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div id="view-feed" class="view active">
-        <div class="feed-header">
-            <div class="logo">Edu<span>linki</span></div>
-            <i class="fas fa-search"></i>
-        </div>
-        <div id="roomList" class="room-grid">
+    <div id="main-content">
+        
+        <div id="view-feed" class="view active">
+            <div class="feed-nav">
+                <div class="logo">Edu<span style="color:var(--primary)">live</span></div>
+                <i class="fas fa-search" style="font-size: 1.2rem;"></i>
             </div>
-        <div id="emptyState" class="empty-state hidden">
-            <i class="fas fa-broadcast-tower"></i>
-            <p>No one is live right now.<br>Be the first!</p>
-        </div>
-    </div>
-
-    <div id="view-create" class="view">
-        <div class="create-container">
-            <h3 style="margin-bottom: 20px;">Ready to go LIVE?</h3>
-            <div class="preview-box">
-                <video id="previewVideo" autoplay playsinline muted></video>
-                <div class="label" style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px; font-size: 12px;">Preview</div>
-            </div>
-            <div class="input-group">
-                <input type="text" id="roomNameInput" placeholder="Add a title to your live...">
-                <button class="btn-live" id="startLiveBtn">Go LIVE</button>
+            <div id="feedGrid" class="grid">
+                </div>
+            <div id="emptyState" class="empty-msg hidden">
+                <h2>😴</h2>
+                <p>No one is live.<br>Tap + to start!</p>
             </div>
         </div>
-    </div>
 
-    <div id="view-room" class="view">
-        <div class="live-room">
-            <div class="video-layer" id="videoLayer">
-                <video id="hostVideo" autoplay playsinline muted></video>
-                <video id="guestVideo" autoplay playsinline class="hidden"></video>
+        <div id="view-create" class="view">
+            <div class="create-wrap">
+                <div class="preview-win">
+                    <video id="previewVid" autoplay playsinline muted></video>
+                    <button onclick="switchCamera()" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.5); color:white; border:none; padding:8px; border-radius:50%;"><i class="fas fa-sync-alt"></i></button>
+                </div>
+                <div class="create-controls">
+                    <input type="text" id="roomTitle" class="inp-title" placeholder="Add a title...">
+                    <button id="btnGoLive" class="btn-go">LIVE</button>
+                </div>
             </div>
+        </div>
 
-            <div class="ui-layer">
-                <div class="top-bar">
-                    <div class="host-pill">
-                        <div class="host-avatar"><img src="https://i.pravatar.cc/100?img=12" alt=""></div>
-                        <div class="host-info">
-                            <div class="host-name" id="roomTitleDisplay">User123</div>
-                            <div class="host-stats"><span id="viewerCountDisplay">1</span> viewers</div>
-                        </div>
-                        <button class="btn-follow" style="background:var(--primary); border:none; color:white; border-radius:10px; padding:2px 8px; font-size:10px; font-weight:bold;">FOLLOW</button>
+        <div id="view-room" class="view" style="z-index: 200;">
+            <div id="roomVideoLayer" class="room-layer-video">
+                <video id="remoteVid" autoplay playsinline></video> <video id="localVid" autoplay playsinline muted class="hidden"></video> </div>
+            
+            <div class="room-layer-ui">
+                <div class="top-bar" style="display:flex; align-items:center;">
+                    <div class="host-badge">
+                        <div class="h-img"></div>
+                        <div class="h-txt" id="liveHostName">Host</div>
                     </div>
-                    <button class="btn-close" id="leaveRoomBtn"><i class="fas fa-times"></i></button>
+                    <button class="btn-exit" onclick="leaveRoom()"><i class="fas fa-times"></i></button>
                 </div>
 
                 <div class="bottom-area">
-                    <div class="chat-container" id="chatContainer">
-                        </div>
-                    <div class="action-bar">
-                        <input type="text" class="comment-input" id="chatInput" placeholder="Say something...">
+                    <div class="chat-box" id="chatArea"></div>
+                    
+                    <div class="controls-row">
+                        <input type="text" class="inp-chat" id="chatInput" placeholder="Say something...">
                         
-                        <div id="viewerActions" style="display:flex; gap:10px;">
-                            <button class="icon-btn btn-request" id="requestJoinBtn"><i class="fas fa-video"></i> Join</button>
-                            <button class="icon-btn" style="color: #fe2c55;"><i class="fas fa-heart"></i></button>
-                            <button class="icon-btn"><i class="fas fa-share"></i></button>
-                        </div>
+                        <button id="btnJoin" class="act-btn join"><i class="fas fa-video"></i> Join</button>
+                        <button id="btnHeart" class="act-btn" style="color:var(--primary)"><i class="fas fa-heart"></i></button>
+                        <button class="act-btn"><i class="fas fa-share"></i></button>
                     </div>
                 </div>
+                <div id="heartContainer"></div>
             </div>
         </div>
+
     </div>
 
-    <nav class="footer-nav" id="mainFooter">
-        <div class="nav-item active" onclick="navTo('feed')">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </div>
-        <div class="nav-item">
-            <div class="nav-create" onclick="navTo('create')"></div>
-        </div>
-        <div class="nav-item">
-            <i class="fas fa-user"></i>
-            <span>Me</span>
-        </div>
-    </nav>
+    <div id="footer">
+        <button class="nav-btn active" onclick="goHome()"><i class="fas fa-home"></i><span>Home</span></button>
+        <button class="nav-btn" onclick="alert('Search coming soon')"><i class="fas fa-compass"></i><span>Discover</span></button>
+        <button class="nav-btn create-btn" onclick="goCreate()"><i class="fas fa-plus"></i></button>
+        <button class="nav-btn" onclick="alert('Inbox coming soon')"><i class="far fa-comment-dots"></i><span>Inbox</span></button>
+        <button class="nav-btn" onclick="alert('Profile coming soon')"><i class="far fa-user"></i><span>Me</span></button>
+    </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, getDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-    // --- CONFIGURATION ---
     const firebaseConfig = {
         apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
         authDomain: "edulinki.firebaseapp.com",
         projectId: "edulinki",
         storageBucket: "edulinki.firebasestorage.app",
         messagingSenderId: "248886466474",
-        appId: "1:248886466474:web:160043201a6b28bafbbdd3",
-        measurementId: "G-MQBH12VL7N"
+        appId: "1:248886466474:web:160043201a6b28bafbbdd3"
     };
-
+    
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- STATE ---
-    let localStream = null;
-    let remoteStream = null;
-    let peerConnection = null;
-    let currentRoomId = null;
+    // STATE
+    let localStream;
+    let peerConnection;
+    let roomId = null;
     let isHost = false;
-    let unsubscribeChat = null;
+    let unsubscribe = null;
+    let usingFrontCamera = true;
 
-    // RTC Config
-    const servers = {
-        iceServers: [
-            { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }
-        ]
+    const servers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }] };
+
+    // --- NAVIGATION ---
+    window.goHome = () => {
+        document.getElementById('view-feed').classList.add('active');
+        document.getElementById('view-create').classList.remove('active');
+        document.getElementById('view-room').classList.remove('active');
+        document.getElementById('footer').style.display = 'flex';
+        stopMedia();
     };
 
-    // --- DOM ELEMENTS ---
-    const views = {
-        feed: document.getElementById('view-feed'),
-        create: document.getElementById('view-create'),
-        room: document.getElementById('view-room')
-    };
-    const footer = document.getElementById('mainFooter');
-    
-    // --- NAVIGATION LOGIC ---
-    window.navTo = async (viewName) => {
-        // Reset Views
-        Object.values(views).forEach(el => el.classList.remove('active'));
-        footer.style.display = 'flex'; // Show footer by default
-
-        if (viewName === 'feed') {
-            views.feed.classList.add('active');
-            stopMedia(); // Kill camera if leaving studio
-        } else if (viewName === 'create') {
-            views.create.classList.add('active');
-            await startLocalVideo('previewVideo');
-        } else if (viewName === 'room') {
-            views.room.classList.add('active');
-            footer.style.display = 'none'; // Hide footer in room
-        }
+    window.goCreate = async () => {
+        document.getElementById('view-feed').classList.remove('active');
+        document.getElementById('view-create').classList.add('active');
+        await startCamera('previewVid');
     };
 
-    // --- WEBRTC & MEDIA ---
-    async function startLocalVideo(elementId) {
+    // --- CAMERA ---
+    async function startCamera(videoElId) {
+        if(localStream) stopMedia();
+        const constraints = { 
+            video: { facingMode: usingFrontCamera ? "user" : "environment" }, 
+            audio: true 
+        };
         try {
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            const vidEl = document.getElementById(elementId);
-            vidEl.srcObject = localStream;
-            vidEl.muted = true; // Always mute local video to prevent feedback
-            return true;
-        } catch (e) {
-            alert("Camera access denied or failed.");
-            console.error(e);
-            return false;
-        }
+            localStream = await navigator.mediaDevices.getUserMedia(constraints);
+            const el = document.getElementById(videoElId);
+            el.srcObject = localStream;
+            el.muted = true;
+        } catch(e) { console.error("Cam error", e); alert("Camera blocked!"); }
     }
+
+    window.switchCamera = async () => {
+        usingFrontCamera = !usingFrontCamera;
+        await startCamera('previewVid');
+    };
 
     function stopMedia() {
-        if (localStream) {
-            localStream.getTracks().forEach(track => track.stop());
-            localStream = null;
-        }
-        if (peerConnection) {
-            peerConnection.close();
-            peerConnection = null;
-        }
+        if(localStream) localStream.getTracks().forEach(t => t.stop());
+        if(peerConnection) peerConnection.close();
+        localStream = null;
+        peerConnection = null;
     }
 
-    // --- LOGIC: CREATE LIVE (HOST) ---
-    document.getElementById('startLiveBtn').addEventListener('click', async () => {
-        const title = document.getElementById('roomNameInput').value || "Chilling 🎵";
-        const roomId = "room_" + Date.now();
-        currentRoomId = roomId;
+    // --- GO LIVE (HOST) ---
+    document.getElementById('btnGoLive').addEventListener('click', async () => {
+        const title = document.getElementById('roomTitle').value || "Chilling 🌴";
+        roomId = "live_" + Date.now();
         isHost = true;
 
-        // Move to Room View
-        navTo('room');
-        document.getElementById('roomTitleDisplay').innerText = title;
-        document.getElementById('videoLayer').classList.remove('split'); // Full screen initially
+        // UI Setup
+        document.getElementById('view-create').classList.remove('active');
+        document.getElementById('view-room').classList.add('active');
+        document.getElementById('footer').style.display = 'none';
+        document.getElementById('liveHostName').innerText = "Me (Host)";
+        document.getElementById('btnJoin').style.display = 'none'; // Host doesn't need join button
         
-        // Setup Host Video
-        const hostVid = document.getElementById('hostVideo');
+        // Video Setup
+        const hostVid = document.getElementById('remoteVid'); // Host uses "remote" slot as main full screen
         hostVid.srcObject = localStream;
+        hostVid.muted = true; // Don't hear self
 
-        // Create Room in DB
-        const roomRef = doc(db, 'rooms', roomId);
-        
+        // Database Setup
         peerConnection = new RTCPeerConnection(servers);
-        
-        // Add local tracks to PeerConnection
-        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+        localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
 
-        // Create Offer
+        const roomRef = doc(db, 'rooms', roomId);
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
 
-        // Save Room Data
         await setDoc(roomRef, {
-            title: title,
-            hostId: "user_" + Math.floor(Math.random()*1000),
+            title,
             offer: { type: offer.type, sdp: offer.sdp },
             createdAt: serverTimestamp(),
             active: true
         });
 
-        // Listen for ICE Candidates
-        peerConnection.onicecandidate = (event) => {
-            if (event.candidate) {
-                addDoc(collection(roomRef, 'offerCandidates'), event.candidate.toJSON());
-            }
+        // ICE Candidates
+        peerConnection.onicecandidate = e => {
+            if(e.candidate) addDoc(collection(roomRef, 'offerCandidates'), e.candidate.toJSON());
         };
 
-        // Listen for Remote Stream (Guest)
-        peerConnection.ontrack = (event) => {
-            document.getElementById('guestVideo').srcObject = event.streams[0];
-            document.getElementById('guestVideo').classList.remove('hidden');
-            document.getElementById('videoLayer').classList.add('split'); // Split screen
-            addSystemMessage("A guest has joined the video!");
-        };
-
-        // Listen for Answer (Guest joining)
-        onSnapshot(roomRef, (snapshot) => {
-            const data = snapshot.data();
-            if (!peerConnection.currentRemoteDescription && data?.answer) {
-                const answer = new RTCSessionDescription(data.answer);
-                peerConnection.setRemoteDescription(answer);
+        // Listen for Guest (Answer)
+        onSnapshot(roomRef, snap => {
+            const data = snap.data();
+            if(!peerConnection.currentRemoteDescription && data?.answer) {
+                peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
             }
         });
 
         // Listen for Guest Candidates
-        onSnapshot(collection(roomRef, 'answerCandidates'), (snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added') {
-                    const candidate = new RTCIceCandidate(change.doc.data());
-                    peerConnection.addIceCandidate(candidate);
-                }
+        onSnapshot(collection(roomRef, 'answerCandidates'), snap => {
+            snap.docChanges().forEach(change => {
+                if(change.type === 'added') peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data()));
             });
         });
 
-        setupChat(roomId);
-        addSystemMessage("You are Live! Waiting for viewers...");
+        // Handle Guest Stream
+        peerConnection.ontrack = e => {
+            const guestVid = document.getElementById('localVid'); // Guest goes in small box
+            guestVid.srcObject = e.streams[0];
+            guestVid.classList.remove('hidden');
+            document.getElementById('roomVideoLayer').classList.add('split');
+            sysMsg("Guest joined the stream!");
+        };
+
+        initChat(roomId);
     });
 
-    // --- LOGIC: JOIN LIVE (VIEWER/GUEST) ---
-    async function joinRoom(roomId, title) {
-        currentRoomId = roomId;
+    // --- JOIN LIVE (VIEWER) ---
+    window.joinLive = async (id, title) => {
+        roomId = id;
         isHost = false;
-        navTo('room');
+
+        document.getElementById('view-feed').classList.remove('active');
+        document.getElementById('view-room').classList.add('active');
+        document.getElementById('footer').style.display = 'none';
+        document.getElementById('liveHostName').innerText = title;
+        document.getElementById('btnJoin').style.display = 'flex';
+        document.getElementById('roomVideoLayer').classList.remove('split');
+        document.getElementById('localVid').classList.add('hidden');
+
+        // Initial: Just Watch (No WebRTC yet, simple logic for demo, usually needs SFU)
+        // **For this P2P Demo: Viewer MUST click Join to see video to avoid negotiation complexity before ready**
+        sysMsg("Tap 'Join' to connect video!");
+
+        initChat(roomId);
+    };
+
+    // --- VIEWER CLICK JOIN ---
+    document.getElementById('btnJoin').onclick = async () => {
+        document.getElementById('btnJoin').style.display = 'none';
+        sysMsg("Connecting...");
         
-        document.getElementById('roomTitleDisplay').innerText = title;
-        document.getElementById('videoLayer').classList.remove('split');
-        document.getElementById('hostVideo').srcObject = null; // Reset
-        document.getElementById('guestVideo').classList.add('hidden');
+        await startCamera('localVid'); // Viewer cam
+        document.getElementById('localVid').classList.add('hidden'); // Hide self initially until connected
 
         const roomRef = doc(db, 'rooms', roomId);
         const roomSnap = await getDoc(roomRef);
-
-        if (!roomSnap.exists()) { alert("Live ended"); navTo('feed'); return; }
-
-        setupChat(roomId);
-        addSystemMessage("Welcome to the live!");
-
-        // Handle Request to Join (Guest Mode)
-        document.getElementById('requestJoinBtn').onclick = async () => {
-            addSystemMessage("Connecting to video...");
-            await startLocalVideo('guestVideo'); // Start my camera
-            
-            peerConnection = new RTCPeerConnection(servers);
-
-            // Add my tracks
-            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
-            // Set Remote (Host's Offer)
-            const offer = roomSnap.data().offer;
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-
-            // Create Answer
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-
-            // Update Room with Answer
-            await updateDoc(roomRef, { answer: { type: answer.type, sdp: answer.sdp } });
-
-            // Listen for Host Track
-            peerConnection.ontrack = (event) => {
-                const hostVid = document.getElementById('hostVideo');
-                hostVid.srcObject = event.streams[0];
-                hostVid.muted = false; // Unmute remote host
-                
-                // UI Update
-                document.getElementById('videoLayer').classList.add('split');
-                document.getElementById('guestVideo').classList.remove('hidden');
-            };
-
-            // Send my Candidates
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    addDoc(collection(roomRef, 'answerCandidates'), event.candidate.toJSON());
-                }
-            };
-
-            // Listen for Host Candidates
-            onSnapshot(collection(roomRef, 'offerCandidates'), (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === 'added') {
-                        peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data()));
-                    }
-                });
-            });
-            
-            document.getElementById('requestJoinBtn').style.display = 'none'; // Hide button after joining
-        };
-    }
-
-    // --- FEED LOGIC ---
-    function loadFeed() {
-        const roomsQuery = query(collection(db, 'rooms'), orderBy('createdAt', 'desc'));
-        onSnapshot(roomsQuery, (snapshot) => {
-            const list = document.getElementById('roomList');
-            const empty = document.getElementById('emptyState');
-            list.innerHTML = '';
-            
-            if (snapshot.empty) {
-                empty.classList.remove('hidden');
-            } else {
-                empty.classList.add('hidden');
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    if(!data.active) return;
-
-                    const card = document.createElement('div');
-                    card.className = 'room-card';
-                    // Random mockup image for the feed
-                    const bgId = Math.floor(Math.random() * 50);
-                    card.innerHTML = `
-                        <img src="https://picsum.photos/300/500?random=${doc.id}" alt="Live Cover">
-                        <div class="live-badge">LIVE</div>
-                        <div class="room-info">
-                            <div class="room-title">${data.title}</div>
-                            <div class="viewer-count">
-                                <i class="fas fa-user"></i> ${Math.floor(Math.random() * 100) + 1}
-                            </div>
-                        </div>
-                    `;
-                    card.onclick = () => joinRoom(doc.id, data.title);
-                    list.appendChild(card);
-                });
-            }
-        });
-    }
-
-    // --- CHAT SYSTEM ---
-    function setupChat(roomId) {
-        const chatContainer = document.getElementById('chatContainer');
-        chatContainer.innerHTML = ''; // Clear old chat
-
-        const q = query(collection(db, 'rooms', roomId, 'messages'), orderBy('timestamp', 'asc'));
         
-        if (unsubscribeChat) unsubscribeChat(); // Stop listening to old room
+        if(!roomSnap.exists()) { alert("Ended"); return; }
 
-        unsubscribeChat = onSnapshot(q, (snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added') {
-                    const data = change.doc.data();
-                    renderMessage(data.user, data.text, data.isSystem);
-                }
+        peerConnection = new RTCPeerConnection(servers);
+        localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
+
+        // Get Host Offer
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(roomSnap.data().offer));
+        
+        // Send Answer
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        await updateDoc(roomRef, { answer: { type: answer.type, sdp: answer.sdp } });
+
+        // Candidates logic
+        peerConnection.onicecandidate = e => {
+            if(e.candidate) addDoc(collection(roomRef, 'answerCandidates'), e.candidate.toJSON());
+        };
+        onSnapshot(collection(roomRef, 'offerCandidates'), snap => {
+            snap.docChanges().forEach(c => {
+                if(c.type === 'added') peerConnection.addIceCandidate(new RTCIceCandidate(c.doc.data()));
             });
-            chatContainer.scrollTop = chatContainer.scrollHeight;
         });
 
-        // Send Message
-        const chatInput = document.getElementById('chatInput');
-        chatInput.onkeypress = async (e) => {
-            if (e.key === 'Enter' && chatInput.value.trim() !== '') {
-                const text = chatInput.value;
-                chatInput.value = '';
-                await addDoc(collection(db, 'rooms', roomId, 'messages'), {
-                    user: "User" + Math.floor(Math.random() * 999), // Random username for demo
-                    text: text,
-                    timestamp: serverTimestamp(),
-                    isSystem: false
-                });
-            }
+        // See Host
+        peerConnection.ontrack = e => {
+            const hostVid = document.getElementById('remoteVid');
+            hostVid.srcObject = e.streams[0];
+            hostVid.muted = false; // Hear host
+            
+            // Show my video too (Split screen)
+            document.getElementById('roomVideoLayer').classList.add('split');
+            document.getElementById('localVid').classList.remove('hidden');
         };
+    };
+
+    // --- CHAT & HEARTS ---
+    function initChat(rid) {
+        const chatBox = document.getElementById('chatArea');
+        chatBox.innerHTML = '';
+        
+        if(unsubscribe) unsubscribe();
+        const q = query(collection(db, 'rooms', rid, 'msgs'), orderBy('ts', 'asc'));
+        
+        unsubscribe = onSnapshot(q, snap => {
+            snap.docChanges().forEach(change => {
+                if(change.type === 'added') {
+                    const d = change.doc.data();
+                    if(d.type === 'heart') showFloatingHeart();
+                    else addMsg(d.user, d.txt, d.sys);
+                }
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
     }
 
-    function renderMessage(user, text, isSystem) {
-        const div = document.createElement('div');
-        div.className = 'chat-msg';
-        if (isSystem) {
-            div.innerHTML = `<span class="chat-system">${text}</span>`;
-        } else {
-            div.innerHTML = `<span class="chat-user">${user}:</span><span class="chat-text">${text}</span>`;
+    // Send Message
+    document.getElementById('chatInput').onkeypress = async (e) => {
+        if(e.key === 'Enter' && e.target.value.trim()) {
+            await addDoc(collection(db, 'rooms', roomId, 'msgs'), {
+                user: "User" + Math.floor(Math.random()*100),
+                txt: e.target.value,
+                ts: serverTimestamp()
+            });
+            e.target.value = '';
         }
-        document.getElementById('chatContainer').appendChild(div);
-    }
+    };
 
-    function addSystemMessage(text) {
+    // Send Heart
+    document.getElementById('btnHeart').onclick = async () => {
+        showFloatingHeart(); // Show instantly locally
+        await addDoc(collection(db, 'rooms', roomId, 'msgs'), {
+            type: 'heart', ts: serverTimestamp()
+        });
+    };
+
+    function addMsg(user, txt, sys) {
         const div = document.createElement('div');
-        div.className = 'chat-msg';
-        div.innerHTML = `<span class="chat-system">${text}</span>`;
-        document.getElementById('chatContainer').appendChild(div);
+        div.className = sys ? 'msg sys' : 'msg';
+        div.innerHTML = sys ? txt : `<b>${user}:</b> ${txt}`;
+        document.getElementById('chatArea').appendChild(div);
     }
 
-    // --- LEAVE / CLEANUP ---
-    document.getElementById('leaveRoomBtn').addEventListener('click', async () => {
-        if (confirm("Leave this live?")) {
-            if (isHost && currentRoomId) {
-                // Host deletes the room (simple cleanup)
-                await deleteDoc(doc(db, 'rooms', currentRoomId));
-            }
-            stopMedia();
-            navTo('feed');
-            currentRoomId = null;
+    function sysMsg(txt) { addMsg(null, txt, true); }
+
+    function showFloatingHeart() {
+        const h = document.createElement('div');
+        h.className = 'floating-heart';
+        h.innerHTML = '<i class="fas fa-heart"></i>';
+        h.style.right = (10 + Math.random()*30) + 'px';
+        document.getElementById('heartContainer').appendChild(h);
+        setTimeout(() => h.remove(), 1500);
+    }
+
+    window.leaveRoom = () => {
+        if(confirm("Leave live?")) {
+            if(isHost) deleteDoc(doc(db, 'rooms', roomId));
+            goHome();
+        }
+    }
+
+    // --- FEED LOADER ---
+    onSnapshot(query(collection(db, 'rooms'), orderBy('createdAt', 'desc')), snap => {
+        const grid = document.getElementById('feedGrid');
+        grid.innerHTML = '';
+        if(snap.empty) {
+            document.getElementById('emptyState').classList.remove('hidden');
+        } else {
+            document.getElementById('emptyState').classList.add('hidden');
+            snap.forEach(d => {
+                const data = d.data();
+                const el = document.createElement('div');
+                el.className = 'card';
+                el.innerHTML = `
+                    <img src="https://picsum.photos/300/500?random=${d.id}">
+                    <div class="card-tag">LIVE</div>
+                    <div class="card-info">
+                        <div style="font-weight:bold; font-size:0.9rem;">${data.title}</div>
+                        <div style="font-size:0.7rem; opacity:0.8;">User${Math.floor(Math.random()*99)}</div>
+                    </div>
+                `;
+                el.onclick = () => joinLive(d.id, data.title);
+                grid.appendChild(el);
+            });
         }
     });
-
-    // --- INIT ---
-    // Start by loading the feed
-    loadFeed();
-    navTo('feed'); // Start on home screen
 
 </script>
 </body>

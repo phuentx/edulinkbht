@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edulinki Meet - Ultra</title>
+    <title>Edulinki Meet - Ultimate</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -11,637 +11,603 @@
     <style>
         :root {
             --bg-dark: #202124;
-            --surface-dark: #3c4043;
+            --surface: #3c4043;
             --primary: #8ab4f8;
-            --danger: #ea4335;
-            --success: #34a853;
-            --text-main: #e8eaed;
-            --glow-color: #8ab4f8;
+            --red: #ea4335;
+            --text: #e8eaed;
+            --glow: #8ab4f8;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
             font-family: 'Google Sans', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
+            background: var(--bg-dark);
+            color: var(--text);
             height: 100dvh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
+        /* --- Animations --- */
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            20% { opacity: 1; transform: translateY(-20px) scale(1.2); }
+            100% { transform: translateY(-100px) scale(1); opacity: 0; }
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(138, 180, 248, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(138, 180, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(138, 180, 248, 0); }
+        }
+
         /* --- Header --- */
         header {
-            padding: 15px 20px;
+            height: 60px;
+            padding: 0 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: fixed;
-            top: 0;
-            width: 100%;
+            background: rgba(32, 33, 36, 0.9);
             z-index: 100;
-            background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+            position: fixed; width: 100%; top: 0;
         }
-        .logo { font-size: 20px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
-        .time { font-family: 'Roboto', sans-serif; color: #dadce0; font-size: 14px; }
-
-        /* --- Smart Video Grid --- */
-        .meeting-container {
+        .logo { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 500; }
+        
+        /* --- Video Grid Layouts --- */
+        .main-stage {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 60px 15px 100px 15px; /* Top/Bottom padding for header/footer */
-            overflow: hidden;
-            justify-content: center;
-        }
-
-        .grid-container {
+            margin-top: 60px;
+            margin-bottom: 80px;
+            padding: 15px;
             display: grid;
-            gap: 12px;
+            gap: 15px;
             width: 100%;
-            height: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            align-content: center;
+            height: calc(100% - 140px);
+            overflow: hidden;
         }
 
-        /* LAYOUT LOGIC */
-        /* 1 User (Self) */
-        .grid-container[data-count="1"] { grid-template-columns: 1fr; }
-        /* 2 Users (50/50) */
-        .grid-container[data-count="2"] { grid-template-columns: 1fr 1fr; }
-        /* 3 Users (1 Top, 2 Bottom) */
-        .grid-container[data-count="3"] { 
+        /* Dynamic Grid Classes */
+        .grid-1 { grid-template-columns: 1fr; }
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+        .grid-3 { 
             grid-template-columns: 1fr 1fr; 
             grid-template-rows: 1.5fr 1fr;
         }
-        .grid-container[data-count="3"] .video-card:first-child { grid-column: span 2; }
-        /* 4 Users (2x2) */
-        .grid-container[data-count="4"] { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-        /* 5-6 Users */
-        .grid-container[data-count="5"], .grid-container[data-count="6"] { grid-template-columns: repeat(3, 1fr); }
+        /* Special handling for 3: First item spans full width */
+        .grid-3 > :first-child { grid-column: span 2; }
         
-        /* Mobile Portrait Overrides */
-        @media (max-width: 600px) {
-            .grid-container { grid-template-columns: 1fr !important; grid-auto-rows: 1fr; }
-            .grid-container[data-count="3"] .video-card:first-child { grid-column: span 1; }
+        .grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+        .grid-many { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+
+        @media(max-width: 600px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; grid-template-rows: auto; overflow-y: auto; }
+            .grid-3 > :first-child { grid-column: auto; }
         }
 
-        /* --- Video Card Styling --- */
-        .video-card {
-            position: relative;
-            background: #202124;
+        /* Video Card */
+        .vid-card {
+            background: #000;
             border-radius: 12px;
+            position: relative;
             overflow: hidden;
-            width: 100%;
-            height: 100%;
-            min-height: 0;
-            border: 2px solid transparent;
+            width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        /* Speaking Glow */
+        .vid-card.speaking {
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 20px rgba(138, 180, 248, 0.3);
         }
 
-        /* Active Speaker Glow */
-        .video-card.speaking {
-            border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(138, 180, 248, 0.4);
-        }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
+        video { width: 100%; height: 100%; object-fit: cover; }
         .mirrored { transform: scaleX(-1); }
 
+        /* Status Indicators on Video */
+        .vid-info {
+            position: absolute; bottom: 10px; left: 10px;
+            display: flex; align-items: center; gap: 8px;
+            z-index: 10;
+        }
+        .name-tag {
+            background: rgba(0,0,0,0.6); color: white;
+            padding: 4px 10px; border-radius: 4px; font-size: 12px;
+        }
+        .status-icon {
+            background: #ea4335; color: white;
+            padding: 4px; border-radius: 50%;
+            display: none; /* Hidden unless active */
+        }
+        .status-icon.visible { display: flex; }
+
         /* Camera Off Placeholder */
-        .avatar-placeholder {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #3c4043;
+        .cam-off-placeholder {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background: #202124;
             display: none;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1;
+            align-items: center; justify-content: center;
+            z-index: 5;
         }
-        .avatar-circle {
-            width: 80px; height: 80px;
-            background: #5f6368;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            color: white;
-            font-weight: 500;
+        .cam-off-placeholder.visible { display: flex; }
+        .avatar {
+            width: 80px; height: 80px; background: #5f6368;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 30px; color: white;
         }
-        .video-card.cam-off .avatar-placeholder { display: flex; }
 
-        /* Labels & Status */
-        .user-info {
+        /* Floating Emojis */
+        .emoji-float {
             position: absolute;
-            bottom: 12px;
-            left: 12px;
-            color: white;
-            font-size: 13px;
-            font-weight: 500;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            z-index: 2;
-        }
-        .mute-indicator {
-            background: rgba(234, 67, 53, 0.9);
-            padding: 4px;
-            border-radius: 50%;
-            display: none; /* Hidden unless muted */
-        }
-        .video-card.muted .mute-indicator { display: flex; }
-
-        .hand-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            font-size: 24px;
-            background: rgba(40, 40, 40, 0.7);
-            padding: 5px;
-            border-radius: 50%;
-            display: none;
-            z-index: 2;
-        }
-        .video-card.hand-raised .hand-badge { display: block; animation: bounce 0.5s; }
-
-        /* Floating Emoji Reaction */
-        .emoji-floater {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
+            bottom: 20px; left: 50%;
             font-size: 40px;
+            animation: floatUp 2s ease-out forwards;
             pointer-events: none;
-            z-index: 10;
-            animation: floatUp 2s forwards;
+            z-index: 100;
         }
-        @keyframes floatUp {
-            0% { transform: translateX(-50%) translateY(0) scale(0.5); opacity: 0; }
-            20% { opacity: 1; transform: translateX(-50%) translateY(-20px) scale(1.2); }
-            100% { transform: translateX(-50%) translateY(-150px) scale(1); opacity: 0; }
+        .hand-raised-badge {
+            position: absolute; top: 10px; left: 10px;
+            font-size: 24px; background: rgba(0,0,0,0.5);
+            padding: 5px; border-radius: 50%;
+            display: none;
         }
+        .hand-raised-badge.visible { display: block; }
 
-        /* --- Controls Bar --- */
-        .controls-bar {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 80px;
-            background: #202124;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
+        /* --- Footer Controls --- */
+        .footer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            height: 80px; background: #202124;
+            display: flex; justify-content: center; align-items: center; gap: 15px;
             padding-bottom: env(safe-area-inset-bottom);
             z-index: 200;
         }
 
-        .btn-control {
-            width: 48px; height: 48px;
-            border-radius: 50%;
-            border: none;
-            background: #3c4043;
-            color: white;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: 0.2s;
+        .btn-ctrl {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: #3c4043; border: none; color: white;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; position: relative;
         }
-        .btn-control:hover { background: #4b4f54; }
-        .btn-control.red { background: var(--danger); }
-        .btn-control.blue { background: var(--primary); color: #202124; }
-        .btn-end { width: 60px; border-radius: 30px; background: var(--danger); }
+        .btn-ctrl:hover { background: #474a4f; }
+        .btn-ctrl.off { background: var(--red); border: none; }
+        .btn-ctrl.hangup { background: var(--red); width: 65px; border-radius: 30px; }
 
-        /* --- Overlays (More Menu & Emojis) --- */
-        .overlay-menu {
-            position: fixed;
-            bottom: 90px;
-            left: 50%;
-            transform: translateX(-50%) scale(0.9);
-            background: #303134;
+        /* --- Activities Overlay (More Menu) --- */
+        .activities-panel {
+            position: fixed; bottom: 90px; right: 20px;
+            background: #303134; border-radius: 12px;
             padding: 15px;
-            border-radius: 12px;
-            display: none;
-            flex-direction: column;
-            gap: 10px;
+            display: none; flex-direction: column; gap: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            width: 200px;
-            opacity: 0;
-            transition: all 0.2s;
-            z-index: 300;
+            z-index: 300; width: 250px;
         }
-        .overlay-menu.active { display: flex; opacity: 1; transform: translateX(-50%) scale(1); }
-
-        .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: white;
-            background: transparent;
-            border: none;
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 8px;
+        .activities-panel.open { display: flex; }
+        
+        .panel-row { display: flex; gap: 10px; justify-content: space-around; }
+        .reaction-btn {
+            background: transparent; border: none; font-size: 24px;
+            cursor: pointer; transition: transform 0.2s;
         }
-        .menu-item:hover { background: rgba(255,255,255,0.1); }
-
-        .emoji-bar {
-            position: fixed;
-            bottom: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #303134;
-            padding: 10px 20px;
-            border-radius: 50px;
-            display: none;
-            gap: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            z-index: 300;
+        .reaction-btn:hover { transform: scale(1.2); }
+        
+        .action-item {
+            display: flex; align-items: center; gap: 10px;
+            background: #3c4043; padding: 10px; border-radius: 8px;
+            cursor: pointer; color: white; font-size: 14px;
         }
-        .emoji-bar.active { display: flex; }
-        .emoji-btn { font-size: 24px; cursor: pointer; background: none; border: none; transition: transform 0.2s; }
-        .emoji-btn:hover { transform: scale(1.3); }
+        .action-item:hover { background: #4b4d51; }
 
-        /* Lobby Styles */
-        #lobby { position: absolute; top:0; left:0; width:100%; height:100%; background:#202124; z-index:900; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-        .lobby-box { text-align:center; max-width:400px; width:90%; }
-        input { background:transparent; border:1px solid #5f6368; padding:12px; color:white; width:100%; margin:15px 0; border-radius:4px; outline:none; }
-        input:focus { border-color: var(--primary); }
-        .btn-primary { width:100%; padding:12px; background: var(--primary); border:none; border-radius:4px; font-weight:bold; cursor:pointer; }
+        /* Lobby */
+        #lobby {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-dark); z-index: 999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .lobby-box { text-align: center; max-width: 400px; padding: 20px; }
+        .input-code {
+            background: transparent; border: 1px solid #5f6368;
+            color: white; padding: 12px; border-radius: 4px;
+            width: 100%; margin: 15px 0; font-size: 16px;
+        }
+        .btn-prime {
+            background: var(--primary); color: #202124;
+            padding: 12px 24px; border-radius: 25px;
+            border: none; font-weight: 500; cursor: pointer; width: 100%;
+        }
+
+        /* Room ID Badge */
+        .room-badge {
+            position: fixed; bottom: 20px; left: 20px;
+            color: #bdc1c6; font-size: 14px; display: flex; align-items: center; gap: 5px;
+            cursor: pointer; z-index: 201;
+        }
     </style>
 </head>
 <body>
 
     <div id="lobby">
         <div class="lobby-box">
-            <h2 style="margin-bottom:10px">Edulinki Meet</h2>
-            <p style="color:#bdc1c6">Secure video conferencing</p>
-            <input id="roomInput" placeholder="Enter Room Code" autocomplete="off">
-            <button class="btn-primary" id="goBtn">Join / Create</button>
+            <h1>Ready to join?</h1>
+            <p style="color:#bdc1c6; margin-top:10px;">Premium meetings, free for everyone.</p>
+            <input type="text" id="roomInput" class="input-code" placeholder="Enter room code">
+            <button id="joinBtn" class="btn-prime">Join Meeting</button>
+            <button id="createBtn" style="background:transparent; color:var(--primary); margin-top:15px; border:none; cursor:pointer;">Create New Room</button>
         </div>
     </div>
 
     <header>
         <div class="logo">
-            <i data-lucide="video" color="#8ab4f8"></i> Edulinki
+            <i data-lucide="video" color="#8ab4f8"></i> Edulinki Meet
         </div>
-        <div class="time" id="clock">--:--</div>
+        <div style="color:#bdc1c6; font-size:14px;" id="clock">12:00</div>
     </header>
 
-    <div class="meeting-container">
-        <div class="grid-container" id="grid" data-count="1">
-            <div class="video-card" id="localCard">
-                <div class="avatar-placeholder"><div class="avatar-circle">Me</div></div>
-                <video id="localVideo" autoplay playsinline muted class="mirrored"></video>
-                <div class="user-label">
-                    <div class="user-info">You</div>
-                    <div class="mute-indicator"><i data-lucide="mic-off" size="12" color="white"></i></div>
-                </div>
-                <div class="hand-badge">✋</div>
+    <main class="main-stage grid-1" id="gridContainer">
+        <div class="vid-card" id="localCard">
+            <div class="cam-off-placeholder" id="localPlaceholder">
+                <div class="avatar">You</div>
+                <div style="margin-top:10px; color:#bdc1c6;">Camera Off</div>
             </div>
+            <video id="localVideo" autoplay playsinline muted class="mirrored"></video>
+            <div class="hand-raised-badge" id="localHand">✋</div>
+            
+            <div class="vid-info">
+                <div class="name-tag">You</div>
+                <div class="status-icon" id="localMuteIcon"><i data-lucide="mic-off" size="12"></i></div>
             </div>
+        </div>
+    </main>
+
+    <div class="room-badge" onclick="copyCode()">
+        <span id="roomCodeDisplay">...</span> <i data-lucide="copy" size="14"></i>
     </div>
 
-    <div class="overlay-menu" id="moreMenu">
-        <button class="menu-item" id="shareBtn">
-            <i data-lucide="monitor-up"></i> Share Screen
+    <div class="activities-panel" id="activitiesPanel">
+        <div style="font-size:12px; color:#bdc1c6; margin-bottom:5px;">REACTIONS</div>
+        <div class="panel-row">
+            <button class="reaction-btn" onclick="sendReaction('💖')">💖</button>
+            <button class="reaction-btn" onclick="sendReaction('👍')">👍</button>
+            <button class="reaction-btn" onclick="sendReaction('😂')">😂</button>
+            <button class="reaction-btn" onclick="sendReaction('🎉')">🎉</button>
+        </div>
+        <div style="height:1px; background:#5f6368; margin: 5px 0;"></div>
+        
+        <div class="action-item" onclick="toggleHand()">
+            <i data-lucide="hand" id="handIconMenu"></i> <span id="handText">Raise Hand</span>
+        </div>
+        <div class="action-item" onclick="toggleScreenShare()">
+            <i data-lucide="monitor-up"></i> <span>Share Screen</span>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <button class="btn-ctrl" id="micBtn"><i data-lucide="mic"></i></button>
+        <button class="btn-ctrl" id="camBtn"><i data-lucide="camera"></i></button>
+        
+        <button class="btn-ctrl" id="moreBtn" onclick="toggleMenu()">
+            <i data-lucide="layout-grid"></i> </button>
+        
+        <button class="btn-ctrl hangup" onclick="location.reload()">
+            <i data-lucide="phone-off"></i>
         </button>
-        <button class="menu-item" id="handBtn">
-            <i data-lucide="hand"></i> Raise Hand
-        </button>
-        <div style="font-size:12px; color:#aaa; padding:10px; text-align:center;" id="roomIdDisplay"></div>
-    </div>
-
-    <div class="emoji-bar" id="emojiBar">
-        <button class="emoji-btn">💖</button>
-        <button class="emoji-btn">👍</button>
-        <button class="emoji-btn">😂</button>
-        <button class="emoji-btn">😮</button>
-        <button class="emoji-btn">🎉</button>
-    </div>
-
-    <footer class="controls-bar">
-        <button class="btn-control" id="micBtn"><i data-lucide="mic"></i></button>
-        <button class="btn-control" id="camBtn"><i data-lucide="video"></i></button>
-        <button class="btn-control" id="emojiToggle"><i data-lucide="smile"></i></button>
-        <button class="btn-control" id="moreBtn"><i data-lucide="more-vertical"></i></button>
-        <button class="btn-control btn-end" id="hangupBtn"><i data-lucide="phone-off"></i></button>
     </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, onSnapshot, addDoc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         lucide.createIcons();
+        setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), 1000);
 
-        // --- Config ---
-        const firebaseConfig = {
+        // --- Firebase Setup ---
+        const app = initializeApp({
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
-            authDomain: "edulinki.firebaseapp.com",
             projectId: "edulinki",
-            storageBucket: "edulinki.firebasestorage.app",
-            messagingSenderId: "248886466474",
-            appId: "1:248886466474:web:160043201a6b28bafbbdd3",
-            measurementId: "G-MQBH12VL7N"
-        };
-        const app = initializeApp(firebaseConfig);
+            appId: "1:248886466474:web:160043201a6b28bafbbdd3"
+        });
         const db = getFirestore(app);
-        
-        const iceServers = { iceServers: [{ urls: 'stun:stun1.l.google.com:19302' }] };
-        
+
         // --- State ---
         let localStream;
         let screenStream;
         let roomId;
-        let myId = Math.random().toString(36).substr(2, 6);
-        let pcs = {}; // Peer connections
-        let state = { muted: false, camOff: false, hand: false };
-        let audioCtx, analyser, microphone; // For Audio Glow
+        const myId = Math.random().toString(36).substr(2, 6);
+        const pcs = {}; // Peer Connections
+        let isMuted = false;
+        let isCamOff = false;
+        let isHandRaised = false;
+        let audioContext, analyser, microphone; // For Audio Glow
 
-        // --- UI Logic ---
-        setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), 1000);
+        // --- UI Refs ---
+        const grid = document.getElementById('gridContainer');
+        const activitiesPanel = document.getElementById('activitiesPanel');
 
-        function updateGridCount() {
-            const count = document.querySelectorAll('.video-card').length;
-            document.getElementById('grid').setAttribute('data-count', count);
-        }
+        // --- 1. Audio Glow Logic ---
+        function setupAudioAnalysis(stream) {
+            if(!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            microphone = audioContext.createMediaStreamSource(stream);
+            microphone.connect(analyser);
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
 
-        // --- Audio Glow Logic ---
-        function setupAudioAnalysis(stream, cardId) {
-            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const source = audioCtx.createMediaStreamSource(stream);
-            const analyser = audioCtx.createAnalyser();
-            analyser.fftSize = 64;
-            source.connect(analyser);
-            
-            const dataArray = new Uint8Array(analyser.frequencyBinCount);
-            const checkVolume = () => {
+            function checkVolume() {
                 analyser.getByteFrequencyData(dataArray);
                 let sum = 0;
-                for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
-                const volume = sum / dataArray.length;
-                
-                const card = document.getElementById(cardId);
-                if(card) {
-                    if(volume > 15) card.classList.add('speaking');
-                    else card.classList.remove('speaking');
+                for(let i=0; i<bufferLength; i++) sum += dataArray[i];
+                let average = sum / bufferLength;
+
+                const card = document.getElementById('localCard');
+                if(average > 10 && !isMuted) {
+                     card.classList.add('speaking');
+                } else {
+                     card.classList.remove('speaking');
                 }
                 requestAnimationFrame(checkVolume);
-            };
+            }
             checkVolume();
         }
 
-        // --- Core WebRTC ---
-        async function init(room) {
-            roomId = room;
+        // --- 2. Main Logic ---
+        async function init(create) {
+            roomId = create ? Math.random().toString(36).substr(2, 6) : document.getElementById('roomInput').value.trim();
+            if(!roomId) return alert("Enter code");
+            
             document.getElementById('lobby').style.display = 'none';
-            document.getElementById('roomIdDisplay').innerText = `Room: ${roomId}`;
+            document.getElementById('roomCodeDisplay').innerText = roomId;
 
-            // 1. Get Media
+            // Get Media
             localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             document.getElementById('localVideo').srcObject = localStream;
-            setupAudioAnalysis(localStream, 'localCard'); // Local Glow
+            setupAudioAnalysis(localStream);
 
-            // 2. Join Firestore
-            const myRef = doc(db, `rooms/${roomId}/participants`, myId);
-            await setDoc(myRef, { ...state, lastSeen: Date.now() });
-
-            // 3. Listen for Signals
-            onSnapshot(collection(db, `rooms/${roomId}/messages`), snapshot => {
-                snapshot.docChanges().forEach(async change => {
-                    if(change.type === 'added') {
-                        const msg = change.doc.data();
-                        if(msg.to === myId) handleSignal(msg, change.doc.id);
-                        if(msg.type === 'emoji' && msg.from !== myId) showFloatingEmoji(msg.emoji, msg.from);
-                    }
-                });
+            // Join Room in DB
+            const userRef = doc(db, `rooms/${roomId}/users/${myId}`);
+            await setDoc(userRef, { 
+                mic: true, cam: true, hand: false, 
+                joined: serverTimestamp() 
             });
 
-            // 4. Listen for Participants (Status & Connection)
-            onSnapshot(collection(db, `rooms/${roomId}/participants`), snapshot => {
-                snapshot.docChanges().forEach(async change => {
-                    const data = change.doc.data();
+            // Handle Closing Tab -> Remove User
+            window.addEventListener('beforeunload', () => deleteDoc(userRef));
+
+            // Listen for other users
+            onSnapshot(collection(db, `rooms/${roomId}/users`), (snap) => {
+                updateGridClass(snap.size); // Resize grid
+                
+                snap.docChanges().forEach(async change => {
                     const uid = change.doc.id;
+                    const data = change.doc.data();
                     if(uid === myId) return;
 
                     if(change.type === 'added') {
-                        createPC(uid, true); // Initiate
+                        // New user joined, initiate call
+                        createPC(uid, true); 
                     }
                     if(change.type === 'modified') {
+                        // Update UI icons (Mute/Cam/Hand)
                         updatePeerUI(uid, data);
                     }
                     if(change.type === 'removed') {
-                        removePeer(uid);
+                        // Remove video card
+                        if(document.getElementById(`card-${uid}`)) {
+                            document.getElementById(`card-${uid}`).remove();
+                            if(pcs[uid]) pcs[uid].close();
+                            delete pcs[uid];
+                        }
                     }
                 });
             });
 
-            // Handle Page Close
-            window.onbeforeunload = () => deleteDoc(myRef);
+            // Listen for signals
+            onSnapshot(collection(db, `rooms/${roomId}/signals`), (snap) => {
+                snap.docChanges().forEach(change => {
+                    if(change.type === 'added') {
+                        const msg = change.doc.data();
+                        if(msg.to === myId) handleSignal(msg, change.doc.id);
+                    }
+                });
+            });
+
+            // Listen for Reactions
+            onSnapshot(collection(db, `rooms/${roomId}/reactions`), (snap) => {
+                snap.docChanges().forEach(change => {
+                    if(change.type === 'added') {
+                        const data = change.doc.data();
+                        // Show floating emoji if it's new (simple timestamp check logic omitted for brevity, just show)
+                        if(Date.now() - data.ts < 2000) showFloatingEmoji(data.emoji, data.from);
+                    }
+                });
+            });
         }
 
-        async function createPC(targetId, initiator) {
-            if(pcs[targetId]) return pcs[targetId];
+        // --- 3. WebRTC Core ---
+        async function createPC(uid, initiator) {
+            const pc = new RTCPeerConnection({ iceServers: [{urls:'stun:stun1.l.google.com:19302'}] });
+            pcs[uid] = pc;
 
-            const pc = new RTCPeerConnection(iceServers);
-            pcs[targetId] = pc;
+            localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
             pc.onicecandidate = e => {
-                if(e.candidate) send(targetId, { type: 'candidate', candidate: e.candidate.toJSON() });
+                if(e.candidate) sendSignal({ type: 'ice', candidate: e.candidate.toJSON(), to: uid });
             };
 
             pc.ontrack = e => {
-                if(!document.getElementById(`card-${targetId}`)) {
-                    addRemoteVideo(targetId, e.streams[0]);
-                    setupAudioAnalysis(e.streams[0], `card-${targetId}`); // Remote Glow
+                // Check if card exists
+                if(!document.getElementById(`card-${uid}`)) {
+                    const card = document.createElement('div');
+                    card.className = 'vid-card';
+                    card.id = `card-${uid}`;
+                    
+                    card.innerHTML = `
+                        <div class="cam-off-placeholder" id="ph-${uid}">
+                            <div class="avatar">U</div>
+                        </div>
+                        <video id="vid-${uid}" autoplay playsinline></video>
+                        <div class="hand-raised-badge" id="hand-${uid}">✋</div>
+                        <div class="vid-info">
+                            <div class="name-tag">User</div>
+                            <div class="status-icon" id="mic-${uid}"><i data-lucide="mic-off" size="12"></i></div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                    lucide.createIcons();
                 }
+                document.getElementById(`vid-${uid}`).srcObject = e.streams[0];
             };
             
-            // Connection State Monitoring (User Left)
-            pc.oniceconnectionstatechange = () => {
-                if(pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
-                    removePeer(targetId);
+            // Clean up on disconnect
+            pc.onconnectionstatechange = () => {
+                if(pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+                    document.getElementById(`card-${uid}`)?.remove();
                 }
             };
-
-            localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
             if(initiator) {
                 const offer = await pc.createOffer();
                 await pc.setLocalDescription(offer);
-                send(targetId, { type: 'offer', sdp: offer.sdp });
+                sendSignal({ type: 'offer', sdp: offer.sdp, to: uid });
             }
-            return pc;
         }
 
-        async function handleSignal(msg, msgId) {
-            deleteDoc(doc(db, `rooms/${roomId}/messages`, msgId)); // Cleanup
+        async function handleSignal(msg, docId) {
+            // Delete message immediately to clean DB
+            deleteDoc(doc(db, `rooms/${roomId}/signals`, docId));
             
             let pc = pcs[msg.from];
-            if(!pc) pc = await createPC(msg.from, false);
+            if(!pc) {
+                await createPC(msg.from, false);
+                pc = pcs[msg.from];
+            }
 
             if(msg.type === 'offer') {
                 await pc.setRemoteDescription(new RTCSessionDescription({type:'offer', sdp:msg.sdp}));
                 const answer = await pc.createAnswer();
                 await pc.setLocalDescription(answer);
-                send(msg.from, { type: 'answer', sdp: answer.sdp });
-            } 
-            else if(msg.type === 'answer') {
+                sendSignal({ type: 'answer', sdp: answer.sdp, to: msg.from });
+            } else if(msg.type === 'answer') {
                 await pc.setRemoteDescription(new RTCSessionDescription({type:'answer', sdp:msg.sdp}));
-            } 
-            else if(msg.type === 'candidate') {
+            } else if(msg.type === 'ice') {
                 await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
             }
         }
 
-        async function send(to, data) {
-            await addDoc(collection(db, `rooms/${roomId}/messages`), { from: myId, to, ...data, time: Date.now() });
+        async function sendSignal(data) {
+            data.from = myId;
+            await addDoc(collection(db, `rooms/${roomId}/signals`), data);
         }
 
-        async function broadcast(data) {
-            // Simple broadcast by adding a message with no specific 'to', 
-            // OR iterate participants. For emojis, we just add a message with type 'emoji'
-            // listening logic above needs update to catch broadcasts.
-            // Simplified: Send to specific collection or just logic handle.
-            // Actually, we will just add a doc with 'to: all' or check logic.
-            // Let's modify the listener: if(msg.to === myId || msg.type === 'emoji')
-            await addDoc(collection(db, `rooms/${roomId}/messages`), { from: myId, ...data, time: Date.now() });
-        }
-
-        // --- DOM Handling ---
-        function addRemoteVideo(uid, stream) {
-            if(document.getElementById(`card-${uid}`)) return;
-            
-            const html = `
-                <div class="video-card" id="card-${uid}">
-                    <div class="avatar-placeholder"><div class="avatar-circle">${uid[0].toUpperCase()}</div></div>
-                    <video id="vid-${uid}" autoplay playsinline></video>
-                    <div class="user-label">
-                        <div class="user-info">User ${uid.substr(0,3)}</div>
-                        <div class="mute-indicator"><i data-lucide="mic-off" size="12" color="white"></i></div>
-                    </div>
-                    <div class="hand-badge">✋</div>
-                </div>
-            `;
-            document.getElementById('grid').insertAdjacentHTML('beforeend', html);
-            document.getElementById(`vid-${uid}`).srcObject = stream;
-            lucide.createIcons();
-            updateGridCount();
-        }
-
-        function removePeer(uid) {
-            const el = document.getElementById(`card-${uid}`);
-            if(el) el.remove();
-            if(pcs[uid]) pcs[uid].close();
-            delete pcs[uid];
-            updateGridCount();
+        // --- 4. UI Updates ---
+        function updateGridClass(count) {
+            grid.className = 'main-stage'; // Reset
+            if(count <= 1) grid.classList.add('grid-1');
+            else if(count === 2) grid.classList.add('grid-2');
+            else if(count === 3) grid.classList.add('grid-3');
+            else if(count === 4) grid.classList.add('grid-4');
+            else grid.classList.add('grid-many');
         }
 
         function updatePeerUI(uid, data) {
-            const card = document.getElementById(`card-${uid}`);
-            if(!card) return;
-
-            // Mute Status
-            if(data.muted) card.classList.add('muted');
-            else card.classList.remove('muted');
+            // Mic Status
+            const micIcon = document.getElementById(`mic-${uid}`);
+            if(micIcon) data.mic ? micIcon.classList.remove('visible') : micIcon.classList.add('visible');
 
             // Cam Status
-            if(data.camOff) card.classList.add('cam-off');
-            else card.classList.remove('cam-off');
+            const ph = document.getElementById(`ph-${uid}`);
+            if(ph) data.cam ? ph.classList.remove('visible') : ph.classList.add('visible');
 
             // Hand Status
-            if(data.hand) card.classList.add('hand-raised');
-            else card.classList.remove('hand-raised');
+            const hand = document.getElementById(`hand-${uid}`);
+            if(hand) data.hand ? hand.classList.add('visible') : hand.classList.remove('visible');
         }
 
-        // --- Feature: Reactions ---
+        // --- 5. Controls ---
+        window.toggleMenu = () => {
+            activitiesPanel.classList.toggle('open');
+            document.getElementById('moreBtn').classList.toggle('active-state');
+        };
+
+        window.sendReaction = async (emoji) => {
+            showFloatingEmoji(emoji, 'local'); // Show locally instantly
+            await addDoc(collection(db, `rooms/${roomId}/reactions`), {
+                emoji, from: myId, ts: Date.now()
+            });
+            toggleMenu(); // Close menu
+        };
+
         function showFloatingEmoji(emoji, fromId) {
-            const card = fromId === myId ? document.getElementById('localCard') : document.getElementById(`card-${fromId}`);
-            if(!card) return;
-
             const el = document.createElement('div');
-            el.className = 'emoji-floater';
             el.innerText = emoji;
-            card.appendChild(el);
-            setTimeout(() => el.remove(), 2000);
+            el.className = 'emoji-float';
+            
+            // If it's me, center. If remote, find their card.
+            let targetCard = fromId === 'local' || fromId === myId 
+                ? document.getElementById('localCard') 
+                : document.getElementById(`card-${fromId}`);
+                
+            if(targetCard) {
+                targetCard.appendChild(el);
+                setTimeout(() => el.remove(), 2000);
+            }
         }
 
-        // --- Interactions ---
-        const myDoc = () => doc(db, `rooms/${roomId}/participants`, myId);
-
-        // 1. Mute/Cam
-        document.getElementById('micBtn').onclick = () => {
-            state.muted = !state.muted;
-            localStream.getAudioTracks()[0].enabled = !state.muted;
-            updateDoc(myDoc(), { muted: state.muted });
-            
-            const btn = document.getElementById('micBtn');
-            const card = document.getElementById('localCard');
-            if(state.muted) { btn.classList.add('red'); card.classList.add('muted'); btn.innerHTML=`<i data-lucide="mic-off"></i>`; }
-            else { btn.classList.remove('red'); card.classList.remove('muted'); btn.innerHTML=`<i data-lucide="mic"></i>`; }
+        // Mute
+        document.getElementById('micBtn').onclick = (e) => {
+            isMuted = !isMuted;
+            localStream.getAudioTracks()[0].enabled = !isMuted;
+            e.currentTarget.classList.toggle('off');
+            e.currentTarget.innerHTML = isMuted ? '<i data-lucide="mic-off"></i>' : '<i data-lucide="mic"></i>';
+            document.getElementById('localMuteIcon').classList.toggle('visible');
+            updateMyStatus();
             lucide.createIcons();
         };
 
-        document.getElementById('camBtn').onclick = () => {
-            state.camOff = !state.camOff;
-            localStream.getVideoTracks()[0].enabled = !state.camOff;
-            updateDoc(myDoc(), { camOff: state.camOff });
-
-            const btn = document.getElementById('camBtn');
-            const card = document.getElementById('localCard');
-            if(state.camOff) { btn.classList.add('red'); card.classList.add('cam-off'); btn.innerHTML=`<i data-lucide="video-off"></i>`; }
-            else { btn.classList.remove('red'); card.classList.remove('cam-off'); btn.innerHTML=`<i data-lucide="video"></i>`; }
+        // Cam
+        document.getElementById('camBtn').onclick = (e) => {
+            isCamOff = !isCamOff;
+            localStream.getVideoTracks()[0].enabled = !isCamOff;
+            e.currentTarget.classList.toggle('off');
+            e.currentTarget.innerHTML = isCamOff ? '<i data-lucide="camera-off"></i>' : '<i data-lucide="camera"></i>';
+            document.getElementById('localPlaceholder').classList.toggle('visible');
+            updateMyStatus();
             lucide.createIcons();
         };
 
-        // 2. Overlays
-        document.getElementById('moreBtn').onclick = () => {
-            const menu = document.getElementById('moreMenu');
-            menu.classList.toggle('active');
-            document.getElementById('emojiBar').classList.remove('active'); // Close emoji if open
-        };
-        
-        document.getElementById('emojiToggle').onclick = () => {
-            const bar = document.getElementById('emojiBar');
-            bar.classList.toggle('active');
-            document.getElementById('moreMenu').classList.remove('active'); // Close menu if open
+        // Hand
+        window.toggleHand = () => {
+            isHandRaised = !isHandRaised;
+            document.getElementById('localHand').classList.toggle('visible');
+            document.getElementById('handText').innerText = isHandRaised ? "Lower Hand" : "Raise Hand";
+            updateMyStatus();
+            toggleMenu();
         };
 
-        // 3. Hand Raise (Inside Menu)
-        document.getElementById('handBtn').onclick = () => {
-            state.hand = !state.hand;
-            updateDoc(myDoc(), { hand: state.hand });
-            document.getElementById('localCard').classList.toggle('hand-raised');
-            document.getElementById('moreMenu').classList.remove('active'); // Close menu
-        };
-
-        // 4. Screen Share (Inside Menu)
-        document.getElementById('shareBtn').onclick = async () => {
+        // Share Screen
+        window.toggleScreenShare = async () => {
             if(!screenStream) {
                 try {
                     screenStream = await navigator.mediaDevices.getDisplayMedia({video:true});
                     const track = screenStream.getVideoTracks()[0];
+                    
+                    // Replace tracks
                     Object.values(pcs).forEach(pc => {
                         const sender = pc.getSenders().find(s => s.track.kind === 'video');
                         if(sender) sender.replaceTrack(track);
                     });
+
                     document.getElementById('localVideo').srcObject = screenStream;
                     document.getElementById('localVideo').classList.remove('mirrored');
-                    document.getElementById('moreMenu').classList.remove('active');
-                    
                     track.onended = stopShare;
-                } catch(e) { console.log(e); }
-            } else stopShare();
+                    toggleMenu();
+                } catch(e) {}
+            } else {
+                stopShare();
+                toggleMenu();
+            }
         };
 
         function stopShare() {
@@ -652,27 +618,23 @@
             });
             document.getElementById('localVideo').srcObject = localStream;
             document.getElementById('localVideo').classList.add('mirrored');
-            if(screenStream) screenStream.getTracks().forEach(t=>t.stop());
+            screenStream.getTracks().forEach(t=>t.stop());
             screenStream = null;
         }
 
-        // 5. Emojis
-        document.querySelectorAll('.emoji-btn').forEach(btn => {
-            btn.onclick = () => {
-                const emoji = btn.innerText;
-                showFloatingEmoji(emoji, myId);
-                broadcast({ type: 'emoji', emoji: emoji });
-                document.getElementById('emojiBar').classList.remove('active');
-            };
-        });
+        async function updateMyStatus() {
+            await updateDoc(doc(db, `rooms/${roomId}/users/${myId}`), {
+                mic: !isMuted, cam: !isCamOff, hand: isHandRaised
+            });
+        }
 
-        // 6. Join Room
-        document.getElementById('goBtn').onclick = () => {
-            const val = document.getElementById('roomInput').value.trim();
-            if(val) init(val);
-        };
-        
-        document.getElementById('hangupBtn').onclick = () => window.location.reload();
+        window.copyCode = () => {
+            navigator.clipboard.writeText(roomId);
+            alert("Code copied: " + roomId);
+        }
+
+        document.getElementById('joinBtn').onclick = () => init(false);
+        document.getElementById('createBtn').onclick = () => init(true);
 
     </script>
 </body>

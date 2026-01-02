@@ -3,155 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FireTok Live (Custom ID)</title>
+    <title>FireTok Global Live</title>
     <style>
-        :root {
-            --primary: #fe2c55;
-            --dark: #121212;
-            --text: #ffffff;
-        }
+        :root { --primary: #fe2c55; --dark: #121212; --text: #ffffff; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--dark);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--dark); color: var(--text);
+            margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;
         }
-
         #app-container {
-            width: 100%;
-            max-width: 450px;
-            height: 100%;
-            position: relative;
-            background: black;
-            overflow: hidden;
+            width: 100%; max-width: 450px; height: 100%; position: relative; background: black; overflow: hidden;
         }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
-
+        video { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 1; }
         .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6) 100%);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
+            display: flex; flex-direction: column; justify-content: space-between;
+            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 20%, transparent 60%, rgba(0,0,0,0.8) 100%);
             pointer-events: none;
         }
-
-        .top-bar {
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            pointer-events: auto;
-        }
-        .live-badge {
-            background: var(--primary);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 12px;
-            margin-right: 10px;
-        }
-        .viewer-count {
-            background: rgba(0,0,0,0.5);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-
+        .top-bar { padding: 20px; display: flex; align-items: center; pointer-events: auto; }
+        .live-badge { background: var(--primary); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; margin-right: 10px; }
+        .status-badge { background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 20px; font-size: 12px; margin-right: 10px; }
+        
         #setup-panel {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 20;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            width: 80%;
-            pointer-events: auto;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20;
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 20px;
+            border-radius: 12px; text-align: center; width: 80%; pointer-events: auto;
         }
-        
-        input {
-            width: 90%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: none;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            text-align: center;
-        }
-        
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 5px;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: rgba(255,255,255,0.2); color: white; text-align: center; }
+        button { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-secondary { background: rgba(255,255,255,0.3); color: white; }
-
-        .chat-container {
-            height: 300px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            pointer-events: auto;
-            mask-image: linear-gradient(to top, black 80%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%);
-        }
-
-        .chat-message {
-            margin-bottom: 8px;
-            text-shadow: 1px 1px 2px black;
-            font-size: 14px;
-            animation: slideIn 0.3s ease-out;
-        }
+        
+        .chat-container { height: 300px; padding: 15px; display: flex; flex-direction: column; justify-content: flex-end; pointer-events: auto; mask-image: linear-gradient(to top, black 80%, transparent 100%); -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%); }
+        .chat-message { margin-bottom: 8px; text-shadow: 1px 1px 2px black; font-size: 14px; animation: slideIn 0.3s ease-out; }
         .chat-user { color: #aaa; font-weight: bold; margin-right: 5px; }
-        .chat-text { color: white; }
-
-        .input-bar {
-            padding: 10px;
-            display: flex;
-            gap: 10px;
-            pointer-events: auto;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        .input-bar { padding: 10px; display: flex; gap: 10px; pointer-events: auto; }
+        
         .hidden { display: none !important; }
         .tab-btn { width: 48%; display: inline-block; margin: 0 1%; padding: 8px; font-size: 12px;}
         .active-tab { background: white; color: black; }
+        
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -163,7 +56,7 @@
     <div class="overlay">
         <div class="top-bar">
             <div class="live-badge">LIVE</div>
-            <div class="viewer-count">👁️ <span id="view-count">0</span></div>
+            <div class="status-badge" id="conn-status">Ready</div>
             <div style="flex-grow:1"></div>
             <div id="room-id-display" style="font-size: 12px; opacity: 0.8; font-weight: bold;"></div>
         </div>
@@ -178,21 +71,18 @@
     </div>
 
     <div id="setup-panel">
-        <h2>🔥 FireTok</h2>
-        
+        <h2>🔥 Global Live</h2>
         <div style="margin-bottom: 15px;">
-            <button id="tab-host" class="tab-btn active-tab" onclick="switchTab('host')">I am Host</button>
-            <button id="tab-viewer" class="tab-btn btn-secondary" onclick="switchTab('viewer')">I am Viewer</button>
+            <button id="tab-host" class="tab-btn active-tab" onclick="switchTab('host')">Host</button>
+            <button id="tab-viewer" class="tab-btn btn-secondary" onclick="switchTab('viewer')">Viewer</button>
         </div>
-
         <div id="host-controls">
-            <input type="text" id="host-room-id" placeholder="Create Stream ID (e.g. 'cool-live')">
-            <button id="create-btn" class="btn-primary">Start Live</button>
+            <input type="text" id="host-room-id" placeholder="Create Room Name">
+            <button id="create-btn" class="btn-primary">Start Broadcasting</button>
         </div>
-
         <div id="viewer-controls" class="hidden">
-            <input type="text" id="viewer-room-id" placeholder="Enter Stream ID to Join">
-            <button id="join-btn" class="btn-primary">Join Live</button>
+            <input type="text" id="viewer-room-id" placeholder="Enter Room Name">
+            <button id="join-btn" class="btn-primary">Join Broadcast</button>
         </div>
     </div>
 </div>
@@ -201,6 +91,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { getFirestore, collection, doc, addDoc, setDoc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
+    // Firebase Config (Edulinki)
     const firebaseConfig = {
         apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
         authDomain: "edulinki.firebaseapp.com",
@@ -214,8 +105,29 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // --- IMPORTANT: Global Connectivity Configuration ---
+    // We use a free public TURN server (OpenRelay) + Google STUN
+    // Note: Free TURN servers are often overloaded or shut down. 
+    // For a real production app, buy a service from Twilio or Metered.ca.
     const servers = {
-        iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }],
+        iceServers: [
+            { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] },
+            { 
+                urls: "turn:openrelay.metered.ca:80", 
+                username: "openrelayproject", 
+                credential: "openrelayproject" 
+            },
+            { 
+                urls: "turn:openrelay.metered.ca:443", 
+                username: "openrelayproject", 
+                credential: "openrelayproject" 
+            },
+            { 
+                urls: "turn:openrelay.metered.ca:443?transport=tcp", 
+                username: "openrelayproject", 
+                credential: "openrelayproject" 
+            }
+        ],
         iceCandidatePoolSize: 10,
     };
 
@@ -224,14 +136,14 @@
     let remoteStream = null;
     let roomId = null;
 
-    // UI Elements
+    // Elements
     const localVideo = document.getElementById('localVideo');
     const remoteVideo = document.getElementById('remoteVideo');
     const setupPanel = document.getElementById('setup-panel');
     const roomIdDisplay = document.getElementById('room-id-display');
-    const chatBox = document.getElementById('chat-box');
-    
-    // --- UI TABS LOGIC ---
+    const statusBadge = document.getElementById('conn-status');
+
+    // UI Logic
     window.switchTab = (mode) => {
         if(mode === 'host') {
             document.getElementById('host-controls').classList.remove('hidden');
@@ -246,28 +158,38 @@
         }
     }
 
-    // --- 1. HOST LOGIC (Create Stream with Custom ID) ---
-    document.getElementById('create-btn').onclick = async () => {
-        const customId = document.getElementById('host-room-id').value.trim();
-        if (!customId) return alert("Please enter a Stream ID!");
+    // Monitor Connection State
+    pc.onconnectionstatechange = () => {
+        const state = pc.connectionState;
+        statusBadge.innerText = state.toUpperCase();
+        if(state === 'connected') statusBadge.style.background = '#00c853'; // Green
+        else if(state === 'failed' || state === 'disconnected') statusBadge.style.background = '#d50000'; // Red
+        else statusBadge.style.background = '#ffab00'; // Orange/Loading
+    };
 
-        roomId = customId; // Use the user input as ID
+    // --- HOST ---
+    document.getElementById('create-btn').onclick = async () => {
+        roomId = document.getElementById('host-room-id').value.trim();
+        if (!roomId) return alert("Enter a name!");
+
         setupPanel.classList.add('hidden');
         remoteVideo.classList.add('hidden'); 
         roomIdDisplay.innerText = `@${roomId}`;
+        statusBadge.innerText = "STARTING...";
 
-        // Get Camera
+        // Force cleanup of old tracks
+        if(localStream) localStream.getTracks().forEach(track => track.stop());
+
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
         localVideo.srcObject = localStream;
 
-        // **KEY CHANGE:** Use doc(db, "calls", roomId) instead of creating a random one
-        const callDoc = doc(db, "calls", roomId); 
+        const callDoc = doc(db, "calls", roomId);
         const offerCandidates = collection(callDoc, "offerCandidates");
         const answerCandidates = collection(callDoc, "answerCandidates");
 
-        // Clear any old data if this ID was used before (Optional but recommended)
-        // For simplicity in this demo, we overwrite directly.
+        // Clean old data hack (simple overwrite)
+        await setDoc(callDoc, { type: 'ready' }); 
 
         pc.onicecandidate = (event) => {
             event.candidate && addDoc(offerCandidates, event.candidate.toJSON());
@@ -276,12 +198,7 @@
         const offerDescription = await pc.createOffer();
         await pc.setLocalDescription(offerDescription);
 
-        const offer = {
-            sdp: offerDescription.sdp,
-            type: offerDescription.type,
-        };
-
-        // setDoc will create or overwrite the document with the specific ID
+        const offer = { sdp: offerDescription.sdp, type: offerDescription.type };
         await setDoc(callDoc, { offer });
 
         onSnapshot(callDoc, (snapshot) => {
@@ -294,24 +211,22 @@
 
         onSnapshot(answerCandidates, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added') {
-                    const candidate = new RTCIceCandidate(change.doc.data());
-                    pc.addIceCandidate(candidate);
-                }
+                if (change.type === 'added') pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
             });
         });
 
-        setupChatListener(roomId);
+        setupChat(roomId);
     };
 
-    // --- 2. VIEWER LOGIC (Join Stream by ID) ---
+    // --- VIEWER ---
     document.getElementById('join-btn').onclick = async () => {
         roomId = document.getElementById('viewer-room-id').value.trim();
-        if (!roomId) return alert("Enter Stream ID!");
+        if (!roomId) return alert("Enter a name!");
 
         setupPanel.classList.add('hidden');
         localVideo.classList.add('hidden');
         roomIdDisplay.innerText = `@${roomId}`;
+        statusBadge.innerText = "JOINING...";
 
         const callDoc = doc(db, "calls", roomId);
         const offerCandidates = collection(callDoc, "offerCandidates");
@@ -319,9 +234,7 @@
 
         remoteStream = new MediaStream();
         pc.ontrack = (event) => {
-            event.streams[0].getTracks().forEach((track) => {
-                remoteStream.addTrack(track);
-            });
+            event.streams[0].getTracks().forEach((track) => remoteStream.addTrack(track));
         };
         remoteVideo.srcObject = remoteStream;
 
@@ -330,59 +243,52 @@
         };
 
         const callSnapshot = await getDoc(callDoc);
-        if (!callSnapshot.exists()) return alert("Stream not found!"); // Better error handling
-        
+        if (!callSnapshot.exists()) {
+            setupPanel.classList.remove('hidden');
+            return alert("Live stream not found!");
+        }
+
         const callData = callSnapshot.data();
-        const offerDescription = callData.offer;
-        await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+        await pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
 
         const answerDescription = await pc.createAnswer();
         await pc.setLocalDescription(answerDescription);
 
-        const answer = {
-            type: answerDescription.type,
-            sdp: answerDescription.sdp,
-        };
-
+        const answer = { type: answerDescription.type, sdp: answerDescription.sdp };
         await updateDoc(callDoc, { answer });
 
         onSnapshot(offerCandidates, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added') {
-                    const candidate = new RTCIceCandidate(change.doc.data());
-                    pc.addIceCandidate(candidate);
-                }
+                if (change.type === 'added') pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
             });
         });
 
-        setupChatListener(roomId);
+        setupChat(roomId);
     };
 
-    // --- 3. CHAT ---
-    function setupChatListener(id) {
+    function setupChat(id) {
         const messagesRef = collection(db, `calls/${id}/messages`);
+        const chatBox = document.getElementById('chat-box');
         
         onSnapshot(messagesRef, (snapshot) => {
-            chatBox.innerHTML = ''; 
+            chatBox.innerHTML = '';
             let msgs = [];
             snapshot.forEach(doc => msgs.push(doc.data()));
             msgs.sort((a,b) => a.timestamp - b.timestamp);
-
             msgs.forEach(msg => {
                 const div = document.createElement('div');
                 div.className = 'chat-message';
-                div.innerHTML = `<span class="chat-user">${msg.user}:</span> <span class="chat-text">${msg.text}</span>`;
+                div.innerHTML = `<span class="chat-user">${msg.user}:</span> ${msg.text}`;
                 chatBox.appendChild(div);
             });
             chatBox.scrollTop = chatBox.scrollHeight;
-            document.getElementById('view-count').innerText = Math.floor(Math.random() * 20) + 1; 
         });
 
         document.getElementById('send-btn').onclick = async () => {
             const input = document.getElementById('chat-input');
             if(!input.value) return;
             await addDoc(messagesRef, {
-                user: "User" + Math.floor(Math.random()*100),
+                user: "Guest" + Math.floor(Math.random()*100),
                 text: input.value,
                 timestamp: Date.now()
             });

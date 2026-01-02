@@ -81,9 +81,8 @@
             flex: 1; 
             display: none; 
             position: relative;
-            /* Adjusted padding for desktop to center better */
             padding: 80px 40px 100px 40px; 
-            overflow-y: auto; /* Allow scrolling if many users */
+            overflow-y: auto; 
             overflow-x: hidden;
             transition: margin-right 0.3s ease;
         }
@@ -94,31 +93,24 @@
             #meeting-stage.drawer-open { margin-right: 0; } 
         }
 
-        /* --- NEW ROBUST GRID CSS --- */
         #video-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 16px;
             width: 100%;
-            max-width: 1400px; /* Prevent stretching too wide on huge monitors */
-            margin: 0 auto; /* Center the grid */
+            max-width: 1400px; 
+            margin: 0 auto; 
             align-content: center;
             justify-content: center;
             min-height: 100%;
         }
         
-        /* Specific adjustments based on child count (Handled in JS somewhat, but CSS fallback is good) */
-        /* If 1 child, max width */
         #video-grid.grid-1 { grid-template-columns: 1fr; max-width: 900px; }
-        /* If 2 children */
         #video-grid.grid-2 { grid-template-columns: 1fr 1fr; }
 
         @media (max-width: 600px) {
-            #video-grid {
-                grid-template-columns: 1fr; /* Stack on mobile */
-                align-content: flex-start;
-            }
-            #video-grid.grid-2 { grid-template-columns: 1fr; } /* Force stack on small mobile */
+            #video-grid { grid-template-columns: 1fr; align-content: flex-start; }
+            #video-grid.grid-2 { grid-template-columns: 1fr; }
         }
 
         /* --- VIDEO CARD --- */
@@ -130,42 +122,20 @@
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             box-shadow: 0 4px 20px rgba(0,0,0,0.4);
             border: 2px solid transparent;
-            
-            /* Aspect Ratio Hack to keep 16:9ish but responsive */
             aspect-ratio: 16/9;
             width: 100%;
         }
 
-        /* Mobile specific height adjustment */
         @media (max-width: 600px) {
-            .vid-card {
-                aspect-ratio: 4/3; /* Taller on mobile phones */
-                max-height: 40vh;
-            }
+            .vid-card { aspect-ratio: 4/3; max-height: 40vh; }
         }
 
         .vid-card.speaking { border-color: var(--primary); box-shadow: 0 0 15px rgba(138, 180, 248, 0.3); }
 
-        video { 
-            width: 100%; height: 100%; 
-            object-fit: cover; 
-            background: #000; 
-        }
-        
+        video { width: 100%; height: 100%; object-fit: cover; background: #000; }
         .mirrored { transform: scaleX(-1); }
-        
-        .screen-share-mode video {
-            object-fit: contain !important; 
-            transform: scaleX(1) !important; 
-            background: #111;
-        }
-
-        .rotated-fullscreen video {
-            transform: rotate(90deg);
-            width: 100vh !important;
-            height: 100vw !important;
-            object-fit: contain;
-        }
+        .screen-share-mode video { object-fit: contain !important; transform: scaleX(1) !important; background: #111; }
+        .rotated-fullscreen video { transform: rotate(90deg); width: 100vh !important; height: 100vw !important; object-fit: contain; }
         
         .name-tag {
             position: absolute; bottom: 12px; left: 12px;
@@ -207,26 +177,26 @@
         .card-dropdown {
             position: absolute; top: 50px; right: 12px;
             background: #2c2c2c; border: 1px solid var(--border);
-            border-radius: 8px; padding: 4px; width: 140px;
+            border-radius: 8px; padding: 4px; width: 160px; /* Wider for new options */
             display: none; flex-direction: column;
             box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 20;
         }
         .card-dropdown.show { display: flex; }
         .dropdown-item {
-            padding: 8px 12px; font-size: 13px; color: white; cursor: pointer;
+            padding: 10px 12px; font-size: 13px; color: white; cursor: pointer;
             display: flex; align-items: center; gap: 8px; border-radius: 4px;
         }
         .dropdown-item:hover { background: rgba(255,255,255,0.1); }
+        .dropdown-item.danger { color: #ff8a80; }
 
-        /* Pinned Mode Classes - Override Grid */
+        /* Pinned Mode Classes */
         .vid-card.pinned-view {
             z-index: 40;
             border-color: var(--primary);
-            grid-column: 1 / -1; /* Span all columns */
-            grid-row: 1 / -1; /* Span all rows */
-            aspect-ratio: auto; /* Let it fill naturally */
-            height: 100%;
-            width: 100%;
+            grid-column: 1 / -1; 
+            grid-row: 1 / -1;
+            aspect-ratio: auto; 
+            height: 100%; width: 100%;
         }
 
         /* --- CONTROLS --- */
@@ -272,7 +242,6 @@
         }
         .drawer.open { transform: translateX(0); }
 
-        /* Mobile Bottom Sheet */
         @media (max-width: 768px) {
             .drawer {
                 top: auto; bottom: 0; left: 0; right: 0; width: 100%; 
@@ -284,14 +253,14 @@
             #chat-drawer { height: 85vh !important; }
             #options-drawer { height: auto !important; max-height: 50vh; }
 
-            .msg { width: 95% !important; max-width: 95% !important; }
-            .msg-bubble { width: 100%; font-size: 16px !important; padding: 16px !important; min-height: 44px; display: flex; align-items: center; }
-            .msg-name { font-size: 13px !important; margin-bottom: 6px !important; }
+            /* --- FIXED MOBILE BUBBLES --- */
+            /* Removed full-width constraint so bubbles size to content */
+            .msg { max-width: 85% !important; } 
+            .msg-bubble { font-size: 15px !important; padding: 12px 16px !important; }
             
             .chat-footer { padding: 10px 14px !important; }
             .chat-input { padding: 12px 16px !important; font-size: 15px !important; }
             .chat-send { padding: 6px !important; }
-            .chat-send svg { width: 20px; height: 20px; }
         }
 
         /* Chat Specific */
@@ -417,7 +386,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, deleteDoc, query, orderBy, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, deleteDoc, query, orderBy, getDocs, writeBatch, deleteField } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         lucide.createIcons();
 
@@ -442,7 +411,11 @@
         let pcs = {};
         let audioCtx;
         let isMuted = false, isCamOff = false, isHandRaised = false, isChatOpen = false, isOptionsOpen = false;
-        let pinnedUserId = null; 
+        
+        // Pinned State
+        let localPinnedId = null;  // For "Pin for me"
+        let globalSpotlightId = null; // For "Spotlight" (Database)
+        
         let userCount = 0;
 
         // DOM Elements
@@ -454,42 +427,46 @@
         const optionsDrawer = document.getElementById('options-drawer');
         const unreadDot = document.getElementById('unreadDot');
         
-        // --- 1. NEW SIMPLIFIED GRID LAYOUT ---
+        // --- 1. LAYOUT LOGIC ---
         function calculateLayout() {
             const count = grid.children.length;
-            
-            // Remove helper classes first
             grid.classList.remove('grid-1', 'grid-2');
-            
-            // Add helper classes for specific counts (helps CSS adjust sizing)
             if(count === 1) grid.classList.add('grid-1');
             if(count === 2) grid.classList.add('grid-2');
 
-            if (pinnedUserId) {
-                Array.from(grid.children).forEach(card => {
-                    const id = card.id.replace('vid-', '');
-                    if (id === pinnedUserId) {
-                        card.style.display = 'block';
-                        card.classList.add('pinned-view');
-                    } else {
-                        card.style.display = 'none'; 
-                        card.classList.remove('pinned-view');
-                    }
-                });
-                // Force grid to be single item for pin
-                grid.style.display = 'block'; 
-                grid.style.height = '100%';
-                return;
+            // Logic: Spotlight (Global) takes precedence, then Local Pin.
+            // If there is a global spotlight, everyone MUST see it, unless I specifically pinned someone else locally?
+            // Standard behavior: Spotlight overrides everything.
+            
+            const activePin = globalSpotlightId || localPinnedId;
+
+            if (activePin) {
+                // Check if the pinned user is actually in the grid
+                const pinnedCard = document.getElementById(`vid-${activePin}`);
+                
+                if(pinnedCard) {
+                    Array.from(grid.children).forEach(card => {
+                        const id = card.id.replace('vid-', '');
+                        if (id === activePin) {
+                            card.style.display = 'block';
+                            card.classList.add('pinned-view');
+                        } else {
+                            card.style.display = 'none'; 
+                            card.classList.remove('pinned-view');
+                        }
+                    });
+                    grid.style.display = 'block'; 
+                    grid.style.height = '100%';
+                    return;
+                }
             }
 
-            // Reset grid style for normal mode
+            // Normal Grid
             grid.style.display = 'grid';
             grid.style.height = 'auto';
-
             Array.from(grid.children).forEach(c => {
                 c.style.display = 'block';
                 c.classList.remove('pinned-view');
-                // Remove fixed sizes, let CSS Grid handle it
                 c.style.width = '';
                 c.style.height = '';
                 c.style.flex = '';
@@ -521,8 +498,11 @@
                     <i data-lucide="more-vertical" size="16"></i>
                 </button>
                 <div class="card-dropdown" id="menu-${uid}">
-                    <div class="dropdown-item" onclick="pinUser('${uid}')">
-                        <i data-lucide="pin" size="14"></i> ${pinnedUserId === uid ? 'Unpin' : 'Pin User'}
+                    <div class="dropdown-item" onclick="pinLocal('${uid}')">
+                        <i data-lucide="pin" size="14"></i> ${localPinnedId === uid ? 'Unpin (Me)' : 'Pin for me'}
+                    </div>
+                    <div class="dropdown-item" onclick="toggleSpotlight('${uid}')">
+                        <i data-lucide="target" size="14"></i> ${globalSpotlightId === uid ? 'Remove Spotlight' : 'Spotlight (All)'}
                     </div>
                     <div class="dropdown-item" onclick="enterFullscreen('${uid}')">
                         <i data-lucide="maximize" size="14"></i> Fullscreen
@@ -539,14 +519,28 @@
         function removeVideoCard(uid) {
             const card = document.getElementById(`vid-${uid}`);
             if(card) { card.remove(); calculateLayout(); }
-            if(pinnedUserId === uid) { pinnedUserId = null; calculateLayout(); }
+            if(localPinnedId === uid) localPinnedId = null;
+            // Note: We don't clear global spotlight here automatically in case they rejoin, 
+            // but usually you would.
+            calculateLayout();
         }
 
-        // --- 3. MENU ACTIONS (Pin / Fullscreen) ---
+        // --- 3. MENU ACTIONS (Local Pin / Spotlight / Fullscreen) ---
         window.toggleCardMenu = (e, uid) => {
             e.stopPropagation();
-            document.querySelectorAll('.card-dropdown').forEach(d => d.classList.remove('show'));
+            // Refresh menu text based on current state
             const menu = document.getElementById(`menu-${uid}`);
+            
+            // Update Text Dynamically
+            const pinBtn = menu.children[0];
+            pinBtn.innerHTML = `<i data-lucide="pin" size="14"></i> ${localPinnedId === uid ? 'Unpin (Me)' : 'Pin for me'}`;
+            
+            const spotBtn = menu.children[1];
+            spotBtn.innerHTML = `<i data-lucide="target" size="14"></i> ${globalSpotlightId === uid ? 'Remove Spotlight' : 'Spotlight (All)'}`;
+            
+            lucide.createIcons();
+
+            document.querySelectorAll('.card-dropdown').forEach(d => d.classList.remove('show'));
             menu.classList.toggle('show');
         }
 
@@ -554,27 +548,34 @@
             document.querySelectorAll('.card-dropdown').forEach(d => d.classList.remove('show'));
         });
 
-        window.pinUser = (uid) => {
-            if (pinnedUserId === uid) {
-                pinnedUserId = null; 
-            } else {
-                pinnedUserId = uid; 
-            }
+        // LOCAL PIN
+        window.pinLocal = (uid) => {
+            localPinnedId = (localPinnedId === uid) ? null : uid;
+            // If I pin locally, it overrides viewing the spotlight temporarily for me
             calculateLayout();
+        }
+
+        // GLOBAL SPOTLIGHT (DB Write)
+        window.toggleSpotlight = async (uid) => {
+            const roomRef = doc(db, `rooms/${roomId}`);
+            if (globalSpotlightId === uid) {
+                // Remove spotlight
+                await updateDoc(roomRef, { spotlight: deleteField() });
+            } else {
+                // Set spotlight
+                await updateDoc(roomRef, { spotlight: uid });
+            }
         }
 
         window.enterFullscreen = (uid) => {
             const card = document.getElementById(`vid-${uid}`);
             const video = card.querySelector('video');
-
             if (video.requestFullscreen) {
-                video.requestFullscreen()
-                .then(() => {
+                video.requestFullscreen().then(() => {
                     if (screen.orientation && screen.orientation.lock) {
-                        screen.orientation.lock("landscape").catch(e => console.log("Lock failed", e));
+                        screen.orientation.lock("landscape").catch(console.log);
                     }
-                })
-                .catch(err => console.error(err));
+                }).catch(console.error);
             } else if (video.webkitRequestFullscreen) {
                 video.webkitRequestFullscreen();
             }
@@ -616,7 +617,16 @@
                 await cleanupRoomIfEmpty();
             };
 
-            // Users
+            // 1. Listen to Room Doc (for Spotlight)
+            onSnapshot(doc(db, `rooms/${roomId}`), (snap) => {
+                if(snap.exists()) {
+                    const data = snap.data();
+                    globalSpotlightId = data.spotlight || null;
+                    calculateLayout(); // Re-render grid when spotlight changes
+                }
+            });
+
+            // 2. Listen to Users
             onSnapshot(collection(db, `rooms/${roomId}/users`), (snap) => {
                 userCount = snap.size;
                 snap.docChanges().forEach(change => {
@@ -636,7 +646,7 @@
                 });
             });
 
-            // Signals
+            // 3. Signals
             onSnapshot(collection(db, `rooms/${roomId}/signals`), (snap) => {
                 snap.docChanges().forEach(async change => {
                     if(change.type === 'added') {
@@ -649,7 +659,7 @@
                 });
             });
 
-            // Chat
+            // 4. Chat
             onSnapshot(query(collection(db, `rooms/${roomId}/chat`), orderBy('ts')), (snap) => {
                 snap.docChanges().forEach(change => {
                     if(change.type === 'added') {
@@ -743,7 +753,6 @@
             optionsDrawer.classList.toggle('open', isOptionsOpen);
             stage.classList.toggle('drawer-open', isOptionsOpen);
             document.getElementById('moreBtn').classList.toggle('active', isOptionsOpen);
-            // No layout recalc needed for small overlay
         };
 
         window.toggleHand = () => {

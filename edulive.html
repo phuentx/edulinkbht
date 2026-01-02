@@ -3,57 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edulinki Force Connect</title>
+    <title>Edulinki Live</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: monospace; background: #121212; color: #0f0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 10px; }
-        .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 15px; }
+        body { background-color: #000; color: white; font-family: sans-serif; overflow: hidden; }
         
-        .controls { background: #222; padding: 20px; border-radius: 8px; border: 1px solid #333; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        input { background: #000; color: white; border: 1px solid #555; padding: 10px; border-radius: 4px; font-family: monospace; }
-        button { padding: 10px 20px; font-weight: bold; cursor: pointer; border: none; border-radius: 4px; }
-        #createBtn { background: #007bff; color: white; }
-        #joinBtn { background: #28a745; color: white; }
-        #hangupBtn { background: #dc3545; color: white; }
+        /* Mobile Frame */
+        .app-container {
+            width: 100%; height: 100vh; max-width: 500px; margin: 0 auto;
+            position: relative; background: #121212; display: flex; flex-direction: column;
+            border: 1px solid #333; overflow: hidden;
+        }
 
-        .status { background: #1a1a1a; padding: 10px; border-radius: 4px; border: 1px solid #333; min-height: 40px; white-space: pre-wrap; word-break: break-all; font-size: 0.9em; }
+        /* Video Layer */
+        .video-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
+        }
+        .host-video { width: 100%; height: 100%; object-fit: cover; }
         
-        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .vid-box { position: relative; background: #000; border: 1px solid #333; aspect-ratio: 16/9; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        .label { position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; font-size: 10px; }
+        /* Guest PIP (Picture in Picture) */
+        .guest-video-box {
+            position: absolute; top: 80px; right: 20px; width: 120px; height: 180px;
+            background: #222; border-radius: 12px; border: 2px solid rgba(255,255,255,0.3);
+            overflow: hidden; display: none; z-index: 10;
+        }
+        .guest-video-box.active { display: block; }
+
+        /* UI Layer */
+        .ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20;
+            pointer-events: none; /* Let clicks pass through to video/controls */
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+
+        /* Header */
+        .live-header {
+            padding: 15px; display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            pointer-events: auto;
+        }
+        .live-badge {
+            background: #fe2c55; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;
+        }
+
+        /* Bottom Controls */
+        .bottom-area {
+            padding: 15px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            pointer-events: auto;
+        }
+
+        /* Chat Box */
+        .chat-container {
+            height: 200px; overflow-y: auto; margin-bottom: 10px; 
+            mask-image: linear-gradient(to bottom, transparent, black 20%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%);
+        }
+        .chat-msg { margin-bottom: 6px; font-size: 14px; text-shadow: 1px 1px 2px black; }
+        .chat-name { font-weight: bold; color: #ccc; margin-right: 5px; }
+
+        /* Action Buttons */
+        .actions { display: flex; gap: 10px; align-items: center; }
+        .btn-icon {
+            width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; color: white;
+        }
+        .input-chat {
+            flex: 1; background: rgba(0,0,0,0.5); border: 1px solid #444; color: white;
+            border-radius: 20px; padding: 8px 15px; outline: none;
+        }
+
+        /* Modals (Home, Create) */
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 50;
+            display: flex; flex-direction: column; overflow-y: auto; pointer-events: auto;
+        }
+        .screen.hidden { display: none; }
+        
+        /* Live Card in Feed */
+        .live-card {
+            background: #222; margin: 10px; border-radius: 10px; padding: 15px;
+            display: flex; align-items: center; gap: 10px; cursor: pointer; border: 1px solid #333;
+        }
+        .avatar { width: 40px; height: 40px; background: #555; border-radius: 50%; }
+
+        /* Request List (Host Side) */
+        .req-list {
+            position: absolute; bottom: 80px; right: 10px; width: 200px; background: rgba(0,0,0,0.9);
+            border-radius: 12px; padding: 10px; max-height: 200px; overflow-y: auto; display: none; pointer-events: auto;
+        }
+        .req-item { font-size: 12px; display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center; }
+        .btn-accept { background: #fe2c55; border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2 style="text-align: center; margin: 5px;">Edulinki Connector v3</h2>
+    <div class="app-container">
         
-        <div class="controls">
-            <input type="text" id="callInput" placeholder="Enter Room Name" />
-            <button id="createBtn">CREATE Call</button>
-            <button id="joinBtn">JOIN Call</button>
-            <button id="hangupBtn" disabled>Reset</button>
+        <div id="homeScreen" class="screen">
+            <div class="live-header">
+                <h2 class="font-bold text-lg">Edulinki Live</h2>
+                <div class="flex gap-4 text-gray-400 font-bold text-sm">
+                    <span class="text-white border-b-2 border-white">Live</span>
+                    <span>Following</span>
+                </div>
+                <i class="fa-solid fa-search text-xl"></i>
+            </div>
+
+            <div id="feedList" class="p-2">
+                <p class="text-center text-gray-500 mt-10">Loading active streams...</p>
+            </div>
+
+            <button onclick="openCreateScreen()" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white text-black p-4 rounded-full shadow-lg">
+                <i class="fa-solid fa-plus text-2xl"></i>
+            </button>
         </div>
 
-        <div class="status" id="statusLogs">Log: Waiting for user action...</div>
-
-        <div class="video-grid">
-            <div class="vid-box">
-                <video id="localVideo" autoplay playsinline muted></video>
-                <div class="label">YOU</div>
-            </div>
-            <div class="vid-box">
-                <video id="remoteVideo" autoplay playsinline></video>
-                <div class="label">THEM</div>
+        <div id="createScreen" class="screen hidden bg-gray-900">
+            <div class="p-4">
+                <button onclick="showHome()" class="text-white text-xl"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2 class="text-center text-xl font-bold mt-4">Start LIVE</h2>
+                
+                <div class="mt-10 flex flex-col items-center gap-4">
+                    <div class="w-32 h-32 bg-gray-700 rounded-full flex items-center justify-center text-4xl">📸</div>
+                    <input type="text" id="streamTitle" placeholder="Add a title..." class="bg-transparent text-center text-xl text-white outline-none border-b border-gray-600 pb-2 w-3/4">
+                    
+                    <button id="goLiveBtn" class="bg-[#fe2c55] text-white font-bold py-3 px-10 rounded-full mt-10 text-lg shadow-red-500/50 shadow-lg">
+                        Go LIVE
+                    </button>
+                </div>
             </div>
         </div>
+
+        <div id="liveRoom" class="screen hidden relative">
+            
+            <div class="video-layer">
+                <video id="mainVideo" class="host-video" autoplay playsinline muted></video>
+                
+                <div id="guestBox" class="guest-video-box">
+                    <video id="guestVideo" style="width:100%; height:100%; object-fit:cover;" autoplay playsinline></video>
+                </div>
+            </div>
+
+            <div class="ui-layer">
+                <div class="live-header">
+                    <div class="flex items-center gap-2 bg-black/40 rounded-full p-1 pr-3">
+                        <div class="avatar bg-gray-500"></div>
+                        <div>
+                            <div id="hostNameDisplay" class="text-xs font-bold">Host</div>
+                            <div class="text-[10px] text-gray-300">12k Likes</div>
+                        </div>
+                        <button onclick="leaveRoom()" class="bg-[#fe2c55] text-xs px-3 py-1 rounded-full ml-2">End</button>
+                    </div>
+                    <div class="live-badge">LIVE</div>
+                </div>
+
+                <div id="requestList" class="req-list">
+                    <div class="text-gray-400 text-xs mb-2">Guest Requests</div>
+                    <div id="reqItems"></div>
+                </div>
+
+                <div class="bottom-area">
+                    <div class="chat-container" id="chatBox"></div>
+                    
+                    <div class="actions">
+                        <input type="text" id="chatInput" class="input-chat" placeholder="Say something...">
+                        <button onclick="sendChat()" class="btn-icon"><i class="fa-solid fa-paper-plane"></i></button>
+                        
+                        <button id="requestBtn" onclick="requestToJoin()" class="btn-icon bg-green-600/50 hidden">
+                            <i class="fa-solid fa-video"></i>
+                        </button>
+                        
+                        <button id="hostReqBtn" onclick="toggleReqList()" class="btn-icon bg-blue-600/50 hidden relative">
+                            <i class="fa-solid fa-user-group"></i>
+                            <div id="reqBadge" class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full hidden"></div>
+                        </button>
+
+                        <button class="btn-icon"><i class="fa-solid fa-gift text-pink-500"></i></button>
+                        <button class="btn-icon"><i class="fa-solid fa-share text-white"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, deleteDoc, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        // CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
             authDomain: "edulinki.firebaseapp.com",
@@ -65,191 +203,323 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const firestore = getFirestore(app);
+        const db = getFirestore(app);
 
-        // MAXIMUM STUN SERVERS
+        // --- STATE ---
+        let myId = "user_" + Math.floor(Math.random() * 10000);
+        let currentRoomId = null;
+        let isHost = false;
+        let pc = null;
+        let localStream = null;
+
         const servers = {
             iceServers: [
-                { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] },
-                { urls: ['stun:stun3.l.google.com:19302', 'stun:stun4.l.google.com:19302'] },
-                { urls: ['stun:global.stun.twilio.com:3478'] } 
-            ],
-            iceCandidatePoolSize: 10,
+                { urls: ['stun:stun1.l.google.com:19302', 'stun:global.stun.twilio.com:3478'] }
+            ]
         };
 
-        let pc = new RTCPeerConnection(servers);
-        let localStream = null;
-        let remoteStream = null;
+        // --- DOM ELEMENTS ---
+        const homeScreen = document.getElementById('homeScreen');
+        const createScreen = document.getElementById('createScreen');
+        const liveRoom = document.getElementById('liveRoom');
+        const feedList = document.getElementById('feedList');
+        const chatBox = document.getElementById('chatBox');
+        const mainVideo = document.getElementById('mainVideo');
+        const guestVideo = document.getElementById('guestVideo');
+        const guestBox = document.getElementById('guestBox');
 
-        // UI Elements
-        const logDiv = document.getElementById('statusLogs');
-        const localVideo = document.getElementById('localVideo');
-        const remoteVideo = document.getElementById('remoteVideo');
-        const callInput = document.getElementById('callInput');
-        const createBtn = document.getElementById('createBtn');
-        const joinBtn = document.getElementById('joinBtn');
-        const hangupBtn = document.getElementById('hangupBtn');
+        // --- NAVIGATION ---
+        window.openCreateScreen = () => {
+            homeScreen.classList.add('hidden');
+            createScreen.classList.remove('hidden');
+        };
 
-        function log(msg) {
-            console.log(msg);
-            logDiv.innerText = msg + "\n" + logDiv.innerText;
+        window.showHome = () => {
+            createScreen.classList.add('hidden');
+            liveRoom.classList.add('hidden');
+            homeScreen.classList.remove('hidden');
+            stopMedia();
+        };
+
+        // --- FEED LOGIC ---
+        function loadFeed() {
+            onSnapshot(collection(db, 'lives'), (snapshot) => {
+                feedList.innerHTML = '';
+                if(snapshot.empty) {
+                    feedList.innerHTML = '<div class="text-center text-gray-500 mt-10">No one is live right now.<br>Be the first!</div>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const el = document.createElement('div');
+                    el.className = 'live-card';
+                    el.innerHTML = `
+                        <div class="avatar border-2 border-[#fe2c55]"></div>
+                        <div class="flex-1">
+                            <div class="font-bold text-sm">${data.title}</div>
+                            <div class="text-xs text-gray-400">User: ${data.hostId}</div>
+                        </div>
+                        <div class="live-badge">LIVE</div>
+                    `;
+                    el.onclick = () => joinRoom(doc.id, data);
+                    feedList.appendChild(el);
+                });
+            });
+        }
+        loadFeed();
+
+        // --- HOST LOGIC ---
+        document.getElementById('goLiveBtn').onclick = async () => {
+            const title = document.getElementById('streamTitle').value || "Chilling 🎵";
+            isHost = true;
+            currentRoomId = "room_" + Date.now();
+
+            // 1. Create Room in DB
+            await setDoc(doc(db, 'lives', currentRoomId), {
+                title: title,
+                hostId: myId,
+                createdAt: Date.now(),
+                status: 'live'
+            });
+
+            // 2. UI Setup
+            createScreen.classList.add('hidden');
+            liveRoom.classList.remove('hidden');
+            document.getElementById('hostNameDisplay').innerText = title;
+            document.getElementById('hostReqBtn').classList.remove('hidden');
+            
+            // 3. Start Camera
+            await startLocalVideo(mainVideo);
+
+            // 4. Listen for Requests
+            listenForRequests(currentRoomId);
+            listenForChat(currentRoomId);
+        };
+
+        // --- VIEWER LOGIC ---
+        async function joinRoom(roomId, data) {
+            currentRoomId = roomId;
+            isHost = false;
+
+            homeScreen.classList.add('hidden');
+            liveRoom.classList.remove('hidden');
+            document.getElementById('hostNameDisplay').innerText = data.title;
+            document.getElementById('requestBtn').classList.remove('hidden');
+
+            // Listen for Chat
+            listenForChat(roomId);
+
+            // Listen if I am accepted as guest
+            onSnapshot(doc(db, 'lives', roomId), async (snapshot) => {
+                const roomData = snapshot.data();
+                if (!roomData) return alert("Stream ended");
+
+                // If I am the chosen guest and offer exists
+                if (roomData.guestId === myId && roomData.offer && !pc) {
+                    await startGuestConnection(roomData.offer);
+                }
+            });
         }
 
-        // 1. SETUP MEDIA
-        async function startMedia() {
+        // --- GUEST REQUEST LOGIC ---
+        window.requestToJoin = async () => {
+            const btn = document.getElementById('requestBtn');
+            btn.style.opacity = "0.5";
+            
+            await addDoc(collection(db, `lives/${currentRoomId}/requests`), {
+                userId: myId,
+                name: "Viewer " + myId.substr(-4)
+            });
+            alert("Request sent to Host!");
+        };
+
+        function listenForRequests(roomId) {
+            const reqList = document.getElementById('reqItems');
+            const badge = document.getElementById('reqBadge');
+
+            onSnapshot(collection(db, `lives/${roomId}/requests`), (snap) => {
+                reqList.innerHTML = '';
+                if(snap.empty) {
+                    badge.classList.add('hidden');
+                } else {
+                    badge.classList.remove('hidden');
+                    snap.forEach(d => {
+                        const req = d.data();
+                        const div = document.createElement('div');
+                        div.className = 'req-item';
+                        div.innerHTML = `
+                            <span>${req.name}</span>
+                            <button class="btn-accept" onclick="acceptGuest('${d.id}', '${req.userId}')">Accept</button>
+                        `;
+                        reqList.appendChild(div);
+                    });
+                }
+            });
+        }
+
+        window.toggleReqList = () => {
+            const list = document.getElementById('requestList');
+            list.style.display = list.style.display === 'block' ? 'none' : 'block';
+        };
+
+        window.acceptGuest = async (reqDocId, guestId) => {
+            document.getElementById('requestList').style.display = 'none';
+            
+            // 1. Initialize PeerConnection
+            pc = new RTCPeerConnection(servers);
+            
+            // 2. Add Host Tracks (Switch main video to stream)
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+            // 3. Handle Guest Stream
+            pc.ontrack = (event) => {
+                guestBox.classList.add('active');
+                guestVideo.srcObject = event.streams[0];
+            };
+
+            // 4. ICE Candidates
+            pc.onicecandidate = event => {
+                if(event.candidate) {
+                    addDoc(collection(db, `lives/${currentRoomId}/ice_host`), event.candidate.toJSON());
+                }
+            };
+
+            // 5. Create Offer
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+
+            // 6. Update DB to signal Guest
+            await updateDoc(doc(db, 'lives', currentRoomId), {
+                guestId: guestId,
+                offer: { type: offer.type, sdp: offer.sdp }
+            });
+
+            // 7. Delete Request
+            deleteDoc(doc(db, `lives/${currentRoomId}/requests`, reqDocId));
+
+            // 8. Listen for Answer
+            onSnapshot(doc(db, 'lives', currentRoomId), async (snap) => {
+                const data = snap.data();
+                if(data?.answer && !pc.currentRemoteDescription) {
+                    await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+                }
+            });
+
+            // 9. Listen for Guest ICE
+            onSnapshot(collection(db, `lives/${currentRoomId}/ice_guest`), snap => {
+                snap.docChanges().forEach(change => {
+                    if(change.type === 'added') {
+                        pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+                    }
+                });
+            });
+        };
+
+        async function startGuestConnection(offerData) {
+            // 1. Start My Camera (Guest)
+            await startLocalVideo(guestVideo); 
+            guestBox.classList.add('active'); // Show myself in small box
+
+            pc = new RTCPeerConnection(servers);
+
+            // 2. Add My Tracks
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+            // 3. Receive Host Tracks
+            pc.ontrack = (event) => {
+                // Host goes to MAIN video for me
+                mainVideo.srcObject = event.streams[0]; 
+                mainVideo.muted = false; // Unmute host
+            };
+
+            // 4. Handle ICE
+            pc.onicecandidate = event => {
+                if(event.candidate) {
+                    addDoc(collection(db, `lives/${currentRoomId}/ice_guest`), event.candidate.toJSON());
+                }
+            };
+
+            // 5. Set Remote (Offer)
+            await pc.setRemoteDescription(new RTCSessionDescription(offerData));
+
+            // 6. Create Answer
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+
+            // 7. Send Answer
+            await updateDoc(doc(db, 'lives', currentRoomId), {
+                answer: { type: answer.type, sdp: answer.sdp }
+            });
+
+            // 8. Listen for Host ICE
+            onSnapshot(collection(db, `lives/${currentRoomId}/ice_host`), snap => {
+                snap.docChanges().forEach(change => {
+                    if(change.type === 'added') {
+                        pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+                    }
+                });
+            });
+        }
+
+        // --- UTILS ---
+        async function startLocalVideo(videoElement) {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                localVideo.srcObject = localStream;
-                
-                remoteStream = new MediaStream();
-                pc.ontrack = (event) => {
-                    log("🎥 Received remote video track!");
-                    event.streams[0].getTracks().forEach((track) => remoteStream.addTrack(track));
-                    remoteVideo.srcObject = remoteStream;
-                };
-
-                localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
-                return true;
+                videoElement.srcObject = localStream;
+                videoElement.muted = true; // Avoid feedback
             } catch (e) {
-                log("❌ ERROR: Could not get Camera. Allow permissions!");
-                return false;
+                console.error("Camera Error:", e);
+                alert("Camera access denied!");
             }
         }
 
-        // 2. MONITOR CONNECTION STATE
-        pc.onconnectionstatechange = () => {
-            log(`🔄 Connection State: ${pc.connectionState}`);
-            if (pc.connectionState === 'failed') {
-                log("❌ FAILED. Firewall is blocking connection.");
-                // OPTIONAL: Restart ICE if failed
-                pc.restartIce();
-            }
-        };
+        function stopMedia() {
+            if(localStream) localStream.getTracks().forEach(t => t.stop());
+            if(pc) pc.close();
+            pc = null;
+            localStream = null;
+            guestBox.classList.remove('active');
+        }
 
-        // 3. ICE CANDIDATE BUFFERING (The Fix)
-        // We often receive candidates before the connection is ready. We must queue them.
-        let candidateQueue = [];
-        
-        async function handleRemoteCandidate(candidateData) {
-            if (!candidateData) return;
-            const candidate = new RTCIceCandidate(candidateData);
-            
-            if (pc.remoteDescription && pc.remoteDescription.type) {
-                try {
-                    await pc.addIceCandidate(candidate);
-                    log("✅ Added ICE Candidate");
-                } catch (e) {
-                    log("⚠️ Error adding ICE: " + e.message);
+        window.leaveRoom = async () => {
+            if(isHost && currentRoomId) {
+                if(confirm("End the live stream?")) {
+                    await deleteDoc(doc(db, 'lives', currentRoomId));
+                    window.location.reload();
                 }
             } else {
-                log("⏳ Queuing ICE Candidate (Not ready yet)");
-                candidateQueue.push(candidate);
-            }
-        }
-
-        async function processCandidateQueue() {
-            log(`🚀 Processing ${candidateQueue.length} queued candidates...`);
-            for (const candidate of candidateQueue) {
-                try {
-                    await pc.addIceCandidate(candidate);
-                } catch (e) { console.error(e); }
-            }
-            candidateQueue = [];
-        }
-
-        // CREATE BUTTON
-        createBtn.onclick = async () => {
-            const callId = callInput.value.trim();
-            if(!callId || !await startMedia()) return;
-            
-            createBtn.disabled = true; joinBtn.disabled = true;
-            hangupBtn.disabled = false;
-
-            const callDoc = doc(collection(firestore, 'calls'), callId);
-            const offerCandidates = collection(callDoc, 'offerCandidates');
-            const answerCandidates = collection(callDoc, 'answerCandidates');
-
-            // Send my candidates to DB
-            pc.onicecandidate = (event) => {
-                event.candidate && addDoc(offerCandidates, event.candidate.toJSON());
-            };
-
-            // Create Offer
-            const offerDescription = await pc.createOffer();
-            await pc.setLocalDescription(offerDescription);
-            
-            const offer = { sdp: offerDescription.sdp, type: offerDescription.type };
-            await setDoc(callDoc, { offer });
-            log(`📡 Offer Created! Waiting for answer on room: ${callId}`);
-
-            // Listen for Answer
-            onSnapshot(callDoc, (snapshot) => {
-                const data = snapshot.data();
-                if (!pc.currentRemoteDescription && data?.answer) {
-                    const answerDescription = new RTCSessionDescription(data.answer);
-                    pc.setRemoteDescription(answerDescription);
-                    log("🤝 Received Answer! Connecting...");
-                    processCandidateQueue(); // Process any candidates that arrived early
-                }
-            });
-
-            // Listen for Remote Candidates
-            onSnapshot(answerCandidates, (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === 'added') handleRemoteCandidate(change.doc.data());
-                });
-            });
-        };
-
-        // JOIN BUTTON
-        joinBtn.onclick = async () => {
-            const callId = callInput.value.trim();
-            if(!callId || !await startMedia()) return;
-
-            createBtn.disabled = true; joinBtn.disabled = true;
-            hangupBtn.disabled = false;
-
-            const callDoc = doc(collection(firestore, 'calls'), callId);
-            const offerCandidates = collection(callDoc, 'offerCandidates');
-            const answerCandidates = collection(callDoc, 'answerCandidates');
-
-            pc.onicecandidate = (event) => {
-                event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
-            };
-
-            const snapshot = await getDoc(callDoc);
-            const callData = snapshot.data();
-
-            if (!callData) {
-                alert("Room not found!");
                 window.location.reload();
-                return;
             }
-
-            log("📥 Received Offer. Sending Answer...");
-            
-            // Set Remote Description (Offer)
-            await pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
-            
-            // Create Answer
-            const answerDescription = await pc.createAnswer();
-            await pc.setLocalDescription(answerDescription);
-
-            const answer = { type: answerDescription.type, sdp: answerDescription.sdp };
-            await updateDoc(callDoc, { answer });
-            
-            // Now that remote desc is set, process any queued candidates
-            processCandidateQueue();
-
-            // Listen for Remote Candidates
-            onSnapshot(offerCandidates, (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === 'added') handleRemoteCandidate(change.doc.data());
-                });
-            });
         };
 
-        hangupBtn.onclick = () => window.location.reload();
+        // --- CHAT SYSTEM ---
+        window.sendChat = async () => {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if(!text) return;
+
+            await addDoc(collection(db, `lives/${currentRoomId}/comments`), {
+                name: isHost ? "Host" : "User " + myId.substr(-4),
+                msg: text,
+                time: Date.now()
+            });
+            input.value = "";
+        };
+
+        function listenForChat(roomId) {
+            onSnapshot(collection(db, `lives/${roomId}/comments`), (snap) => {
+                snap.docChanges().forEach(change => {
+                    if(change.type === 'added') {
+                        const d = change.doc.data();
+                        const p = document.createElement('div');
+                        p.className = 'chat-msg';
+                        p.innerHTML = `<span class="chat-name">${d.name}:</span> ${d.msg}`;
+                        chatBox.appendChild(p);
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    }
+                });
+            });
+        }
 
     </script>
 </body>

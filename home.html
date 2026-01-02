@@ -99,8 +99,8 @@ font-weight: 600;
 /* Notification Badge Logic (TikTok Style) */
 .nav-badge {
 position: absolute;
-top: 10px;
-right: 12px;
+top: 8px;
+right: 18px; /* Close to icon */
 background-color: #fe2c55; /* TikTok Red */
 color: white;
 font-size: 10px;
@@ -119,8 +119,8 @@ z-index: 10;
 /* Mobile Footer Badge - Attached to Icon */
 .mobile-footer-badge {
 position: absolute;
-top: -4px;
-right: -4px;
+top: -2px;
+right: -6px; /* Overlapping the icon */
 background-color: #fe2c55; /* TikTok Red */
 color: white;
 font-size: 10px;
@@ -957,6 +957,16 @@ transition: background 0.2s;
 .trend-rank { font-size: 11px; color: var(--text-secondary); margin-bottom: 2px; }
 .trend-tag { font-weight: 700; color: var(--on-surface); margin-bottom: 2px; font-size: 15px; }
 .trend-count { font-size: 11px; color: var(--text-secondary); }
+/* THREAD ANIMATION CLASSES */
+.thread-panel-anim {
+    animation: slideUp 0.3s cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+@media (min-width: 768px) {
+    .thread-panel-anim {
+        animation: scaleIn 0.2s ease-out forwards;
+    }
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 </style>
 </head>
 <body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
@@ -1062,7 +1072,7 @@ transition: background 0.2s;
 <!-- THREAD OVERLAY (Redesigned) -->
 <div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center">
 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div>
-<div class="bg-white w-full md:w-[600px] h-[95vh] md:h-[85vh] md:rounded-2xl rounded-t-2xl shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in">
+<div class="bg-white w-full md:w-[600px] h-[95vh] md:h-[85vh] md:rounded-2xl rounded-t-2xl shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden thread-panel-anim">
 <div class="h-14 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white z-10 sticky top-0">
 <button onclick="closeThread()" class="p-2 -ml-2 rounded-full hover:bg-gray-100"><i data-lucide="x" class="w-6 h-6 text-gray-600"></i></button>
 <span class="font-bold text-lg text-[#1f1f1f]">Thread</span>

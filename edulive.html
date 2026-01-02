@@ -241,32 +241,48 @@
 
         /* Mobile Bottom Sheet Style */
         @media (max-width: 768px) {
+            /* General Drawer Mobile Reset */
             .drawer {
                 top: auto; bottom: 0; left: 0; right: 0; width: 100%; 
-                /* FIXED HEIGHT: Does not grow. Starts big. */
-                height: 85vh !important; 
                 border-radius: 24px 24px 0 0; transform: translateY(100%);
                 border: none; box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
             }
             .drawer.open { transform: translateY(0); }
-            
+
+            /* Specific: CHAT DRAWER (Tall) */
+            #chat-drawer {
+                height: 85vh !important;
+            }
+
+            /* Specific: OPTIONS DRAWER (Small/Compact) */
+            #options-drawer {
+                height: auto !important;
+                max-height: 50vh; /* Don't go too high */
+            }
+
             /* FIXED MESSAGE WIDTH ON MOBILE */
             .msg {
-                width: 95% !important; /* Force width */
-                max-width: 95% !important;
+                width: 95% !important; max-width: 95% !important;
             }
-            
             .msg-bubble { 
-                width: 100%; /* Fill container */
-                font-size: 16px !important; 
-                padding: 16px !important; 
-                min-height: 44px;
-                display: flex;
-                align-items: center;
+                width: 100%; font-size: 16px !important; padding: 16px !important; 
+                min-height: 44px; display: flex; align-items: center;
             }
-            
             .msg-name { font-size: 13px !important; margin-bottom: 6px !important; }
-            .chat-input { padding: 16px !important; font-size: 16px !important; }
+            
+            /* COMPACT CHAT INPUT FOR MOBILE */
+            .chat-footer {
+                padding: 10px 14px !important;
+            }
+            .chat-input { 
+                padding: 12px 16px !important; font-size: 15px !important; 
+            }
+            .chat-send {
+                padding: 6px !important; /* Smaller hit area visually */
+            }
+            .chat-send svg {
+                width: 20px; height: 20px; /* Smaller icon */
+            }
         }
 
         /* Chat Specific */

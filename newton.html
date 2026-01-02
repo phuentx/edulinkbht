@@ -629,7 +629,7 @@
             </button>
             <div class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded-lg transition-colors border border-transparent hover:border-gray-200" id="model-selector">
                 <span class="text-sm font-medium text-textSecondary">Model:</span>
-                <span class="text-sm font-bold text-textPrimary">Newton (GPT-4o-Mini)</span>
+                <span class="text-sm font-bold text-textPrimary">Newton (OpenAI)</span>
                 <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
             </div>
         </div>
@@ -2084,6 +2084,548 @@
         attachments = attachments.filter(a => a.id !== id);
         renderAttachmentPreview();
         if(attachments.length === 0) document.getElementById('file-upload').value = '';
+    }
+
+    async function checkLocationAndSend() {
+        const inputEl = document.getElementById('user-input');
+        const text = inputEl.value.trim();
+        // Allow empty text if something is attached
+        if(!text && attachments.length === 0) return;
+        
+        const lowerText = text.toLowerCase();
+        const explicitMapRequest = lowerText.includes('map') || lowerText.includes('show me') || lowerText.includes('location');
+        const locationKeywords = /(nearest|nearby|near|location|where|closest|find|show)/;
+        const placeKeywords = /(shop|store|publish|print|place|restaurant|cafe|library|book|gym|hotel|museum|park|hospital|school|university|agency|center)/;
+        
+        let isLocationIntent = explicitMapRequest || (lowerText.match(locationKeywords) && lowerText.match(placeKeywords)) || (lowerText.includes("where is") && lowerText.match(placeKeywords));
+
+        // Contextual Check
+        if (!isLocationIntent && (lowerText === 'location?' || lowerText === 'where is it?' || lowerText.includes('give the map'))) {
+            isLocationIntent = true;
+        }
+
+        if (isLocationIntent) {
+            const cleaned = cleanSearchQuery(text);
+            const isVague = !cleaned || cleaned.length < 3 || cleaned === 'it';
+            
+            if (isVague) {
+                sendMessage(null, null, true);
+                return;
+            }
+
+            if (navigator.geolocation) {
+                const btn = document.getElementById('send-btn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+
+                // Improved: Enable High Accuracy for specific map requests
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        btn.innerHTML = originalHtml;
+                        btn.disabled = false;
+                        const { latitude, longitude } = position.coords;
+                        
+                        let addressContext = `Lat: ${latitude}, Lon: ${longitude}`;
+                        try {
+                            const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`, { headers: { 'User-Agent': 'NewtonAI/1.0' } });
+                            const data = await resp.json();
+                            if(data && data.address) {
+                                const city = data.address.city || data.address.town || data.address.village || '';
+                                addressContext = `${city}, ${data.address.country || ''} (Lat: ${latitude}, Lon: ${longitude})`;
+                            }
+                        } catch(e) {}
+                        
+                        const realPlaces = await searchRealPlaces(text, latitude, longitude);
+                        sendMessage(addressContext, realPlaces, true);
+                    },
+                    (error) => {
+                        btn.innerHTML = originalHtml;
+                        btn.disabled = false;
+                        console.warn("Location fetch failed, proceeding without location.");
+                        sendMessage(null, null, true); 
+                    },
+                    { 
+                        enableHighAccuracy: true, 
+                        timeout: 15000, 
+                        maximumAge: 0 
+                    }
+                );
+            } else {
+                sendMessage(null, null, true);
+            }
+        } else {
+            sendMessage(null, null, false);
+        }
+    }
+
+    async function sendMessage(locationContext, realPlacesData, isLocationIntent) {
+        const inputEl = document.getElementById('user-input');
+        const text = inputEl.value.trim();
+        
+        // Ensure there is something to send
+        if (!text && attachments.length === 0) return;
+
+        if (!currentChatId) startNewChat();
+        setLandingMode(false);
+
+        inputEl.value = '';
+        inputEl.style.height = 'auto';
+        document.getElementById('char-count').innerText = '0';
+
+        const currentMode = isStudyMode ? 'study' : (isIdeaMode ? 'idea' : (isScholarMode ? 'scholar' : (isWebSearchMode ? 'web' : 'normal')));
+        
+        // Capture attached media for this message and clear state
+        const sentAttachments = [...attachments];
+        clearAttachments();
+        
+        // Construct User Message Object
+        const userMsg = { 
+            role: 'user', 
+            content: text, 
+            mode: currentMode,
+            attachments: sentAttachments
+        };
+        
+        // Legacy fields for backward compat in rendering if needed (optional)
+        const firstImage = sentAttachments.find(a => a.type === 'image');
+        if(firstImage) userMsg.image = firstImage.data;
+
+        const chat = chats.find(c => c.id === currentChatId);
+        if(chat) {
+            chat.messages.push(userMsg);
+            if (chat.messages.length === 1) {
+                let title = "New Conversation";
+                if(text) title = text.substring(0, 30) + '...';
+                else if(sentAttachments.length > 0) title = 'File Analysis';
+                chat.title = title;
+                renderHistory();
+            }
+            localStorage.setItem('newton_chats', JSON.stringify(chats));
+        }
+        renderMessage(userMsg, true);
+        scrollToBottom();
+
+        // --- FETCH WEBSITE CONTENT (IF LINKS ATTACHED) ---
+        let websiteContext = "";
+        const links = sentAttachments.filter(a => a.type === 'link');
+        if (links.length > 0) {
+            const loadingMsgId = 'reading-' + Date.now();
+            try {
+                document.getElementById('messages-list').insertAdjacentHTML('beforeend', 
+                    `<div id="${loadingMsgId}" class="text-xs text-center text-gray-400 my-2 flex justify-center items-center gap-2"><i class="fa-solid fa-circle-notch fa-spin"></i> Reading website content...</div>`);
+                scrollToBottom();
+
+                for (const link of links) {
+                    const res = await fetch(`https://r.jina.ai/${link.data}`);
+                    if(res.ok) {
+                        let content = await res.text();
+                        if(content.length > 15000) content = content.substring(0, 15000) + "\n... [Truncated]";
+                        websiteContext += `\n\n### WEBPAGE CONTENT (${link.data}) ###\n${content}\n\n`;
+                    }
+                }
+                
+                document.getElementById(loadingMsgId)?.remove();
+            } catch(e) {
+                console.warn("Failed to fetch website content", e);
+                document.getElementById(loadingMsgId)?.remove();
+            }
+        }
+
+        const loadingId = 'loading-' + Date.now();
+        const loadingHtml = `<div id="${loadingId}" class="message-row pl-4 pr-2"><div class="message-inner"><div class="thread-line"></div><div class="avatar-container rounded-full bg-textPrimary flex items-center justify-center shadow-sm border-2 border-white"><i class="fa-solid fa-cube text-xs text-white"></i></div><div class="flex-1 space-y-3 py-2"><div class="h-4 bg-gray-100 rounded w-1/4 shimmer"></div><div class="h-4 bg-gray-100 rounded w-3/4 shimmer"></div></div></div></div>`;
+        document.getElementById('messages-list').insertAdjacentHTML('beforeend', loadingHtml);
+        scrollToBottom();
+
+        // --- CONSTRUCT HISTORY STRING FOR PROMPT ---
+        let historyString = "";
+        const MAX_CONTEXT_CHARS = 1500; // Reduced for URL safety
+        
+        if(chat) {
+            for (let i = chat.messages.length - 1; i >= 0; i--) {
+                const m = chat.messages[i];
+                let cleanContent = m.content.replace(/<<<.*?>>>/g, '[Data Block]'); 
+                const attTags = (m.attachments || []).map(a => `[User attached ${a.type}: ${a.name}]`).join(' ');
+                const msgString = `### ${m.role === 'user' ? 'USER' : 'ASSISTANT'} (${m.mode || 'normal'} mode):\n${attTags} ${cleanContent}\n\n`;
+                
+                if ((historyString.length + msgString.length) < MAX_CONTEXT_CHARS) {
+                    historyString = msgString + historyString;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        // --- GLOBAL INSTRUCTION FOR THINKING PROCESS ---
+        const thinkingInstruction = `
+        CRITICAL: Begin your response with a hidden "Thinking Block" that outlines your plan.
+        Format: <<<THOUGHT_START>>> [Your brief step-by-step analysis plan, search strategy, or reasoning here] <<<THOUGHT_END>>>.
+        This block will be parsed and shown as a collapsible "Thinking Process" to the user.
+        `;
+
+        let prompt = "";
+        if (isLocationIntent) {
+             const locInfo = locationContext ? `User Accurate Location: ${locationContext}` : "User location is unavailable.";
+             
+             if (!realPlacesData || realPlacesData.length === 0) {
+                 prompt = `Role: Helpful Local Guide & Map Generator. 
+                 Query: "${text}". 
+                 ${locInfo}
+                 ${thinkingInstruction}
+
+                 INSTRUCTIONS:
+                 1. If the user asks for ONE specific place (e.g. "The Eiffel Tower"), generate coordinates for ONLY that place.
+                 2. If general (e.g. "restaurants"), generate 3 plausible locations.
+                 3. WRAP MAP DATA IN: <<<LOCATIONS_START>>> [JSON] <<<LOCATIONS_END>>>. 
+                 
+                 REQUIRED JSON FORMAT:
+                 [
+                    {"name": "Place Name", "lat": 27.5983, "lon": 89.8766, "desc": "Contextual description", "city": "City"}
+                 ]
+                 
+                 (Keep text response brief)`;
+             } else {
+                 prompt = `Role: Helpful Local Guide. Query: "${text}". ${locInfo}
+                I found real places. JSON: ${JSON.stringify(realPlacesData)}
+                ${thinkingInstruction}
+
+                INSTRUCTIONS:
+                1. Use the real place data provided.
+                2. If the user asked for a SINGLE specific place, only return that one in the JSON.
+                3. WRAP MAP DATA IN: <<<LOCATIONS_START>>> [JSON] <<<LOCATIONS_END>>>.
+
+                REQUIRED JSON FORMAT:
+                [
+                    {"name": "Place Name", "lat": 12.34, "lon": 56.78, "desc": "Brief description", "city": "City"}
+                ]`;
+             }
+
+        } else if (isScholarMode) {
+            prompt = `Role: Academic Research Assistant. 
+            Task: Provide critical analysis and findings for the user query.
+            ${thinkingInstruction}
+            
+            IMPORTANT:
+            1. You MUST include AT LEAST 3 (ideally 4-5) REAL academic references.
+            2. Do not use 'example.com' or placeholder links. 
+            3. If you don't have a direct link, use a Google Scholar search URL: https://scholar.google.com/scholar?q=Title
+            
+            FORMAT EACH PAPER EXACTLY LIKE THIS:
+            <<<PAPER_START>>>
+            Title: [Paper Title]
+            Authors: [Author Names]
+            Journal: [Journal Name, Year]
+            Link: [Real URL or Google Scholar Search]
+            Summary: [One sentence key finding]
+            <<<PAPER_END>>>
+
+            Repeat the block for each paper. Then provide your analysis.
+            
+            Finally, provide 3 follow-up questions wrapped in <<<FOLLOWUP_START>>> ["Q1", "Q2", "Q3"] <<<FOLLOWUP_END>>>.
+
+            ### CONVERSATION HISTORY (Truncated) ###
+            ${historyString}
+            
+            Current Query: ${text}`;
+
+        } else if (isIdeaMode) {
+            prompt = `Role: Startup Incubator / Product Manager.
+            Task: Analyze the user's idea and generate a structured Blueprint.
+            ${thinkingInstruction}
+
+            IMPORTANT: You MUST include AT LEAST 3 distinct resources (competitors, tools, or inspiration websites) in the 'resources' array.
+
+            REQUIRED JSON FORMAT (Must be valid JSON):
+            <<<IDEA_START>>>
+            {
+              "title": "Startup Name",
+              "tagline": "A catchy slogan",
+              "ideology": "Core mission statement and ideology.",
+              "goals": ["Goal 1", "Goal 2", "Goal 3"],
+              "roadmap": [
+                {"step": "Phase 1", "detail": "Actionable step 1"},
+                {"step": "Phase 2", "detail": "Actionable step 2"}
+              ],
+              "resources": [
+                {"title": "Competitor/Tool Name", "link": "https://full-url.com", "desc": "Why it is relevant"},
+                {"title": "Resource 2", "link": "https://example.com", "desc": "Relevance"},
+                {"title": "Resource 3", "link": "https://another.com", "desc": "Relevance"}
+              ]
+            }
+            <<<IDEA_END>>>
+
+            After the JSON, provide a brief, encouraging summary and feedback text.
+            Also, provide 3 follow-up questions wrapped in <<<FOLLOWUP_START>>> ["Q1", "Q2", "Q3"] <<<FOLLOWUP_END>>>.
+
+            ### CONVERSATION HISTORY (Truncated) ###
+            ${historyString}
+            
+            Current Idea: ${text}`;
+            
+        } else if (isStudyMode) {
+            prompt = `Role: Expert AI Tutor (Newton).
+            Task: Teach the user about "${text}".
+            ${thinkingInstruction}
+
+            CRITICAL: Return strictly a VALID JSON object. Do not wrap it in markdown ticks if possible, or use standard markdown code blocks.
+            
+            MATH RULES:
+            1. Use LaTeX for math. 
+            2. Enclose inline math with single '$' (e.g., $E=mc^2$).
+            3. Enclose block math with double '$$'.
+            4. ESCAPE backslashes in JSON strings (e.g., "\\frac{a}{b}" becomes "\\\\frac{a}{b}").
+            
+            JSON FORMAT:
+            \`\`\`json
+            {
+               "subject": "Subject",
+               "level": "Grade Level",
+               "explanation": "Detailed explanation using standard LaTeX math.",
+               "steps": [
+                  {"label": "Step 1", "text": "Details using LaTeX math."}
+               ],
+               "visuals": ["keyword1", "keyword2"],
+               "videos": [{"title": "Video Topic", "query": "search query for youtube"}],
+               "resources": [{"title": "Name", "link": "url", "desc": "info"}],
+               "final_answer": "Final result in LaTeX.",
+               "follow_up": ["Question 1?", "Question 2?", "Question 3?"]
+            }
+            \`\`\`
+            
+            IMPORTANT:
+            - Provide 3 smart "follow_up" questions.
+            - Provide 2-3 visual keywords.
+            - Provide 2-3 video search queries for YouTube.
+            - NO conversational text outside the JSON.
+
+            ### CONVERSATION HISTORY (Truncated) ###
+            ${historyString}
+            
+            Current Topic: ${text}`;
+
+        } else if (isWebSearchMode) {
+            let focusInstruction = "";
+            let roleInstruction = "Role: Web Search Engine.";
+            
+            if (webSearchFocus === 'social') {
+                roleInstruction = "Role: Social Media Researcher & Trend Analyst.";
+                focusInstruction = "Focus on discussions from Reddit, Twitter (X), Quora, and forums. Analyze public sentiment, common opinions, and viral trends.";
+            } else if (webSearchFocus === 'finance') {
+                roleInstruction = "Role: Financial Analyst & Market Researcher.";
+                focusInstruction = "Focus on stock market data, economic news, company reports, crypto trends, and investment analysis.";
+                // Specific Instruction for Charts - REINFORCED
+                focusInstruction += `\nCRITICAL: If the user asks for the price or a chart of a specific asset (stock, crypto, pair), specifically output the TradingView symbol using this exact format:
+                <<<CHART_START>>>EXCHANGE:SYMBOL<<<CHART_END>>>
+                Examples: <<<CHART_START>>>NASDAQ:AAPL<<<CHART_END>>>, <<<CHART_START>>>BINANCE:BTCUSDT<<<CHART_END>>>, <<<CHART_START>>>NYSE:GME<<<CHART_END>>>.`;
+            } else if (webSearchFocus === 'academic') {
+                roleInstruction = "Role: Academic Researcher.";
+                focusInstruction = "Focus on research papers, university publications, scientific journals, and educational resources. Use formal citation style where possible.";
+            } else {
+                roleInstruction = "Role: Advanced Web Search Engine.";
+                focusInstruction = "Provide comprehensive, high-quality search results from diverse and trusted sources.";
+            }
+
+            prompt = `${roleInstruction}
+            Task: Simulate a focused search for "${text}".
+            ${focusInstruction}
+            ${thinkingInstruction}
+            
+            FORMAT RESULTS EXACTLY LIKE THIS:
+
+            <<<WEB_START>>>
+            Source: [Source Name]
+            Title: [Page Title]
+            Link: [Full URL]
+            Image: [URL to a relevant image, or 'null' if none]
+            Summary: [Brief context]
+            <<<WEB_END>>>
+
+            Provide at least 3 distinct results. If you know a relevant image URL for the article, include it. Otherwise use 'null'.
+            Then provide a summary text synthesizing the information found.
+            
+            If relevant, provide 1-2 search queries for YouTube videos or image keywords. Wrap them in <<<MEDIA_START>>> { "visuals": ["keyword"], "videos": [{"title": "...", "query": "..."}] } <<<MEDIA_END>>>.
+            Also provide 3 follow-up questions wrapped in <<<FOLLOWUP_START>>> ["Q1", "Q2", "Q3"] <<<FOLLOWUP_END>>>.
+
+            ### CONVERSATION HISTORY (Truncated) ###
+            ${historyString}
+            `;
+        } else {
+            // General prompt handling (supports images, links, pdfs)
+            
+            // Build Context from Attachments
+            let attachmentContext = "";
+            sentAttachments.forEach(a => {
+                if(a.type === 'pdf') attachmentContext += `\n\n### PDF CONTENT (${a.name}) ###\n${a.data}\n\n`;
+                if(a.type === 'link') {} // Links handled via websiteContext var above
+                if(a.type === 'image') attachmentContext += `\n\n[User attached an image]`; // Image handled in message structure
+            });
+
+            // General Finance Check logic - REINFORCED
+            const chartInstruction = `\nCRITICAL: If the user asks for the price or a chart of a specific asset (stock, crypto, etc.), output the TradingView symbol like: <<<CHART_START>>>NASDAQ:TSLA<<<CHART_END>>> or <<<CHART_START>>>BINANCE:ETHUSDT<<<CHART_END>>>.`;
+
+            prompt = `Role: Newton AI (Helpful, Professional Assistant, powered by Gemini).
+            
+            ### CONVERSATION HISTORY (Truncated) ###
+            ${historyString}
+            
+            ${websiteContext}
+            ${attachmentContext}
+
+            ### CURRENT USER INPUT ###
+            ${text}
+            
+            Answer the user based on the context provided above (website text, PDF text, images).
+            ${chartInstruction}
+            ${thinkingInstruction}
+            
+            If the answer would benefit from visuals (like "show me a dog" or "explain an engine"), provide 1-2 search queries for YouTube videos or image keywords. 
+            Wrap them in <<<MEDIA_START>>> { "visuals": ["keyword"], "videos": [{"title": "...", "query": "..."}] } <<<MEDIA_END>>>.
+            
+            Always provide 3 follow-up questions wrapped in <<<FOLLOWUP_START>>> ["Q1", "Q2", "Q3"] <<<FOLLOWUP_END>>>.
+            `;
+        }
+
+        const finalSystemPrompt = "You are Newton AI, a helpful assistant. Use Markdown for formatting.";
+        // Ensure prompt is a string
+        const fullPrompt = `${finalSystemPrompt}\n\n${prompt}`;
+
+        try {
+            // --- POLLINATIONS AI (OPENAI) CALL ---
+            const seed = Math.floor(Math.random() * 1000000);
+            const model = 'openai'; 
+            let response;
+
+            const images = sentAttachments.filter(a => a.type === 'image');
+            
+            // Check URL length for GET
+            const encodedPrompt = encodeURIComponent(fullPrompt);
+            const getUrl = `https://text.pollinations.ai/${encodedPrompt}?model=${model}&seed=${seed}`;
+            
+            // Use POST if:
+            // 1. Images are present (Multimodal)
+            // 2. URL is too long (> 1600 chars to be safe for most hosted environments)
+            if (images.length > 0 || getUrl.length > 1600) {
+                const messages = [
+                    { role: 'user', content: [] }
+                ];
+                
+                // Add Text
+                messages[0].content.push({ type: "text", text: fullPrompt });
+
+                // Add Images
+                images.forEach(img => {
+                    messages[0].content.push({ type: "image_url", image_url: { url: img.data } });
+                });
+
+                // If no images, simplify content to just string to avoid potential parsing issues on some endpoints
+                if (images.length === 0) {
+                     messages[0].content = fullPrompt;
+                }
+
+                response = await fetch('https://text.pollinations.ai/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages, model, seed }),
+                    mode: 'cors',
+                    referrerPolicy: 'no-referrer'
+                });
+
+            } else {
+                // GET Request (Preferred for short/simple queries)
+                response = await fetch(getUrl, {
+                    method: 'GET',
+                    mode: 'cors',
+                    referrerPolicy: 'no-referrer'
+                });
+            }
+            
+            if (!response.ok) {
+                 const errorText = await response.text();
+                 throw new Error(`Pollinations API Error: ${response.status} ${response.statusText} - ${errorText}`);
+            }
+            
+            const aiText = await response.text();
+
+            document.getElementById(loadingId).remove();
+
+            const aiMsg = { role: 'ai', content: aiText, mode: currentMode };
+            if(chat) {
+                chat.messages.push(aiMsg);
+                localStorage.setItem('newton_chats', JSON.stringify(chats));
+            }
+            renderMessage(aiMsg, true);
+            scrollToBottom();
+        } catch (e) {
+            document.getElementById(loadingId).remove();
+            console.error(e);
+            
+            const errorAlertId = 'err-' + Date.now();
+            const errorHtml = `
+            <div id="${errorAlertId}" class="message-row pl-4 pr-2">
+                <div class="message-inner">
+                    <div class="thread-line"></div>
+                     <div class="avatar-container rounded-full bg-red-500 flex items-center justify-center shadow-sm border-2 border-white">
+                        <i class="fa-solid fa-triangle-exclamation text-xs text-white"></i>
+                    </div>
+                    <div class="flex-1 py-2">
+                        <div class="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-100">
+                            <strong>Error:</strong> Could not connect to the AI service (Gemini).<br>
+                            <span class="text-xs opacity-75">Details: ${e.message}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            document.getElementById('messages-list').insertAdjacentHTML('beforeend', errorHtml);
+            scrollToBottom();
+        }
+    }
+
+    function copyToClipboard(btn) {
+        const text = btn.closest('.flex-1').querySelector('.prose-content').innerText;
+        navigator.clipboard.writeText(text);
+    }
+
+    function triggerFileUpload() { document.getElementById('file-upload').click(); }
+    
+    async function handleFileUpload(input) { 
+        if(input.files && input.files.length > 0) {
+            
+            for (let i = 0; i < input.files.length; i++) {
+                const file = input.files[i];
+                
+                if (file.type === 'application/pdf') {
+                    const text = await extractPdfText(file);
+                    if(text) {
+                        attachments.push({
+                            id: Date.now() + Math.random(),
+                            type: 'pdf',
+                            data: text,
+                            name: file.name
+                        });
+                    }
+                } else if (file.type.startsWith('image/')) {
+                    // Use resizeImage which is callback based, wrap in promise
+                    await new Promise((resolve) => {
+                        resizeImage(file, 800, 800, (base64) => {
+                            attachments.push({
+                                id: Date.now() + Math.random(),
+                                type: 'image',
+                                data: base64,
+                                name: file.name
+                            });
+                            resolve();
+                        });
+                    });
+                }
+            }
+            renderAttachmentPreview();
+        }
+    }
+    
+    function clearAttachments() {
+        attachments = [];
+        renderAttachmentPreview();
+        document.getElementById('file-upload').value = '';
     }
 
     // Initialize

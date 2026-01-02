@@ -1062,7 +1062,7 @@ transition: background 0.2s;
 <!-- THREAD OVERLAY (Redesigned) -->
 <div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center">
 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div>
-<div class="bg-white w-full md:w-[600px] h-[75vh] md:h-[85vh] md:rounded-2xl rounded-t-[20px] shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in">
+<div class="bg-white w-full md:w-[600px] h-[80vh] md:h-[85vh] rounded-t-[24px] md:rounded-2xl shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in">
 <div class="h-14 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white z-10 sticky top-0">
 <button onclick="closeThread()" class="p-2 -ml-2 rounded-full hover:bg-gray-100"><i data-lucide="x" class="w-6 h-6 text-gray-600"></i></button>
 <span class="font-bold text-lg text-[#1f1f1f]">Thread</span>
@@ -1907,9 +1907,9 @@ if(data.imageUrl) {
 const qPosts = query(collection(db, "posts"), orderBy("timestamp", "desc"));
 onSnapshot(qPosts, { includeMetadataChanges: true }, (snapshot) => {
 posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
-if (snapshot.metadata.hasPendingWrites) {
-return;
-}
+// REMOVED: if (snapshot.metadata.hasPendingWrites) return; 
+// Reason: To allow immediate rendering of local writes for "snappy" feel while maintaining sync.
+
 const changes = snapshot.docChanges();
 let shouldFullRender = false;
 if (document.getElementById('feed-container').children.length === 0) {
@@ -1977,6 +1977,7 @@ renderThreadContent(window.threadPostId, window.threadParentCommentId);
 }
 // Update Trending Panel
 renderRightSidebar();
+setTimeout(refreshIcons, 50); // Fallback
 });
 let isFirstNotifLoad = true;
 const qNotifs = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
@@ -2424,6 +2425,7 @@ if (!isPublicPost) return amFollowing;
 return true;
 });
 displayPosts.forEach(post => container.appendChild(createPostElement(post)));
+// Fix for icons randomly disappearing: Force refresh after DOM update
 setTimeout(refreshIcons, 0);
 }
 function createPostElement(post) {
@@ -2950,7 +2952,7 @@ container.innerHTML = `<div class="flex flex-col items-center justify-center h-f
 const saved = posts.filter(p => savedPosts.includes(p.id));
 saved.forEach(post => container.appendChild(createPostElement(post)));
 }
-refreshIcons();
+setTimeout(refreshIcons, 0);
 }
 async function sendNotification(receiverId, type, content, postId = null) {
 await addDoc(collection(db, "notifications"), {
@@ -3106,7 +3108,7 @@ ${!window.notifSelectionMode ? `<button onclick="deleteNotification('${n.id}')" 
 `;
 container.appendChild(div);
 });
-refreshIcons();
+setTimeout(refreshIcons, 0);
 }
 window.deleteNotification = async function(id) {
 showAlert("Delete this notification?", async () => {
@@ -3344,7 +3346,7 @@ if (targetPosts.length === 0) {
     gridHTML += `</div>`;
     contentArea.innerHTML = gridHTML;
 }
-refreshIcons();
+setTimeout(refreshIcons, 0);
 }
 window.saveLink = async function() {
 const title = document.getElementById('new-link-title').value.trim();
@@ -3643,7 +3645,7 @@ if(msg) msg.style.display = 'none';
 }
 overlay.classList.remove('hidden');
 overlay.classList.add('flex');
-refreshIcons();
+setTimeout(refreshIcons, 0);
 }
 window.toggleReelCaption = function(postId) {
 const el = document.getElementById('reel-caption');
@@ -3703,7 +3705,7 @@ html += createCommentHTML(c, post.comments, postId, true);
 });
 }
 container.innerHTML = html;
-refreshIcons();
+setTimeout(refreshIcons, 0);
 }
 // Updated createCommentHTML to handle reply threading
 function createCommentHTML(c, allComments, postId, showRepliesLink = true) {
@@ -3784,7 +3786,7 @@ if (replies.length > 0) {
 html += `</div>`;
 
 container.innerHTML = html;
-refreshIcons();
+setTimeout(refreshIcons, 0);
 }
 window.submitThreadReply = async function() {
 const txt = document.getElementById('thread-input').value.trim();

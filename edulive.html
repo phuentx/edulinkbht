@@ -3,233 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduLive | Realtime</title>
+    <title>Edulinki Video Call</title>
     <style>
-        :root {
-            --primary: #FE2C55; /* TikTok Red */
-            --dark: #121212;
-            --overlay: rgba(0, 0, 0, 0.4);
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--dark);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden; /* Prevent scrolling */
-        }
-
-        /* --- UI Overlay --- */
-        #app-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
+        body {
+            font-family: sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
         }
-
-        /* --- Video Layer --- */
-        .video-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
+        h2 { color: #333; }
+        .videos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
             width: 100%;
-            height: 100%;
-            z-index: 1;
-            background: #000;
+            max-width: 1000px;
+            margin-top: 20px;
         }
-
         video {
             width: 100%;
-            height: 100%;
-            object-fit: cover; /* TikTok style full screen */
-            transform: scaleX(-1); /* Mirror effect for selfie feel */
+            background: black;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
-        /* Remote video is the main background */
-        #remoteVideo {
-            opacity: 0; /* Hidden until connected */
-            transition: opacity 0.5s ease;
-        }
-
-        /* Local video (Picture in Picture style initially, or hidden if desired) */
-        #localVideo {
-            position: absolute;
-            bottom: 120px;
-            right: 20px;
-            width: 120px;
-            height: 160px;
-            border-radius: 12px;
-            border: 2px solid rgba(255,255,255,0.2);
-            z-index: 2;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
-        }
-
-        /* --- Controls & Entry UI --- */
-        #ui-layer {
-            position: absolute;
-            z-index: 10;
-            width: 100%;
-            height: 100%;
-            pointer-events: none; /* Let clicks pass through to video */
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
-
-        /* Entry Screen (Room ID Input) */
-        #entry-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(10px);
-            z-index: 20;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            pointer-events: auto;
-        }
-
-        .logo {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 30px;
-            letter-spacing: -1px;
-        }
-        .logo span { color: var(--primary); }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 80%;
-            max-width: 300px;
-        }
-
-        input {
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #333;
-            background: #222;
-            color: white;
-            font-size: 1.1rem;
-            text-align: center;
-            outline: none;
-        }
-        input:focus { border-color: var(--primary); }
-
-        .btn-row {
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             display: flex;
             gap: 10px;
-        }
-
-        button {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-        button:active { transform: scale(0.96); }
-
-        .btn-create {
-            background: var(--primary);
-            color: white;
-        }
-        .btn-join {
-            background: #fff;
-            color: #000;
-        }
-
-        /* --- Active Call Controls --- */
-        #call-controls {
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            padding-bottom: 40px;
-            pointer-events: auto;
-            opacity: 0; /* Hidden initially */
-            transition: opacity 0.3s;
-        }
-
-        .control-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.15);
-            border: none;
-            color: white;
-            display: flex;
             align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
+        }
+        input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
+            font-size: 16px;
         }
-        .btn-hangup { background: #ff3b30; }
-
-        /* Status Toast */
-        #status-msg {
-            position: absolute;
-            top: 50px;
-            width: 100%;
-            text-align: center;
-            color: rgba(255,255,255,0.7);
-            font-size: 0.9rem;
-            z-index: 5;
-        }
-
+        button:disabled { background-color: #ccc; }
+        button#hangupBtn { background-color: #dc3545; }
     </style>
 </head>
 <body>
 
-    <div id="app-container">
-        
-        <div class="video-wrapper">
-            <video id="remoteVideo" autoplay playsinline></video>
+    <h2>Edulinki Video Chat</h2>
+
+    <div class="controls">
+        <input type="text" id="callInput" placeholder="Enter Call Name (e.g. room1)" />
+        <button id="createBtn">Create Call</button>
+        <button id="joinBtn">Join Call</button>
+        <button id="hangupBtn" disabled>Hangup</button>
+    </div>
+    <p id="statusText" style="color: #666; font-size: 0.9em; margin-top: 10px;">Ready to connect...</p>
+
+    <div class="videos">
+        <div>
+            <p>Local Video (You)</p>
             <video id="localVideo" autoplay playsinline muted></video>
         </div>
-
-        <div id="ui-layer">
-            <div id="status-msg">Ready to connect</div>
-            
-            <div id="call-controls">
-                <button class="control-btn" id="btn-toggle-cam">📷</button>
-                <button class="control-btn" id="btn-toggle-mic">MIC</button>
-                <button class="control-btn btn-hangup" id="btn-hangup">❌</button>
-            </div>
+        <div>
+            <p>Remote Video (Them)</p>
+            <video id="remoteVideo" autoplay playsinline></video>
         </div>
-
-        <div id="entry-screen">
-            <div class="logo">Edu<span>Live</span></div>
-            <div class="input-group">
-                <input type="text" id="room-id-input" placeholder="Enter Room ID (e.g. 1234)">
-                <div class="btn-row">
-                    <button class="btn-create" id="btn-create">Create</button>
-                    <button class="btn-join" id="btn-join">Join</button>
-                </div>
-            </div>
-            <p style="color:#666; font-size: 0.8rem; margin-top:20px;">Use unique ID to find each other</p>
-        </div>
-
     </div>
 
     <script type="module">
-        // Using a stable version of Firebase (v10) to ensure compatibility if 12.7.0 is not yet available globally
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, addDoc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        // 1. Import Firebase with a stable version
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
+        // 2. Your Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
             authDomain: "edulinki.firebaseapp.com",
@@ -240,11 +96,11 @@
             measurementId: "G-MQBH12VL7N"
         };
 
-        // Initialize Firebase
+        // 3. Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const firestore = getFirestore(app);
 
-        // WebRTC Config (STUN servers allow searching each other over internet)
+        // 4. Global Variables
         const servers = {
             iceServers: [
                 {
@@ -254,104 +110,94 @@
             iceCandidatePoolSize: 10,
         };
 
-        // Global State
         const pc = new RTCPeerConnection(servers);
         let localStream = null;
         let remoteStream = null;
-        let roomId = null;
 
-        // DOM Elements
+        // HTML Elements
         const localVideo = document.getElementById('localVideo');
         const remoteVideo = document.getElementById('remoteVideo');
-        const entryScreen = document.getElementById('entry-screen');
-        const roomIdInput = document.getElementById('room-id-input');
-        const statusMsg = document.getElementById('status-msg');
-        const callControls = document.getElementById('call-controls');
+        const callInput = document.getElementById('callInput');
+        const createBtn = document.getElementById('createBtn');
+        const joinBtn = document.getElementById('joinBtn');
+        const hangupBtn = document.getElementById('hangupBtn');
+        const statusText = document.getElementById('statusText');
 
-        // 1. Initialize Media (Camera/Mic)
-        async function initMedia() {
+        // 5. Setup Media Sources (Webcam/Mic)
+        async function openUserMedia() {
             try {
-                // Requesting high quality video
-                localStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: 1280, height: 720, facingMode: "user" }, // "nearby" focus (user face)
-                    audio: true 
-                });
-
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                localVideo.srcObject = localStream;
+                remoteStream = new MediaStream();
+                
                 // Push tracks to WebRTC connection
                 localStream.getTracks().forEach((track) => {
                     pc.addTrack(track, localStream);
                 });
 
-                // Show local video
-                localVideo.srcObject = localStream;
+                // Pull tracks from WebRTC connection
+                pc.ontrack = (event) => {
+                    event.streams[0].getTracks().forEach((track) => {
+                        remoteStream.addTrack(track);
+                    });
+                    remoteVideo.srcObject = remoteStream;
+                };
             } catch (err) {
-                console.error("Error accessing media:", err);
-                statusMsg.innerText = "Error: Allow camera access!";
+                console.error("Error accessing media devices.", err);
+                statusText.innerText = "Error: Could not access camera/mic.";
             }
         }
 
-        // 2. Handle Remote Stream
-        pc.ontrack = (event) => {
-            event.streams[0].getTracks().forEach((track) => {
-                remoteStream.addTrack(track);
-            });
-        };
+        // 6. Create a Call (Offer)
+        createBtn.onclick = async () => {
+            const callId = callInput.value.trim();
+            if (!callId) return alert("Please enter a call name");
 
-        remoteStream = new MediaStream();
-        remoteVideo.srcObject = remoteStream;
+            statusText.innerText = "Starting camera...";
+            await openUserMedia();
 
-        // 3. Create Room Function
-        document.getElementById('btn-create').onclick = async () => {
-            roomId = roomIdInput.value.trim();
-            if(!roomId) return alert("Please enter a Room ID");
+            // Reference to database
+            const callDoc = doc(collection(firestore, 'calls'), callId);
+            const offerCandidates = collection(callDoc, 'offerCandidates');
+            const answerCandidates = collection(callDoc, 'answerCandidates');
 
-            await initMedia();
-            
-            // Reference to Firestore
-            const roomRef = doc(db, "rooms", roomId);
-            const callerCandidatesCollection = collection(roomRef, 'callerCandidates');
+            createBtn.disabled = true;
+            joinBtn.disabled = true;
+            hangupBtn.disabled = false;
+            callInput.disabled = true;
 
-            // Save ICE candidates to DB
+            statusText.innerText = `Call created! Waiting for someone to join "${callId}"...`;
+
+            // Get ICE Candidates and save to DB
             pc.onicecandidate = (event) => {
-                if(event.candidate) {
-                    addDoc(callerCandidatesCollection, event.candidate.toJSON());
-                }
+                event.candidate && addDoc(offerCandidates, event.candidate.toJSON());
             };
 
             // Create Offer
             const offerDescription = await pc.createOffer();
             await pc.setLocalDescription(offerDescription);
 
-            // Configure Room Data
-            const roomWithOffer = {
-                offer: {
-                    type: offerDescription.type,
-                    sdp: offerDescription.sdp,
-                },
+            // Configure SDP
+            const offer = {
+                sdp: offerDescription.sdp,
+                type: offerDescription.type,
             };
 
-            // Write to DB
-            await setDoc(roomRef, roomWithOffer);
-            
-            // UI Update
-            statusMsg.innerText = `Room ${roomId} created. Waiting for peer...`;
-            entryScreen.style.display = 'none';
-            callControls.style.opacity = '1';
+            // Write Offer to DB
+            await setDoc(callDoc, { offer });
 
-            // Listen for Remote Answer
-            onSnapshot(roomRef, (snapshot) => {
+            // Listen for Answer
+            onSnapshot(callDoc, (snapshot) => {
                 const data = snapshot.data();
-                if (!pc.currentRemoteDescription && data && data.answer) {
-                    const answer = new RTCSessionDescription(data.answer);
-                    pc.setRemoteDescription(answer);
-                    statusMsg.innerText = "Connected!";
-                    remoteVideo.style.opacity = '1';
+                if (!pc.currentRemoteDescription && data?.answer) {
+                    const answerDescription = new RTCSessionDescription(data.answer);
+                    pc.setRemoteDescription(answerDescription);
+                    statusText.innerText = "Connected!";
                 }
             });
 
             // Listen for Remote ICE Candidates
-            const calleeCandidatesCollection = collection(roomRef, 'calleeCandidates');
-            onSnapshot(calleeCandidatesCollection, (snapshot) => {
+            onSnapshot(answerCandidates, (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === 'added') {
                         const candidate = new RTCIceCandidate(change.doc.data());
@@ -361,56 +207,51 @@
             });
         };
 
-        // 4. Join Room Function
-        document.getElementById('btn-join').onclick = async () => {
-            roomId = roomIdInput.value.trim();
-            if(!roomId) return alert("Please enter a Room ID");
+        // 7. Join a Call (Answer)
+        joinBtn.onclick = async () => {
+            const callId = callInput.value.trim();
+            if (!callId) return alert("Please enter a call name");
 
-            const roomRef = doc(db, "rooms", roomId);
-            const roomSnapshot = await getDoc(roomRef);
+            statusText.innerText = "Starting camera...";
+            await openUserMedia();
 
-            if (!roomSnapshot.exists()) {
-                return alert("Room ID does not exist. Create it first?");
-            }
+            const callDoc = doc(collection(firestore, 'calls'), callId);
+            const offerCandidates = collection(callDoc, 'offerCandidates');
+            const answerCandidates = collection(callDoc, 'answerCandidates');
 
-            await initMedia();
+            createBtn.disabled = true;
+            joinBtn.disabled = true;
+            hangupBtn.disabled = false;
+            callInput.disabled = true;
 
-            const calleeCandidatesCollection = collection(roomRef, 'calleeCandidates');
-            
-            // Save ICE candidates
             pc.onicecandidate = (event) => {
-                if(event.candidate) {
-                    addDoc(calleeCandidatesCollection, event.candidate.toJSON());
-                }
+                event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
             };
 
-            // Get Offer from DB
-            const offer = roomSnapshot.data().offer;
-            await pc.setRemoteDescription(new RTCSessionDescription(offer));
+            // Fetch data
+            const callData = (await getDoc(callDoc)).data();
 
-            // Create Answer
+            if (!callData) {
+                alert("Call not found! Make sure the other person created it first.");
+                window.location.reload();
+                return;
+            }
+
+            const offerDescription = callData.offer;
+            await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+
             const answerDescription = await pc.createAnswer();
             await pc.setLocalDescription(answerDescription);
 
-            const roomWithAnswer = {
-                answer: {
-                    type: answerDescription.type,
-                    sdp: answerDescription.sdp,
-                },
+            const answer = {
+                type: answerDescription.type,
+                sdp: answerDescription.sdp,
             };
 
-            // Update DB with Answer
-            await updateDoc(roomRef, roomWithAnswer);
+            await updateDoc(callDoc, { answer });
 
-            // UI Update
-            statusMsg.innerText = `Joined ${roomId}. Connecting...`;
-            entryScreen.style.display = 'none';
-            callControls.style.opacity = '1';
-            remoteVideo.style.opacity = '1';
-
-            // Listen for Remote ICE Candidates (Caller's)
-            const callerCandidatesCollection = collection(roomRef, 'callerCandidates');
-            onSnapshot(callerCandidatesCollection, (snapshot) => {
+            // Listen for Remote ICE Candidates
+            onSnapshot(offerCandidates, (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === 'added') {
                         const candidate = new RTCIceCandidate(change.doc.data());
@@ -418,23 +259,15 @@
                     }
                 });
             });
+            
+            statusText.innerText = "Connected!";
         };
 
-        // 5. Controls Logic
-        document.getElementById('btn-hangup').onclick = () => {
-            pc.close();
-            location.reload();
-        }
-
-        document.getElementById('btn-toggle-cam').onclick = () => {
-            const videoTrack = localStream.getVideoTracks()[0];
-            videoTrack.enabled = !videoTrack.enabled;
-        }
-
-        document.getElementById('btn-toggle-mic').onclick = () => {
-            const audioTrack = localStream.getAudioTracks()[0];
-            audioTrack.enabled = !audioTrack.enabled;
-        }
+        // 8. Hangup
+        hangupBtn.onclick = () => {
+            // Simple reload to clear connection
+            window.location.reload();
+        };
 
     </script>
 </body>

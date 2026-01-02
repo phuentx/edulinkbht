@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edulinki Meet</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Google+Sans:wght@400;500&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <title>Edulinki Connect Mesh</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
         :root {
-            --bg-color: #202124;
-            --surface-color: #3c4043;
-            --primary-blue: #8ab4f8;
-            --danger-red: #ea4335;
-            --text-primary: #e8eaed;
-            --btn-active: #8ab4f8;
-            --btn-active-text: #202124;
+            --bg-color: #0f172a; /* Slate 900 */
+            --surface-color: #1e293b; /* Slate 800 */
+            --primary: #3b82f6; /* Blue 500 */
+            --danger: #ef4444; /* Red 500 */
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            font-family: 'Google Sans', 'Roboto', sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-primary);
-            height: 100dvh; /* Dynamic Height for Mobile */
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -32,120 +32,143 @@
 
         /* --- Header --- */
         header {
-            padding: 15px 20px;
+            height: 60px;
+            padding: 0 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(32, 33, 36, 0.9);
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid #334155;
             position: fixed;
             top: 0;
             width: 100%;
-            z-index: 100;
-            height: 60px;
+            z-index: 50;
         }
 
         .logo {
-            font-size: 20px;
-            font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-        
-        .time-display {
-            font-family: 'Roboto', sans-serif;
-            color: #bdc1c6;
-            font-size: 16px;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 18px;
+            color: white;
         }
 
-        /* --- Lobby Screen --- */
-        .lobby-container {
+        .room-badge {
+            background: #334155;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: none;
+        }
+
+        /* --- Lobby --- */
+        .lobby-screen {
             flex: 1;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            margin-top: 60px; /* Space for header */
+            margin-top: 60px;
         }
 
         .lobby-card {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 400px;
+            background: var(--surface-color);
+            padding: 30px;
+            border-radius: 16px;
             width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             text-align: center;
         }
 
-        .meet-input {
-            background: transparent;
-            border: 1px solid #5f6368;
-            color: white;
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 16px;
-            width: 100%;
-            outline: none;
-        }
+        .lobby-card h2 { margin-bottom: 20px; font-weight: 500; }
 
-        .meet-input:focus { border-color: var(--primary-blue); border-width: 2px; padding: 11px; }
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .room-input {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: white;
+            padding: 12px 12px 12px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
+        }
+        .room-input:focus { border-color: var(--primary); }
+        
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            width: 18px;
+        }
 
         .btn {
-            border: none;
-            padding: 12px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
             width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .btn-primary { background: var(--primary-blue); color: #202124; }
-        .btn-primary:disabled { background: #3c4043; color: #777; cursor: not-allowed; }
-        .btn-secondary { background: transparent; color: var(--primary-blue); border: 1px solid #5f6368; margin-top: 10px;}
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-primary:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
 
-        /* --- Meeting Screen --- */
-        .meeting-container {
+        .btn-ghost { background: transparent; color: var(--text-secondary); margin-top: 10px; }
+        .btn-ghost:hover { color: white; background: rgba(255,255,255,0.05); }
+
+        /* --- Meeting Grid --- */
+        .meeting-screen {
             display: none;
             flex: 1;
-            flex-direction: column;
-            height: 100dvh;
-            padding-top: 60px; /* Header space */
-            padding-bottom: 90px; /* Footer space */
-            background: #202124;
-        }
-
-        .video-grid {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
+            margin-top: 60px;
             padding: 10px;
-            flex-wrap: wrap;
+            padding-bottom: 100px; /* Space for footer */
             overflow-y: auto;
         }
 
-        .video-wrapper {
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            height: 100%;
+            align-content: center;
+        }
+
+        .video-card {
             position: relative;
-            background: #000;
+            background: black;
             border-radius: 12px;
             overflow: hidden;
-            flex: 1;
-            min-width: 45%;
-            max-width: 100%;
-            aspect-ratio: 16/9; /* Maintain ratio */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
+            aspect-ratio: 16/9;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
-        
-        /* Mobile Portrait Optimization */
-        @media (max-width: 600px) {
-            .video-grid { flex-direction: column; }
-            .video-wrapper { width: 100%; min-height: 200px; }
+
+        /* Adjust grid for single user to look nice */
+        .grid-container:has(> .video-card:only-child) .video-card {
+            max-width: 800px;
+            margin: 0 auto;
+            max-height: 60vh;
         }
 
         video {
@@ -154,43 +177,64 @@
             object-fit: cover;
         }
         
-        /* Mirror local video unless sharing screen */
-        #localVideo.mirrored { transform: scaleX(-1); }
+        .video-card.local video { transform: scaleX(-1); } /* Mirror self */
 
-        .user-label {
+        .user-tag {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
-            color: white;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 8px;
+            border-radius: 6px;
             font-size: 12px;
-            background: rgba(0,0,0,0.5);
-            padding: 2px 8px;
-            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Raise Hand Indicator */
+        .hand-indicator {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #eab308; /* Yellow */
+            color: #422006;
+            padding: 6px;
+            border-radius: 50%;
+            display: none; /* Hidden by default */
+            animation: bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .hand-indicator.active { display: block; }
+
+        @keyframes bounce {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
 
         /* --- Footer Controls --- */
         .controls-bar {
-            display: none;
             position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            background: #202124;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            /* Safe area for iPhone home bar */
-            padding-bottom: env(safe-area-inset-bottom); 
-            z-index: 200;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            padding: 10px 20px;
+            border-radius: 100px;
+            display: none; /* Hidden initially */
+            gap: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            border: 1px solid #334155;
+            z-index: 100;
         }
 
-        .control-btn {
-            width: 50px;
-            height: 50px;
+        .ctrl-btn {
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             border: none;
-            background: #3c4043;
+            background: #334155;
             color: white;
             cursor: pointer;
             display: flex;
@@ -198,28 +242,36 @@
             justify-content: center;
             transition: 0.2s;
         }
-
-        .control-btn span { font-size: 24px; }
         
-        /* State: Active/Off */
-        .control-btn.off { background: var(--danger-red); }
-        .control-btn.hangup { background: var(--danger-red); width: 65px; border-radius: 30px; }
+        .ctrl-btn:hover { background: #475569; }
+        .ctrl-btn svg { width: 20px; height: 20px; }
 
-        /* Status Toast */
-        .status-toast {
+        .ctrl-btn.active-red { background: var(--danger); color: white; }
+        .ctrl-btn.active-yellow { background: #eab308; color: #422006; } /* Active Hand */
+
+        .ctrl-btn.hangup { background: var(--danger); margin-left: 10px; }
+        .ctrl-btn.hangup:hover { background: #dc2626; }
+
+        /* Toast Notification */
+        .toast {
             position: fixed;
-            top: 70px;
+            top: 80px;
             left: 50%;
             transform: translateX(-50%);
-            background: #323232;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
+            background: #334155;
+            padding: 10px 20px;
+            border-radius: 8px;
             font-size: 14px;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: 0.3s;
             pointer-events: none;
-            z-index: 500;
+            z-index: 200;
+        }
+
+        @media (max-width: 600px) {
+            .grid-container { grid-template-columns: 1fr; }
+            .controls-bar { width: 90%; justify-content: space-around; bottom: 15px; padding: 10px; }
+            .ctrl-btn { width: 42px; height: 42px; }
         }
     </style>
 </head>
@@ -227,55 +279,64 @@
 
     <header>
         <div class="logo">
-            <span class="material-icons-round" style="color:#00796b;">video_camera_front</span>
-            <span>Meet</span>
+            <i data-lucide="video" style="color: var(--primary);"></i>
+            Edulinki Mesh
         </div>
-        <div class="time-display" id="clock">10:00</div>
+        <div class="room-badge" id="roomBadge">Code: <span id="displayRoomCode">---</span></div>
     </header>
 
-    <main class="lobby-container" id="lobbyScreen">
+    <main class="lobby-screen" id="lobbyScreen">
         <div class="lobby-card">
-            <h2 style="font-weight: 400; margin-bottom: 10px;">Join a Meeting</h2>
-            <input type="text" id="callInput" class="meet-input" placeholder="Enter code (e.g. abc-def)" autocomplete="off">
-            
-            <button id="joinBtn" class="btn btn-primary" disabled>Join</button>
-            <div style="color: #5f6368; font-size: 14px;">or</div>
-            <button id="createBtn" class="btn btn-secondary">Create New Meeting</button>
+            <h2>Start a Meeting</h2>
+            <div class="input-group">
+                <i data-lucide="hash" class="input-icon"></i>
+                <input type="text" id="roomInput" class="room-input" placeholder="Enter Room Code" autocomplete="off">
+            </div>
+            <button id="joinBtn" class="btn btn-primary" disabled>
+                Join Meeting <i data-lucide="arrow-right" style="width:16px;"></i>
+            </button>
+            <button id="createBtn" class="btn btn-ghost">
+                Generate Random Code
+            </button>
         </div>
     </main>
 
-    <main class="meeting-container" id="meetingScreen">
-        <div class="video-grid" id="videoGrid">
-            <div class="video-wrapper">
-                <video id="localVideo" autoplay playsinline muted class="mirrored"></video>
-                <div class="user-label">You</div>
+    <main class="meeting-screen" id="meetingScreen">
+        <div class="grid-container" id="videoGrid">
+            <div class="video-card local" id="localCard">
+                <video id="localVideo" autoplay playsinline muted></video>
+                <div class="user-tag">You</div>
+                <div class="hand-indicator" id="localHandIcon">
+                    <i data-lucide="hand" style="width:16px; height:16px;"></i>
+                </div>
             </div>
-            <div class="video-wrapper" id="remoteWrapper" style="display:none;">
-                <video id="remoteVideo" autoplay playsinline></video>
-                <div class="user-label">Them</div>
             </div>
-        </div>
-        <div class="status-toast" id="statusToast">Status message...</div>
+        <div class="toast" id="toast">Notification</div>
     </main>
 
-    <footer class="controls-bar" id="controlsBar">
-        <button id="micBtn" class="control-btn"><span class="material-icons-round">mic</span></button>
-        <button id="camBtn" class="control-btn"><span class="material-icons-round">videocam</span></button>
-        <button id="screenBtn" class="control-btn"><span class="material-icons-round">present_to_all</span></button>
-        <button id="hangupBtn" class="control-btn hangup"><span class="material-icons-round">call_end</span></button>
+    <footer class="controls-bar" id="controls">
+        <button class="ctrl-btn" id="micBtn" title="Toggle Mic">
+            <i data-lucide="mic"></i>
+        </button>
+        <button class="ctrl-btn" id="camBtn" title="Toggle Camera">
+            <i data-lucide="camera"></i>
+        </button>
+        <button class="ctrl-btn" id="handBtn" title="Raise Hand">
+            <i data-lucide="hand"></i>
+        </button>
+        <button class="ctrl-btn hangup" id="hangupBtn" title="Leave">
+            <i data-lucide="phone-off"></i>
+        </button>
     </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, deleteDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        // --- Clock ---
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        }, 1000);
+        // --- Init Icons ---
+        lucide.createIcons();
 
-        // --- Firebase Config ---
+        // --- Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
             authDomain: "edulinki.firebaseapp.com",
@@ -285,232 +346,320 @@
             appId: "1:248886466474:web:160043201a6b28bafbbdd3",
             measurementId: "G-MQBH12VL7N"
         };
-
         const app = initializeApp(firebaseConfig);
-        const firestore = getFirestore(app);
+        const db = getFirestore(app);
 
-        // --- WebRTC Globals ---
         const servers = {
             iceServers: [
                 { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }
-            ],
-            iceCandidatePoolSize: 10,
+            ]
         };
 
-        let pc = new RTCPeerConnection(servers);
+        // --- State ---
+        const myId = Math.random().toString(36).substring(2, 9); // Random User ID
+        let roomId = null;
         let localStream = null;
-        let remoteStream = null;
-        let screenStream = null;
-        let candidateQueue = [];
+        let isHandRaised = false;
+        
+        // Peer Connections Object: { [remoteUserId]: { pc, candidateQueue } }
+        const peers = {}; 
 
-        // --- Elements ---
+        // --- UI Refs ---
         const lobbyScreen = document.getElementById('lobbyScreen');
         const meetingScreen = document.getElementById('meetingScreen');
-        const controlsBar = document.getElementById('controlsBar');
-        
-        const localVideo = document.getElementById('localVideo');
-        const remoteVideo = document.getElementById('remoteVideo');
-        const remoteWrapper = document.getElementById('remoteWrapper');
-        
-        const micBtn = document.getElementById('micBtn');
-        const camBtn = document.getElementById('camBtn');
-        const screenBtn = document.getElementById('screenBtn');
-        const hangupBtn = document.getElementById('hangupBtn');
-        const createBtn = document.getElementById('createBtn');
+        const controls = document.getElementById('controls');
+        const videoGrid = document.getElementById('videoGrid');
+        const roomInput = document.getElementById('roomInput');
         const joinBtn = document.getElementById('joinBtn');
-        const callInput = document.getElementById('callInput');
+        const localVideo = document.getElementById('localVideo');
 
-        // --- UI Logic ---
-        callInput.oninput = (e) => {
+        // --- Helper: UI Logic ---
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.opacity = '1';
+            setTimeout(() => t.style.opacity = '0', 3000);
+        }
+
+        roomInput.oninput = (e) => {
             joinBtn.disabled = e.target.value.trim().length === 0;
         };
+        
+        document.getElementById('createBtn').onclick = () => {
+            const code = Math.random().toString(36).substring(2, 7);
+            roomInput.value = code;
+            joinBtn.disabled = false;
+        };
 
-        function showStatus(msg) {
-            const toast = document.getElementById('statusToast');
-            toast.innerText = msg;
-            toast.style.opacity = '1';
-            setTimeout(() => toast.style.opacity = '0', 3000);
-        }
-
-        function enterMeetingUI() {
-            lobbyScreen.style.display = 'none';
-            meetingScreen.style.display = 'flex';
-            controlsBar.style.display = 'flex';
-        }
-
-        // --- Media Setup ---
-        async function startMedia() {
+        // --- 1. Start Media ---
+        async function initMedia() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 localVideo.srcObject = localStream;
-
-                remoteStream = new MediaStream();
-                pc.ontrack = (event) => {
-                    event.streams[0].getTracks().forEach((track) => remoteStream.addTrack(track));
-                    remoteVideo.srcObject = remoteStream;
-                    remoteWrapper.style.display = 'flex';
-                };
-
-                localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
-                enterMeetingUI();
                 return true;
             } catch (e) {
-                alert("Please allow camera/mic access!");
+                alert("Camera access denied.");
                 return false;
             }
         }
 
-        // --- Controls Logic ---
-        
-        // MUTE AUDIO
-        micBtn.onclick = () => {
-            const audioTrack = localStream.getAudioTracks()[0];
-            if(audioTrack) {
-                audioTrack.enabled = !audioTrack.enabled;
-                micBtn.classList.toggle('off');
-                micBtn.innerHTML = audioTrack.enabled 
-                    ? '<span class="material-icons-round">mic</span>' 
-                    : '<span class="material-icons-round">mic_off</span>';
-            }
-        };
-
-        // DISABLE CAMERA
-        camBtn.onclick = () => {
-            const videoTrack = localStream.getVideoTracks()[0];
-            if(videoTrack) {
-                videoTrack.enabled = !videoTrack.enabled;
-                camBtn.classList.toggle('off');
-                camBtn.innerHTML = videoTrack.enabled 
-                    ? '<span class="material-icons-round">videocam</span>' 
-                    : '<span class="material-icons-round">videocam_off</span>';
-            }
-        };
-
-        // SCREEN SHARE
-        screenBtn.onclick = async () => {
-            if (!screenStream) {
-                try {
-                    // 1. Get Screen Stream
-                    screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-                    const screenTrack = screenStream.getVideoTracks()[0];
-
-                    // 2. Replace Video Track in Sender
-                    const sender = pc.getSenders().find(s => s.track.kind === 'video');
-                    if (sender) sender.replaceTrack(screenTrack);
-
-                    // 3. Show Screen on Local Video (Remove Mirroring)
-                    localVideo.srcObject = screenStream;
-                    localVideo.classList.remove('mirrored');
-                    screenBtn.style.color = '#8ab4f8'; // active color
-
-                    // 4. Handle Stop Sharing (via browser UI)
-                    screenTrack.onended = () => {
-                        stopScreenShare(sender);
-                    };
-
-                } catch (e) { console.error("Screen share failed", e); }
-            } else {
-                // User clicked button to stop
-                const sender = pc.getSenders().find(s => s.track.kind === 'video');
-                stopScreenShare(sender);
-            }
-        };
-
-        function stopScreenShare(sender) {
-            // Revert to Camera
-            const cameraTrack = localStream.getVideoTracks()[0];
-            if (sender) sender.replaceTrack(cameraTrack);
-            
-            localVideo.srcObject = localStream;
-            localVideo.classList.add('mirrored');
-            
-            if (screenStream) {
-                screenStream.getTracks().forEach(track => track.stop());
-                screenStream = null;
-            }
-            screenBtn.style.color = 'white';
-        }
-
-        hangupBtn.onclick = () => window.location.reload();
-
-        // --- WebRTC Signaling (Existing Logic) ---
-        // ICE Queue
-        async function handleRemoteCandidate(candidateData) {
-            if (!candidateData) return;
-            const candidate = new RTCIceCandidate(candidateData);
-            if (pc.remoteDescription) {
-                await pc.addIceCandidate(candidate);
-            } else {
-                candidateQueue.push(candidate);
-            }
-        }
-        async function processQueue() {
-            candidateQueue.forEach(async c => await pc.addIceCandidate(c));
-            candidateQueue = [];
-        }
-
-        // CREATE
-        createBtn.onclick = async () => {
-            const callId = Math.random().toString(36).substring(2, 7);
-            callInput.value = callId;
-            if(!await startMedia()) return;
-
-            const callDoc = doc(collection(firestore, 'calls'), callId);
-            const offerCandidates = collection(callDoc, 'offerCandidates');
-            const answerCandidates = collection(callDoc, 'answerCandidates');
-
-            pc.onicecandidate = (event) => {
-                event.candidate && addDoc(offerCandidates, event.candidate.toJSON());
-            };
-
-            const offerDescription = await pc.createOffer();
-            await pc.setLocalDescription(offerDescription);
-            await setDoc(callDoc, { offer: { sdp: offerDescription.sdp, type: offerDescription.type }});
-
-            showStatus(`Room created: ${callId}`);
-
-            onSnapshot(callDoc, (snapshot) => {
-                const data = snapshot.data();
-                if (!pc.currentRemoteDescription && data?.answer) {
-                    pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-                    processQueue();
-                }
-            });
-            onSnapshot(answerCandidates, (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === 'added') handleRemoteCandidate(change.doc.data());
-                });
-            });
-        };
-
-        // JOIN
+        // --- 2. JOIN LOGIC (Mesh) ---
         joinBtn.onclick = async () => {
-            const callId = callInput.value.trim();
-            if(!callId || !await startMedia()) return;
+            roomId = roomInput.value.trim();
+            if (!roomId || !await initMedia()) return;
 
-            const callDoc = doc(collection(firestore, 'calls'), callId);
-            const offerCandidates = collection(callDoc, 'offerCandidates');
-            const answerCandidates = collection(callDoc, 'answerCandidates');
+            // Switch UI
+            lobbyScreen.style.display = 'none';
+            meetingScreen.style.display = 'flex';
+            controls.style.display = 'flex';
+            document.getElementById('roomBadge').style.display = 'block';
+            document.getElementById('displayRoomCode').innerText = roomId;
 
-            pc.onicecandidate = (event) => {
-                event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
-            };
+            // 1. Add Self to Participants
+            const userRef = doc(db, `rooms/${roomId}/participants/${myId}`);
+            await setDoc(userRef, { 
+                name: "User " + myId.substr(0,3), 
+                handRaised: false,
+                joinedAt: Date.now() 
+            });
 
-            const snapshot = await getDoc(callDoc);
-            if (!snapshot.exists()) { alert("Room not found"); return; }
-            
-            await pc.setRemoteDescription(new RTCSessionDescription(snapshot.data().offer));
-            const answerDescription = await pc.createAnswer();
-            await pc.setLocalDescription(answerDescription);
-            await updateDoc(callDoc, { answer: { type: answerDescription.type, sdp: answerDescription.sdp }});
-            processQueue();
+            // 2. Listen for Participants (Discovery)
+            const participantsRef = collection(db, `rooms/${roomId}/participants`);
+            onSnapshot(participantsRef, (snapshot) => {
+                snapshot.docChanges().forEach(change => {
+                    const data = change.doc.data();
+                    const remoteId = change.doc.id;
+                    if (remoteId === myId) return; // Skip self
 
-            onSnapshot(offerCandidates, (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === 'added') handleRemoteCandidate(change.doc.data());
+                    if (change.type === 'added') {
+                        showToast("User joined");
+                        createPeerConnection(remoteId, true); // True = We initiate (if we are older?)
+                        // Wait, simplified: The NEW person initiates to EXISTING people? 
+                        // Actually, easier: Existing people see 'added' -> They call the new person.
+                        // But both will see 'added' if we are not careful with timing.
+                        // Standard Mesh: The *existing* participants call the *new* participant.
+                        if (data.joinedAt > Date.now() - 5000) { 
+                            // If they joined JUST NOW, I (an existing user) call them.
+                            // If they were already there when I loaded, I wait for them to call me?
+                            // Actually, let's stick to: Everyone connects. 
+                            // Politeness Strategy: Sort IDs. Lower ID calls Higher ID.
+                            if (myId < remoteId) {
+                                console.log("I am calling", remoteId);
+                                startCall(remoteId);
+                            }
+                        }
+                    } 
+                    if (change.type === 'modified') {
+                        // Handle Hand Raise UI
+                        updateRemoteHand(remoteId, data.handRaised);
+                    }
+                    if (change.type === 'removed') {
+                        removePeer(remoteId);
+                    }
+                });
+                
+                // Initial Load: If users exist, check ID sort order to see if I call them
+                snapshot.forEach(docSnap => {
+                    const remoteId = docSnap.id;
+                    if (remoteId !== myId && !peers[remoteId]) {
+                         if (myId < remoteId) startCall(remoteId);
+                    }
                 });
             });
+
+            // 3. Listen for Signaling Messages (SDP / ICE) addressed to ME
+            const signalingRef = collection(db, `rooms/${roomId}/signaling`);
+            const q = query(signalingRef, where("to", "==", myId));
+            
+            onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach(async change => {
+                    if (change.type === 'added') {
+                        const data = change.doc.data();
+                        const fromId = data.from;
+                        
+                        // Process and DELETE immediately to avoid re-processing
+                        await deleteDoc(change.doc.ref);
+
+                        if (!peers[fromId]) createPeerConnection(fromId, false);
+                        const pc = peers[fromId].pc;
+
+                        if (data.type === 'offer') {
+                            await pc.setRemoteDescription(new RTCSessionDescription(data.payload));
+                            const answer = await pc.createAnswer();
+                            await pc.setLocalDescription(answer);
+                            sendSignal(fromId, 'answer', answer);
+                            peers[fromId].queue.forEach(c => pc.addIceCandidate(c)); // Process queued ICE
+                            peers[fromId].queue = [];
+                        } else if (data.type === 'answer') {
+                            await pc.setRemoteDescription(new RTCSessionDescription(data.payload));
+                            peers[fromId].queue.forEach(c => pc.addIceCandidate(c));
+                            peers[fromId].queue = [];
+                        } else if (data.type === 'candidate') {
+                            const c = new RTCIceCandidate(data.payload);
+                            if (pc.remoteDescription) pc.addIceCandidate(c);
+                            else peers[fromId].queue.push(c);
+                        }
+                    }
+                });
+            });
+
+            // Cleanup on unload
+            window.addEventListener('beforeunload', async () => {
+                await deleteDoc(userRef);
+            });
         };
+
+        // --- 3. WebRTC Functions ---
+
+        function createPeerConnection(remoteId, isInitiator) {
+            if (peers[remoteId]) return;
+
+            const pc = new RTCPeerConnection(servers);
+            peers[remoteId] = { pc: pc, queue: [] };
+
+            // Add local tracks
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+            // Handle ICE
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    sendSignal(remoteId, 'candidate', event.candidate.toJSON());
+                }
+            };
+
+            // Handle Remote Stream
+            pc.ontrack = (event) => {
+                const [remoteStream] = event.streams;
+                addRemoteVideo(remoteId, remoteStream);
+            };
+
+            return pc;
+        }
+
+        async function startCall(remoteId) {
+            if (!peers[remoteId]) createPeerConnection(remoteId, true);
+            const pc = peers[remoteId].pc;
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            sendSignal(remoteId, 'offer', offer);
+        }
+
+        async function sendSignal(toId, type, payload) {
+            await addDoc(collection(db, `rooms/${roomId}/signaling`), {
+                to: toId,
+                from: myId,
+                type: type,
+                payload: payload, // Serialize object
+                timestamp: Date.now()
+            });
+        }
+
+        // --- 4. DOM Manipulation (Remote Users) ---
+        function addRemoteVideo(id, stream) {
+            let card = document.getElementById(`user-${id}`);
+            if (!card) {
+                card = document.createElement('div');
+                card.className = 'video-card';
+                card.id = `user-${id}`;
+                
+                const vid = document.createElement('video');
+                vid.autoplay = true;
+                vid.playsInline = true;
+                vid.srcObject = stream;
+                
+                const tag = document.createElement('div');
+                tag.className = 'user-tag';
+                tag.textContent = `User ${id.substr(0,3)}`;
+
+                const hand = document.createElement('div');
+                hand.className = 'hand-indicator';
+                hand.id = `hand-${id}`;
+                hand.innerHTML = `<i data-lucide="hand" style="width:16px;"></i>`;
+
+                card.append(vid, tag, hand);
+                videoGrid.appendChild(card);
+                lucide.createIcons();
+            }
+        }
+
+        function removePeer(id) {
+            const card = document.getElementById(`user-${id}`);
+            if (card) card.remove();
+            if (peers[id]) {
+                peers[id].pc.close();
+                delete peers[id];
+            }
+        }
+
+        function updateRemoteHand(id, isRaised) {
+            const handEl = document.getElementById(`hand-${id}`);
+            if (handEl) {
+                if (isRaised) handEl.classList.add('active');
+                else handEl.classList.remove('active');
+            }
+        }
+
+        // --- 5. Button Logic ---
+        
+        // Mute Mic
+        document.getElementById('micBtn').onclick = (e) => {
+            const track = localStream.getAudioTracks()[0];
+            track.enabled = !track.enabled;
+            
+            const btn = e.currentTarget;
+            const icon = btn.querySelector('i');
+            
+            if (!track.enabled) {
+                btn.classList.add('active-red');
+                icon.setAttribute('data-lucide', 'mic-off');
+            } else {
+                btn.classList.remove('active-red');
+                icon.setAttribute('data-lucide', 'mic');
+            }
+            lucide.createIcons();
+        };
+
+        // Camera Toggle
+        document.getElementById('camBtn').onclick = (e) => {
+            const track = localStream.getVideoTracks()[0];
+            track.enabled = !track.enabled;
+            
+            const btn = e.currentTarget;
+            const icon = btn.querySelector('i');
+
+            if (!track.enabled) {
+                btn.classList.add('active-red');
+                icon.setAttribute('data-lucide', 'video-off');
+            } else {
+                btn.classList.remove('active-red');
+                icon.setAttribute('data-lucide', 'camera');
+            }
+            lucide.createIcons();
+        };
+
+        // Raise Hand
+        document.getElementById('handBtn').onclick = async (e) => {
+            isHandRaised = !isHandRaised;
+            
+            // UI Toggle
+            const btn = e.currentTarget;
+            const localHand = document.getElementById('localHandIcon');
+            
+            if (isHandRaised) {
+                btn.classList.add('active-yellow');
+                localHand.classList.add('active');
+            } else {
+                btn.classList.remove('active-yellow');
+                localHand.classList.remove('active');
+            }
+
+            // DB Update
+            const userRef = doc(db, `rooms/${roomId}/participants/${myId}`);
+            await updateDoc(userRef, { handRaised: isHandRaised });
+        };
+
+        document.getElementById('hangupBtn').onclick = () => window.location.reload();
+
     </script>
 </body>
 </html>

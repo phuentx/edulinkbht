@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edulinki Meet - Pro</title>
+    <title>Edulinki Meet - Ultra</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Google+Sans:wght@400;500&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
         :root {
-            --bg-color: #202124;
-            --surface-color: #3c4043;
-            --primary-blue: #8ab4f8;
-            --danger-red: #ea4335;
-            --text-primary: #e8eaed;
-            --hand-yellow: #fdd835;
+            --bg-dark: #202124;
+            --surface-dark: #3c4043;
+            --primary: #8ab4f8;
+            --danger: #ea4335;
+            --success: #34a853;
+            --text-main: #e8eaed;
+            --glow-color: #8ab4f8;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            font-family: 'Google Sans', 'Roboto', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
+            font-family: 'Google Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             height: 100dvh;
             display: flex;
             flex-direction: column;
@@ -37,297 +37,314 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(32, 33, 36, 0.95);
             position: fixed;
             top: 0;
             width: 100%;
             z-index: 100;
-            height: 60px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
         }
+        .logo { font-size: 20px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+        .time { font-family: 'Roboto', sans-serif; color: #dadce0; font-size: 14px; }
 
-        .logo {
-            font-size: 20px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .time-display {
-            font-family: 'Roboto', sans-serif;
-            color: #bdc1c6;
-            font-size: 16px;
-        }
-
-        /* --- Lobby --- */
-        .lobby-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            margin-top: 60px;
-        }
-
-        .lobby-card {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .meet-input {
-            background: transparent;
-            border: 1px solid #5f6368;
-            color: white;
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 16px;
-            width: 100%;
-            outline: none;
-        }
-        .meet-input:focus { border-color: var(--primary-blue); border-width: 2px; padding: 11px; }
-
-        .btn {
-            border: none;
-            padding: 12px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary { background: var(--primary-blue); color: #202124; }
-        .btn-primary:disabled { background: #3c4043; color: #777; cursor: not-allowed; }
-        .btn-secondary { background: transparent; color: var(--primary-blue); border: 1px solid #5f6368; margin-top: 10px;}
-
-        /* --- Meeting Screen --- */
+        /* --- Smart Video Grid --- */
         .meeting-container {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            height: 100dvh;
-            padding-top: 60px;
-            padding-bottom: 90px;
-            background: #202124;
-            position: relative;
-        }
-
-        .video-grid {
             flex: 1;
             display: flex;
+            flex-direction: column;
+            padding: 60px 15px 100px 15px; /* Top/Bottom padding for header/footer */
+            overflow: hidden;
             justify-content: center;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            flex-wrap: wrap;
-            overflow-y: auto;
+        }
+
+        .grid-container {
+            display: grid;
+            gap: 12px;
+            width: 100%;
+            height: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
             align-content: center;
         }
 
-        .video-wrapper {
+        /* LAYOUT LOGIC */
+        /* 1 User (Self) */
+        .grid-container[data-count="1"] { grid-template-columns: 1fr; }
+        /* 2 Users (50/50) */
+        .grid-container[data-count="2"] { grid-template-columns: 1fr 1fr; }
+        /* 3 Users (1 Top, 2 Bottom) */
+        .grid-container[data-count="3"] { 
+            grid-template-columns: 1fr 1fr; 
+            grid-template-rows: 1.5fr 1fr;
+        }
+        .grid-container[data-count="3"] .video-card:first-child { grid-column: span 2; }
+        /* 4 Users (2x2) */
+        .grid-container[data-count="4"] { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+        /* 5-6 Users */
+        .grid-container[data-count="5"], .grid-container[data-count="6"] { grid-template-columns: repeat(3, 1fr); }
+        
+        /* Mobile Portrait Overrides */
+        @media (max-width: 600px) {
+            .grid-container { grid-template-columns: 1fr !important; grid-auto-rows: 1fr; }
+            .grid-container[data-count="3"] .video-card:first-child { grid-column: span 1; }
+        }
+
+        /* --- Video Card Styling --- */
+        .video-card {
             position: relative;
-            background: #000;
+            background: #202124;
             border-radius: 12px;
             overflow: hidden;
-            flex: 1;
-            min-width: 300px; /* Adjusted for multi-user */
-            max-width: 600px;
-            aspect-ratio: 16/9;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        /* Active Speaker Glow */
+        .video-card.speaking {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(138, 180, 248, 0.4);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .mirrored { transform: scaleX(-1); }
+
+        /* Camera Off Placeholder */
+        .avatar-placeholder {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #3c4043;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+        .avatar-circle {
+            width: 80px; height: 80px;
+            background: #5f6368;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
-        }
-
-        /* Responsive handling for 3+ users */
-        @media (max-width: 600px) {
-            .video-wrapper { min-width: 100%; min-height: 200px; }
-        }
-
-        video { width: 100%; height: 100%; object-fit: cover; }
-        .mirrored { transform: scaleX(-1); }
-
-        .user-label {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
+            font-size: 32px;
             color: white;
-            font-size: 12px;
-            background: rgba(0,0,0,0.6);
-            padding: 4px 8px;
-            border-radius: 4px;
-            z-index: 10;
+            font-weight: 500;
         }
+        .video-card.cam-off .avatar-placeholder { display: flex; }
 
-        /* Hand Raise Badge */
-        .hand-badge {
+        /* Labels & Status */
+        .user-info {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            background: var(--surface-color);
-            color: var(--hand-yellow);
-            padding: 8px;
-            border-radius: 50%;
-            display: none; /* Hidden by default */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            z-index: 10;
-        }
-        .hand-badge.active { display: flex; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
-        @keyframes popIn {
-            from { transform: scale(0); }
-            to { transform: scale(1); }
-        }
-
-        /* Room Info Badge */
-        .room-info {
-            position: absolute;
-            bottom: 95px; /* Above footer */
-            left: 20px;
-            background: rgba(32, 33, 36, 0.8);
-            padding: 8px 12px;
-            border-radius: 4px;
+            bottom: 12px;
+            left: 12px;
             color: white;
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: 500;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
             display: flex;
             align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            z-index: 90;
+            gap: 6px;
+            z-index: 2;
+        }
+        .mute-indicator {
+            background: rgba(234, 67, 53, 0.9);
+            padding: 4px;
+            border-radius: 50%;
+            display: none; /* Hidden unless muted */
+        }
+        .video-card.muted .mute-indicator { display: flex; }
+
+        .hand-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 24px;
+            background: rgba(40, 40, 40, 0.7);
+            padding: 5px;
+            border-radius: 50%;
+            display: none;
+            z-index: 2;
+        }
+        .video-card.hand-raised .hand-badge { display: block; animation: bounce 0.5s; }
+
+        /* Floating Emoji Reaction */
+        .emoji-floater {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            font-size: 40px;
+            pointer-events: none;
+            z-index: 10;
+            animation: floatUp 2s forwards;
+        }
+        @keyframes floatUp {
+            0% { transform: translateX(-50%) translateY(0) scale(0.5); opacity: 0; }
+            20% { opacity: 1; transform: translateX(-50%) translateY(-20px) scale(1.2); }
+            100% { transform: translateX(-50%) translateY(-150px) scale(1); opacity: 0; }
         }
 
-        /* --- Footer --- */
+        /* --- Controls Bar --- */
         .controls-bar {
-            display: none;
             position: fixed;
             bottom: 0;
-            left: 0;
             width: 100%;
             height: 80px;
             background: #202124;
-            align-items: center;
+            display: flex;
             justify-content: center;
+            align-items: center;
             gap: 12px;
-            padding-bottom: env(safe-area-inset-bottom); 
+            padding-bottom: env(safe-area-inset-bottom);
             z-index: 200;
         }
 
-        .control-btn {
-            width: 48px;
-            height: 48px;
+        .btn-control {
+            width: 48px; height: 48px;
             border-radius: 50%;
             border: none;
             background: #3c4043;
             color: white;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             transition: 0.2s;
         }
-        
-        .control-btn.off { background: var(--danger-red); }
-        .control-btn.active-state { background: #8ab4f8; color: #202124; } /* For hand raise */
-        
-        .control-btn.hangup { 
-            background: var(--danger-red); 
-            width: 60px; 
-            border-radius: 30px; 
-        }
+        .btn-control:hover { background: #4b4f54; }
+        .btn-control.red { background: var(--danger); }
+        .btn-control.blue { background: var(--primary); color: #202124; }
+        .btn-end { width: 60px; border-radius: 30px; background: var(--danger); }
 
-        /* Status Toast */
-        .status-toast {
+        /* --- Overlays (More Menu & Emojis) --- */
+        .overlay-menu {
             position: fixed;
-            top: 75px;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: #303134;
+            padding: 15px;
+            border-radius: 12px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 200px;
+            opacity: 0;
+            transition: all 0.2s;
+            z-index: 300;
+        }
+        .overlay-menu.active { display: flex; opacity: 1; transform: translateX(-50%) scale(1); }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            background: transparent;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        .menu-item:hover { background: rgba(255,255,255,0.1); }
+
+        .emoji-bar {
+            position: fixed;
+            bottom: 90px;
             left: 50%;
             transform: translateX(-50%);
-            background: #323232;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 500;
+            background: #303134;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: none;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            z-index: 300;
         }
+        .emoji-bar.active { display: flex; }
+        .emoji-btn { font-size: 24px; cursor: pointer; background: none; border: none; transition: transform 0.2s; }
+        .emoji-btn:hover { transform: scale(1.3); }
+
+        /* Lobby Styles */
+        #lobby { position: absolute; top:0; left:0; width:100%; height:100%; background:#202124; z-index:900; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        .lobby-box { text-align:center; max-width:400px; width:90%; }
+        input { background:transparent; border:1px solid #5f6368; padding:12px; color:white; width:100%; margin:15px 0; border-radius:4px; outline:none; }
+        input:focus { border-color: var(--primary); }
+        .btn-primary { width:100%; padding:12px; background: var(--primary); border:none; border-radius:4px; font-weight:bold; cursor:pointer; }
     </style>
 </head>
 <body>
 
+    <div id="lobby">
+        <div class="lobby-box">
+            <h2 style="margin-bottom:10px">Edulinki Meet</h2>
+            <p style="color:#bdc1c6">Secure video conferencing</p>
+            <input id="roomInput" placeholder="Enter Room Code" autocomplete="off">
+            <button class="btn-primary" id="goBtn">Join / Create</button>
+        </div>
+    </div>
+
     <header>
         <div class="logo">
-            <i data-lucide="video" style="color:#00796b;"></i>
-            <span>Edulinki</span>
+            <i data-lucide="video" color="#8ab4f8"></i> Edulinki
         </div>
-        <div class="time-display" id="clock">10:00</div>
+        <div class="time" id="clock">--:--</div>
     </header>
 
-    <main class="lobby-container" id="lobbyScreen">
-        <div class="lobby-card">
-            <h2 style="font-weight: 400;">Join Meeting</h2>
-            <input type="text" id="callInput" class="meet-input" placeholder="Enter room code" autocomplete="off">
-            
-            <button id="joinBtn" class="btn btn-primary" disabled>
-                <i data-lucide="log-in" size="18"></i> Join
-            </button>
-            <div style="color: #5f6368; font-size: 14px;">or</div>
-            <button id="createBtn" class="btn btn-secondary">
-                <i data-lucide="plus" size="18"></i> Create New
-            </button>
-        </div>
-    </main>
-
-    <main class="meeting-container" id="meetingScreen">
-        <div class="video-grid" id="videoGrid">
-            <div class="video-wrapper" id="localWrapper">
+    <div class="meeting-container">
+        <div class="grid-container" id="grid" data-count="1">
+            <div class="video-card" id="localCard">
+                <div class="avatar-placeholder"><div class="avatar-circle">Me</div></div>
                 <video id="localVideo" autoplay playsinline muted class="mirrored"></video>
-                <div class="user-label">You</div>
-                <div class="hand-badge" id="localHand"><i data-lucide="hand" size="20"></i></div>
+                <div class="user-label">
+                    <div class="user-info">You</div>
+                    <div class="mute-indicator"><i data-lucide="mic-off" size="12" color="white"></i></div>
+                </div>
+                <div class="hand-badge">✋</div>
             </div>
             </div>
+    </div>
 
-        <div class="room-info" id="roomInfo" onclick="copyRoomId()">
-            <span id="roomNameDisplay">...</span>
-            <i data-lucide="copy" size="14"></i>
-        </div>
+    <div class="overlay-menu" id="moreMenu">
+        <button class="menu-item" id="shareBtn">
+            <i data-lucide="monitor-up"></i> Share Screen
+        </button>
+        <button class="menu-item" id="handBtn">
+            <i data-lucide="hand"></i> Raise Hand
+        </button>
+        <div style="font-size:12px; color:#aaa; padding:10px; text-align:center;" id="roomIdDisplay"></div>
+    </div>
 
-        <div class="status-toast" id="statusToast">Status...</div>
-    </main>
+    <div class="emoji-bar" id="emojiBar">
+        <button class="emoji-btn">💖</button>
+        <button class="emoji-btn">👍</button>
+        <button class="emoji-btn">😂</button>
+        <button class="emoji-btn">😮</button>
+        <button class="emoji-btn">🎉</button>
+    </div>
 
-    <footer class="controls-bar" id="controlsBar">
-        <button id="micBtn" class="control-btn"><i data-lucide="mic"></i></button>
-        <button id="camBtn" class="control-btn"><i data-lucide="camera"></i></button>
-        
-        <button id="handBtn" class="control-btn"><i data-lucide="hand"></i></button>
-        
-        <button id="screenBtn" class="control-btn"><i data-lucide="monitor-up"></i></button>
-        
-        <button id="hangupBtn" class="control-btn hangup"><i data-lucide="phone-off"></i></button>
+    <footer class="controls-bar">
+        <button class="btn-control" id="micBtn"><i data-lucide="mic"></i></button>
+        <button class="btn-control" id="camBtn"><i data-lucide="video"></i></button>
+        <button class="btn-control" id="emojiToggle"><i data-lucide="smile"></i></button>
+        <button class="btn-control" id="moreBtn"><i data-lucide="more-vertical"></i></button>
+        <button class="btn-control btn-end" id="hangupBtn"><i data-lucide="phone-off"></i></button>
     </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, getDoc, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, addDoc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        // Initialize Icons
         lucide.createIcons();
 
-        // Clock
-        setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        }, 1000);
-
-        // --- Firebase Config ---
+        // --- Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
             authDomain: "edulinki.firebaseapp.com",
@@ -337,314 +354,325 @@
             appId: "1:248886466474:web:160043201a6b28bafbbdd3",
             measurementId: "G-MQBH12VL7N"
         };
-
         const app = initializeApp(firebaseConfig);
-        const firestore = getFirestore(app);
+        const db = getFirestore(app);
+        
+        const iceServers = { iceServers: [{ urls: 'stun:stun1.l.google.com:19302' }] };
+        
+        // --- State ---
+        let localStream;
+        let screenStream;
+        let roomId;
+        let myId = Math.random().toString(36).substr(2, 6);
+        let pcs = {}; // Peer connections
+        let state = { muted: false, camOff: false, hand: false };
+        let audioCtx, analyser, microphone; // For Audio Glow
 
-        // --- Globals ---
-        const iceServers = {
-            iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }]
-        };
+        // --- UI Logic ---
+        setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), 1000);
 
-        let localStream = null;
-        let screenStream = null;
-        let roomId = null;
-        let localId = Math.random().toString(36).substring(2, 9); // My unique ID
-        const peerConnections = {}; // Store { remoteId: RTCPeerConnection }
-        let isHandRaised = false;
+        function updateGridCount() {
+            const count = document.querySelectorAll('.video-card').length;
+            document.getElementById('grid').setAttribute('data-count', count);
+        }
 
-        // --- UI Elements ---
-        const videoGrid = document.getElementById('videoGrid');
-        const localVideo = document.getElementById('localVideo');
-        const micBtn = document.getElementById('micBtn');
-        const camBtn = document.getElementById('camBtn');
-        const handBtn = document.getElementById('handBtn');
-        const screenBtn = document.getElementById('screenBtn');
-        const roomNameDisplay = document.getElementById('roomNameDisplay');
-
-        // --- Helper: UI Toast ---
-        window.showStatus = (msg) => {
-            const toast = document.getElementById('statusToast');
-            toast.innerText = msg;
-            toast.style.opacity = '1';
-            setTimeout(() => toast.style.opacity = '0', 3000);
-        };
-
-        // --- Helper: Copy Room ID ---
-        window.copyRoomId = () => {
-            navigator.clipboard.writeText(roomId);
-            showStatus("Room ID copied!");
-        };
-
-        // --- 1. JOIN/CREATE FLOW ---
-        async function startApp(isCreator) {
-            const input = document.getElementById('callInput').value.trim();
-            if(!isCreator && !input) return;
-
-            roomId = isCreator ? Math.random().toString(36).substring(2, 7) : input;
+        // --- Audio Glow Logic ---
+        function setupAudioAnalysis(stream, cardId) {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioCtx.createMediaStreamSource(stream);
+            const analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 64;
+            source.connect(analyser);
             
-            document.getElementById('lobbyScreen').style.display = 'none';
-            document.getElementById('meetingScreen').style.display = 'flex';
-            document.getElementById('controlsBar').style.display = 'flex';
-            roomNameDisplay.innerText = roomId;
-
-            await startMedia();
-            await joinRoom();
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            const checkVolume = () => {
+                analyser.getByteFrequencyData(dataArray);
+                let sum = 0;
+                for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
+                const volume = sum / dataArray.length;
+                
+                const card = document.getElementById(cardId);
+                if(card) {
+                    if(volume > 15) card.classList.add('speaking');
+                    else card.classList.remove('speaking');
+                }
+                requestAnimationFrame(checkVolume);
+            };
+            checkVolume();
         }
 
-        async function startMedia() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                localVideo.srcObject = localStream;
-            } catch(e) { 
-                console.error(e);
-                alert("Camera access needed!"); 
-            }
-        }
+        // --- Core WebRTC ---
+        async function init(room) {
+            roomId = room;
+            document.getElementById('lobby').style.display = 'none';
+            document.getElementById('roomIdDisplay').innerText = `Room: ${roomId}`;
 
-        // --- 2. MULTI-USER LOGIC (MESH) ---
-        async function joinRoom() {
-            showStatus(`Joined: ${roomId}`);
+            // 1. Get Media
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById('localVideo').srcObject = localStream;
+            setupAudioAnalysis(localStream, 'localCard'); // Local Glow
 
-            // 1. Add myself to participants
-            const myDoc = doc(collection(firestore, `rooms/${roomId}/participants`), localId);
-            await setDoc(myDoc, { handRaised: false, timestamp: Date.now() });
+            // 2. Join Firestore
+            const myRef = doc(db, `rooms/${roomId}/participants`, myId);
+            await setDoc(myRef, { ...state, lastSeen: Date.now() });
 
-            // 2. Listen for Hand Raises (State Changes)
-            onSnapshot(collection(firestore, `rooms/${roomId}/participants`), (snapshot) => {
-                snapshot.docChanges().forEach(change => {
-                    const data = change.doc.data();
-                    const userId = change.doc.id;
-                    if(userId === localId) return;
-
-                    if(change.type === 'modified' || change.type === 'added') {
-                        updateRemoteHand(userId, data.handRaised);
-                    }
-                });
-            });
-
-            // 3. Listen for Signaling Messages (Offers/Answers/ICE)
-            onSnapshot(collection(firestore, `rooms/${roomId}/messages`), (snapshot) => {
+            // 3. Listen for Signals
+            onSnapshot(collection(db, `rooms/${roomId}/messages`), snapshot => {
                 snapshot.docChanges().forEach(async change => {
-                    if (change.type === 'added') {
+                    if(change.type === 'added') {
                         const msg = change.doc.data();
-                        if (msg.to === localId) {
-                            handleSignalMessage(msg, change.doc.id);
-                        }
+                        if(msg.to === myId) handleSignal(msg, change.doc.id);
+                        if(msg.type === 'emoji' && msg.from !== myId) showFloatingEmoji(msg.emoji, msg.from);
                     }
                 });
             });
 
-            // 4. Discovery: Connect to existing users
-            const participantsSnap = await query(collection(firestore, `rooms/${roomId}/participants`));
-            onSnapshot(collection(firestore, `rooms/${roomId}/participants`), (snapshot) => {
-                 snapshot.docChanges().forEach(async change => {
-                    const userId = change.doc.id;
-                    if (userId === localId) return;
+            // 4. Listen for Participants (Status & Connection)
+            onSnapshot(collection(db, `rooms/${roomId}/participants`), snapshot => {
+                snapshot.docChanges().forEach(async change => {
+                    const data = change.doc.data();
+                    const uid = change.doc.id;
+                    if(uid === myId) return;
 
-                    if (change.type === 'added') {
-                        // If I joined *after* them (simplified: or just create connection aggressively)
-                        // In Mesh, usually "Newcomer" initiates offers to "Existing".
-                        // Logic: check timestamp or just offer.
-                        // Better: If I detect a new user, and I have a "lower" ID? No, let's have Newcomer Offer.
-                        
-                        // We will just create a PC for everyone. 
-                        // To avoid double-offering, only OFFER if my ID > their ID? 
-                        // Actually, easiest way: The person who just joined (me) initiates to everyone already there.
-                        // But here we are inside a listener. 
-                        // Let's rely on the snapshot: if data.timestamp < my timestamp, they were there first. I offer.
+                    if(change.type === 'added') {
+                        createPC(uid, true); // Initiate
+                    }
+                    if(change.type === 'modified') {
+                        updatePeerUI(uid, data);
+                    }
+                    if(change.type === 'removed') {
+                        removePeer(uid);
                     }
                 });
             });
-            
-            // Simpler Discovery: Get list of existing users once, Offer to them.
-            // Future joiners will find ME and Offer to ME.
-            const currentUsers = await import("https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js").then(m => m.getDocs(collection(firestore, `rooms/${roomId}/participants`)));
-            
-            currentUsers.forEach(async doc => {
-                const targetId = doc.id;
-                if(targetId === localId) return;
-                // They are existing. I am new. I initiate.
-                createPeerConnection(targetId, true); 
-            });
+
+            // Handle Page Close
+            window.onbeforeunload = () => deleteDoc(myRef);
         }
 
-        // --- 3. PEER CONNECTION HANDLERS ---
-        async function createPeerConnection(targetId, isInitiator) {
-            if(peerConnections[targetId]) return peerConnections[targetId];
+        async function createPC(targetId, initiator) {
+            if(pcs[targetId]) return pcs[targetId];
 
             const pc = new RTCPeerConnection(iceServers);
-            peerConnections[targetId] = pc;
+            pcs[targetId] = pc;
 
-            // Handle ICE
-            pc.onicecandidate = (event) => {
-                if(event.candidate) {
-                    sendSignal(targetId, { type: 'candidate', candidate: event.candidate.toJSON() });
+            pc.onicecandidate = e => {
+                if(e.candidate) send(targetId, { type: 'candidate', candidate: e.candidate.toJSON() });
+            };
+
+            pc.ontrack = e => {
+                if(!document.getElementById(`card-${targetId}`)) {
+                    addRemoteVideo(targetId, e.streams[0]);
+                    setupAudioAnalysis(e.streams[0], `card-${targetId}`); // Remote Glow
+                }
+            };
+            
+            // Connection State Monitoring (User Left)
+            pc.oniceconnectionstatechange = () => {
+                if(pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
+                    removePeer(targetId);
                 }
             };
 
-            // Handle Stream
-            pc.ontrack = (event) => {
-                let remoteVid = document.getElementById(`vid-${targetId}`);
-                if(!remoteVid) {
-                    // Create Video Wrapper
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'video-wrapper';
-                    wrapper.id = `wrap-${targetId}`;
-                    
-                    const video = document.createElement('video');
-                    video.id = `vid-${targetId}`;
-                    video.autoplay = true;
-                    video.playsInline = true;
-                    
-                    const label = document.createElement('div');
-                    label.className = 'user-label';
-                    label.innerText = 'User ' + targetId.substring(0,3);
+            localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
-                    // Hand Icon
-                    const handBadge = document.createElement('div');
-                    handBadge.className = 'hand-badge';
-                    handBadge.id = `hand-${targetId}`;
-                    handBadge.innerHTML = '<i data-lucide="hand" size="20"></i>';
-
-                    wrapper.appendChild(video);
-                    wrapper.appendChild(label);
-                    wrapper.appendChild(handBadge);
-                    videoGrid.appendChild(wrapper);
-                    
-                    // Re-scan icons
-                    lucide.createIcons();
-                    remoteVid = video;
-                }
-                remoteVid.srcObject = event.streams[0];
-            };
-
-            // Add Tracks
-            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-
-            if(isInitiator) {
+            if(initiator) {
                 const offer = await pc.createOffer();
                 await pc.setLocalDescription(offer);
-                sendSignal(targetId, { type: 'offer', sdp: offer.sdp });
+                send(targetId, { type: 'offer', sdp: offer.sdp });
             }
-
             return pc;
         }
 
-        async function handleSignalMessage(msg, docId) {
-            // Delete processed message to keep DB clean (optional but good)
-            deleteDoc(doc(firestore, `rooms/${roomId}/messages`, docId));
+        async function handleSignal(msg, msgId) {
+            deleteDoc(doc(db, `rooms/${roomId}/messages`, msgId)); // Cleanup
+            
+            let pc = pcs[msg.from];
+            if(!pc) pc = await createPC(msg.from, false);
 
-            const { from, type, sdp, candidate } = msg;
-            let pc = peerConnections[from];
-
-            if(!pc) {
-                pc = await createPeerConnection(from, false);
-            }
-
-            if(type === 'offer') {
-                await pc.setRemoteDescription(new RTCSessionDescription({ type, sdp }));
+            if(msg.type === 'offer') {
+                await pc.setRemoteDescription(new RTCSessionDescription({type:'offer', sdp:msg.sdp}));
                 const answer = await pc.createAnswer();
                 await pc.setLocalDescription(answer);
-                sendSignal(from, { type: 'answer', sdp: answer.sdp });
-            } else if (type === 'answer') {
-                await pc.setRemoteDescription(new RTCSessionDescription({ type, sdp }));
-            } else if (type === 'candidate') {
-                await pc.addIceCandidate(new RTCIceCandidate(candidate));
+                send(msg.from, { type: 'answer', sdp: answer.sdp });
+            } 
+            else if(msg.type === 'answer') {
+                await pc.setRemoteDescription(new RTCSessionDescription({type:'answer', sdp:msg.sdp}));
+            } 
+            else if(msg.type === 'candidate') {
+                await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
             }
         }
 
-        async function sendSignal(toId, data) {
-            await addDoc(collection(firestore, `rooms/${roomId}/messages`), {
-                to: toId,
-                from: localId,
-                ...data,
-                timestamp: Date.now()
-            });
+        async function send(to, data) {
+            await addDoc(collection(db, `rooms/${roomId}/messages`), { from: myId, to, ...data, time: Date.now() });
         }
 
-        // --- 4. FEATURE: RAISE HAND ---
-        handBtn.onclick = async () => {
-            isHandRaised = !isHandRaised;
+        async function broadcast(data) {
+            // Simple broadcast by adding a message with no specific 'to', 
+            // OR iterate participants. For emojis, we just add a message with type 'emoji'
+            // listening logic above needs update to catch broadcasts.
+            // Simplified: Send to specific collection or just logic handle.
+            // Actually, we will just add a doc with 'to: all' or check logic.
+            // Let's modify the listener: if(msg.to === myId || msg.type === 'emoji')
+            await addDoc(collection(db, `rooms/${roomId}/messages`), { from: myId, ...data, time: Date.now() });
+        }
+
+        // --- DOM Handling ---
+        function addRemoteVideo(uid, stream) {
+            if(document.getElementById(`card-${uid}`)) return;
             
-            // Toggle Visuals
-            const localBadge = document.getElementById('localHand');
-            isHandRaised ? localBadge.classList.add('active') : localBadge.classList.remove('active');
-            isHandRaised ? handBtn.classList.add('active-state') : handBtn.classList.remove('active-state');
-
-            // Update DB
-            const myDoc = doc(collection(firestore, `rooms/${roomId}/participants`), localId);
-            await updateDoc(myDoc, { handRaised: isHandRaised });
-        };
-
-        function updateRemoteHand(userId, raised) {
-            const badge = document.getElementById(`hand-${userId}`);
-            if(badge) {
-                raised ? badge.classList.add('active') : badge.classList.remove('active');
-            }
+            const html = `
+                <div class="video-card" id="card-${uid}">
+                    <div class="avatar-placeholder"><div class="avatar-circle">${uid[0].toUpperCase()}</div></div>
+                    <video id="vid-${uid}" autoplay playsinline></video>
+                    <div class="user-label">
+                        <div class="user-info">User ${uid.substr(0,3)}</div>
+                        <div class="mute-indicator"><i data-lucide="mic-off" size="12" color="white"></i></div>
+                    </div>
+                    <div class="hand-badge">✋</div>
+                </div>
+            `;
+            document.getElementById('grid').insertAdjacentHTML('beforeend', html);
+            document.getElementById(`vid-${uid}`).srcObject = stream;
+            lucide.createIcons();
+            updateGridCount();
         }
 
-        // --- 5. CONTROLS (Mic/Cam/Screen) ---
-        document.getElementById('micBtn').onclick = (e) => {
-            const track = localStream.getAudioTracks()[0];
-            track.enabled = !track.enabled;
-            e.currentTarget.classList.toggle('off');
-            e.currentTarget.innerHTML = track.enabled ? '<i data-lucide="mic"></i>' : '<i data-lucide="mic-off"></i>';
+        function removePeer(uid) {
+            const el = document.getElementById(`card-${uid}`);
+            if(el) el.remove();
+            if(pcs[uid]) pcs[uid].close();
+            delete pcs[uid];
+            updateGridCount();
+        }
+
+        function updatePeerUI(uid, data) {
+            const card = document.getElementById(`card-${uid}`);
+            if(!card) return;
+
+            // Mute Status
+            if(data.muted) card.classList.add('muted');
+            else card.classList.remove('muted');
+
+            // Cam Status
+            if(data.camOff) card.classList.add('cam-off');
+            else card.classList.remove('cam-off');
+
+            // Hand Status
+            if(data.hand) card.classList.add('hand-raised');
+            else card.classList.remove('hand-raised');
+        }
+
+        // --- Feature: Reactions ---
+        function showFloatingEmoji(emoji, fromId) {
+            const card = fromId === myId ? document.getElementById('localCard') : document.getElementById(`card-${fromId}`);
+            if(!card) return;
+
+            const el = document.createElement('div');
+            el.className = 'emoji-floater';
+            el.innerText = emoji;
+            card.appendChild(el);
+            setTimeout(() => el.remove(), 2000);
+        }
+
+        // --- Interactions ---
+        const myDoc = () => doc(db, `rooms/${roomId}/participants`, myId);
+
+        // 1. Mute/Cam
+        document.getElementById('micBtn').onclick = () => {
+            state.muted = !state.muted;
+            localStream.getAudioTracks()[0].enabled = !state.muted;
+            updateDoc(myDoc(), { muted: state.muted });
+            
+            const btn = document.getElementById('micBtn');
+            const card = document.getElementById('localCard');
+            if(state.muted) { btn.classList.add('red'); card.classList.add('muted'); btn.innerHTML=`<i data-lucide="mic-off"></i>`; }
+            else { btn.classList.remove('red'); card.classList.remove('muted'); btn.innerHTML=`<i data-lucide="mic"></i>`; }
             lucide.createIcons();
         };
 
-        document.getElementById('camBtn').onclick = (e) => {
-            const track = localStream.getVideoTracks()[0];
-            track.enabled = !track.enabled;
-            e.currentTarget.classList.toggle('off');
-            e.currentTarget.innerHTML = track.enabled ? '<i data-lucide="camera"></i>' : '<i data-lucide="camera-off"></i>';
+        document.getElementById('camBtn').onclick = () => {
+            state.camOff = !state.camOff;
+            localStream.getVideoTracks()[0].enabled = !state.camOff;
+            updateDoc(myDoc(), { camOff: state.camOff });
+
+            const btn = document.getElementById('camBtn');
+            const card = document.getElementById('localCard');
+            if(state.camOff) { btn.classList.add('red'); card.classList.add('cam-off'); btn.innerHTML=`<i data-lucide="video-off"></i>`; }
+            else { btn.classList.remove('red'); card.classList.remove('cam-off'); btn.innerHTML=`<i data-lucide="video"></i>`; }
             lucide.createIcons();
         };
 
-        document.getElementById('screenBtn').onclick = async () => {
-             if (!screenStream) {
+        // 2. Overlays
+        document.getElementById('moreBtn').onclick = () => {
+            const menu = document.getElementById('moreMenu');
+            menu.classList.toggle('active');
+            document.getElementById('emojiBar').classList.remove('active'); // Close emoji if open
+        };
+        
+        document.getElementById('emojiToggle').onclick = () => {
+            const bar = document.getElementById('emojiBar');
+            bar.classList.toggle('active');
+            document.getElementById('moreMenu').classList.remove('active'); // Close menu if open
+        };
+
+        // 3. Hand Raise (Inside Menu)
+        document.getElementById('handBtn').onclick = () => {
+            state.hand = !state.hand;
+            updateDoc(myDoc(), { hand: state.hand });
+            document.getElementById('localCard').classList.toggle('hand-raised');
+            document.getElementById('moreMenu').classList.remove('active'); // Close menu
+        };
+
+        // 4. Screen Share (Inside Menu)
+        document.getElementById('shareBtn').onclick = async () => {
+            if(!screenStream) {
                 try {
-                    screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-                    const screenTrack = screenStream.getVideoTracks()[0];
-                    
-                    // Replace tracks for ALL peers
-                    Object.values(peerConnections).forEach(pc => {
+                    screenStream = await navigator.mediaDevices.getDisplayMedia({video:true});
+                    const track = screenStream.getVideoTracks()[0];
+                    Object.values(pcs).forEach(pc => {
                         const sender = pc.getSenders().find(s => s.track.kind === 'video');
-                        if(sender) sender.replaceTrack(screenTrack);
+                        if(sender) sender.replaceTrack(track);
                     });
-
-                    localVideo.srcObject = screenStream;
-                    localVideo.classList.remove('mirrored');
-                    screenBtn.style.color = '#8ab4f8';
-
-                    screenTrack.onended = stopScreenShare;
-                } catch(e) { console.error(e); }
-            } else {
-                stopScreenShare();
-            }
+                    document.getElementById('localVideo').srcObject = screenStream;
+                    document.getElementById('localVideo').classList.remove('mirrored');
+                    document.getElementById('moreMenu').classList.remove('active');
+                    
+                    track.onended = stopShare;
+                } catch(e) { console.log(e); }
+            } else stopShare();
         };
 
-        function stopScreenShare() {
-            const camTrack = localStream.getVideoTracks()[0];
-            Object.values(peerConnections).forEach(pc => {
+        function stopShare() {
+            const track = localStream.getVideoTracks()[0];
+            Object.values(pcs).forEach(pc => {
                 const sender = pc.getSenders().find(s => s.track.kind === 'video');
-                if(sender) sender.replaceTrack(camTrack);
+                if(sender) sender.replaceTrack(track);
             });
-            localVideo.srcObject = localStream;
-            localVideo.classList.add('mirrored');
+            document.getElementById('localVideo').srcObject = localStream;
+            document.getElementById('localVideo').classList.add('mirrored');
             if(screenStream) screenStream.getTracks().forEach(t=>t.stop());
             screenStream = null;
-            screenBtn.style.color = 'white';
         }
 
-        document.getElementById('hangupBtn').onclick = () => window.location.reload();
+        // 5. Emojis
+        document.querySelectorAll('.emoji-btn').forEach(btn => {
+            btn.onclick = () => {
+                const emoji = btn.innerText;
+                showFloatingEmoji(emoji, myId);
+                broadcast({ type: 'emoji', emoji: emoji });
+                document.getElementById('emojiBar').classList.remove('active');
+            };
+        });
 
-        // --- INPUT LISTENERS ---
-        document.getElementById('joinBtn').onclick = () => startApp(false);
-        document.getElementById('createBtn').onclick = () => startApp(true);
-        document.getElementById('callInput').oninput = (e) => {
-            document.getElementById('joinBtn').disabled = !e.target.value.trim();
+        // 6. Join Room
+        document.getElementById('goBtn').onclick = () => {
+            const val = document.getElementById('roomInput').value.trim();
+            if(val) init(val);
         };
+        
+        document.getElementById('hangupBtn').onclick = () => window.location.reload();
 
     </script>
 </body>

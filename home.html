@@ -1062,14 +1062,15 @@ transition: background 0.2s;
 <!-- THREAD OVERLAY (Redesigned) -->
 <div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center">
 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div>
-<div class="bg-white w-full md:w-[600px] h-[80vh] md:h-[85vh] rounded-t-[24px] md:rounded-2xl shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in">
-<div class="h-14 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white z-10 sticky top-0">
+<!-- Updated Mobile Thread Design to match Discussion Panel Drawer -->
+<div class="bg-white w-full md:w-[600px] h-[75vh] md:h-[85vh] rounded-t-[20px] md:rounded-2xl shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in">
+<div class="h-14 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white z-10 sticky top-0 rounded-t-[20px]">
 <button onclick="closeThread()" class="p-2 -ml-2 rounded-full hover:bg-gray-100"><i data-lucide="x" class="w-6 h-6 text-gray-600"></i></button>
 <span class="font-bold text-lg text-[#1f1f1f]">Thread</span>
 <div class="w-8"></div>
 </div>
 <div id="thread-content" class="flex-1 overflow-y-auto p-0 scroll-smooth bg-white"></div>
-<div class="border-t border-gray-100 p-3 bg-white shrink-0 sticky bottom-0 z-20">
+<div class="border-t border-gray-100 p-3 bg-white shrink-0 sticky bottom-0 z-20 pb-[env(safe-area-inset-bottom)]">
 <div class="bg-gray-100 rounded-3xl p-1.5 flex gap-2 items-center focus-within:ring-2 focus-within:ring-blue-100 transition-all">
 <img id="thread-input-avatar" src="" class="w-8 h-8 rounded-full bg-gray-200 object-cover ml-1 shrink-0">
 <input id="thread-input" placeholder="Reply to thread..." class="flex-1 bg-transparent outline-none text-sm px-2 h-10">
@@ -4017,6 +4018,29 @@ window.openLightbox = function(src, type = 'image') { const wrapper = document.g
 window.closeLightbox = function() { const lightbox = document.getElementById('lightbox'); lightbox.classList.remove('active'); lightbox.classList.add('pointer-events-none'); lightbox.classList.add('opacity-0'); const video = lightbox.querySelector('video'); if(video) video.pause(); }
 window.copyText = function(text, btn) { navigator.clipboard.writeText(decodeURIComponent(text)).then(() => { showToast("Copied to clipboard"); }); };
 window.insertCodeBlock = function() { const ta = document.getElementById('compose-text'); ta.value += "\n```javascript\n// Code here\n```\n"; ta.focus(); };
+
+// MUTATION OBSERVER TO FIX ICONS DISAPPEARING
+const observer = new MutationObserver((mutations) => {
+  let shouldRefresh = false;
+  mutations.forEach((mutation) => {
+    // Check if new nodes are added, specifically looking for our app structure or icon containers
+    if (mutation.addedNodes.length > 0) {
+        // Simple check to see if an element with 'data-lucide' was added or a wrapper that might contain it
+        // To be safe and ensure icons always render, we flag for refresh.
+        // We debounce this to avoid performance hits on massive DOM changes.
+        shouldRefresh = true;
+    }
+  });
+  if (shouldRefresh) {
+    // Using a small timeout to bundle rapid changes and ensure DOM is ready
+    if(window.lucideRefreshTimeout) clearTimeout(window.lucideRefreshTimeout);
+    window.lucideRefreshTimeout = setTimeout(refreshIcons, 10);
+  }
+});
+
+// Start observing the document body for added nodes
+observer.observe(document.body, { childList: true, subtree: true });
+
 refreshIcons();
 </script>
 </body>

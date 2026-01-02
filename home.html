@@ -99,23 +99,43 @@ font-weight: 600;
 /* Notification Badge Logic */
 .nav-badge {
 position: absolute;
-top: 6px;
-right: 20px;
+top: 10px;
+right: 10px;
 background-color: #ef4444;
 color: white;
-font-size: 10px;
+font-size: 11px;
 font-weight: 700;
 height: 18px;
 min-width: 18px;
 padding: 0 5px;
-border-radius: 10px;
+border-radius: 9px;
 display: flex;
 align-items: center;
 justify-content: center;
 border: 2px solid var(--surface);
 display: none;
 z-index: 10;
-transform: scale(0.9);
+box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+/* Mobile Footer Badge */
+.mobile-footer-badge {
+position: absolute;
+top: -2px;
+right: 20px; /* Centered relative to icon */
+background-color: #ef4444;
+color: white;
+font-size: 10px;
+font-weight: 700;
+height: 16px;
+min-width: 16px;
+padding: 0 4px;
+border-radius: 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+border: 2px solid #ffffff;
+display: none;
+z-index: 20;
 }
 @media (min-width: 1024px) {
 .nav-item {
@@ -1016,8 +1036,10 @@ transition: background 0.2s;
 <div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
 <div class="h-14 flex items-center justify-between px-4 shrink-0 relative">
 <span class="font-bold text-lg text-[#1f1f1f]">Notifications</span>
+<div class="flex items-center gap-3">
+<button onclick="toggleNotifSearchMobile()" class="icon-btn"><i data-lucide="search" class="w-5 h-5 text-[#1f1f1f]"></i></button>
 <div class="relative">
-<button onclick="toggleNotifMenu()" class="icon-btn"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
+<button onclick="toggleNotifMenu()" class="icon-btn"><i data-lucide="more-vertical" class="w-5 h-5 text-[#1f1f1f]"></i></button>
 <div id="notif-menu-dropdown" class="absolute right-0 top-10 bg-white border border-gray-100 shadow-xl rounded-xl z-50 w-48 hidden flex-col overflow-hidden">
 <button onclick="toggleNotifSelection()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium border-b border-gray-50 text-gray-700">Select</button>
 <button onclick="deleteSelectedNotifs()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete Selected</button>
@@ -1025,7 +1047,8 @@ transition: background 0.2s;
 </div>
 </div>
 </div>
-<div class="px-4 pb-2">
+</div>
+<div id="mobile-notif-search-container" class="px-4 pb-2 hidden">
 <div class="relative">
 <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
 <input type="text" id="notif-search" placeholder="Search notifications..." oninput="handleNotifSearch(this.value)" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all">
@@ -1531,7 +1554,7 @@ Change
 <!-- PROFILE VIEW -->
 <div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
 <!-- NOTIFICATIONS VIEW (Redesigned) -->
-<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-[220px] md:pt-6">
+<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-white pt-28 md:pt-6">
 <div class="flex justify-between items-center mb-6 px-4 md:px-0 hidden md:flex">
 <h2 class="text-2xl font-bold">Notifications</h2>
 <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
@@ -1541,7 +1564,7 @@ Change
 <button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i> Others</button>
 <button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button>
 </div>
-<div id="notification-list" class="flex flex-col gap-2 w-full px-2 md:px-0 pb-24 md:pb-0"></div>
+<div id="notification-list" class="flex flex-col w-full pb-24 md:pb-0"></div>
 </div>
 <!-- ANNOUNCEMENTS VIEW (Admin) -->
 <div id="view-announcements" class="flex-1 h-full overflow-y-auto p-0 md:p-6 hidden bg-white pt-16 md:pt-6">
@@ -1650,8 +1673,9 @@ Change
 <div class="mobile-nav-item" onclick="openCreateMenu()">
 <i data-lucide="plus-square"></i>
 </div>
-<div class="mobile-nav-item" onclick="switchView('notifications')">
+<div class="mobile-nav-item relative" onclick="switchView('notifications')">
 <i data-lucide="bell"></i>
+<span id="mobile-footer-badge" class="mobile-footer-badge">0</span>
 </div>
 <div class="mobile-nav-item" onclick="showProfile(auth.currentUser ? auth.currentUser.uid : null)">
 <img id="mobile-avatar" src="" class="w-6 h-6 rounded-full border border-gray-200">
@@ -1946,16 +1970,31 @@ const qNotifs = query(collection(db, "notifications"), where("receiverId", "==",
 onSnapshot(qNotifs, (snapshot) => {
 notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
 notifications.sort((a,b) => (b.timestamp?.toDate ? b.timestamp.toDate() : 0) - (a.timestamp?.toDate ? a.timestamp.toDate() : 0));
-const badge = document.getElementById('nav-notif-badge');
 const unreadCount = notifications.filter(n => !n.read).length;
-if(badge) {
+const badgeText = unreadCount > 99 ? '99+' : unreadCount;
+
+// Desktop Badge
+const desktopBadge = document.getElementById('nav-notif-badge');
+if(desktopBadge) {
     if(unreadCount > 0) {
-        badge.style.display = 'flex';
-        badge.innerText = unreadCount > 99 ? '99+' : unreadCount;
+        desktopBadge.style.display = 'flex';
+        desktopBadge.innerText = badgeText;
     } else {
-        badge.style.display = 'none';
+        desktopBadge.style.display = 'none';
     }
 }
+
+// Mobile Footer Badge
+const mobileBadge = document.getElementById('mobile-footer-badge');
+if(mobileBadge) {
+    if(unreadCount > 0) {
+        mobileBadge.style.display = 'flex';
+        mobileBadge.innerText = badgeText;
+    } else {
+        mobileBadge.style.display = 'none';
+    }
+}
+
 // Notification Sound Logic
 if(!isFirstNotifLoad) {
 snapshot.docChanges().forEach(change => {
@@ -2942,6 +2981,13 @@ if(!window.notifSelectionMode) window.selectedNotifs.clear();
 toggleNotifMenu();
 renderNotifications();
 }
+window.toggleNotifSearchMobile = function() {
+const container = document.getElementById('mobile-notif-search-container');
+container.classList.toggle('hidden');
+if(!container.classList.contains('hidden')) {
+document.getElementById('notif-search').focus();
+}
+}
 window.handleNotifSearch = function(val) {
 window.notifSearchTerm = val.toLowerCase();
 renderNotifications();
@@ -2970,18 +3016,23 @@ window.renderNotifications = function() {
 const container = document.getElementById('notification-list');
 container.innerHTML = "";
 let filtered = notifications.filter(n => {
+const sender = users.find(u => u.id === n.senderId) || { name: 'Admin', isOfficial: false };
+const isOfficial = n.type === 'official' || sender.isOfficial;
+
 // Tab Filter
 let tabMatch = false;
 if (activeNotifTab === 'official') {
-tabMatch = n.type === 'official';
+    tabMatch = isOfficial;
 } else if (activeNotifTab === 'friends') {
-tabMatch = currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request' || n.type === 'collab_request';
+    // Only show people I follow AND they are NOT official
+    tabMatch = !isOfficial && (currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request' || n.type === 'collab_request');
 } else {
-tabMatch = n.type !== 'official' && !currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request' && n.type !== 'collab_request';
+    // Others: Not official, Not Following
+    tabMatch = !isOfficial && !currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request' && n.type !== 'collab_request';
 }
+
 // Search Filter
 if(window.notifSearchTerm) {
-    const sender = users.find(u => u.id === n.senderId) || { name: 'Admin' };
     const contentMatch = n.content.toLowerCase().includes(window.notifSearchTerm);
     const nameMatch = sender.name.toLowerCase().includes(window.notifSearchTerm);
     return tabMatch && (contentMatch || nameMatch);
@@ -2989,6 +3040,7 @@ if(window.notifSearchTerm) {
 
 return tabMatch;
 });
+
 if (filtered.length === 0) {
 container.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">No notifications here</div>`;
 return;
@@ -2996,8 +3048,8 @@ return;
 filtered.forEach(n => {
 const sender = users.find(u => u.id === n.senderId) || { name: 'Admin', avatar: '' };
 const div = document.createElement('div');
-// New Notification Design with Card Style
-div.className = `w-full flex items-start gap-4 p-4 bg-white rounded-2xl border ${n.read ? 'border-gray-100' : 'border-blue-100 bg-blue-50/30'} shadow-sm relative transition-all hover:shadow-md overflow-hidden`;
+// Simplified List Item Design
+div.className = `w-full flex items-start gap-3 p-4 border-b border-gray-100 bg-white hover:bg-gray-50 transition-colors ${n.read ? '' : 'bg-blue-50/20'}`;
 
 // Simple Icon Logic
 let icon = "";
@@ -3017,11 +3069,11 @@ let clickAction = (n.type === 'like' || n.type === 'comment' || n.type === 'repl
 
 let actionButtons = '';
 if(n.type === 'follow_request') {
-actionButtons = `<div class="flex gap-2 mt-3"><button onclick="acceptFollow('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-4 py-1.5 rounded-lg font-bold shadow-sm hover:bg-blue-700 transition-colors">Accept</button><button onclick="deleteNotification('${n.id}')" class="text-xs bg-gray-100 text-gray-600 px-4 py-1.5 rounded-lg font-bold hover:bg-gray-200 transition-colors">Delete</button></div>`;
+actionButtons = `<div class="flex gap-2 mt-2"><button onclick="acceptFollow('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-md font-bold hover:bg-blue-700 transition-colors">Accept</button><button onclick="deleteNotification('${n.id}')" class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-md font-bold hover:bg-gray-200 transition-colors">Delete</button></div>`;
 clickAction = '';
 }
 if(n.type === 'collab_request') {
-actionButtons = `<div class="flex gap-2 mt-3"><button onclick="acceptCollab('${n.id}', '${n.postId}')" class="text-xs bg-blue-600 text-white px-4 py-1.5 rounded-lg font-bold shadow-sm hover:bg-blue-700">Accept</button><button onclick="declineCollab('${n.id}', '${n.postId}')" class="text-xs bg-gray-100 text-gray-600 px-4 py-1.5 rounded-lg font-bold hover:bg-gray-200">Decline</button></div>`;
+actionButtons = `<div class="flex gap-2 mt-2"><button onclick="acceptCollab('${n.id}', '${n.postId}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-md font-bold hover:bg-blue-700">Accept</button><button onclick="declineCollab('${n.id}', '${n.postId}')" class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-md font-bold hover:bg-gray-200">Decline</button></div>`;
 clickAction = '';
 }
 
@@ -3029,25 +3081,25 @@ clickAction = '';
 let checkboxHTML = '';
 if(window.notifSelectionMode) {
 const isChecked = window.selectedNotifs.has(n.id) ? 'checked' : '';
-checkboxHTML = `<div class="pt-2"><input type="checkbox" ${isChecked} onchange="toggleNotifSelect('${n.id}')" class="w-5 h-5 accent-blue-600 cursor-pointer rounded-md"></div>`;
+checkboxHTML = `<div class="pt-1"><input type="checkbox" ${isChecked} onchange="toggleNotifSelect('${n.id}')" class="w-4 h-4 accent-blue-600 cursor-pointer rounded"></div>`;
 clickAction = ''; // Disable navigation when selecting
 }
 
 div.innerHTML = `
 ${checkboxHTML}
 <div class="relative cursor-pointer shrink-0" onclick="if(!window.notifSelectionMode) showProfile('${sender.id}')">
-<img src="${sender.avatar}" class="w-12 h-12 rounded-full bg-gray-200 object-cover border border-gray-100">
-<div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full ${iconBg} flex items-center justify-center border-2 border-white shadow-sm">${icon}</div>
+<img src="${sender.avatar}" class="w-10 h-10 rounded-full bg-gray-200 object-cover border border-gray-100">
+<div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${iconBg} flex items-center justify-center border border-white shadow-sm">${icon}</div>
 </div>
 <div class="flex-1 min-w-0 pt-0.5">
-    <div class="text-[15px] leading-snug cursor-pointer" ${clickAction}>
+    <div class="text-[14px] leading-snug cursor-pointer" ${clickAction}>
         <span class="font-bold text-gray-900 hover:underline">${sender.name}</span>
         <span class="text-gray-600 ml-1">${n.content}</span>
     </div>
-    <div class="text-xs text-gray-400 mt-1 font-medium">${formatDate(n.timestamp)}</div>
+    <div class="text-[11px] text-gray-400 mt-1">${formatDate(n.timestamp)}</div>
     ${actionButtons}
 </div>
-${!window.notifSelectionMode ? `<button onclick="deleteNotification('${n.id}')" class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all self-start -mt-1 -mr-2"><i data-lucide="x" class="w-4 h-4"></i></button>` : ''}
+${!window.notifSelectionMode ? `<button onclick="deleteNotification('${n.id}')" class="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all self-start -mt-1 -mr-2"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>` : ''}
 `;
 container.appendChild(div);
 });

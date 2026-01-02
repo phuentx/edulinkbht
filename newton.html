@@ -629,7 +629,7 @@
             </button>
             <div class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded-lg transition-colors border border-transparent hover:border-gray-200" id="model-selector">
                 <span class="text-sm font-medium text-textSecondary">Model:</span>
-                <span class="text-sm font-bold text-textPrimary">Newton 1</span>
+                <span class="text-sm font-bold text-textPrimary">Newton (Gemini)</span>
                 <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
             </div>
         </div>
@@ -2463,7 +2463,7 @@
             // General Finance Check logic - REINFORCED
             const chartInstruction = `\nCRITICAL: If the user asks for the price or a chart of a specific asset (stock, crypto, etc.), output the TradingView symbol like: <<<CHART_START>>>NASDAQ:TSLA<<<CHART_END>>> or <<<CHART_START>>>BINANCE:ETHUSDT<<<CHART_END>>>.`;
 
-            prompt = `Role: Newton AI (Helpful, Professional Assistant, powered by Gemini via Pollinations).
+            prompt = `Role: Newton AI (Helpful, Professional Assistant, powered by Gemini).
             
             ### CONVERSATION HISTORY (Truncated) ###
             ${historyString}
@@ -2490,9 +2490,10 @@
             const seed = Math.floor(Math.random() * 1000000);
             
             // Construct the messages payload
+            // We use 'openai' format which Pollinations supports
             const messages = [
                 { role: 'system', content: 'You are Newton AI, a helpful assistant.' },
-                { role: 'user', content: prompt }
+                { role: 'user', content: prompt } // Fallback simple text content
             ];
             
             // Find images to attach to the payload
@@ -2501,6 +2502,7 @@
             const images = sentAttachments.filter(a => a.type === 'image');
             
             if (images.length > 0) {
+                // Multimodal format
                 messages[1].content = [
                     { type: "text", text: prompt }
                 ];
@@ -2511,17 +2513,22 @@
 
             // Using POST to support multimodal messages and large payloads
             // Force 'gemini' model which maps to latest Gemini capabilities on Pollinations
+            // We specifically add mode: 'cors' to ensure no browser blocks.
+            // Using seed ensures some determinism if supported.
+            // jsonMode: false is explicit to avoid breaking text output unless needed.
             const response = await fetch('https://text.pollinations.ai/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                mode: 'cors',
                 body: JSON.stringify({
                     messages: messages,
                     model: 'gemini', 
-                    seed: seed
+                    seed: seed,
+                    jsonMode: false
                 })
             });
 
-            if (!response.ok) throw new Error("Pollinations API Error: " + response.statusText);
+            if (!response.ok) throw new Error(`Pollinations API Error: ${response.status} ${response.statusText}`);
             const aiText = await response.text();
 
             document.getElementById(loadingId).remove();
@@ -2547,7 +2554,8 @@
                     </div>
                     <div class="flex-1 py-2">
                         <div class="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-100">
-                            <strong>Error:</strong> Could not connect to the AI service. Please try again later.
+                            <strong>Error:</strong> Could not connect to the AI service (Gemini).<br>
+                            <span class="text-xs opacity-75">Details: ${e.message}</span>
                         </div>
                     </div>
                 </div>

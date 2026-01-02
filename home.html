@@ -99,7 +99,7 @@ font-weight: 600;
 /* Notification Badge Logic (TikTok Style) */
 .nav-badge {
 position: absolute;
-top: 12px;
+top: 10px;
 right: 12px;
 background-color: #fe2c55; /* TikTok Red */
 color: white;
@@ -108,20 +108,20 @@ font-weight: 700;
 height: 16px;
 min-width: 16px;
 padding: 0 4px;
-border-radius: 8px;
+border-radius: 10px;
 display: flex;
 align-items: center;
 justify-content: center;
-border: 1.5px solid #fff;
+border: 2px solid #fff;
 display: none;
 z-index: 10;
 }
 /* Mobile Footer Badge */
 .mobile-footer-badge {
 position: absolute;
-top: 6px;
-right: 50%;
-transform: translateX(14px);
+top: 12px;
+left: 50%;
+margin-left: 6px; /* Offset from center to right side of icon */
 background-color: #fe2c55; /* TikTok Red */
 color: white;
 font-size: 10px;
@@ -129,13 +129,14 @@ font-weight: 700;
 height: 16px;
 min-width: 16px;
 padding: 0 4px;
-border-radius: 8px;
+border-radius: 10px;
 display: flex;
 align-items: center;
 justify-content: center;
-border: 1.5px solid #fff;
+border: 2px solid #ffffff;
 display: none;
 z-index: 20;
+line-height: 1;
 }
 @media (min-width: 1024px) {
 .nav-item {
@@ -144,7 +145,7 @@ padding: 10px 16px;
 }
 .nav-badge {
 right: auto;
-left: 28px;
+left: 26px;
 top: 8px;
 }
 }

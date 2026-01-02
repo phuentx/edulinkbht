@@ -3,285 +3,344 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edulinki Force Connect - Pro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Edulinki Meet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Google+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
     <style>
         :root {
-            --bg-dark: #121212;
-            --bg-panel: #1a1a1a;
-            --primary-blue: #0E72ED;
-            --danger-red: #E02828;
-            --text-primary: #ffffff;
-            --text-secondary: #aaaaaa;
+            --bg-color: #202124;
+            --surface-color: #3c4043;
+            --primary-blue: #8ab4f8;
+            --primary-blue-hover: #aecbfa;
+            --danger-red: #ea4335;
+            --danger-red-hover: #f28b82;
+            --text-primary: #e8eaed;
+            --text-secondary: #bdc1c6;
+            --btn-green: #00796b;
         }
 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: black;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            background-color: var(--bg-color);
             color: var(--text-primary);
-            margin: 0;
-            padding: 0;
             height: 100vh;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
-        /* --- LOBBY SCREEN (Start) --- */
-        #lobby-screen {
+        /* --- Header --- */
+        header {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo span { color: var(--text-secondary); font-size: 18px; }
+
+        .time-display {
+            font-family: 'Roboto', sans-serif;
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        /* --- Lobby Screen (Entry) --- */
+        .lobby-container {
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100%;
-            background: linear-gradient(135deg, #1f1f1f 0%, #121212 100%);
-            z-index: 100;
-            position: absolute;
-            width: 100%;
+            padding: 20px;
+            transition: opacity 0.3s ease;
         }
 
         .lobby-card {
-            background: #242424;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .lobby-card h2 { margin-bottom: 20px; font-weight: 600; }
-        
-        .input-group {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: 20px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
         }
 
-        input {
-            background: #333;
-            border: 1px solid #444;
-            padding: 12px;
-            border-radius: 8px;
+        .hero-text h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+        .hero-text p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .meet-input {
+            background: transparent;
+            border: 1px solid var(--text-secondary);
             color: white;
+            padding: 12px 16px;
+            border-radius: 4px;
             font-size: 16px;
             outline: none;
+            flex: 1;
+            min-width: 200px;
             transition: border-color 0.2s;
         }
-        input:focus { border-color: var(--primary-blue); }
 
-        .btn-group { display: flex; gap: 10px; }
-        
-        button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            transition: opacity 0.2s;
+        .meet-input:focus {
+            border-color: var(--primary-blue);
+            border-width: 2px;
+            padding: 11px 15px; /* adjust for border width */
         }
-        button:hover { opacity: 0.9; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .btn-primary { background: var(--primary-blue); color: white; }
-        .btn-success { background: #00b84c; color: white; }
+        .btn {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
 
-        /* --- MEETING ROOM (Main Interface) --- */
-        #meeting-room {
+        .btn-primary {
+            background: var(--primary-blue);
+            color: #202124;
+        }
+        .btn-primary:hover { background: var(--primary-blue-hover); }
+        .btn-primary:disabled { background: #5f6368; cursor: not-allowed; color: #3c4043; }
+
+        .btn-text {
+            background: transparent;
+            color: var(--primary-blue);
+        }
+        .btn-text:hover { background: rgba(138, 180, 248, 0.08); }
+
+        /* --- Meeting Screen (Video Grid) --- */
+        .meeting-container {
             display: none; /* Hidden by default */
+            flex: 1;
+            padding: 20px;
             flex-direction: column;
+            justify-content: center;
             height: 100%;
             position: relative;
         }
 
-        /* Video Area */
-        .video-stage {
-            flex: 1;
-            position: relative;
-            background: black;
+        .video-grid {
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
-        }
-
-        /* Remote Video (Full Screen) */
-        #remoteVideo {
-            width: 100%;
+            gap: 15px;
             height: 100%;
-            object-fit: contain; /* Ensures we see the whole person */
+            width: 100%;
+            flex-wrap: wrap;
         }
 
-        /* Local Video (Floating PiP) */
-        .local-pip {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 240px;
-            aspect-ratio: 16/9;
-            background: #222;
-            border-radius: 8px;
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            border: 1px solid #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
+            flex: 1;
+            min-width: 300px;
+            max-width: 900px;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        
-        #localVideo {
+
+        /* When only one person (local), make it smaller or centered */
+        .video-wrapper.waiting {
+            max-width: 600px; 
+            max-height: 400px;
+        }
+
+        video {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transform: scaleX(-1); /* Mirror effect for self */
         }
+        
+        #remoteVideo { transform: scaleX(1); /* Don't mirror remote */ }
 
-        .video-label {
+        .user-label {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.6);
+            bottom: 15px;
+            left: 15px;
             color: white;
+            font-size: 14px;
+            font-weight: 500;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.3);
             padding: 4px 8px;
             border-radius: 4px;
-            font-size: 12px;
+        }
+
+        /* --- Status Toast --- */
+        .status-toast {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            background: #323232;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
             pointer-events: none;
+            z-index: 500;
         }
+        .status-toast.visible { opacity: 1; }
 
-        /* Control Bar */
-        .toolbar {
+        /* --- Bottom Controls --- */
+        .controls-bar {
+            display: none; /* Hidden in lobby */
             height: 80px;
-            background: #1a1a1a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            padding-bottom: 10px; /* Space for home bar on mobile */
-        }
-
-        .tool-btn {
-            display: flex;
-            flex-direction: column;
+            background: #202124;
             align-items: center;
             justify-content: center;
-            background: transparent;
-            color: #ddd;
-            width: 70px;
-            height: 70px;
-            border-radius: 8px;
-            gap: 5px;
-        }
-        .tool-btn:hover { background: #333; }
-        .tool-btn i { font-size: 20px; margin-bottom: 2px; }
-        .tool-btn span { font-size: 11px; }
-
-        .tool-btn.active-off { color: var(--danger-red); position: relative; }
-        .tool-btn.active-off i::after {
-            content: '\\';
-            position: absolute;
-            font-size: 24px;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -65%);
+            gap: 15px;
+            padding-bottom: 10px;
         }
 
-        .btn-end {
-            background: var(--danger-red) !important;
-            color: white !important;
-            width: auto;
-            padding: 0 20px;
-            height: 40px;
-            border-radius: 20px;
-            flex-direction: row;
-            gap: 8px;
-            margin-left: 20px;
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid transparent;
+            background: #3c4043;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
         }
-        .btn-end:hover { background: #c02222 !important; }
-        .btn-end span { font-size: 14px; font-weight: 600; }
+        
+        .control-btn:hover { background: #474a4f; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        .control-btn.active { background: #8ab4f8; color: #202124; }
+        
+        .control-btn.hangup { background: var(--danger-red); width: 60px; }
+        .control-btn.hangup:hover { background: var(--danger-red-hover); }
 
-        /* Status Overlay */
-        .connection-status {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.7);
-            padding: 15px 25px;
-            border-radius: 8px;
-            display: none; /* Hidden unless needed */
-            text-align: center;
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 600px) {
-            .local-pip { width: 120px; top: 10px; right: 10px; }
-            .toolbar { gap: 5px; }
-            .tool-btn { width: 60px; }
+        /* --- Responsive Tweaks --- */
+        @media (max-width: 768px) {
+            .lobby-card { padding: 0 20px; }
+            .hero-text h1 { font-size: 1.8rem; }
+            .video-grid { flex-direction: column; }
+            .video-wrapper { width: 100%; aspect-ratio: 4/3; }
         }
     </style>
 </head>
 <body>
 
-    <div id="lobby-screen">
+    <header>
+        <div class="logo">
+            <span class="material-icons-round" style="color:var(--btn-green); font-size: 28px;">video_camera_front</span>
+            Edulinki Meet
+        </div>
+        <div class="time-display" id="clock">10:35 PM</div>
+    </header>
+
+    <main class="lobby-container" id="lobbyScreen">
         <div class="lobby-card">
-            <h2 style="color: var(--primary-blue);">Edulinki Connect</h2>
+            <div class="hero-text">
+                <h1>Premium video meetings. Now free for everyone.</h1>
+                <p>We re-engineered the service for secure, high-quality business meetings.</p>
+            </div>
+            
             <div class="input-group">
-                <input type="text" id="callInput" placeholder="Enter Meeting ID (e.g., room1)" />
+                <input type="text" id="callInput" class="meet-input" placeholder="Enter meeting code" autocomplete="off">
+                <button id="createBtn" class="btn btn-text">New Meeting</button>
             </div>
-            <div class="btn-group">
-                <button id="createBtn" class="btn-primary">New Meeting</button>
-                <button id="joinBtn" class="btn-success">Join Meeting</button>
+            
+            <div class="input-group">
+                <button id="joinBtn" class="btn btn-primary" disabled>
+                    <span class="material-icons-round">login</span> Join
+                </button>
             </div>
-            <div id="statusLogs" style="margin-top: 15px; color: #666; font-size: 12px; min-height: 20px;">Ready to connect</div>
         </div>
-    </div>
+    </main>
 
-    <div id="meeting-room">
-        <div class="video-stage">
-            <video id="remoteVideo" autoplay playsinline></video>
-            <div class="video-label" style="left: 20px; bottom: 20px;">Participant</div>
-
-            <div id="connectionOverlay" class="connection-status">
-                <i class="fas fa-spinner fa-spin"></i> <span id="connectionText">Waiting for others...</span>
-            </div>
-
-            <div class="local-pip">
+    <main class="meeting-container" id="meetingScreen">
+        <div class="video-grid" id="videoGrid">
+            <div class="video-wrapper waiting" id="localWrapper">
                 <video id="localVideo" autoplay playsinline muted></video>
-                <div class="video-label">You</div>
+                <div class="user-label">You</div>
+            </div>
+            <div class="video-wrapper" id="remoteWrapper" style="display:none;">
+                <video id="remoteVideo" autoplay playsinline></video>
+                <div class="user-label">Remote User</div>
             </div>
         </div>
-
-        <div class="toolbar">
-            <button class="tool-btn" id="muteBtn">
-                <i class="fas fa-microphone"></i>
-                <span>Mute</span>
-            </button>
-            <button class="tool-btn" id="videoBtn">
-                <i class="fas fa-video"></i>
-                <span>Stop Video</span>
-            </button>
-            
-            <div style="flex:0.1;"></div>
-
-            <button class="tool-btn">
-                <i class="fas fa-users"></i>
-                <span>Participants</span>
-            </button>
-            
-            <button class="tool-btn btn-end" id="hangupBtn">
-                <i class="fas fa-phone-slash"></i>
-                <span>End</span>
-            </button>
+        
+        <div class="status-toast" id="statusToast">
+            <span class="material-icons-round" style="font-size:18px;">info</span>
+            <span id="statusText">Ready to connect...</span>
         </div>
-    </div>
+    </main>
+
+    <footer class="controls-bar" id="controlsBar">
+        <button class="control-btn"><span class="material-icons-round">mic</span></button>
+        <button class="control-btn"><span class="material-icons-round">videocam</span></button>
+        
+        <button id="hangupBtn" class="control-btn hangup">
+            <span class="material-icons-round">call_end</span>
+        </button>
+        
+        <button class="control-btn"><span class="material-icons-round">present_to_all</span></button>
+        <button class="control-btn"><span class="material-icons-round">more_vert</span></button>
+    </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        // --- FIREBASE CONFIG ---
+        // --- UI Updates: Clock ---
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }, 1000);
+
+        // --- Firebase Config (YOURS) ---
         const firebaseConfig = {
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
             authDomain: "edulinki.firebaseapp.com",
@@ -295,10 +354,11 @@
         const app = initializeApp(firebaseConfig);
         const firestore = getFirestore(app);
 
-        // --- WEBRTC CONFIG ---
+        // --- WebRTC Setup ---
         const servers = {
             iceServers: [
                 { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] },
+                { urls: ['stun:stun3.l.google.com:19302', 'stun:stun4.l.google.com:19302'] },
                 { urls: ['stun:global.stun.twilio.com:3478'] } 
             ],
             iceCandidatePoolSize: 10,
@@ -307,39 +367,49 @@
         let pc = new RTCPeerConnection(servers);
         let localStream = null;
         let remoteStream = null;
-        let candidateQueue = []; // Queue for candidates arriving early
+        let candidateQueue = [];
 
-        // --- DOM ELEMENTS ---
-        const lobbyScreen = document.getElementById('lobby-screen');
-        const meetingRoom = document.getElementById('meeting-room');
-        const logDiv = document.getElementById('statusLogs');
-        const connectionOverlay = document.getElementById('connectionOverlay');
-        const connectionText = document.getElementById('connectionText');
-        
+        // --- DOM Elements ---
+        const lobbyScreen = document.getElementById('lobbyScreen');
+        const meetingScreen = document.getElementById('meetingScreen');
+        const controlsBar = document.getElementById('controlsBar');
         const localVideo = document.getElementById('localVideo');
         const remoteVideo = document.getElementById('remoteVideo');
-        
+        const localWrapper = document.getElementById('localWrapper');
+        const remoteWrapper = document.getElementById('remoteWrapper');
         const callInput = document.getElementById('callInput');
         const createBtn = document.getElementById('createBtn');
         const joinBtn = document.getElementById('joinBtn');
         const hangupBtn = document.getElementById('hangupBtn');
-        const muteBtn = document.getElementById('muteBtn');
-        const videoBtn = document.getElementById('videoBtn');
+        const statusToast = document.getElementById('statusToast');
+        const statusText = document.getElementById('statusText');
 
-        // --- UTILS ---
-        function log(msg) {
+        // Toggle Join Button based on input
+        callInput.addEventListener('input', (e) => {
+            if(e.target.value.trim().length > 0) {
+                joinBtn.disabled = false;
+                joinBtn.classList.replace('btn-text', 'btn-primary');
+            } else {
+                joinBtn.disabled = true;
+            }
+        });
+
+        // Function to show Status Toast
+        function showStatus(msg) {
             console.log(msg);
-            logDiv.innerText = msg;
-            connectionText.innerText = msg;
+            statusText.innerText = msg;
+            statusToast.classList.add('visible');
+            setTimeout(() => statusToast.classList.remove('visible'), 3000);
         }
 
-        function showMeetingRoom() {
+        // Function to switch to Meeting UI
+        function switchToMeetingUI() {
             lobbyScreen.style.display = 'none';
-            meetingRoom.style.display = 'flex';
-            connectionOverlay.style.display = 'block'; // Show "Waiting" status
+            meetingScreen.style.display = 'flex';
+            controlsBar.style.display = 'flex';
         }
 
-        // --- 1. MEDIA SETUP ---
+        // 1. SETUP MEDIA
         async function startMedia() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -347,58 +417,57 @@
                 
                 remoteStream = new MediaStream();
                 pc.ontrack = (event) => {
-                    log("Connected");
-                    connectionOverlay.style.display = 'none'; // Hide overlay on connect
+                    console.log("🎥 Video track received");
                     event.streams[0].getTracks().forEach((track) => remoteStream.addTrack(track));
                     remoteVideo.srcObject = remoteStream;
+                    
+                    // Show Remote Video Wrapper when stream arrives
+                    remoteWrapper.style.display = 'flex';
+                    // Adjust grid layout
+                    localWrapper.classList.remove('waiting');
                 };
 
                 localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+                switchToMeetingUI(); // Move to video screen
                 return true;
             } catch (e) {
-                console.error(e);
-                alert("Could not access Camera/Microphone. Please allow permissions.");
+                alert("Could not get Camera. Please allow permissions.");
                 return false;
             }
         }
 
-        // --- 2. WEBRTC HANDLERS ---
+        // 2. MONITOR CONNECTION
         pc.onconnectionstatechange = () => {
-            if(pc.connectionState === 'connected') {
-                connectionOverlay.style.display = 'none';
-            } else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
-                log("Connection Lost");
-                connectionOverlay.style.display = 'block';
-            }
+            showStatus(`Status: ${pc.connectionState}`);
+            if (pc.connectionState === 'failed') pc.restartIce();
         };
 
-        // ICE Candidate Handling
+        // 3. ICE CANDIDATE QUEUE
         async function handleRemoteCandidate(candidateData) {
             if (!candidateData) return;
             const candidate = new RTCIceCandidate(candidateData);
             if (pc.remoteDescription && pc.remoteDescription.type) {
-                await pc.addIceCandidate(candidate).catch(e => console.error(e));
+                try { await pc.addIceCandidate(candidate); } catch (e) { console.error(e); }
             } else {
                 candidateQueue.push(candidate);
             }
         }
-        
+
         async function processCandidateQueue() {
             for (const candidate of candidateQueue) {
-                await pc.addIceCandidate(candidate).catch(e => console.error(e));
+                try { await pc.addIceCandidate(candidate); } catch (e) { console.error(e); }
             }
             candidateQueue = [];
         }
 
-        // --- 3. BUTTON LOGIC ---
-
-        // CREATE
+        // --- CREATE CALL ---
         createBtn.onclick = async () => {
-            const callId = callInput.value.trim();
-            if(!callId) return alert("Please enter a room name");
+            const callId = callInput.value.trim() || Math.random().toString(36).substring(2, 7); // Generate ID if empty
+            callInput.value = callId; // Show ID to user
             
-            showMeetingRoom();
             if(!await startMedia()) return;
+            
+            showStatus(`Creating room: ${callId}...`);
 
             const callDoc = doc(collection(firestore, 'calls'), callId);
             const offerCandidates = collection(callDoc, 'offerCandidates');
@@ -411,8 +480,10 @@
             const offerDescription = await pc.createOffer();
             await pc.setLocalDescription(offerDescription);
             
-            await setDoc(callDoc, { offer: { sdp: offerDescription.sdp, type: offerDescription.type } });
-            log("Waiting for participant...");
+            const offer = { sdp: offerDescription.sdp, type: offerDescription.type };
+            await setDoc(callDoc, { offer });
+            
+            showStatus(`Room created! Share code: ${callId}`);
 
             onSnapshot(callDoc, (snapshot) => {
                 const data = snapshot.data();
@@ -430,13 +501,13 @@
             });
         };
 
-        // JOIN
+        // --- JOIN CALL ---
         joinBtn.onclick = async () => {
             const callId = callInput.value.trim();
-            if(!callId) return alert("Please enter a room name");
-
-            showMeetingRoom();
+            if(!callId) { alert("Please enter a room code"); return; }
             if(!await startMedia()) return;
+
+            showStatus(`Joining room: ${callId}...`);
 
             const callDoc = doc(collection(firestore, 'calls'), callId);
             const offerCandidates = collection(callDoc, 'offerCandidates');
@@ -460,7 +531,9 @@
             const answerDescription = await pc.createAnswer();
             await pc.setLocalDescription(answerDescription);
 
-            await updateDoc(callDoc, { answer: { type: answerDescription.type, sdp: answerDescription.sdp } });
+            const answer = { type: answerDescription.type, sdp: answerDescription.sdp };
+            await updateDoc(callDoc, { answer });
+            
             processCandidateQueue();
 
             onSnapshot(offerCandidates, (snapshot) => {
@@ -470,40 +543,7 @@
             });
         };
 
-        // MUTE AUDIO
-        muteBtn.onclick = () => {
-            if (!localStream) return;
-            const audioTrack = localStream.getAudioTracks()[0];
-            if (audioTrack) {
-                audioTrack.enabled = !audioTrack.enabled;
-                muteBtn.classList.toggle('active-off');
-                muteBtn.querySelector('span').innerText = audioTrack.enabled ? 'Mute' : 'Unmute';
-            }
-        };
-
-        // STOP VIDEO
-        videoBtn.onclick = () => {
-            if (!localStream) return;
-            const videoTrack = localStream.getVideoTracks()[0];
-            if (videoTrack) {
-                videoTrack.enabled = !videoTrack.enabled;
-                videoBtn.classList.toggle('active-off');
-                videoBtn.querySelector('span').innerText = videoTrack.enabled ? 'Stop Video' : 'Start Video';
-            }
-        };
-
-        // HANGUP
-        hangupBtn.onclick = () => {
-            // Close tracks to turn off camera light
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-            }
-            if (pc) {
-                pc.close();
-            }
-            window.location.reload();
-        };
-
+        hangupBtn.onclick = () => window.location.reload();
     </script>
 </body>
 </html>

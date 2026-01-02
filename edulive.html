@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FireTok Live Clone</title>
+    <style>
+        :root {
+            --primary: #fe2c55;
+            --dark: #121212;
+            --text: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--dark);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Container simulating mobile screen */
+        #app-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            position: relative;
+            background: black;
+            overflow: hidden;
+        }
+
+        /* Video Layer */
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* UI Overlay Layer */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6) 100%);
+            pointer-events: none; /* Let clicks pass through to hidden elements if needed */
+        }
+
+        /* Top Bar */
+        .top-bar {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            pointer-events: auto;
+        }
+        .live-badge {
+            background: var(--primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .viewer-count {
+            background: rgba(0,0,0,0.5);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        /* Controls (Start/Join) */
+        #setup-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            width: 80%;
+            pointer-events: auto;
+        }
+        
+        input {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: rgba(255,255,255,0.3); color: white; }
+
+        /* Chat Area */
+        .chat-container {
+            height: 300px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            pointer-events: auto;
+            mask-image: linear-gradient(to top, black 80%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%);
+        }
+
+        .chat-message {
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px black;
+            font-size: 14px;
+            animation: slideIn 0.3s ease-out;
+        }
+        .chat-user { color: #aaa; font-weight: bold; margin-right: 5px; }
+        .chat-text { color: white; }
+
+        .input-bar {
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <video id="localVideo" autoplay playsinline muted></video>
+    <video id="remoteVideo" autoplay playsinline></video>
+
+    <div class="overlay">
+        <div class="top-bar">
+            <div class="live-badge">LIVE</div>
+            <div class="viewer-count">👁️ <span id="view-count">0</span></div>
+            <div style="flex-grow:1"></div>
+            <div id="room-id-display" style="font-size: 10px; opacity: 0.7;"></div>
+        </div>
+
+        <div>
+            <div class="chat-container" id="chat-box">
+                </div>
+            <div class="input-bar">
+                <input type="text" id="chat-input" placeholder="Say something..." autocomplete="off">
+                <button class="btn-primary" id="send-btn" style="width: 60px;">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="setup-panel">
+        <h2>🔥 FireTok</h2>
+        <button id="create-btn" class="btn-primary">Start Live Stream</button>
+        <div style="margin: 15px 0; font-size: 12px; opacity: 0.7;">OR JOIN EXISTING</div>
+        <input type="text" id="room-input" placeholder="Enter Room ID">
+        <button id="join-btn" class="btn-secondary">Join Stream</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getFirestore, collection, doc, addDoc, setDoc, getDoc, updateDoc, onSnapshot, arrayUnion } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+    // --- Configuration ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
+        authDomain: "edulinki.firebaseapp.com",
+        projectId: "edulinki",
+        storageBucket: "edulinki.firebasestorage.app",
+        messagingSenderId: "248886466474",
+        appId: "1:248886466474:web:160043201a6b28bafbbdd3",
+        measurementId: "G-MQBH12VL7N"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- WebRTC Configuration ---
+    const servers = {
+        iceServers: [
+            {
+                urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302']
+            }
+        ],
+        iceCandidatePoolSize: 10,
+    };
+
+    let pc = new RTCPeerConnection(servers);
+    let localStream = null;
+    let remoteStream = null;
+    let roomId = null;
+
+    // HTML Elements
+    const localVideo = document.getElementById('localVideo');
+    const remoteVideo = document.getElementById('remoteVideo');
+    const setupPanel = document.getElementById('setup-panel');
+    const roomIdDisplay = document.getElementById('room-id-display');
+    const chatBox = document.getElementById('chat-box');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const viewCount = document.getElementById('view-count');
+
+    // --- 1. START A LIVE STREAM (HOST) ---
+    document.getElementById('create-btn').onclick = async () => {
+        setupPanel.classList.add('hidden');
+        remoteVideo.classList.add('hidden'); // Host sees themselves
+
+        // Get Media
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+        localVideo.srcObject = localStream;
+
+        // Create Room in Firestore
+        const callDoc = doc(collection(db, "calls"));
+        const offerCandidates = collection(callDoc, "offerCandidates");
+        const answerCandidates = collection(callDoc, "answerCandidates");
+
+        roomId = callDoc.id;
+        roomIdDisplay.innerText = `ID: ${roomId}`;
+        alert(`Copy this ID to share: ${roomId}`);
+
+        // Handle ICE Candidates
+        pc.onicecandidate = (event) => {
+            event.candidate && addDoc(offerCandidates, event.candidate.toJSON());
+        };
+
+        // Create Offer
+        const offerDescription = await pc.createOffer();
+        await pc.setLocalDescription(offerDescription);
+
+        const offer = {
+            sdp: offerDescription.sdp,
+            type: offerDescription.type,
+        };
+
+        await setDoc(callDoc, { offer });
+
+        // Listen for Answer
+        onSnapshot(callDoc, (snapshot) => {
+            const data = snapshot.data();
+            if (!pc.currentRemoteDescription && data?.answer) {
+                const answerDescription = new RTCSessionDescription(data.answer);
+                pc.setRemoteDescription(answerDescription);
+            }
+        });
+
+        // Listen for Viewer ICE Candidates
+        onSnapshot(answerCandidates, (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    const candidate = new RTCIceCandidate(change.doc.data());
+                    pc.addIceCandidate(candidate);
+                }
+            });
+        });
+
+        setupChatListener(roomId);
+    };
+
+    // --- 2. JOIN A LIVE STREAM (VIEWER) ---
+    document.getElementById('join-btn').onclick = async () => {
+        roomId = document.getElementById('room-input').value;
+        if (!roomId) return alert("Enter Room ID!");
+
+        setupPanel.classList.add('hidden');
+        localVideo.classList.add('hidden'); // Viewer sees Host
+
+        const callDoc = doc(db, "calls", roomId);
+        const offerCandidates = collection(callDoc, "offerCandidates");
+        const answerCandidates = collection(callDoc, "answerCandidates");
+
+        // Setup Remote Stream
+        remoteStream = new MediaStream();
+        pc.ontrack = (event) => {
+            event.streams[0].getTracks().forEach((track) => {
+                remoteStream.addTrack(track);
+            });
+        };
+        remoteVideo.srcObject = remoteStream;
+
+        // Handle ICE Candidates
+        pc.onicecandidate = (event) => {
+            event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
+        };
+
+        // Fetch Offer
+        const callSnapshot = await getDoc(callDoc);
+        const callData = callSnapshot.data();
+
+        if (!callData) return alert("Stream not found!");
+
+        const offerDescription = callData.offer;
+        await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+
+        // Create Answer
+        const answerDescription = await pc.createAnswer();
+        await pc.setLocalDescription(answerDescription);
+
+        const answer = {
+            type: answerDescription.type,
+            sdp: answerDescription.sdp,
+        };
+
+        await updateDoc(callDoc, { answer });
+
+        // Listen for Host ICE Candidates
+        onSnapshot(offerCandidates, (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    const candidate = new RTCIceCandidate(change.doc.data());
+                    pc.addIceCandidate(candidate);
+                }
+            });
+        });
+
+        setupChatListener(roomId);
+    };
+
+    // --- 3. CHAT SYSTEM ---
+    function setupChatListener(id) {
+        const messagesRef = collection(db, `calls/${id}/messages`);
+
+        // Realtime Listener
+        onSnapshot(messagesRef, (snapshot) => {
+            chatBox.innerHTML = ''; // Clear to prevent dupes (naive implementation)
+            let msgs = [];
+            snapshot.forEach(doc => msgs.push(doc.data()));
+            
+            // Sort by time (simple check)
+            msgs.sort((a,b) => a.timestamp - b.timestamp);
+
+            msgs.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = 'chat-message';
+                div.innerHTML = `<span class="chat-user">${msg.user}:</span> <span class="chat-text">${msg.text}</span>`;
+                chatBox.appendChild(div);
+            });
+            
+            // Auto scroll to bottom
+            chatBox.scrollTop = chatBox.scrollHeight;
+            
+            // Fake viewer count based on chat activity (just for visual fun)
+            viewCount.innerText = Math.floor(Math.random() * 10) + 1; 
+        });
+
+        // Send Message
+        sendBtn.onclick = async () => {
+            const text = chatInput.value;
+            if(!text) return;
+            
+            await addDoc(messagesRef, {
+                user: "User" + Math.floor(Math.random()*100),
+                text: text,
+                timestamp: Date.now()
+            });
+            chatInput.value = '';
+        }
+    }
+
+</script>
+</body>
+</html>

@@ -3,189 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduLive - Realtime Classroom</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>EduLive | Realtime Class</title>
     <style>
-        :root {
-            --primary: #F20045; /* TikTok/Live Red */
-            --dark: #121212;
-            --gray: #1E1E1E;
-        }
-        body { background-color: var(--dark); color: white; font-family: 'Inter', sans-serif; overflow: hidden; }
-        
-        /* Layouts */
-        #app-container { display: flex; height: 100vh; width: 100vw; }
-        
-        /* Video Grid */
-        #main-stage { 
-            flex: 3; 
-            background: black; 
-            position: relative; 
-            display: flex; 
-            flex-wrap: wrap; 
-            align-content: center; 
-            justify-content: center;
-            gap: 10px;
-            padding: 10px;
-        }
-        
-        .video-card {
-            position: relative;
-            background: #2a2a2a;
-            border-radius: 12px;
-            overflow: hidden;
-            aspect-ratio: 16/9;
-            flex-grow: 1;
-            max-width: 100%;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        /* Dynamic sizing based on participant count */
-        .video-card:first-child:nth-last-child(1) { width: 100%; height: 100%; }
-        .video-card:first-child:nth-last-child(2), .video-card:first-child:nth-last-child(2) ~ .video-card { width: 48%; }
-        .video-card:first-child:nth-last-child(3), .video-card:first-child:nth-last-child(3) ~ .video-card { width: 48%; }
-        .video-card:first-child:nth-last-child(4), .video-card:first-child:nth-last-child(4) ~ .video-card { width: 48%; }
-
-        video { width: 100%; height: 100%; object-fit: cover; }
-        
-        .user-label {
-            position: absolute; bottom: 10px; left: 10px;
-            background: rgba(0,0,0,0.6); padding: 4px 10px;
-            border-radius: 4px; font-size: 12px; font-weight: bold;
-        }
-
-        /* Sidebar (Chat & Controls) */
-        #sidebar { 
-            flex: 1; 
-            min-width: 300px; 
-            max-width: 400px;
-            background: var(--gray); 
-            display: flex; 
+        /* Modern, Clean UI */
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #202124;
+            color: white;
+            margin: 0;
+            display: flex;
             flex-direction: column;
-            border-left: 1px solid #333;
+            align-items: center;
+            height: 100vh;
         }
 
-        /* Lobby Styles */
-        #lobby {
-            position: fixed; inset: 0; z-index: 50;
-            background: var(--dark);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .lobby-box {
-            background: var(--gray); padding: 2rem; border-radius: 16px;
-            width: 90%; max-width: 400px; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        h1 { margin-top: 20px; font-weight: 400; letter-spacing: 1px; }
+        .highlight { color: #8ab4f8; font-weight: bold; }
+
+        /* Setup Screen */
+        #setup-screen {
+            background: #3c4043;
+            padding: 40px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 50px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: flex; /* Visible by default */
+            flex-direction: column;
+            gap: 15px;
         }
 
-        /* Chat */
-        #chat-area { flex-grow: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 8px; }
-        .msg { font-size: 14px; line-height: 1.4; }
-        .msg strong { color: #aaa; margin-right: 5px; }
-        .msg-system { color: #F20045; font-style: italic; }
-
-        /* Controls */
-        .controls { padding: 1rem; background: #252525; display: grid; gap: 10px; }
-        .btn {
-            border: none; padding: 10px 15px; border-radius: 8px;
-            font-weight: 600; cursor: pointer; transition: 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { opacity: 0.9; }
-        .btn-secondary { background: #444; color: white; }
-        .btn-green { background: #00c853; color: white; }
-        
         input {
-            width: 100%; padding: 10px; margin-bottom: 10px;
-            background: #333; border: 1px solid #444; color: white; border-radius: 6px;
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid #5f6368;
+            background: #202124;
+            color: white;
+            font-size: 16px;
+            text-align: center;
         }
 
-        /* Notification Toast */
-        #toast {
-            position: fixed; top: 20px; right: 20px;
-            background: var(--primary); color: white;
-            padding: 10px 20px; border-radius: 8px;
-            transform: translateX(200%); transition: 0.3s;
-            z-index: 100;
-        }
-        .show-toast { transform: translateX(0) !important; }
+        .btn-group { display: flex; gap: 10px; justify-content: center; }
 
-        /* Request Badge */
-        .guest-req {
-            background: #333; padding: 8px; border-radius: 6px;
-            display: flex; justify-content: space-between; align-items: center;
-            margin-top: 5px; border: 1px solid #555;
+        button {
+            padding: 12px 24px;
+            border-radius: 4px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn-primary { background-color: #8ab4f8; color: #202124; }
+        .btn-primary:hover { background-color: #aecbfa; }
+        
+        .btn-secondary { background-color: transparent; border: 1px solid #5f6368; color: #e8eaed; }
+        .btn-secondary:hover { background-color: rgba(255,255,255,0.1); }
+        
+        .btn-danger { background-color: #ea4335; color: white; display: none; margin-top: 20px; }
+
+        /* Video Grid */
+        #video-container {
+            display: none; /* Hidden until joined */
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+            height: 80%;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 45%;
+            min-width: 320px;
+            aspect-ratio: 16/9;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Labels (You / Peer) */
+        .badge {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <div id="lobby">
-        <div class="lobby-box">
-            <h1 class="text-3xl font-bold mb-2"><span style="color:var(--primary)">Edu</span>Live</h1>
-            <p class="text-gray-400 mb-6">Create or Join a Live Classroom</p>
-            
-            <input type="text" id="username" placeholder="Your Name" value="Guest">
-            <input type="text" id="room-id" placeholder="Room ID (e.g., math-101)">
-            
-            <div class="grid grid-cols-2 gap-3 mt-4">
-                <button id="btn-create" class="btn btn-primary"><i class="fas fa-video"></i> Create Host</button>
-                <button id="btn-join" class="btn btn-secondary"><i class="fas fa-eye"></i> Join Viewer</button>
-            </div>
-            <p class="text-xs text-gray-500 mt-4">Make sure to allow Camera/Mic permissions.</p>
+    <h1>Edu<span class="highlight">Live</span></h1>
+
+    <div id="setup-screen">
+        <h2>Join or Start a Class</h2>
+        <div class="btn-group">
+            <button id="createBtn" class="btn-primary">Create New Room</button>
+        </div>
+        <p style="color: #9aa0a6;">— OR —</p>
+        <input type="text" id="roomIdInput" placeholder="Enter Room ID to Join">
+        <button id="joinBtn" class="btn-secondary">Join Existing Room</button>
+    </div>
+
+    <div id="video-container">
+        <div class="video-wrapper">
+            <video id="localVideo" autoplay playsinline muted></video>
+            <div class="badge">You</div>
+        </div>
+        <div class="video-wrapper">
+            <video id="remoteVideo" autoplay playsinline></video>
+            <div class="badge">Student/Teacher</div>
         </div>
     </div>
 
-    <div id="app-container" style="display:none;">
-        <div id="main-stage">
-            </div>
-
-        <div id="sidebar">
-            <div class="p-4 border-b border-gray-700 bg-gray-900">
-                <h2 class="font-bold text-lg"><span id="room-display"></span></h2>
-                <div class="text-xs text-gray-400 flex justify-between">
-                    <span id="role-display">Viewer</span>
-                    <span><i class="fas fa-user"></i> <span id="participant-count">0</span></span>
-                </div>
-            </div>
-
-            <div id="host-requests" class="hidden p-2 bg-gray-800 border-b border-gray-700">
-                <h3 class="text-xs uppercase text-gray-500 font-bold mb-2">Guest Requests</h3>
-                <div id="req-list"></div>
-            </div>
-
-            <div id="chat-area"></div>
-
-            <div class="controls">
-                <div id="viewer-controls" class="hidden">
-                    <button id="btn-request-guest" class="btn btn-secondary w-full">
-                        <i class="fas fa-hand-paper"></i> Request to Speak
-                    </button>
-                </div>
-
-                <div id="media-controls" class="hidden grid grid-cols-3 gap-2">
-                    <button id="btn-mute" class="btn btn-secondary"><i class="fas fa-microphone"></i></button>
-                    <button id="btn-cam" class="btn btn-secondary"><i class="fas fa-video"></i></button>
-                    <button id="btn-leave" class="btn bg-red-600 text-white"><i class="fas fa-phone-slash"></i></button>
-                </div>
-
-                <div class="flex gap-2">
-                    <input type="text" id="chat-input" placeholder="Type a comment..." class="mb-0">
-                    <button id="btn-send" class="btn btn-primary" style="width: auto;"><i class="fas fa-paper-plane"></i></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="toast">Notification</div>
+    <button id="hangupBtn" class="btn-danger">Leave Class</button>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, deleteDoc, getDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+        // --- Firebase Setup ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
             authDomain: "edulinki.firebaseapp.com",
@@ -195,403 +146,169 @@
             appId: "1:248886466474:web:160043201a6b28bafbbdd3",
             measurementId: "G-MQBH12VL7N"
         };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
 
-        // --- STATE VARIABLES ---
-        const configuration = {
+        const app = initializeApp(firebaseConfig);
+        const firestore = getFirestore(app);
+
+        // --- WebRTC Setup ---
+        const servers = {
             iceServers: [
                 { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }
-            ]
+            ],
+            iceCandidatePoolSize: 10,
         };
 
+        let pc = new RTCPeerConnection(servers);
         let localStream = null;
-        let peerConnections = {}; // Key: userId, Value: RTCPeerConnection
-        let roomId = null;
-        let currentUser = null; // { id, name, role }
-        let isPublished = false; // Is local video pushed?
+        let remoteStream = null;
 
-        // --- DOM ELEMENTS ---
-        const lobby = document.getElementById('lobby');
-        const appContainer = document.getElementById('app-container');
-        const mainStage = document.getElementById('main-stage');
-        const chatArea = document.getElementById('chat-area');
-        const reqList = document.getElementById('req-list');
-        const hostRequests = document.getElementById('host-requests');
-        const mediaControls = document.getElementById('media-controls');
-        const viewerControls = document.getElementById('viewer-controls');
+        // HTML Elements
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const createBtn = document.getElementById('createBtn');
+        const joinBtn = document.getElementById('joinBtn');
+        const roomIdInput = document.getElementById('roomIdInput');
+        const setupScreen = document.getElementById('setup-screen');
+        const videoContainer = document.getElementById('video-container');
+        const hangupBtn = document.getElementById('hangupBtn');
 
-        // --- INITIALIZATION HANDLERS ---
-        document.getElementById('btn-create').addEventListener('click', () => initRoom(true));
-        document.getElementById('btn-join').addEventListener('click', () => initRoom(false));
-        document.getElementById('btn-send').addEventListener('click', sendChat);
-        document.getElementById('btn-request-guest').addEventListener('click', requestGuestAccess);
-        document.getElementById('btn-mute').addEventListener('click', toggleAudio);
-        document.getElementById('btn-cam').addEventListener('click', toggleVideo);
-        document.getElementById('chat-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChat() });
+        // 1. Initialize User Media (Camera/Mic)
+        async function startWebcam() {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            remoteStream = new MediaStream();
 
-        async function initRoom(isHost) {
-            const rId = document.getElementById('room-id').value.trim();
-            const uName = document.getElementById('username').value.trim();
-            
-            if (!rId || !uName) return showToast("Please enter ID and Name");
+            // Push local video to screen
+            localVideo.srcObject = localStream;
+            // Prepare remote video slot
+            remoteVideo.srcObject = remoteStream;
 
-            roomId = rId;
-            currentUser = {
-                id: Date.now().toString(),
-                name: uName,
-                role: isHost ? 'host' : 'viewer'
+            // Add local tracks to WebRTC connection
+            localStream.getTracks().forEach((track) => {
+                pc.addTrack(track, localStream);
+            });
+
+            // Listen for incoming remote tracks
+            pc.ontrack = (event) => {
+                event.streams[0].getTracks().forEach((track) => {
+                    remoteStream.addTrack(track);
+                });
             };
 
-            // UI Switch
-            lobby.style.display = 'none';
-            appContainer.style.display = 'flex';
-            document.getElementById('room-display').innerText = `Room: ${roomId}`;
-            document.getElementById('role-display').innerText = isHost ? 'HOST' : 'Viewer';
-
-            if (isHost) {
-                await startLocalStream();
-                hostRequests.classList.remove('hidden');
-                mediaControls.classList.remove('hidden');
-            } else {
-                viewerControls.classList.remove('hidden');
-            }
-
-            joinSignaling(isHost);
+            // Switch UI
+            setupScreen.style.display = 'none';
+            videoContainer.style.display = 'flex';
+            hangupBtn.style.display = 'block';
         }
 
-        // --- MEDIA HANDLING ---
-        async function startLocalStream() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                addVideoCard(currentUser.id, currentUser.name, localStream, true);
-                isPublished = true;
-                mediaControls.classList.remove('hidden');
-            } catch (err) {
-                console.error("Error accessing media", err);
-                showToast("Camera/Mic blocked or error.");
-            }
-        }
+        // 2. CREATE A ROOM (Teacher)
+        createBtn.onclick = async () => {
+            await startWebcam();
 
-        function addVideoCard(uid, name, stream, isLocal = false) {
-            if (document.getElementById(`vid-${uid}`)) return;
+            // Create reference in Firestore
+            const callDoc = doc(collection(firestore, 'calls'));
+            const offerCandidates = collection(callDoc, 'offerCandidates');
+            const answerCandidates = collection(callDoc, 'answerCandidates');
 
-            const div = document.createElement('div');
-            div.className = 'video-card';
-            div.id = `vid-${uid}`;
-            
-            const vid = document.createElement('video');
-            vid.autoplay = true;
-            vid.playsInline = true;
-            vid.srcObject = stream;
-            if (isLocal) vid.muted = true; // Don't hear yourself
+            const roomId = callDoc.id;
+            // Copy ID to clipboard for easy sharing
+            navigator.clipboard.writeText(roomId);
+            alert(`Room created! The ID is copied to your clipboard:\n${roomId}`);
 
-            const label = document.createElement('div');
-            label.className = 'user-label';
-            label.innerText = name;
+            // Get ICE candidates (network info)
+            pc.onicecandidate = (event) => {
+                event.candidate && addDoc(offerCandidates, event.candidate.toJSON());
+            };
 
-            div.appendChild(vid);
-            div.appendChild(label);
-            mainStage.appendChild(div);
-        }
+            // Create Offer
+            const offerDescription = await pc.createOffer();
+            await pc.setLocalDescription(offerDescription);
 
-        function removeVideoCard(uid) {
-            const el = document.getElementById(`vid-${uid}`);
-            if (el) el.remove();
-        }
+            const offer = {
+                sdp: offerDescription.sdp,
+                type: offerDescription.type,
+            };
 
-        function toggleAudio() {
-            if(localStream) {
-                const track = localStream.getAudioTracks()[0];
-                track.enabled = !track.enabled;
-                document.getElementById('btn-mute').innerHTML = track.enabled ? '<i class="fas fa-microphone"></i>' : '<i class="fas fa-microphone-slash"></i>';
-            }
-        }
+            // Save offer to DB
+            await setDoc(callDoc, { offer });
 
-        function toggleVideo() {
-            if(localStream) {
-                const track = localStream.getVideoTracks()[0];
-                track.enabled = !track.enabled;
-                document.getElementById('btn-cam').innerHTML = track.enabled ? '<i class="fas fa-video"></i>' : '<i class="fas fa-video-slash"></i>';
-            }
-        }
-
-        // --- SIGNALING (WEB RTC) ---
-        // This is a simplified mesh topology.
-        
-        async function joinSignaling(isHost) {
-            const roomRef = doc(db, 'rooms', roomId);
-            
-            // 1. Add user to participants list (Simplified for presence)
-            // Ideally we use a subcollection, but for this demo:
-            await setDoc(roomRef, { created: serverTimestamp() }, { merge: true });
-
-            // 2. Listen for other candidates/offers
-            // We use a subcollection `participants` where each doc is a user
-            const userRef = doc(db, 'rooms', roomId, 'participants', currentUser.id);
-            await setDoc(userRef, { 
-                name: currentUser.name, 
-                role: currentUser.role, 
-                isPublisher: isPublished 
-            });
-
-            // Listen to all participants to handle Mesh connections
-            const participantsRef = collection(db, 'rooms', roomId, 'participants');
-            onSnapshot(participantsRef, snapshot => {
-                snapshot.docChanges().forEach(async change => {
-                    if (change.type === 'added') {
-                        const data = change.doc.data();
-                        const remoteId = change.doc.id;
-                        
-                        // Update UI Counter
-                        document.getElementById('participant-count').innerText = snapshot.size;
-
-                        // If it's not me
-                        if (remoteId !== currentUser.id) {
-                            // If I am a publisher OR they are a publisher, we need a connection
-                            // To simplify: Everyone connects to everyone, but only publishers add tracks.
-                            if (currentUser.role === 'host' || data.isPublisher || currentUser.id < remoteId) {
-                                // Simple convention: Lower ID initiates offer to Higher ID to prevent double connection
-                                // OR: Host always initiates.
-                                // Let's try: Existing users initiate to New users.
-                                initiateConnection(remoteId, data.name);
-                            }
-                        }
-                    }
-                    if (change.type === 'modified') {
-                         const data = change.doc.data();
-                         // Logic to handle if a viewer becomes a publisher (Guest accepted)
-                         if (data.isPublisher && !document.getElementById(`vid-${change.doc.id}`)) {
-                             // They started streaming, we might need to renegotiate or just rely on existing connection
-                             showToast(`${data.name} is now live!`);
-                         }
-                    }
-                    if (change.type === 'removed') {
-                        removeVideoCard(change.doc.id);
-                        if(peerConnections[change.doc.id]) {
-                            peerConnections[change.doc.id].close();
-                            delete peerConnections[change.doc.id];
-                        }
-                    }
-                });
-            });
-
-            // Listen for incoming SDP Offers/Answers directed at ME
-            const mySignalingRef = collection(db, 'rooms', roomId, 'participants', currentUser.id, 'incoming');
-            onSnapshot(mySignalingRef, snapshot => {
-                snapshot.docChanges().forEach(async change => {
-                    if (change.type === 'added') {
-                        const data = change.doc.data();
-                        const fromId = data.from;
-                        
-                        if (data.type === 'offer') {
-                            await handleOffer(fromId, data.sdp, data.name);
-                        } else if (data.type === 'answer') {
-                            await handleAnswer(fromId, data.sdp);
-                        } else if (data.type === 'candidate') {
-                            await handleCandidate(fromId, data.candidate);
-                        }
-                        
-                        // Clean up processed signals
-                        await deleteDoc(change.doc.ref);
-                    }
-                });
-            });
-            
-            // Listen to Chat
-            const chatRef = collection(db, 'rooms', roomId, 'messages');
-            onSnapshot(chatRef, (snapshot) => {
-                snapshot.docChanges().forEach(change => {
-                    if (change.type === 'added') renderMessage(change.doc.data());
-                });
-            });
-
-            // If Host, listen to Guest Requests
-            if (isHost) {
-                const reqRef = collection(db, 'rooms', roomId, 'requests');
-                onSnapshot(reqRef, snapshot => {
-                    reqList.innerHTML = '';
-                    snapshot.forEach(docSnap => {
-                        const r = docSnap.data();
-                        renderRequest(docSnap.id, r.name, r.userId);
-                    });
-                    if(snapshot.empty) hostRequests.classList.add('hidden');
-                    else hostRequests.classList.remove('hidden');
-                });
-            }
-
-            // If Viewer, listen for Acceptance
-            if (!isHost) {
-                // Determine if we've been accepted by checking our participant doc status or a specific message
-                // Simplification: Listen to a "approvals" collection or check our own "isPublisher" flag if host sets it
-                // We will use a dedicated listener on our own user doc for a trigger
-                onSnapshot(userRef, async (snap) => {
-                    const data = snap.data();
-                    if (data && data.isGuestAllowed && !localStream) {
-                        // Host approved us!
-                        showToast("Host accepted you as Guest!");
-                        await startLocalStream();
-                        // Update my status to publisher so others know to expect video
-                        await updateDoc(userRef, { isPublisher: true });
-                        
-                        // Add tracks to all existing connections
-                        Object.values(peerConnections).forEach(pc => {
-                            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-                            // Note: WebRTC requires renegotiation here. 
-                            // In a simple mesh, it's easier to just reload or handle "negotiationneeded".
-                            // For this single-file demo, we will rely on the "negotiationneeded" event if implemented
-                            // OR simply re-initiate connections.
-                            // Trigger renegotiation:
-                            // pc.createOffer()... complex.
-                        });
-                        // Quick hack for demo: Force reload to publish properly or re-initiate manually
-                        // showToast("Reconnecting to publish stream...");
-                        // window.location.reload(); 
-                        // Instead of reload, let's just add tracks. The other side receives 'track' event.
-                    }
-                });
-            }
-        }
-
-        // --- WEB RTC CORE ---
-        
-        function createPeerConnection(remoteId, remoteName) {
-            if (peerConnections[remoteId]) return peerConnections[remoteId];
-
-            const pc = new RTCPeerConnection(configuration);
-            peerConnections[remoteId] = pc;
-
-            // Handle ICE Candidates
-            pc.onicecandidate = event => {
-                if (event.candidate) {
-                    sendSignal(remoteId, { type: 'candidate', candidate: event.candidate.toJSON(), from: currentUser.id });
+            // Listen for Answer from Student
+            onSnapshot(callDoc, (snapshot) => {
+                const data = snapshot.data();
+                if (!pc.currentRemoteDescription && data?.answer) {
+                    const answerDescription = new RTCSessionDescription(data.answer);
+                    pc.setRemoteDescription(answerDescription);
                 }
-            };
-
-            // Handle Incoming Stream
-            pc.ontrack = event => {
-                if (event.streams && event.streams[0]) {
-                    addVideoCard(remoteId, remoteName, event.streams[0]);
-                }
-            };
-
-            // Add local stream if we have one
-            if (localStream) {
-                localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-            }
-
-            return pc;
-        }
-
-        async function initiateConnection(remoteId, remoteName) {
-            const pc = createPeerConnection(remoteId, remoteName);
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            
-            await sendSignal(remoteId, { 
-                type: 'offer', 
-                sdp: offer, 
-                from: currentUser.id, 
-                name: currentUser.name 
             });
-        }
 
-        async function handleOffer(remoteId, sdp, remoteName) {
-            const pc = createPeerConnection(remoteId, remoteName);
-            await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-            
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            
-            await sendSignal(remoteId, { 
-                type: 'answer', 
-                sdp: answer, 
-                from: currentUser.id 
+            // Listen for Remote ICE candidates
+            onSnapshot(answerCandidates, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') {
+                        const candidate = new RTCIceCandidate(change.doc.data());
+                        pc.addIceCandidate(candidate);
+                    }
+                });
             });
-        }
-
-        async function handleAnswer(remoteId, sdp) {
-            const pc = peerConnections[remoteId];
-            if (pc) {
-                await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-            }
-        }
-
-        async function handleCandidate(remoteId, candidate) {
-            const pc = peerConnections[remoteId];
-            if (pc) {
-                await pc.addIceCandidate(new RTCIceCandidate(candidate));
-            }
-        }
-
-        async function sendSignal(targetUserId, data) {
-            const ref = collection(db, 'rooms', roomId, 'participants', targetUserId, 'incoming');
-            await addDoc(ref, data);
-        }
-
-        // --- CHAT & REQUESTS ---
-
-        async function sendChat() {
-            const input = document.getElementById('chat-input');
-            const txt = input.value.trim();
-            if (!txt) return;
-
-            await addDoc(collection(db, 'rooms', roomId, 'messages'), {
-                user: currentUser.name,
-                text: txt,
-                time: serverTimestamp()
-            });
-            input.value = '';
-        }
-
-        function renderMessage(data) {
-            const div = document.createElement('div');
-            div.className = 'msg';
-            div.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
-            chatArea.appendChild(div);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
-
-        async function requestGuestAccess() {
-            if (currentUser.role !== 'viewer') return;
-            showToast("Request sent to host!");
-            await addDoc(collection(db, 'rooms', roomId, 'requests'), {
-                userId: currentUser.id,
-                name: currentUser.name,
-                created: serverTimestamp()
-            });
-            document.getElementById('btn-request-guest').disabled = true;
-            document.getElementById('btn-request-guest').innerText = "Request Sent...";
-        }
-
-        function renderRequest(reqId, name, userId) {
-            const div = document.createElement('div');
-            div.className = 'guest-req';
-            div.innerHTML = `
-                <span>${name}</span>
-                <button class="btn btn-green text-xs" onclick="window.acceptGuest('${reqId}', '${userId}')">Accept</button>
-            `;
-            reqList.appendChild(div);
-        }
-
-        // Global function for the Accept button (needs to be on window)
-        window.acceptGuest = async (reqId, userId) => {
-            // 1. Mark user as allowed in database
-            const userRef = doc(db, 'rooms', roomId, 'participants', userId);
-            await updateDoc(userRef, { isGuestAllowed: true });
-            
-            // 2. Delete request
-            await deleteDoc(doc(db, 'rooms', roomId, 'requests', reqId));
-            
-            showToast(`Accepted ${userId} as guest`);
         };
 
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.classList.add('show-toast');
-            setTimeout(() => t.classList.remove('show-toast'), 3000);
-        }
+        // 3. JOIN A ROOM (Student)
+        joinBtn.onclick = async () => {
+            const roomId = roomIdInput.value;
+            if(!roomId){ alert("Please enter a valid Room ID"); return; }
+            
+            const callDoc = doc(firestore, 'calls', roomId);
+            const callSnapshot = await getDoc(callDoc);
+
+            if (!callSnapshot.exists()) {
+                alert("Room not found! Check the ID.");
+                return;
+            }
+
+            await startWebcam();
+
+            const offerCandidates = collection(callDoc, 'offerCandidates');
+            const answerCandidates = collection(callDoc, 'answerCandidates');
+
+            pc.onicecandidate = (event) => {
+                event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
+            };
+
+            // Grab the offer data
+            const callData = callSnapshot.data();
+            const offerDescription = callData.offer;
+            await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+
+            // Create Answer
+            const answerDescription = await pc.createAnswer();
+            await pc.setLocalDescription(answerDescription);
+
+            const answer = {
+                type: answerDescription.type,
+                sdp: answerDescription.sdp,
+            };
+
+            // Update DB with answer
+            await updateDoc(callDoc, { answer });
+
+            // Listen for Remote ICE candidates
+            onSnapshot(offerCandidates, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') {
+                        const candidate = new RTCIceCandidate(change.doc.data());
+                        pc.addIceCandidate(candidate);
+                    }
+                });
+            });
+        };
+
+        // 4. End Call
+        hangupBtn.onclick = () => {
+            // Stop all tracks
+            localStream.getTracks().forEach(track => track.stop());
+            pc.close();
+            // Reload page to reset
+            window.location.reload();
+        };
 
     </script>
 </body>

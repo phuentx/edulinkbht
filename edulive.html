@@ -115,9 +115,21 @@
         }
         .vid-card.speaking { border-color: var(--primary); box-shadow: 0 0 15px rgba(138, 180, 248, 0.3); }
 
-        video { width: 100%; height: 100%; object-fit: cover; background: #000; }
+        video { 
+            width: 100%; height: 100%; 
+            object-fit: cover; /* Default for cameras: crop to fill */
+            background: #000; 
+        }
+        
+        /* Mirroring Rules */
         .mirrored { transform: scaleX(-1); }
-
+        
+        /* Screen Share Specifics */
+        .screen-share-mode video {
+            object-fit: contain !important; /* Show whole screen */
+            transform: scaleX(1) !important; /* Never mirror */
+        }
+        
         .name-tag {
             position: absolute; bottom: 12px; left: 12px;
             background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 6px;
@@ -174,6 +186,11 @@
             z-index: 40;
             border-color: var(--primary);
         }
+        
+        /* Ensure pinned screen shares are fully visible */
+        .vid-card.pinned-view.screen-share-mode video {
+            object-fit: contain;
+        }
 
         /* --- CONTROLS --- */
         .controls-wrapper {
@@ -226,6 +243,11 @@
                 border: none; box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
             }
             .drawer.open { transform: translateY(0); }
+            
+            /* INCREASED CHAT SIZE FOR MOBILE */
+            .msg-bubble { font-size: 16px !important; padding: 14px 18px !important; }
+            .msg-name { font-size: 13px !important; margin-bottom: 6px !important; }
+            .chat-input { padding: 16px !important; font-size: 16px !important; }
         }
 
         /* Chat Specific */
@@ -241,7 +263,10 @@
         .msg.them { align-self: flex-start; align-items: flex-start; }
         
         .msg-name { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; margin-left: 4px; }
-        .msg-bubble { padding: 12px 16px; border-radius: 20px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+        .msg-bubble { 
+            padding: 12px 16px; border-radius: 20px; font-size: 14px; 
+            line-height: 1.5; word-wrap: break-word; 
+        }
         .msg.me .msg-bubble { background: var(--primary); color: #121212; border-bottom-right-radius: 4px; }
         .msg.them .msg-bubble { background: #333; color: white; border-bottom-left-radius: 4px; }
 
@@ -301,7 +326,7 @@
         </div>
         <div class="chat-body" id="chatBody">
             <div style="text-align:center; font-size:13px; color:#555; margin-top:20px;">
-                Messages are deleted when the call ends.
+                Messages are deleted when everyone leaves.
             </div>
         </div>
         <div class="chat-footer">
@@ -323,10 +348,6 @@
             <button id="optScreen" class="opt-btn" onclick="toggleScreen()">
                 <i data-lucide="monitor-up"></i>
                 <span class="opt-label">Share Screen</span>
-            </button>
-            <button id="optBlur" class="opt-btn" onclick="toggleBlur()">
-                <i data-lucide="aperture"></i>
-                <span class="opt-label">Blur BG</span>
             </button>
         </div>
     </div>
@@ -352,7 +373,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, deleteDoc, query, orderBy, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         lucide.createIcons();
 
@@ -378,7 +399,7 @@
         let audioCtx;
         let isMuted = false, isCamOff = false, isHandRaised = false, isChatOpen = false, isOptionsOpen = false;
         let pinnedUserId = null; // null means Grid Mode, ID means Focus Mode
-        let isBlurEnabled = false;
+        let userCount = 0;
 
         // DOM Elements
         const grid = document.getElementById('video-grid');
@@ -404,7 +425,7 @@
                         card.style.height = '100%';
                         card.classList.add('pinned-view');
                     } else {
-                        card.style.display = 'none'; // Simple hide for now (could be filmstrip)
+                        card.style.display = 'none'; // Simple hide
                         card.classList.remove('pinned-view');
                     }
                 });
@@ -453,6 +474,7 @@
             card.className = 'vid-card';
             card.id = `vid-${uid}`;
             
+            // Mirror logic: Local cam mirrors, but if screen shared, we remove this class later
             const mirrorClass = isLocal ? 'mirrored' : '';
 
             card.innerHTML = `
@@ -492,27 +514,21 @@
         // --- 3. MENU ACTIONS (Pin / Fullscreen) ---
         window.toggleCardMenu = (e, uid) => {
             e.stopPropagation();
-            // Close all others
             document.querySelectorAll('.card-dropdown').forEach(d => d.classList.remove('show'));
-            // Toggle current
             const menu = document.getElementById(`menu-${uid}`);
             menu.classList.toggle('show');
         }
 
-        // Close dropdowns when clicking anywhere else
         document.addEventListener('click', () => {
             document.querySelectorAll('.card-dropdown').forEach(d => d.classList.remove('show'));
         });
 
         window.pinUser = (uid) => {
             if (pinnedUserId === uid) {
-                pinnedUserId = null; // Unpin
+                pinnedUserId = null; 
             } else {
-                pinnedUserId = uid; // Pin
+                pinnedUserId = uid; 
             }
-            // Update menu text for this user
-            const label = pinnedUserId === uid ? 'Unpin' : 'Pin User';
-            // Note: In real app, re-rendering text is cleaner, here we just trigger layout
             calculateLayout();
         }
 
@@ -520,7 +536,7 @@
             const card = document.getElementById(`vid-${uid}`);
             if(card.requestFullscreen) {
                 card.requestFullscreen();
-            } else if(card.webkitRequestFullscreen) { /* Safari */
+            } else if(card.webkitRequestFullscreen) {
                 card.webkitRequestFullscreen();
             }
         }
@@ -554,10 +570,16 @@
         async function joinRoom() {
             const userRef = doc(db, `rooms/${roomId}/users/${myId}`);
             await setDoc(userRef, { present: true, mic: true, cam: true, hand: false });
-            window.onbeforeunload = () => deleteDoc(userRef);
+            
+            // CLEANUP ON LEAVE
+            window.onbeforeunload = async () => {
+                await deleteDoc(userRef);
+                await cleanupRoomIfEmpty();
+            };
 
-            // Users
+            // Users & Count Tracking
             onSnapshot(collection(db, `rooms/${roomId}/users`), (snap) => {
+                userCount = snap.size; // Track count
                 snap.docChanges().forEach(change => {
                     const uid = change.doc.id;
                     const data = change.doc.data();
@@ -575,7 +597,7 @@
                 });
             });
 
-            // Signals & Chat (Kept same as before)
+            // Signals
             onSnapshot(collection(db, `rooms/${roomId}/signals`), (snap) => {
                 snap.docChanges().forEach(async change => {
                     if(change.type === 'added') {
@@ -588,6 +610,7 @@
                 });
             });
 
+            // Chat
             onSnapshot(query(collection(db, `rooms/${roomId}/chat`), orderBy('ts')), (snap) => {
                 snap.docChanges().forEach(change => {
                     if(change.type === 'added') {
@@ -596,6 +619,16 @@
                     }
                 });
             });
+        }
+
+        // CLEANUP: If I am the last one, delete chat
+        async function cleanupRoomIfEmpty() {
+            if (userCount <= 1) {
+                const chatSnap = await getDocs(collection(db, `rooms/${roomId}/chat`));
+                const batch = writeBatch(db);
+                chatSnap.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+            }
         }
 
         // --- 5. WEBRTC (MESH) ---
@@ -648,10 +681,9 @@
             }; loop();
         }
 
-        // --- 7. CONTROLS & NEW DRAWER LOGIC ---
+        // --- 7. CONTROLS ---
         const myDoc = () => doc(db, `rooms/${roomId}/users/${myId}`);
         
-        // Basic Mute/Cam
         document.getElementById('micBtn').onclick = (e) => {
             isMuted = !isMuted; localStream.getAudioTracks()[0].enabled = !isMuted;
             updateBtn(e.currentTarget, isMuted, 'mic', 'mic-off');
@@ -665,9 +697,9 @@
             document.getElementById(`vid-${myId}`).classList.toggle('cam-off', isCamOff);
         };
 
-        // --- NEW OPTION DRAWER LOGIC ---
+        // DRAWER TOGGLES
         window.toggleOptions = () => {
-            if(isChatOpen) window.toggleChat(); // Close chat if open
+            if(isChatOpen) window.toggleChat(); 
 
             isOptionsOpen = !isOptionsOpen;
             optionsDrawer.classList.toggle('open', isOptionsOpen);
@@ -676,29 +708,39 @@
             setTimeout(calculateLayout, 300);
         };
 
-        // Option 1: Hand Raise
         window.toggleHand = () => {
             isHandRaised = !isHandRaised;
             updateDoc(myDoc(), { hand: isHandRaised });
             document.getElementById('optHand').classList.toggle('active', isHandRaised);
         };
 
-        // Option 2: Share Screen
+        // SCREEN SHARE LOGIC (Corrected)
         window.toggleScreen = async () => {
             if(!screenStream) {
                 try {
                     screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
                     const trk = screenStream.getVideoTracks()[0];
+                    
+                    // Replace tracks for remote peers
                     for(let uid in pcs) {
                         const snd = pcs[uid].getSenders().find(s => s.track.kind === 'video');
                         if(snd) snd.replaceTrack(trk);
                     }
-                    const localVid = document.querySelector(`#vid-${myId} video`);
+                    
+                    // Update Local Video
+                    const localCard = document.getElementById(`vid-${myId}`);
+                    const localVid = localCard.querySelector('video');
                     localVid.srcObject = screenStream;
-                    localVid.classList.remove('mirrored');
+                    
+                    // Add Screen Share Mode class (removes mirror, adds contain)
+                    localCard.classList.add('screen-share-mode');
+                    
+                    // Optional: Pin self so I can see what I'm sharing clearly? 
+                    // pinUser(myId); (User preference, let's leave it manual)
+
                     document.getElementById('optScreen').classList.add('active');
                     trk.onended = stopScreen;
-                    window.toggleOptions(); // Close drawer after selecting
+                    window.toggleOptions(); 
                 } catch(e) { console.error(e); }
             } else stopScreen();
         };
@@ -709,33 +751,22 @@
                 const snd = pcs[uid].getSenders().find(s => s.track.kind === 'video');
                 if(snd) snd.replaceTrack(trk);
             }
-            const localVid = document.querySelector(`#vid-${myId} video`);
+            
+            const localCard = document.getElementById(`vid-${myId}`);
+            const localVid = localCard.querySelector('video');
             localVid.srcObject = localStream;
-            localVid.classList.add('mirrored');
+            
+            // Remove Screen Share Mode
+            localCard.classList.remove('screen-share-mode');
+            
             document.getElementById('optScreen').classList.remove('active');
             if(screenStream) screenStream.getTracks().forEach(t=>t.stop());
             screenStream = null;
         }
 
-        // Option 3: Blur (Simulated for Demo)
-        window.toggleBlur = () => {
-            isBlurEnabled = !isBlurEnabled;
-            document.getElementById('optBlur').classList.toggle('active', isBlurEnabled);
-            
-            // To properly blur background in web requires TensorFlow/MediaPipe (Too heavy for this single file).
-            // We apply a visual filter to the video element to signify the state change, 
-            // though in a real app this would segmentation mask the user.
-            const localVid = document.querySelector(`#vid-${myId} video`);
-            if(isBlurEnabled) {
-                localVid.style.filter = "blur(5px)"; // Visual indicator only
-            } else {
-                localVid.style.filter = "none";
-            }
-        };
-
         // --- 8. CHAT LOGIC ---
         window.toggleChat = () => {
-            if(isOptionsOpen) window.toggleOptions(); // Close options if open
+            if(isOptionsOpen) window.toggleOptions();
 
             isChatOpen = !isChatOpen;
             chatDrawer.classList.toggle('open', isChatOpen);
@@ -750,7 +781,10 @@
             }
         };
 
-        document.getElementById('hangupBtn').onclick = () => window.location.reload();
+        document.getElementById('hangupBtn').onclick = async () => {
+            await cleanupRoomIfEmpty();
+            window.location.reload();
+        };
 
         function updateBtn(btn, off, iconOn, iconOff) {
             btn.classList.toggle('off-red', off);

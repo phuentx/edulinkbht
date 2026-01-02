@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FireTok Live Clone</title>
+    <title>FireTok Live (Custom ID)</title>
     <style>
         :root {
             --primary: #fe2c55;
@@ -23,7 +23,6 @@
             align-items: center;
         }
 
-        /* Container simulating mobile screen */
         #app-container {
             width: 100%;
             max-width: 450px;
@@ -33,7 +32,6 @@
             overflow: hidden;
         }
 
-        /* Video Layer */
         video {
             width: 100%;
             height: 100%;
@@ -44,7 +42,6 @@
             z-index: 1;
         }
 
-        /* UI Overlay Layer */
         .overlay {
             position: absolute;
             top: 0;
@@ -56,10 +53,9 @@
             flex-direction: column;
             justify-content: space-between;
             background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6) 100%);
-            pointer-events: none; /* Let clicks pass through to hidden elements if needed */
+            pointer-events: none;
         }
 
-        /* Top Bar */
         .top-bar {
             padding: 20px;
             display: flex;
@@ -81,7 +77,6 @@
             font-size: 12px;
         }
 
-        /* Controls (Start/Join) */
         #setup-panel {
             position: absolute;
             top: 50%;
@@ -105,6 +100,7 @@
             border: none;
             background: rgba(255,255,255,0.2);
             color: white;
+            text-align: center;
         }
         
         button {
@@ -121,7 +117,6 @@
         .btn-primary { background: var(--primary); color: white; }
         .btn-secondary { background: rgba(255,255,255,0.3); color: white; }
 
-        /* Chat Area */
         .chat-container {
             height: 300px;
             padding: 15px;
@@ -155,6 +150,8 @@
         }
 
         .hidden { display: none !important; }
+        .tab-btn { width: 48%; display: inline-block; margin: 0 1%; padding: 8px; font-size: 12px;}
+        .active-tab { background: white; color: black; }
     </style>
 </head>
 <body>
@@ -168,12 +165,11 @@
             <div class="live-badge">LIVE</div>
             <div class="viewer-count">👁️ <span id="view-count">0</span></div>
             <div style="flex-grow:1"></div>
-            <div id="room-id-display" style="font-size: 10px; opacity: 0.7;"></div>
+            <div id="room-id-display" style="font-size: 12px; opacity: 0.8; font-weight: bold;"></div>
         </div>
 
         <div>
-            <div class="chat-container" id="chat-box">
-                </div>
+            <div class="chat-container" id="chat-box"></div>
             <div class="input-bar">
                 <input type="text" id="chat-input" placeholder="Say something..." autocomplete="off">
                 <button class="btn-primary" id="send-btn" style="width: 60px;">➤</button>
@@ -183,18 +179,28 @@
 
     <div id="setup-panel">
         <h2>🔥 FireTok</h2>
-        <button id="create-btn" class="btn-primary">Start Live Stream</button>
-        <div style="margin: 15px 0; font-size: 12px; opacity: 0.7;">OR JOIN EXISTING</div>
-        <input type="text" id="room-input" placeholder="Enter Room ID">
-        <button id="join-btn" class="btn-secondary">Join Stream</button>
+        
+        <div style="margin-bottom: 15px;">
+            <button id="tab-host" class="tab-btn active-tab" onclick="switchTab('host')">I am Host</button>
+            <button id="tab-viewer" class="tab-btn btn-secondary" onclick="switchTab('viewer')">I am Viewer</button>
+        </div>
+
+        <div id="host-controls">
+            <input type="text" id="host-room-id" placeholder="Create Stream ID (e.g. 'cool-live')">
+            <button id="create-btn" class="btn-primary">Start Live</button>
+        </div>
+
+        <div id="viewer-controls" class="hidden">
+            <input type="text" id="viewer-room-id" placeholder="Enter Stream ID to Join">
+            <button id="join-btn" class="btn-primary">Join Live</button>
+        </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, collection, doc, addDoc, setDoc, getDoc, updateDoc, onSnapshot, arrayUnion } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, addDoc, setDoc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-    // --- Configuration ---
     const firebaseConfig = {
         apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
         authDomain: "edulinki.firebaseapp.com",
@@ -208,13 +214,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- WebRTC Configuration ---
     const servers = {
-        iceServers: [
-            {
-                urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302']
-            }
-        ],
+        iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }],
         iceCandidatePoolSize: 10,
     };
 
@@ -223,41 +224,55 @@
     let remoteStream = null;
     let roomId = null;
 
-    // HTML Elements
+    // UI Elements
     const localVideo = document.getElementById('localVideo');
     const remoteVideo = document.getElementById('remoteVideo');
     const setupPanel = document.getElementById('setup-panel');
     const roomIdDisplay = document.getElementById('room-id-display');
     const chatBox = document.getElementById('chat-box');
-    const chatInput = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('send-btn');
-    const viewCount = document.getElementById('view-count');
+    
+    // --- UI TABS LOGIC ---
+    window.switchTab = (mode) => {
+        if(mode === 'host') {
+            document.getElementById('host-controls').classList.remove('hidden');
+            document.getElementById('viewer-controls').classList.add('hidden');
+            document.getElementById('tab-host').className = "tab-btn active-tab";
+            document.getElementById('tab-viewer').className = "tab-btn btn-secondary";
+        } else {
+            document.getElementById('host-controls').classList.add('hidden');
+            document.getElementById('viewer-controls').classList.remove('hidden');
+            document.getElementById('tab-host').className = "tab-btn btn-secondary";
+            document.getElementById('tab-viewer').className = "tab-btn active-tab";
+        }
+    }
 
-    // --- 1. START A LIVE STREAM (HOST) ---
+    // --- 1. HOST LOGIC (Create Stream with Custom ID) ---
     document.getElementById('create-btn').onclick = async () => {
-        setupPanel.classList.add('hidden');
-        remoteVideo.classList.add('hidden'); // Host sees themselves
+        const customId = document.getElementById('host-room-id').value.trim();
+        if (!customId) return alert("Please enter a Stream ID!");
 
-        // Get Media
+        roomId = customId; // Use the user input as ID
+        setupPanel.classList.add('hidden');
+        remoteVideo.classList.add('hidden'); 
+        roomIdDisplay.innerText = `@${roomId}`;
+
+        // Get Camera
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
         localVideo.srcObject = localStream;
 
-        // Create Room in Firestore
-        const callDoc = doc(collection(db, "calls"));
+        // **KEY CHANGE:** Use doc(db, "calls", roomId) instead of creating a random one
+        const callDoc = doc(db, "calls", roomId); 
         const offerCandidates = collection(callDoc, "offerCandidates");
         const answerCandidates = collection(callDoc, "answerCandidates");
 
-        roomId = callDoc.id;
-        roomIdDisplay.innerText = `ID: ${roomId}`;
-        alert(`Copy this ID to share: ${roomId}`);
+        // Clear any old data if this ID was used before (Optional but recommended)
+        // For simplicity in this demo, we overwrite directly.
 
-        // Handle ICE Candidates
         pc.onicecandidate = (event) => {
             event.candidate && addDoc(offerCandidates, event.candidate.toJSON());
         };
 
-        // Create Offer
         const offerDescription = await pc.createOffer();
         await pc.setLocalDescription(offerDescription);
 
@@ -266,9 +281,9 @@
             type: offerDescription.type,
         };
 
+        // setDoc will create or overwrite the document with the specific ID
         await setDoc(callDoc, { offer });
 
-        // Listen for Answer
         onSnapshot(callDoc, (snapshot) => {
             const data = snapshot.data();
             if (!pc.currentRemoteDescription && data?.answer) {
@@ -277,7 +292,6 @@
             }
         });
 
-        // Listen for Viewer ICE Candidates
         onSnapshot(answerCandidates, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
@@ -290,19 +304,19 @@
         setupChatListener(roomId);
     };
 
-    // --- 2. JOIN A LIVE STREAM (VIEWER) ---
+    // --- 2. VIEWER LOGIC (Join Stream by ID) ---
     document.getElementById('join-btn').onclick = async () => {
-        roomId = document.getElementById('room-input').value;
-        if (!roomId) return alert("Enter Room ID!");
+        roomId = document.getElementById('viewer-room-id').value.trim();
+        if (!roomId) return alert("Enter Stream ID!");
 
         setupPanel.classList.add('hidden');
-        localVideo.classList.add('hidden'); // Viewer sees Host
+        localVideo.classList.add('hidden');
+        roomIdDisplay.innerText = `@${roomId}`;
 
         const callDoc = doc(db, "calls", roomId);
         const offerCandidates = collection(callDoc, "offerCandidates");
         const answerCandidates = collection(callDoc, "answerCandidates");
 
-        // Setup Remote Stream
         remoteStream = new MediaStream();
         pc.ontrack = (event) => {
             event.streams[0].getTracks().forEach((track) => {
@@ -311,21 +325,17 @@
         };
         remoteVideo.srcObject = remoteStream;
 
-        // Handle ICE Candidates
         pc.onicecandidate = (event) => {
             event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
         };
 
-        // Fetch Offer
         const callSnapshot = await getDoc(callDoc);
+        if (!callSnapshot.exists()) return alert("Stream not found!"); // Better error handling
+        
         const callData = callSnapshot.data();
-
-        if (!callData) return alert("Stream not found!");
-
         const offerDescription = callData.offer;
         await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
 
-        // Create Answer
         const answerDescription = await pc.createAnswer();
         await pc.setLocalDescription(answerDescription);
 
@@ -336,7 +346,6 @@
 
         await updateDoc(callDoc, { answer });
 
-        // Listen for Host ICE Candidates
         onSnapshot(offerCandidates, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
@@ -349,17 +358,14 @@
         setupChatListener(roomId);
     };
 
-    // --- 3. CHAT SYSTEM ---
+    // --- 3. CHAT ---
     function setupChatListener(id) {
         const messagesRef = collection(db, `calls/${id}/messages`);
-
-        // Realtime Listener
+        
         onSnapshot(messagesRef, (snapshot) => {
-            chatBox.innerHTML = ''; // Clear to prevent dupes (naive implementation)
+            chatBox.innerHTML = ''; 
             let msgs = [];
             snapshot.forEach(doc => msgs.push(doc.data()));
-            
-            // Sort by time (simple check)
             msgs.sort((a,b) => a.timestamp - b.timestamp);
 
             msgs.forEach(msg => {
@@ -368,28 +374,21 @@
                 div.innerHTML = `<span class="chat-user">${msg.user}:</span> <span class="chat-text">${msg.text}</span>`;
                 chatBox.appendChild(div);
             });
-            
-            // Auto scroll to bottom
             chatBox.scrollTop = chatBox.scrollHeight;
-            
-            // Fake viewer count based on chat activity (just for visual fun)
-            viewCount.innerText = Math.floor(Math.random() * 10) + 1; 
+            document.getElementById('view-count').innerText = Math.floor(Math.random() * 20) + 1; 
         });
 
-        // Send Message
-        sendBtn.onclick = async () => {
-            const text = chatInput.value;
-            if(!text) return;
-            
+        document.getElementById('send-btn').onclick = async () => {
+            const input = document.getElementById('chat-input');
+            if(!input.value) return;
             await addDoc(messagesRef, {
                 user: "User" + Math.floor(Math.random()*100),
-                text: text,
+                text: input.value,
                 timestamp: Date.now()
             });
-            chatInput.value = '';
+            input.value = '';
         }
     }
-
 </script>
 </body>
 </html>

@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edulinki Connect Mesh</title>
+    <title>Edulinki Meet - Pro</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Google+Sans:wght@400;500&display=swap" rel="stylesheet">
+    
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
         :root {
-            --bg-color: #0f172a; /* Slate 900 */
-            --surface-color: #1e293b; /* Slate 800 */
-            --primary: #3b82f6; /* Blue 500 */
-            --danger: #ef4444; /* Red 500 */
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
+            --bg-color: #202124;
+            --surface-color: #3c4043;
+            --primary-blue: #8ab4f8;
+            --danger-red: #ea4335;
+            --text-primary: #e8eaed;
+            --hand-yellow: #fdd835;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-primary);
             height: 100dvh;
@@ -32,41 +33,37 @@
 
         /* --- Header --- */
         header {
-            height: 60px;
-            padding: 0 20px;
+            padding: 15px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(15, 23, 42, 0.95);
-            border-bottom: 1px solid #334155;
+            background: rgba(32, 33, 36, 0.95);
             position: fixed;
             top: 0;
             width: 100%;
-            z-index: 50;
+            z-index: 100;
+            height: 60px;
         }
 
         .logo {
+            font-size: 20px;
+            font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            font-size: 18px;
-            color: white;
+            gap: 10px;
         }
-
-        .room-badge {
-            background: #334155;
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 13px;
-            color: var(--text-secondary);
-            display: none;
+        
+        .time-display {
+            font-family: 'Roboto', sans-serif;
+            color: #bdc1c6;
+            font-size: 16px;
         }
 
         /* --- Lobby --- */
-        .lobby-screen {
+        .lobby-container {
             flex: 1;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
@@ -74,167 +71,162 @@
         }
 
         .lobby-card {
-            background: var(--surface-color);
-            padding: 30px;
-            border-radius: 16px;
-            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
             max-width: 400px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: 100%;
             text-align: center;
         }
 
-        .lobby-card h2 { margin-bottom: 20px; font-weight: 500; }
-
-        .input-group {
-            position: relative;
-            margin-bottom: 15px;
-        }
-        
-        .room-input {
-            width: 100%;
-            background: #0f172a;
-            border: 1px solid #334155;
+        .meet-input {
+            background: transparent;
+            border: 1px solid #5f6368;
             color: white;
-            padding: 12px 12px 12px 40px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 4px;
             font-size: 16px;
+            width: 100%;
             outline: none;
-            transition: 0.2s;
         }
-        .room-input:focus { border-color: var(--primary); }
-        
-        .input-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
-            width: 18px;
-        }
+        .meet-input:focus { border-color: var(--primary-blue); border-width: 2px; padding: 11px; }
 
         .btn {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
             border: none;
-            font-weight: 600;
+            padding: 12px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 15px;
-            transition: 0.2s;
+            width: 100%;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             gap: 8px;
         }
 
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: #2563eb; }
-        .btn-primary:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+        .btn-primary { background: var(--primary-blue); color: #202124; }
+        .btn-primary:disabled { background: #3c4043; color: #777; cursor: not-allowed; }
+        .btn-secondary { background: transparent; color: var(--primary-blue); border: 1px solid #5f6368; margin-top: 10px;}
 
-        .btn-ghost { background: transparent; color: var(--text-secondary); margin-top: 10px; }
-        .btn-ghost:hover { color: white; background: rgba(255,255,255,0.05); }
-
-        /* --- Meeting Grid --- */
-        .meeting-screen {
+        /* --- Meeting Screen --- */
+        .meeting-container {
             display: none;
             flex: 1;
-            margin-top: 60px;
-            padding: 10px;
-            padding-bottom: 100px; /* Space for footer */
-            overflow-y: auto;
+            flex-direction: column;
+            height: 100dvh;
+            padding-top: 60px;
+            padding-bottom: 90px;
+            background: #202124;
+            position: relative;
         }
 
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            height: 100%;
+        .video-grid {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            flex-wrap: wrap;
+            overflow-y: auto;
             align-content: center;
         }
 
-        .video-card {
+        .video-wrapper {
             position: relative;
-            background: black;
+            background: #000;
             border-radius: 12px;
             overflow: hidden;
+            flex: 1;
+            min-width: 300px; /* Adjusted for multi-user */
+            max-width: 600px;
             aspect-ratio: 16/9;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-
-        /* Adjust grid for single user to look nice */
-        .grid-container:has(> .video-card:only-child) .video-card {
-            max-width: 800px;
-            margin: 0 auto;
-            max-height: 60vh;
-        }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .video-card.local video { transform: scaleX(-1); } /* Mirror self */
-
-        .user-tag {
-            position: absolute;
-            bottom: 12px;
-            left: 12px;
-            background: rgba(0,0,0,0.6);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            backdrop-filter: blur(4px);
+            justify-content: center;
+            transition: all 0.3s;
         }
 
-        /* Raise Hand Indicator */
-        .hand-indicator {
+        /* Responsive handling for 3+ users */
+        @media (max-width: 600px) {
+            .video-wrapper { min-width: 100%; min-height: 200px; }
+        }
+
+        video { width: 100%; height: 100%; object-fit: cover; }
+        .mirrored { transform: scaleX(-1); }
+
+        .user-label {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            background: #eab308; /* Yellow */
-            color: #422006;
-            padding: 6px;
+            bottom: 10px;
+            left: 10px;
+            color: white;
+            font-size: 12px;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 8px;
+            border-radius: 4px;
+            z-index: 10;
+        }
+
+        /* Hand Raise Badge */
+        .hand-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--surface-color);
+            color: var(--hand-yellow);
+            padding: 8px;
             border-radius: 50%;
             display: none; /* Hidden by default */
-            animation: bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            z-index: 10;
         }
-        .hand-indicator.active { display: block; }
+        .hand-badge.active { display: flex; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
-        @keyframes bounce {
-            0% { transform: scale(0); }
-            80% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+        @keyframes popIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
         }
 
-        /* --- Footer Controls --- */
+        /* Room Info Badge */
+        .room-info {
+            position: absolute;
+            bottom: 95px; /* Above footer */
+            left: 20px;
+            background: rgba(32, 33, 36, 0.8);
+            padding: 8px 12px;
+            border-radius: 4px;
+            color: white;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            z-index: 90;
+        }
+
+        /* --- Footer --- */
         .controls-bar {
+            display: none;
             position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1e293b;
-            padding: 10px 20px;
-            border-radius: 100px;
-            display: none; /* Hidden initially */
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: #202124;
+            align-items: center;
+            justify-content: center;
             gap: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            border: 1px solid #334155;
-            z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom); 
+            z-index: 200;
         }
 
-        .ctrl-btn {
+        .control-btn {
             width: 48px;
             height: 48px;
             border-radius: 50%;
             border: none;
-            background: #334155;
+            background: #3c4043;
             color: white;
             cursor: pointer;
             display: flex;
@@ -243,35 +235,30 @@
             transition: 0.2s;
         }
         
-        .ctrl-btn:hover { background: #475569; }
-        .ctrl-btn svg { width: 20px; height: 20px; }
-
-        .ctrl-btn.active-red { background: var(--danger); color: white; }
-        .ctrl-btn.active-yellow { background: #eab308; color: #422006; } /* Active Hand */
-
-        .ctrl-btn.hangup { background: var(--danger); margin-left: 10px; }
-        .ctrl-btn.hangup:hover { background: #dc2626; }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #334155;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            opacity: 0;
-            transition: 0.3s;
-            pointer-events: none;
-            z-index: 200;
+        .control-btn.off { background: var(--danger-red); }
+        .control-btn.active-state { background: #8ab4f8; color: #202124; } /* For hand raise */
+        
+        .control-btn.hangup { 
+            background: var(--danger-red); 
+            width: 60px; 
+            border-radius: 30px; 
         }
 
-        @media (max-width: 600px) {
-            .grid-container { grid-template-columns: 1fr; }
-            .controls-bar { width: 90%; justify-content: space-around; bottom: 15px; padding: 10px; }
-            .ctrl-btn { width: 42px; height: 42px; }
+        /* Status Toast */
+        .status-toast {
+            position: fixed;
+            top: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #323232;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 500;
         }
     </style>
 </head>
@@ -279,64 +266,68 @@
 
     <header>
         <div class="logo">
-            <i data-lucide="video" style="color: var(--primary);"></i>
-            Edulinki Mesh
+            <i data-lucide="video" style="color:#00796b;"></i>
+            <span>Edulinki</span>
         </div>
-        <div class="room-badge" id="roomBadge">Code: <span id="displayRoomCode">---</span></div>
+        <div class="time-display" id="clock">10:00</div>
     </header>
 
-    <main class="lobby-screen" id="lobbyScreen">
+    <main class="lobby-container" id="lobbyScreen">
         <div class="lobby-card">
-            <h2>Start a Meeting</h2>
-            <div class="input-group">
-                <i data-lucide="hash" class="input-icon"></i>
-                <input type="text" id="roomInput" class="room-input" placeholder="Enter Room Code" autocomplete="off">
-            </div>
+            <h2 style="font-weight: 400;">Join Meeting</h2>
+            <input type="text" id="callInput" class="meet-input" placeholder="Enter room code" autocomplete="off">
+            
             <button id="joinBtn" class="btn btn-primary" disabled>
-                Join Meeting <i data-lucide="arrow-right" style="width:16px;"></i>
+                <i data-lucide="log-in" size="18"></i> Join
             </button>
-            <button id="createBtn" class="btn btn-ghost">
-                Generate Random Code
+            <div style="color: #5f6368; font-size: 14px;">or</div>
+            <button id="createBtn" class="btn btn-secondary">
+                <i data-lucide="plus" size="18"></i> Create New
             </button>
         </div>
     </main>
 
-    <main class="meeting-screen" id="meetingScreen">
-        <div class="grid-container" id="videoGrid">
-            <div class="video-card local" id="localCard">
-                <video id="localVideo" autoplay playsinline muted></video>
-                <div class="user-tag">You</div>
-                <div class="hand-indicator" id="localHandIcon">
-                    <i data-lucide="hand" style="width:16px; height:16px;"></i>
-                </div>
+    <main class="meeting-container" id="meetingScreen">
+        <div class="video-grid" id="videoGrid">
+            <div class="video-wrapper" id="localWrapper">
+                <video id="localVideo" autoplay playsinline muted class="mirrored"></video>
+                <div class="user-label">You</div>
+                <div class="hand-badge" id="localHand"><i data-lucide="hand" size="20"></i></div>
             </div>
             </div>
-        <div class="toast" id="toast">Notification</div>
+
+        <div class="room-info" id="roomInfo" onclick="copyRoomId()">
+            <span id="roomNameDisplay">...</span>
+            <i data-lucide="copy" size="14"></i>
+        </div>
+
+        <div class="status-toast" id="statusToast">Status...</div>
     </main>
 
-    <footer class="controls-bar" id="controls">
-        <button class="ctrl-btn" id="micBtn" title="Toggle Mic">
-            <i data-lucide="mic"></i>
-        </button>
-        <button class="ctrl-btn" id="camBtn" title="Toggle Camera">
-            <i data-lucide="camera"></i>
-        </button>
-        <button class="ctrl-btn" id="handBtn" title="Raise Hand">
-            <i data-lucide="hand"></i>
-        </button>
-        <button class="ctrl-btn hangup" id="hangupBtn" title="Leave">
-            <i data-lucide="phone-off"></i>
-        </button>
+    <footer class="controls-bar" id="controlsBar">
+        <button id="micBtn" class="control-btn"><i data-lucide="mic"></i></button>
+        <button id="camBtn" class="control-btn"><i data-lucide="camera"></i></button>
+        
+        <button id="handBtn" class="control-btn"><i data-lucide="hand"></i></button>
+        
+        <button id="screenBtn" class="control-btn"><i data-lucide="monitor-up"></i></button>
+        
+        <button id="hangupBtn" class="control-btn hangup"><i data-lucide="phone-off"></i></button>
     </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, deleteDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, getDoc, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        // --- Init Icons ---
+        // Initialize Icons
         lucide.createIcons();
 
-        // --- Config ---
+        // Clock
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }, 1000);
+
+        // --- Firebase Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
             authDomain: "edulinki.firebaseapp.com",
@@ -346,319 +337,314 @@
             appId: "1:248886466474:web:160043201a6b28bafbbdd3",
             measurementId: "G-MQBH12VL7N"
         };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
 
-        const servers = {
-            iceServers: [
-                { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }
-            ]
+        const app = initializeApp(firebaseConfig);
+        const firestore = getFirestore(app);
+
+        // --- Globals ---
+        const iceServers = {
+            iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }]
         };
 
-        // --- State ---
-        const myId = Math.random().toString(36).substring(2, 9); // Random User ID
-        let roomId = null;
         let localStream = null;
+        let screenStream = null;
+        let roomId = null;
+        let localId = Math.random().toString(36).substring(2, 9); // My unique ID
+        const peerConnections = {}; // Store { remoteId: RTCPeerConnection }
         let isHandRaised = false;
-        
-        // Peer Connections Object: { [remoteUserId]: { pc, candidateQueue } }
-        const peers = {}; 
 
-        // --- UI Refs ---
-        const lobbyScreen = document.getElementById('lobbyScreen');
-        const meetingScreen = document.getElementById('meetingScreen');
-        const controls = document.getElementById('controls');
+        // --- UI Elements ---
         const videoGrid = document.getElementById('videoGrid');
-        const roomInput = document.getElementById('roomInput');
-        const joinBtn = document.getElementById('joinBtn');
         const localVideo = document.getElementById('localVideo');
+        const micBtn = document.getElementById('micBtn');
+        const camBtn = document.getElementById('camBtn');
+        const handBtn = document.getElementById('handBtn');
+        const screenBtn = document.getElementById('screenBtn');
+        const roomNameDisplay = document.getElementById('roomNameDisplay');
 
-        // --- Helper: UI Logic ---
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.style.opacity = '1';
-            setTimeout(() => t.style.opacity = '0', 3000);
+        // --- Helper: UI Toast ---
+        window.showStatus = (msg) => {
+            const toast = document.getElementById('statusToast');
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 3000);
+        };
+
+        // --- Helper: Copy Room ID ---
+        window.copyRoomId = () => {
+            navigator.clipboard.writeText(roomId);
+            showStatus("Room ID copied!");
+        };
+
+        // --- 1. JOIN/CREATE FLOW ---
+        async function startApp(isCreator) {
+            const input = document.getElementById('callInput').value.trim();
+            if(!isCreator && !input) return;
+
+            roomId = isCreator ? Math.random().toString(36).substring(2, 7) : input;
+            
+            document.getElementById('lobbyScreen').style.display = 'none';
+            document.getElementById('meetingScreen').style.display = 'flex';
+            document.getElementById('controlsBar').style.display = 'flex';
+            roomNameDisplay.innerText = roomId;
+
+            await startMedia();
+            await joinRoom();
         }
 
-        roomInput.oninput = (e) => {
-            joinBtn.disabled = e.target.value.trim().length === 0;
-        };
-        
-        document.getElementById('createBtn').onclick = () => {
-            const code = Math.random().toString(36).substring(2, 7);
-            roomInput.value = code;
-            joinBtn.disabled = false;
-        };
-
-        // --- 1. Start Media ---
-        async function initMedia() {
+        async function startMedia() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 localVideo.srcObject = localStream;
-                return true;
-            } catch (e) {
-                alert("Camera access denied.");
-                return false;
+            } catch(e) { 
+                console.error(e);
+                alert("Camera access needed!"); 
             }
         }
 
-        // --- 2. JOIN LOGIC (Mesh) ---
-        joinBtn.onclick = async () => {
-            roomId = roomInput.value.trim();
-            if (!roomId || !await initMedia()) return;
+        // --- 2. MULTI-USER LOGIC (MESH) ---
+        async function joinRoom() {
+            showStatus(`Joined: ${roomId}`);
 
-            // Switch UI
-            lobbyScreen.style.display = 'none';
-            meetingScreen.style.display = 'flex';
-            controls.style.display = 'flex';
-            document.getElementById('roomBadge').style.display = 'block';
-            document.getElementById('displayRoomCode').innerText = roomId;
+            // 1. Add myself to participants
+            const myDoc = doc(collection(firestore, `rooms/${roomId}/participants`), localId);
+            await setDoc(myDoc, { handRaised: false, timestamp: Date.now() });
 
-            // 1. Add Self to Participants
-            const userRef = doc(db, `rooms/${roomId}/participants/${myId}`);
-            await setDoc(userRef, { 
-                name: "User " + myId.substr(0,3), 
-                handRaised: false,
-                joinedAt: Date.now() 
-            });
-
-            // 2. Listen for Participants (Discovery)
-            const participantsRef = collection(db, `rooms/${roomId}/participants`);
-            onSnapshot(participantsRef, (snapshot) => {
+            // 2. Listen for Hand Raises (State Changes)
+            onSnapshot(collection(firestore, `rooms/${roomId}/participants`), (snapshot) => {
                 snapshot.docChanges().forEach(change => {
                     const data = change.doc.data();
-                    const remoteId = change.doc.id;
-                    if (remoteId === myId) return; // Skip self
+                    const userId = change.doc.id;
+                    if(userId === localId) return;
 
-                    if (change.type === 'added') {
-                        showToast("User joined");
-                        createPeerConnection(remoteId, true); // True = We initiate (if we are older?)
-                        // Wait, simplified: The NEW person initiates to EXISTING people? 
-                        // Actually, easier: Existing people see 'added' -> They call the new person.
-                        // But both will see 'added' if we are not careful with timing.
-                        // Standard Mesh: The *existing* participants call the *new* participant.
-                        if (data.joinedAt > Date.now() - 5000) { 
-                            // If they joined JUST NOW, I (an existing user) call them.
-                            // If they were already there when I loaded, I wait for them to call me?
-                            // Actually, let's stick to: Everyone connects. 
-                            // Politeness Strategy: Sort IDs. Lower ID calls Higher ID.
-                            if (myId < remoteId) {
-                                console.log("I am calling", remoteId);
-                                startCall(remoteId);
-                            }
-                        }
-                    } 
-                    if (change.type === 'modified') {
-                        // Handle Hand Raise UI
-                        updateRemoteHand(remoteId, data.handRaised);
-                    }
-                    if (change.type === 'removed') {
-                        removePeer(remoteId);
-                    }
-                });
-                
-                // Initial Load: If users exist, check ID sort order to see if I call them
-                snapshot.forEach(docSnap => {
-                    const remoteId = docSnap.id;
-                    if (remoteId !== myId && !peers[remoteId]) {
-                         if (myId < remoteId) startCall(remoteId);
+                    if(change.type === 'modified' || change.type === 'added') {
+                        updateRemoteHand(userId, data.handRaised);
                     }
                 });
             });
 
-            // 3. Listen for Signaling Messages (SDP / ICE) addressed to ME
-            const signalingRef = collection(db, `rooms/${roomId}/signaling`);
-            const q = query(signalingRef, where("to", "==", myId));
-            
-            onSnapshot(q, (snapshot) => {
+            // 3. Listen for Signaling Messages (Offers/Answers/ICE)
+            onSnapshot(collection(firestore, `rooms/${roomId}/messages`), (snapshot) => {
                 snapshot.docChanges().forEach(async change => {
                     if (change.type === 'added') {
-                        const data = change.doc.data();
-                        const fromId = data.from;
-                        
-                        // Process and DELETE immediately to avoid re-processing
-                        await deleteDoc(change.doc.ref);
-
-                        if (!peers[fromId]) createPeerConnection(fromId, false);
-                        const pc = peers[fromId].pc;
-
-                        if (data.type === 'offer') {
-                            await pc.setRemoteDescription(new RTCSessionDescription(data.payload));
-                            const answer = await pc.createAnswer();
-                            await pc.setLocalDescription(answer);
-                            sendSignal(fromId, 'answer', answer);
-                            peers[fromId].queue.forEach(c => pc.addIceCandidate(c)); // Process queued ICE
-                            peers[fromId].queue = [];
-                        } else if (data.type === 'answer') {
-                            await pc.setRemoteDescription(new RTCSessionDescription(data.payload));
-                            peers[fromId].queue.forEach(c => pc.addIceCandidate(c));
-                            peers[fromId].queue = [];
-                        } else if (data.type === 'candidate') {
-                            const c = new RTCIceCandidate(data.payload);
-                            if (pc.remoteDescription) pc.addIceCandidate(c);
-                            else peers[fromId].queue.push(c);
+                        const msg = change.doc.data();
+                        if (msg.to === localId) {
+                            handleSignalMessage(msg, change.doc.id);
                         }
                     }
                 });
             });
 
-            // Cleanup on unload
-            window.addEventListener('beforeunload', async () => {
-                await deleteDoc(userRef);
+            // 4. Discovery: Connect to existing users
+            const participantsSnap = await query(collection(firestore, `rooms/${roomId}/participants`));
+            onSnapshot(collection(firestore, `rooms/${roomId}/participants`), (snapshot) => {
+                 snapshot.docChanges().forEach(async change => {
+                    const userId = change.doc.id;
+                    if (userId === localId) return;
+
+                    if (change.type === 'added') {
+                        // If I joined *after* them (simplified: or just create connection aggressively)
+                        // In Mesh, usually "Newcomer" initiates offers to "Existing".
+                        // Logic: check timestamp or just offer.
+                        // Better: If I detect a new user, and I have a "lower" ID? No, let's have Newcomer Offer.
+                        
+                        // We will just create a PC for everyone. 
+                        // To avoid double-offering, only OFFER if my ID > their ID? 
+                        // Actually, easiest way: The person who just joined (me) initiates to everyone already there.
+                        // But here we are inside a listener. 
+                        // Let's rely on the snapshot: if data.timestamp < my timestamp, they were there first. I offer.
+                    }
+                });
             });
-        };
+            
+            // Simpler Discovery: Get list of existing users once, Offer to them.
+            // Future joiners will find ME and Offer to ME.
+            const currentUsers = await import("https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js").then(m => m.getDocs(collection(firestore, `rooms/${roomId}/participants`)));
+            
+            currentUsers.forEach(async doc => {
+                const targetId = doc.id;
+                if(targetId === localId) return;
+                // They are existing. I am new. I initiate.
+                createPeerConnection(targetId, true); 
+            });
+        }
 
-        // --- 3. WebRTC Functions ---
+        // --- 3. PEER CONNECTION HANDLERS ---
+        async function createPeerConnection(targetId, isInitiator) {
+            if(peerConnections[targetId]) return peerConnections[targetId];
 
-        function createPeerConnection(remoteId, isInitiator) {
-            if (peers[remoteId]) return;
-
-            const pc = new RTCPeerConnection(servers);
-            peers[remoteId] = { pc: pc, queue: [] };
-
-            // Add local tracks
-            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+            const pc = new RTCPeerConnection(iceServers);
+            peerConnections[targetId] = pc;
 
             // Handle ICE
             pc.onicecandidate = (event) => {
-                if (event.candidate) {
-                    sendSignal(remoteId, 'candidate', event.candidate.toJSON());
+                if(event.candidate) {
+                    sendSignal(targetId, { type: 'candidate', candidate: event.candidate.toJSON() });
                 }
             };
 
-            // Handle Remote Stream
+            // Handle Stream
             pc.ontrack = (event) => {
-                const [remoteStream] = event.streams;
-                addRemoteVideo(remoteId, remoteStream);
+                let remoteVid = document.getElementById(`vid-${targetId}`);
+                if(!remoteVid) {
+                    // Create Video Wrapper
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'video-wrapper';
+                    wrapper.id = `wrap-${targetId}`;
+                    
+                    const video = document.createElement('video');
+                    video.id = `vid-${targetId}`;
+                    video.autoplay = true;
+                    video.playsInline = true;
+                    
+                    const label = document.createElement('div');
+                    label.className = 'user-label';
+                    label.innerText = 'User ' + targetId.substring(0,3);
+
+                    // Hand Icon
+                    const handBadge = document.createElement('div');
+                    handBadge.className = 'hand-badge';
+                    handBadge.id = `hand-${targetId}`;
+                    handBadge.innerHTML = '<i data-lucide="hand" size="20"></i>';
+
+                    wrapper.appendChild(video);
+                    wrapper.appendChild(label);
+                    wrapper.appendChild(handBadge);
+                    videoGrid.appendChild(wrapper);
+                    
+                    // Re-scan icons
+                    lucide.createIcons();
+                    remoteVid = video;
+                }
+                remoteVid.srcObject = event.streams[0];
             };
+
+            // Add Tracks
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+            if(isInitiator) {
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                sendSignal(targetId, { type: 'offer', sdp: offer.sdp });
+            }
 
             return pc;
         }
 
-        async function startCall(remoteId) {
-            if (!peers[remoteId]) createPeerConnection(remoteId, true);
-            const pc = peers[remoteId].pc;
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            sendSignal(remoteId, 'offer', offer);
+        async function handleSignalMessage(msg, docId) {
+            // Delete processed message to keep DB clean (optional but good)
+            deleteDoc(doc(firestore, `rooms/${roomId}/messages`, docId));
+
+            const { from, type, sdp, candidate } = msg;
+            let pc = peerConnections[from];
+
+            if(!pc) {
+                pc = await createPeerConnection(from, false);
+            }
+
+            if(type === 'offer') {
+                await pc.setRemoteDescription(new RTCSessionDescription({ type, sdp }));
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+                sendSignal(from, { type: 'answer', sdp: answer.sdp });
+            } else if (type === 'answer') {
+                await pc.setRemoteDescription(new RTCSessionDescription({ type, sdp }));
+            } else if (type === 'candidate') {
+                await pc.addIceCandidate(new RTCIceCandidate(candidate));
+            }
         }
 
-        async function sendSignal(toId, type, payload) {
-            await addDoc(collection(db, `rooms/${roomId}/signaling`), {
+        async function sendSignal(toId, data) {
+            await addDoc(collection(firestore, `rooms/${roomId}/messages`), {
                 to: toId,
-                from: myId,
-                type: type,
-                payload: payload, // Serialize object
+                from: localId,
+                ...data,
                 timestamp: Date.now()
             });
         }
 
-        // --- 4. DOM Manipulation (Remote Users) ---
-        function addRemoteVideo(id, stream) {
-            let card = document.getElementById(`user-${id}`);
-            if (!card) {
-                card = document.createElement('div');
-                card.className = 'video-card';
-                card.id = `user-${id}`;
-                
-                const vid = document.createElement('video');
-                vid.autoplay = true;
-                vid.playsInline = true;
-                vid.srcObject = stream;
-                
-                const tag = document.createElement('div');
-                tag.className = 'user-tag';
-                tag.textContent = `User ${id.substr(0,3)}`;
+        // --- 4. FEATURE: RAISE HAND ---
+        handBtn.onclick = async () => {
+            isHandRaised = !isHandRaised;
+            
+            // Toggle Visuals
+            const localBadge = document.getElementById('localHand');
+            isHandRaised ? localBadge.classList.add('active') : localBadge.classList.remove('active');
+            isHandRaised ? handBtn.classList.add('active-state') : handBtn.classList.remove('active-state');
 
-                const hand = document.createElement('div');
-                hand.className = 'hand-indicator';
-                hand.id = `hand-${id}`;
-                hand.innerHTML = `<i data-lucide="hand" style="width:16px;"></i>`;
+            // Update DB
+            const myDoc = doc(collection(firestore, `rooms/${roomId}/participants`), localId);
+            await updateDoc(myDoc, { handRaised: isHandRaised });
+        };
 
-                card.append(vid, tag, hand);
-                videoGrid.appendChild(card);
-                lucide.createIcons();
+        function updateRemoteHand(userId, raised) {
+            const badge = document.getElementById(`hand-${userId}`);
+            if(badge) {
+                raised ? badge.classList.add('active') : badge.classList.remove('active');
             }
         }
 
-        function removePeer(id) {
-            const card = document.getElementById(`user-${id}`);
-            if (card) card.remove();
-            if (peers[id]) {
-                peers[id].pc.close();
-                delete peers[id];
-            }
-        }
-
-        function updateRemoteHand(id, isRaised) {
-            const handEl = document.getElementById(`hand-${id}`);
-            if (handEl) {
-                if (isRaised) handEl.classList.add('active');
-                else handEl.classList.remove('active');
-            }
-        }
-
-        // --- 5. Button Logic ---
-        
-        // Mute Mic
+        // --- 5. CONTROLS (Mic/Cam/Screen) ---
         document.getElementById('micBtn').onclick = (e) => {
             const track = localStream.getAudioTracks()[0];
             track.enabled = !track.enabled;
-            
-            const btn = e.currentTarget;
-            const icon = btn.querySelector('i');
-            
-            if (!track.enabled) {
-                btn.classList.add('active-red');
-                icon.setAttribute('data-lucide', 'mic-off');
-            } else {
-                btn.classList.remove('active-red');
-                icon.setAttribute('data-lucide', 'mic');
-            }
+            e.currentTarget.classList.toggle('off');
+            e.currentTarget.innerHTML = track.enabled ? '<i data-lucide="mic"></i>' : '<i data-lucide="mic-off"></i>';
             lucide.createIcons();
         };
 
-        // Camera Toggle
         document.getElementById('camBtn').onclick = (e) => {
             const track = localStream.getVideoTracks()[0];
             track.enabled = !track.enabled;
-            
-            const btn = e.currentTarget;
-            const icon = btn.querySelector('i');
-
-            if (!track.enabled) {
-                btn.classList.add('active-red');
-                icon.setAttribute('data-lucide', 'video-off');
-            } else {
-                btn.classList.remove('active-red');
-                icon.setAttribute('data-lucide', 'camera');
-            }
+            e.currentTarget.classList.toggle('off');
+            e.currentTarget.innerHTML = track.enabled ? '<i data-lucide="camera"></i>' : '<i data-lucide="camera-off"></i>';
             lucide.createIcons();
         };
 
-        // Raise Hand
-        document.getElementById('handBtn').onclick = async (e) => {
-            isHandRaised = !isHandRaised;
-            
-            // UI Toggle
-            const btn = e.currentTarget;
-            const localHand = document.getElementById('localHandIcon');
-            
-            if (isHandRaised) {
-                btn.classList.add('active-yellow');
-                localHand.classList.add('active');
-            } else {
-                btn.classList.remove('active-yellow');
-                localHand.classList.remove('active');
-            }
+        document.getElementById('screenBtn').onclick = async () => {
+             if (!screenStream) {
+                try {
+                    screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                    const screenTrack = screenStream.getVideoTracks()[0];
+                    
+                    // Replace tracks for ALL peers
+                    Object.values(peerConnections).forEach(pc => {
+                        const sender = pc.getSenders().find(s => s.track.kind === 'video');
+                        if(sender) sender.replaceTrack(screenTrack);
+                    });
 
-            // DB Update
-            const userRef = doc(db, `rooms/${roomId}/participants/${myId}`);
-            await updateDoc(userRef, { handRaised: isHandRaised });
+                    localVideo.srcObject = screenStream;
+                    localVideo.classList.remove('mirrored');
+                    screenBtn.style.color = '#8ab4f8';
+
+                    screenTrack.onended = stopScreenShare;
+                } catch(e) { console.error(e); }
+            } else {
+                stopScreenShare();
+            }
         };
 
+        function stopScreenShare() {
+            const camTrack = localStream.getVideoTracks()[0];
+            Object.values(peerConnections).forEach(pc => {
+                const sender = pc.getSenders().find(s => s.track.kind === 'video');
+                if(sender) sender.replaceTrack(camTrack);
+            });
+            localVideo.srcObject = localStream;
+            localVideo.classList.add('mirrored');
+            if(screenStream) screenStream.getTracks().forEach(t=>t.stop());
+            screenStream = null;
+            screenBtn.style.color = 'white';
+        }
+
         document.getElementById('hangupBtn').onclick = () => window.location.reload();
+
+        // --- INPUT LISTENERS ---
+        document.getElementById('joinBtn').onclick = () => startApp(false);
+        document.getElementById('createBtn').onclick = () => startApp(true);
+        document.getElementById('callInput').oninput = (e) => {
+            document.getElementById('joinBtn').disabled = !e.target.value.trim();
+        };
 
     </script>
 </body>

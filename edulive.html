@@ -3,89 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edulinki Video Call</title>
+    <title>Long Distance Video Call</title>
     <style>
-        body {
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 20px;
-        }
-        h2 { color: #333; }
-        .videos {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            width: 100%;
-            max-width: 1000px;
-            margin-top: 20px;
-        }
-        video {
-            width: 100%;
-            background: black;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .controls {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        input {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:disabled { background-color: #ccc; }
-        button#hangupBtn { background-color: #dc3545; }
+        body { font-family: sans-serif; background: #202124; color: white; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        h2 { margin-bottom: 10px; }
+        .container { width: 100%; max-width: 1200px; }
+        .input-group { background: #3c4043; padding: 20px; border-radius: 12px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+        input { padding: 12px; border: none; border-radius: 6px; font-size: 16px; width: 200px; }
+        button { padding: 12px 24px; font-size: 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        #createBtn { background: #8ab4f8; color: #202124; }
+        #joinBtn { background: #81c995; color: #202124; }
+        #hangupBtn { background: #f28b82; color: #202124; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .status-box { text-align: center; margin-bottom: 20px; font-family: monospace; color: #e8eaed; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; }
+        
+        .videos { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .video-wrapper { position: relative; background: black; border-radius: 12px; overflow: hidden; aspect-ratio: 16/9; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        .label { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+
+        @media (max-width: 700px) { .videos { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-    <h2>Edulinki Video Chat</h2>
+    <div class="container">
+        <center><h2>Edulinki Global Call</h2></center>
 
-    <div class="controls">
-        <input type="text" id="callInput" placeholder="Enter Call Name (e.g. room1)" />
-        <button id="createBtn">Create Call</button>
-        <button id="joinBtn">Join Call</button>
-        <button id="hangupBtn" disabled>Hangup</button>
-    </div>
-    <p id="statusText" style="color: #666; font-size: 0.9em; margin-top: 10px;">Ready to connect...</p>
-
-    <div class="videos">
-        <div>
-            <p>Local Video (You)</p>
-            <video id="localVideo" autoplay playsinline muted></video>
+        <div class="input-group">
+            <input type="text" id="callInput" placeholder="Enter a unique name (e.g. chat99)" />
+            <button id="createBtn">Create New Call</button>
+            <button id="joinBtn">Join Existing Call</button>
+            <button id="hangupBtn" disabled>End Call</button>
         </div>
-        <div>
-            <p>Remote Video (Them)</p>
-            <video id="remoteVideo" autoplay playsinline></video>
+
+        <div class="status-box" id="statusText">System Ready. Allow camera permission to start.</div>
+
+        <div class="videos">
+            <div class="video-wrapper">
+                <video id="localVideo" autoplay playsinline muted></video>
+                <div class="label">You</div>
+            </div>
+            <div class="video-wrapper">
+                <video id="remoteVideo" autoplay playsinline></video>
+                <div class="label">Remote User</div>
+            </div>
         </div>
     </div>
 
     <script type="module">
-        // 1. Import Firebase with a stable version
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        // 2. Your Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
             authDomain: "edulinki.firebaseapp.com",
@@ -96,16 +66,14 @@
             measurementId: "G-MQBH12VL7N"
         };
 
-        // 3. Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const firestore = getFirestore(app);
 
-        // 4. Global Variables
+        // Expanded STUN servers for better connectivity
         const servers = {
             iceServers: [
-                {
-                    urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302']
-                }
+                { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] },
+                { urls: ['stun:stun3.l.google.com:19302', 'stun:stun4.l.google.com:19302'] }
             ],
             iceCandidatePoolSize: 10,
         };
@@ -114,7 +82,6 @@
         let localStream = null;
         let remoteStream = null;
 
-        // HTML Elements
         const localVideo = document.getElementById('localVideo');
         const remoteVideo = document.getElementById('remoteVideo');
         const callInput = document.getElementById('callInput');
@@ -123,151 +90,145 @@
         const hangupBtn = document.getElementById('hangupBtn');
         const statusText = document.getElementById('statusText');
 
-        // 5. Setup Media Sources (Webcam/Mic)
-        async function openUserMedia() {
+        // Monitor Connection State
+        pc.onconnectionstatechange = () => {
+            statusText.innerText = `Connection State: ${pc.connectionState}`;
+            if(pc.connectionState === 'connected') {
+                statusText.style.color = '#81c995'; // Green
+                statusText.innerText = "YOU ARE CONNECTED!";
+            } else if (pc.connectionState === 'failed') {
+                statusText.style.color = '#f28b82'; // Red
+                statusText.innerText = "Connection Failed. Try a different network or WiFi.";
+            }
+        };
+
+        async function startWebcam() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 localVideo.srcObject = localStream;
-                remoteStream = new MediaStream();
-                
-                // Push tracks to WebRTC connection
-                localStream.getTracks().forEach((track) => {
-                    pc.addTrack(track, localStream);
-                });
 
-                // Pull tracks from WebRTC connection
+                remoteStream = new MediaStream();
                 pc.ontrack = (event) => {
                     event.streams[0].getTracks().forEach((track) => {
                         remoteStream.addTrack(track);
                     });
                     remoteVideo.srcObject = remoteStream;
                 };
-            } catch (err) {
-                console.error("Error accessing media devices.", err);
-                statusText.innerText = "Error: Could not access camera/mic.";
+
+                localStream.getTracks().forEach((track) => {
+                    pc.addTrack(track, localStream);
+                });
+                return true;
+            } catch (error) {
+                console.error(error);
+                statusText.innerText = "Error: Please allow Camera/Mic permissions!";
+                return false;
             }
         }
 
-        // 6. Create a Call (Offer)
+        // Helper to add candidates safely
+        async function addCandidateToPC(candidateData) {
+            try {
+                const candidate = new RTCIceCandidate(candidateData);
+                // Queue check: only add if remote description is set
+                if (pc.remoteDescription && pc.remoteDescription.type) {
+                    await pc.addIceCandidate(candidate);
+                } else {
+                    // If description isn't set yet, wait a bit and retry (simple queue)
+                    setTimeout(() => addCandidateToPC(candidateData), 500);
+                }
+            } catch (e) {
+                console.error("Error adding candidate", e);
+            }
+        }
+
         createBtn.onclick = async () => {
             const callId = callInput.value.trim();
-            if (!callId) return alert("Please enter a call name");
+            if (!callId) return alert("Enter a name");
+            if (!await startWebcam()) return;
 
-            statusText.innerText = "Starting camera...";
-            await openUserMedia();
+            statusText.innerText = "Creating room... wait.";
+            createBtn.disabled = true; joinBtn.disabled = true; callInput.disabled = true;
 
-            // Reference to database
             const callDoc = doc(collection(firestore, 'calls'), callId);
             const offerCandidates = collection(callDoc, 'offerCandidates');
             const answerCandidates = collection(callDoc, 'answerCandidates');
 
-            createBtn.disabled = true;
-            joinBtn.disabled = true;
-            hangupBtn.disabled = false;
-            callInput.disabled = true;
-
-            statusText.innerText = `Call created! Waiting for someone to join "${callId}"...`;
-
-            // Get ICE Candidates and save to DB
             pc.onicecandidate = (event) => {
                 event.candidate && addDoc(offerCandidates, event.candidate.toJSON());
             };
 
-            // Create Offer
             const offerDescription = await pc.createOffer();
             await pc.setLocalDescription(offerDescription);
 
-            // Configure SDP
-            const offer = {
-                sdp: offerDescription.sdp,
-                type: offerDescription.type,
-            };
-
-            // Write Offer to DB
+            const offer = { sdp: offerDescription.sdp, type: offerDescription.type };
             await setDoc(callDoc, { offer });
 
-            // Listen for Answer
+            statusText.innerText = `Room "${callId}" created. Tell your friend to Join this name!`;
+            hangupBtn.disabled = false;
+
             onSnapshot(callDoc, (snapshot) => {
                 const data = snapshot.data();
                 if (!pc.currentRemoteDescription && data?.answer) {
                     const answerDescription = new RTCSessionDescription(data.answer);
                     pc.setRemoteDescription(answerDescription);
-                    statusText.innerText = "Connected!";
+                    statusText.innerText = "Friend joined! Connecting video...";
                 }
             });
 
-            // Listen for Remote ICE Candidates
             onSnapshot(answerCandidates, (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === 'added') {
-                        const candidate = new RTCIceCandidate(change.doc.data());
-                        pc.addIceCandidate(candidate);
+                        addCandidateToPC(change.doc.data());
                     }
                 });
             });
         };
 
-        // 7. Join a Call (Answer)
         joinBtn.onclick = async () => {
             const callId = callInput.value.trim();
-            if (!callId) return alert("Please enter a call name");
+            if (!callId) return alert("Enter the name");
+            if (!await startWebcam()) return;
 
-            statusText.innerText = "Starting camera...";
-            await openUserMedia();
+            statusText.innerText = "Joining room...";
+            createBtn.disabled = true; joinBtn.disabled = true; callInput.disabled = true;
 
             const callDoc = doc(collection(firestore, 'calls'), callId);
             const offerCandidates = collection(callDoc, 'offerCandidates');
             const answerCandidates = collection(callDoc, 'answerCandidates');
 
-            createBtn.disabled = true;
-            joinBtn.disabled = true;
-            hangupBtn.disabled = false;
-            callInput.disabled = true;
-
             pc.onicecandidate = (event) => {
                 event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
             };
 
-            // Fetch data
-            const callData = (await getDoc(callDoc)).data();
+            const snapshot = await getDoc(callDoc);
+            const callData = snapshot.data();
 
             if (!callData) {
-                alert("Call not found! Make sure the other person created it first.");
+                alert("Room not found! Did your friend create it?");
                 window.location.reload();
                 return;
             }
 
-            const offerDescription = callData.offer;
-            await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+            await pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
 
             const answerDescription = await pc.createAnswer();
             await pc.setLocalDescription(answerDescription);
 
-            const answer = {
-                type: answerDescription.type,
-                sdp: answerDescription.sdp,
-            };
-
+            const answer = { type: answerDescription.type, sdp: answerDescription.sdp };
             await updateDoc(callDoc, { answer });
 
-            // Listen for Remote ICE Candidates
             onSnapshot(offerCandidates, (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === 'added') {
-                        const candidate = new RTCIceCandidate(change.doc.data());
-                        pc.addIceCandidate(candidate);
+                        addCandidateToPC(change.doc.data());
                     }
                 });
             });
-            
-            statusText.innerText = "Connected!";
+            hangupBtn.disabled = false;
         };
 
-        // 8. Hangup
-        hangupBtn.onclick = () => {
-            // Simple reload to clear connection
-            window.location.reload();
-        };
+        hangupBtn.onclick = () => window.location.reload();
 
     </script>
 </body>

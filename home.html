@@ -1685,7 +1685,7 @@ Change
 <input type="file" id="media-input" class="hidden" accept="image/*,video/*" onchange="handleFileSelect(event)">
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, addDoc, onSnapshot, query, orderBy, where, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadString, getDownloadURL, uploadBytes } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 const firebaseConfig = {
@@ -1736,6 +1736,7 @@ window.currentPromoBlob = null;
 window.notifSelectionMode = false;
 window.selectedNotifs = new Set();
 window.notifSearchTerm = '';
+const notifAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
 // Collab State
 window.selectedCollaborators = [];
 // Header Scroll Logic
@@ -1757,11 +1758,9 @@ lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
 }
 // Helper: Reliable Icon Refresh
 function refreshIcons() {
-    if (window.lucide) {
-        // Double pass ensures new DOM nodes are caught after react-like updates
-        setTimeout(() => window.lucide.createIcons(), 0);
-        setTimeout(() => window.lucide.createIcons(), 50); 
-    }
+if(window.lucide) {
+window.lucide.createIcons();
+}
 }
 // Helper: Date Formatter
 function formatDate(timestamp) {
@@ -1808,8 +1807,8 @@ currentUser.isOfficial = true;
 } else {
 currentUser = {
 id: user.uid,
-name: user.displayName || "New Member",
-email: user.email || "anonymous@edulink.app",
+name: user.displayName || user.email.split('@')[0],
+email: user.email,
 avatar: user.photoURL || `https://api.dicebear.com/9.x/lorelei/svg?seed=${user.uid}`,
 bio: "New EduLink Member",
 following: [],
@@ -1819,7 +1818,7 @@ saved: [],
 links: [],
 isOfficial: isOfficial,
 settings: { privateNetwork: false },
-username: "user_" + user.uid.substring(0,6)
+username: ""
 };
 await setDoc(userRef, currentUser);
 }
@@ -1851,8 +1850,7 @@ window.history.pushState({}, document.title, window.location.pathname);
 }, 1000);
 }
 } else {
-// Fix: Don't loop refresh, just sign in anonymously if not logged in
-await signInAnonymously(auth);
+window.location.href = 'index.html';
 }
 });
 window.saveUsername = async function() {
@@ -1910,7 +1908,9 @@ if(data.imageUrl) {
 const qPosts = query(collection(db, "posts"), orderBy("timestamp", "desc"));
 onSnapshot(qPosts, { includeMetadataChanges: true }, (snapshot) => {
 posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
-// REALTIME FIX: Allow immediate local updates
+if (snapshot.metadata.hasPendingWrites) {
+return;
+}
 const changes = snapshot.docChanges();
 let shouldFullRender = false;
 if (document.getElementById('feed-container').children.length === 0) {
@@ -1996,7 +1996,17 @@ if(mobileBadge) {
     }
 }
 
-// Notification Sound Removed
+// Notification Sound Logic
+if(!isFirstNotifLoad) {
+snapshot.docChanges().forEach(change => {
+if(change.type === 'added') {
+const n = change.doc.data();
+if(!n.read && (Date.now() - (n.timestamp ? n.timestamp.toMillis() : Date.now())) < 5000) {
+notifAudio.play().catch(e => console.log('Audio error:', e));
+}
+}
+});
+}
 isFirstNotifLoad = false;
 const activeNotif = document.querySelector('#view-notifications:not(.hidden)');
 if(activeNotif) renderNotifications();
@@ -2412,7 +2422,7 @@ if (!isPublicPost) return amFollowing;
 return true;
 });
 displayPosts.forEach(post => container.appendChild(createPostElement(post)));
-refreshIcons(); // Immediate call
+refreshIcons();
 }
 function createPostElement(post) {
 const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', isOfficial: false, id: post.authorId };
@@ -3978,7 +3988,7 @@ privacy: isPrivate ? 'private' : 'public',
 showLikes: showLikes,
 showComments: showComments,
 allowLikeView: allowLikeView,
-allowComments: allowCommentsa
+allowComments: allowComments
 }
 };
 let postId = null;

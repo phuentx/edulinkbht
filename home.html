@@ -28,7 +28,7 @@ overflow: hidden;
 }
 h1, h2, h3, .google-font { font-family: 'Google Sans', 'Inter', sans-serif; }
 /* No Scrollbars */
-{ scrollbar-width: none; -ms-overflow-style: none; }
+* { scrollbar-width: none; -ms-overflow-style: none; }
 *::-webkit-scrollbar { width: 0px; background: transparent; display: none; }
 /* Prevent icon squishing globally */
 i[data-lucide], svg { flex-shrink: 0; }
@@ -119,9 +119,9 @@ z-index: 10;
 /* Mobile Footer Badge */
 .mobile-footer-badge {
 position: absolute;
-top: 12px;
+top: 8px; /* Positioned higher to overlap corner */
 left: 50%;
-margin-left: 6px; /* Offset from center to right side of icon */
+margin-left: 6px; /* Offset to the right side of the icon */
 background-color: #fe2c55; /* TikTok Red */
 color: white;
 font-size: 10px;
@@ -136,7 +136,6 @@ justify-content: center;
 border: 2px solid #ffffff;
 display: none;
 z-index: 20;
-line-height: 1;
 }
 @media (min-width: 1024px) {
 .nav-item {

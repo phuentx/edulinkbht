@@ -117,7 +117,7 @@
 
         video { 
             width: 100%; height: 100%; 
-            object-fit: cover; /* Default for cameras: crop to fill */
+            object-fit: cover; 
             background: #000; 
         }
         
@@ -126,8 +126,16 @@
         
         /* Screen Share Specifics */
         .screen-share-mode video {
-            object-fit: contain !important; /* Show whole screen */
-            transform: scaleX(1) !important; /* Never mirror */
+            object-fit: contain !important; 
+            transform: scaleX(1) !important; 
+        }
+
+        /* ROTATION CLASS FOR MOBILE LANDSCAPE FULLSCREEN */
+        .rotated-fullscreen video {
+            transform: rotate(90deg);
+            width: 100vh !important;
+            height: 100vw !important;
+            object-fit: contain;
         }
         
         .name-tag {
@@ -157,7 +165,7 @@
         .vid-card.hand-up .hand-badge { display: block; }
         @keyframes pop { from {transform: scale(0);} to {transform: scale(1);} }
 
-        /* Card Menu (3 Dots) */
+        /* Card Menu */
         .card-menu-btn {
             position: absolute; top: 12px; right: 12px;
             background: rgba(0,0,0,0.4); border-radius: 50%; width: 32px; height: 32px;
@@ -186,8 +194,6 @@
             z-index: 40;
             border-color: var(--primary);
         }
-        
-        /* Ensure pinned screen shares are fully visible */
         .vid-card.pinned-view.screen-share-mode video {
             object-fit: contain;
         }
@@ -235,7 +241,7 @@
         }
         .drawer.open { transform: translateX(0); }
 
-        /* Mobile Bottom Sheet Style for Drawers */
+        /* Mobile Bottom Sheet Style */
         @media (max-width: 768px) {
             .drawer {
                 top: auto; bottom: 0; left: 0; right: 0; width: 100%; height: auto; max-height: 85vh;
@@ -244,8 +250,15 @@
             }
             .drawer.open { transform: translateY(0); }
             
-            /* INCREASED CHAT SIZE FOR MOBILE */
-            .msg-bubble { font-size: 16px !important; padding: 14px 18px !important; }
+            /* Fixed Chat Bubble Size on Mobile */
+            .msg-bubble { 
+                font-size: 16px !important; 
+                padding: 14px 18px !important; 
+                /* Prevent growing weirdly */
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
             .msg-name { font-size: 13px !important; margin-bottom: 6px !important; }
             .chat-input { padding: 16px !important; font-size: 16px !important; }
         }
@@ -357,14 +370,14 @@
             <button id="micBtn" class="btn-ctrl" title="Mic"><i data-lucide="mic"></i></button>
             <button id="camBtn" class="btn-ctrl" title="Camera"><i data-lucide="camera"></i></button>
             
-            <button id="moreBtn" class="btn-ctrl" title="More Options" onclick="toggleOptions()">
-                <i data-lucide="more-vertical"></i>
-                <div class="unread-dot" id="optionsDot"></div>
-            </button>
-            
             <button id="chatBtn" class="btn-ctrl" title="Chat" onclick="toggleChat()">
                 <i data-lucide="message-square"></i>
                 <div class="unread-dot" id="unreadDot"></div>
+            </button>
+            
+            <button id="moreBtn" class="btn-ctrl" title="More Options" onclick="toggleOptions()">
+                <i data-lucide="more-vertical"></i>
+                <div class="unread-dot" id="optionsDot"></div>
             </button>
             
             <button id="hangupBtn" class="btn-ctrl hangup" title="Leave"><i data-lucide="phone-off"></i></button>
@@ -398,7 +411,7 @@
         let pcs = {};
         let audioCtx;
         let isMuted = false, isCamOff = false, isHandRaised = false, isChatOpen = false, isOptionsOpen = false;
-        let pinnedUserId = null; // null means Grid Mode, ID means Focus Mode
+        let pinnedUserId = null; 
         let userCount = 0;
 
         // DOM Elements
@@ -415,7 +428,6 @@
             const count = grid.children.length;
             if(count === 0) return;
 
-            // If a user is pinned, use Focus Mode logic
             if (pinnedUserId) {
                 Array.from(grid.children).forEach(card => {
                     const id = card.id.replace('vid-', '');
@@ -425,14 +437,13 @@
                         card.style.height = '100%';
                         card.classList.add('pinned-view');
                     } else {
-                        card.style.display = 'none'; // Simple hide
+                        card.style.display = 'none'; 
                         card.classList.remove('pinned-view');
                     }
                 });
                 return;
             }
 
-            // Normal Grid Logic
             Array.from(grid.children).forEach(c => {
                 c.style.display = 'block';
                 c.classList.remove('pinned-view');
@@ -474,7 +485,6 @@
             card.className = 'vid-card';
             card.id = `vid-${uid}`;
             
-            // Mirror logic: Local cam mirrors, but if screen shared, we remove this class later
             const mirrorClass = isLocal ? 'mirrored' : '';
 
             card.innerHTML = `
@@ -532,12 +542,29 @@
             calculateLayout();
         }
 
+        // FULLSCREEN LOGIC (UPDATED FOR LANDSCAPE ON MOBILE)
         window.enterFullscreen = (uid) => {
             const card = document.getElementById(`vid-${uid}`);
-            if(card.requestFullscreen) {
-                card.requestFullscreen();
-            } else if(card.webkitRequestFullscreen) {
-                card.webkitRequestFullscreen();
+            const video = card.querySelector('video');
+
+            if (video.requestFullscreen) {
+                video.requestFullscreen()
+                .then(() => {
+                    // Try to lock orientation to landscape
+                    if (screen.orientation && screen.orientation.lock) {
+                        screen.orientation.lock("landscape").catch(e => {
+                             // Fallback if lock not supported: CSS rotation
+                             console.log("Orientation lock not supported, using fallback.");
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error("Error entering fullscreen: ", err);
+                });
+            } else if (video.webkitRequestFullscreen) { /* Safari */
+                video.webkitRequestFullscreen();
+            } else if (video.msRequestFullscreen) { /* IE11 */
+                video.msRequestFullscreen();
             }
         }
 
@@ -577,9 +604,9 @@
                 await cleanupRoomIfEmpty();
             };
 
-            // Users & Count Tracking
+            // Users
             onSnapshot(collection(db, `rooms/${roomId}/users`), (snap) => {
-                userCount = snap.size; // Track count
+                userCount = snap.size;
                 snap.docChanges().forEach(change => {
                     const uid = change.doc.id;
                     const data = change.doc.data();
@@ -621,13 +648,20 @@
             });
         }
 
-        // CLEANUP: If I am the last one, delete chat
+        // DELETE CHAT LOGIC (Auto-delete when last user leaves)
         async function cleanupRoomIfEmpty() {
-            if (userCount <= 1) {
+            // We check count. Since 'onbeforeunload' fires before snap updates, 
+            // we do a direct check or rely on the fact that if we are the last one, 
+            // deleting our doc makes it empty.
+            
+            // Double check true count from DB
+            const userSnap = await getDocs(collection(db, `rooms/${roomId}/users`));
+            if (userSnap.empty) {
                 const chatSnap = await getDocs(collection(db, `rooms/${roomId}/chat`));
                 const batch = writeBatch(db);
                 chatSnap.forEach(doc => batch.delete(doc.ref));
                 await batch.commit();
+                console.log("Room empty. Chat deleted.");
             }
         }
 
@@ -697,7 +731,6 @@
             document.getElementById(`vid-${myId}`).classList.toggle('cam-off', isCamOff);
         };
 
-        // DRAWER TOGGLES
         window.toggleOptions = () => {
             if(isChatOpen) window.toggleChat(); 
 
@@ -714,30 +747,19 @@
             document.getElementById('optHand').classList.toggle('active', isHandRaised);
         };
 
-        // SCREEN SHARE LOGIC (Corrected)
         window.toggleScreen = async () => {
             if(!screenStream) {
                 try {
                     screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
                     const trk = screenStream.getVideoTracks()[0];
-                    
-                    // Replace tracks for remote peers
                     for(let uid in pcs) {
                         const snd = pcs[uid].getSenders().find(s => s.track.kind === 'video');
                         if(snd) snd.replaceTrack(trk);
                     }
-                    
-                    // Update Local Video
                     const localCard = document.getElementById(`vid-${myId}`);
                     const localVid = localCard.querySelector('video');
                     localVid.srcObject = screenStream;
-                    
-                    // Add Screen Share Mode class (removes mirror, adds contain)
                     localCard.classList.add('screen-share-mode');
-                    
-                    // Optional: Pin self so I can see what I'm sharing clearly? 
-                    // pinUser(myId); (User preference, let's leave it manual)
-
                     document.getElementById('optScreen').classList.add('active');
                     trk.onended = stopScreen;
                     window.toggleOptions(); 
@@ -751,14 +773,10 @@
                 const snd = pcs[uid].getSenders().find(s => s.track.kind === 'video');
                 if(snd) snd.replaceTrack(trk);
             }
-            
             const localCard = document.getElementById(`vid-${myId}`);
             const localVid = localCard.querySelector('video');
             localVid.srcObject = localStream;
-            
-            // Remove Screen Share Mode
             localCard.classList.remove('screen-share-mode');
-            
             document.getElementById('optScreen').classList.remove('active');
             if(screenStream) screenStream.getTracks().forEach(t=>t.stop());
             screenStream = null;
@@ -782,6 +800,7 @@
         };
 
         document.getElementById('hangupBtn').onclick = async () => {
+            await deleteDoc(myDoc()); // Ensure my user is gone first
             await cleanupRoomIfEmpty();
             window.location.reload();
         };
@@ -790,6 +809,7 @@
             btn.classList.toggle('off-red', off);
             btn.innerHTML = `<i data-lucide="${off ? iconOff : iconOn}"></i>`;
             if(btn.id === 'moreBtn') btn.appendChild(document.getElementById('optionsDot'));
+            if(btn.id === 'chatBtn') btn.appendChild(document.getElementById('unreadDot'));
             lucide.createIcons();
         }
 

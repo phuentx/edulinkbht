@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edulinki Meet - Ultimate</title>
+    <title>Edulinki Meet - Pro</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Google+Sans:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -17,9 +17,8 @@
             --danger: #ff5252;
             --text-main: #ffffff;
             --text-muted: #9aa0a6;
-            --glass-bg: rgba(30, 30, 30, 0.8);
+            --glass-bg: rgba(30, 30, 30, 0.85);
             --border: rgba(255, 255, 255, 0.1);
-            --sheet-bg: #1e1e1e;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,21 +37,21 @@
         header {
             position: fixed; top: 0; left: 0; width: 100%; height: 60px;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px; z-index: 50;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            padding: 0 24px; z-index: 50;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
             pointer-events: none;
         }
-        .header-left { pointer-events: auto; display: flex; align-items: center; gap: 10px; }
+        .header-left { display: flex; align-items: center; gap: 12px; pointer-events: auto; }
         .logo { font-family: 'Google Sans'; font-size: 19px; font-weight: 500; color: white; display: flex; align-items: center; gap: 8px;}
         .room-badge {
-            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(8px);
             padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
-            display: none; border: 1px solid var(--border); pointer-events: auto;
+            display: none; pointer-events: auto; border: 1px solid var(--border);
         }
 
         /* --- LOBBY --- */
         #lobby {
-            position: absolute; inset: 0; z-index: 200;
+            position: absolute; inset: 0; z-index: 100;
             display: flex; align-items: center; justify-content: center;
             background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
         }
@@ -62,6 +61,7 @@
             border: 1px solid var(--border);
             box-shadow: 0 20px 60px rgba(0,0,0,0.6);
         }
+        .lobby-card h1 { font-family: 'Google Sans'; margin-bottom: 12px; font-weight: 400; font-size: 26px; }
         .input-box {
             background: var(--surface-light); border: 1px solid transparent;
             width: 100%; padding: 16px; border-radius: 12px; color: white;
@@ -71,105 +71,109 @@
         .btn-primary {
             width: 100%; padding: 16px; background: var(--primary); color: #000;
             border: none; border-radius: 12px; font-weight: 600; font-size: 16px;
-            cursor: pointer; margin-bottom: 12px;
+            cursor: pointer; margin-bottom: 12px; transition: opacity 0.2s;
         }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-text { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: 500; }
 
-        /* --- STAGE & GRID --- */
+        /* --- STAGE (VIDEO GRID) --- */
         #meeting-stage {
-            flex: 1; display: none; position: relative;
-            padding: 0; overflow: hidden; /* Full bleed */
+            flex: 1; 
+            display: none; 
+            position: relative;
+            padding: 70px 20px 100px 20px; 
+            overflow: hidden;
             transition: margin-right 0.3s ease;
         }
-        /* Desktop: Push content when chat opens */
-        #meeting-stage.drawer-open { margin-right: 340px; }
-        @media(max-width: 768px) { #meeting-stage.drawer-open { margin-right: 0; } }
+        /* Desktop Push for Sidebars */
+        #meeting-stage.drawer-open { margin-right: 340px; } 
 
-        /* Normal Grid Mode */
+        @media(max-width: 800px) { 
+            #meeting-stage { padding: 60px 10px 90px 10px; }
+            #meeting-stage.drawer-open { margin-right: 0; } 
+        }
+
         #video-grid {
             width: 100%; height: 100%;
-            display: flex; flex-wrap: wrap;
-            justify-content: center; align-content: center; align-items: center;
-            gap: 16px; padding: 70px 20px 100px 20px;
-            transition: all 0.3s ease;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-content: center;
+            align-items: center;
+            gap: 16px;
         }
 
-        /* Pin Mode (Spotlight) */
-        #video-grid.pinned-mode {
-            display: block; padding: 0;
-            position: relative;
-        }
-        /* In pin mode, non-pinned videos become a filmstrip at bottom */
-        #video-grid.pinned-mode .vid-card {
-            display: none; /* Hidden by default in pin mode logic, JS handles visibility */
-        }
-        
         /* --- VIDEO CARD --- */
         .vid-card {
-            position: relative; background: #202124; border-radius: 16px; 
-            overflow: hidden; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4); border: 2px solid transparent;
+            position: relative; 
+            background: #202124; 
+            border-radius: 16px; 
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            border: 2px solid transparent;
         }
-        .vid-card.speaking { border-color: var(--primary); }
-
-        /* Fullscreen/Pinned Card Styles */
-        .vid-card.is-pinned {
-            position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important;
-            border-radius: 0; z-index: 10; border: none;
-        }
-        /* Filmstrip style for others (handled by JS logic, but basic CSS here) */
-        .filmstrip-container {
-            position: absolute; bottom: 100px; right: 20px; 
-            display: flex; gap: 10px; z-index: 20;
-            max-width: 80%; overflow-x: auto;
-            padding: 10px; border-radius: 12px;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
-            display: none; /* Shown via JS */
-        }
+        .vid-card.speaking { border-color: var(--primary); box-shadow: 0 0 15px rgba(138, 180, 248, 0.3); }
 
         video { width: 100%; height: 100%; object-fit: cover; background: #000; }
         .mirrored { transform: scaleX(-1); }
 
-        /* Overlays */
         .name-tag {
             position: absolute; bottom: 12px; left: 12px;
-            background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 6px;
+            background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 6px;
             font-size: 12px; color: white; display: flex; align-items: center; gap: 6px;
-            backdrop-filter: blur(4px); pointer-events: none; font-weight: 500;
+            backdrop-filter: blur(4px); pointer-events: none; font-weight: 500; z-index: 2;
         }
+        
         .status-icon { color: var(--danger); display: none; }
         .vid-card.muted .status-icon { display: block; }
+        
+        .avatar {
+            position: absolute; inset: 0; background: #333;
+            display: none; align-items: center; justify-content: center;
+            font-size: 48px; color: white; font-weight: bold;
+        }
+        .vid-card.cam-off video { opacity: 0; }
+        .vid-card.cam-off .avatar { display: flex; }
+
         .hand-badge {
             position: absolute; top: 12px; left: 12px;
             background: #2c2c2c; padding: 8px; border-radius: 50%;
-            display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            display: none; animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3); z-index: 2;
         }
         .vid-card.hand-up .hand-badge { display: block; }
+        @keyframes pop { from {transform: scale(0);} to {transform: scale(1);} }
 
-        /* --- USER MORE MENU (Three Dots) --- */
-        .card-more-btn {
-            position: absolute; top: 10px; right: 10px;
-            width: 32px; height: 32px; border-radius: 50%;
-            background: rgba(0,0,0,0.4); border: none; color: white;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.2s; z-index: 5;
+        /* Card Menu (3 Dots) */
+        .card-menu-btn {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(0,0,0,0.4); border-radius: 50%; width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; opacity: 0; transition: 0.2s; color: white; border: none; z-index: 10;
         }
-        .vid-card:hover .card-more-btn, .card-more-btn.active { opacity: 1; }
-        
-        /* Dropdown for User Menu */
-        .user-dropdown {
-            position: absolute; top: 45px; right: 10px;
-            background: var(--surface-light); border-radius: 8px;
-            width: 140px; padding: 5px; display: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 20;
-            border: 1px solid var(--border);
+        .vid-card:hover .card-menu-btn, .card-menu-btn.active { opacity: 1; }
+        .card-menu-btn:hover { background: rgba(0,0,0,0.7); }
+
+        .card-dropdown {
+            position: absolute; top: 50px; right: 12px;
+            background: #2c2c2c; border: 1px solid var(--border);
+            border-radius: 8px; padding: 4px; width: 140px;
+            display: none; flex-direction: column;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 20;
         }
-        .user-dropdown.show { display: block; }
+        .card-dropdown.show { display: flex; }
         .dropdown-item {
-            padding: 10px; display: flex; align-items: center; gap: 10px;
-            color: white; font-size: 13px; cursor: pointer; border-radius: 4px;
+            padding: 8px 12px; font-size: 13px; color: white; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; border-radius: 4px;
         }
         .dropdown-item:hover { background: rgba(255,255,255,0.1); }
+
+        /* Pinned Mode Classes */
+        .vid-card.pinned-view {
+            z-index: 40;
+            border-color: var(--primary);
+        }
 
         /* --- CONTROLS --- */
         .controls-wrapper {
@@ -189,64 +193,80 @@
             transition: 0.2s; position: relative;
         }
         .btn-ctrl:hover { background: rgba(255,255,255,0.15); }
+        .btn-ctrl:active { transform: scale(0.95); }
         .btn-ctrl.active { background: var(--primary); color: black; }
         .btn-ctrl.off { background: rgba(255,255,255,0.1); color: var(--text-muted); }
         .btn-ctrl.off-red { background: var(--danger); color: white; }
         
         .btn-ctrl.hangup { background: var(--danger); width: 64px; border-radius: 32px; margin-left: 8px;}
+        .btn-ctrl.hangup:hover { background: #d32f2f; }
 
-        /* --- GLOBAL OPTIONS MENU (The new "More" Overlay) --- */
-        #options-drawer {
-            position: fixed; bottom: 90px; right: 50%; transform: translateX(50%) translateY(20px);
-            background: var(--sheet-bg); border-radius: 16px;
-            width: 260px; padding: 8px; border: 1px solid var(--border);
-            display: none; flex-direction: column; opacity: 0;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 70;
-            transition: all 0.2s;
+        .unread-dot {
+            position: absolute; top: 10px; right: 10px; width: 10px; height: 10px;
+            background: var(--danger); border-radius: 50%; border: 2px solid #2e2e2e;
+            display: none;
         }
-        #options-drawer.open { display: flex; opacity: 1; transform: translateX(50%) translateY(0); }
-        /* Mobile Sheet Style */
-        @media(max-width: 600px) {
-            #options-drawer {
-                bottom: 0; right: 0; left: 0; width: 100%; transform: translateY(100%);
-                border-radius: 20px 20px 0 0; padding: 20px;
-            }
-            #options-drawer.open { transform: translateY(0); }
-        }
-        
-        .opt-item {
-            padding: 12px 16px; display: flex; align-items: center; gap: 12px;
-            color: #eee; font-size: 15px; cursor: pointer; border-radius: 8px;
-        }
-        .opt-item:hover { background: rgba(255,255,255,0.08); }
 
-        /* --- CHAT --- */
-        #chat-drawer {
+        /* --- DRAWERS (Chat & Options) --- */
+        .drawer {
             position: fixed; top: 16px; bottom: 16px; right: 16px; width: 320px;
-            background: var(--surface); border-radius: 16px; border: 1px solid var(--border);
+            background: var(--surface); border-radius: 16px;
+            border: 1px solid var(--border);
             display: flex; flex-direction: column; z-index: 100;
             transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: -10px 0 40px rgba(0,0,0,0.6);
         }
-        #chat-drawer.open { transform: translateX(0); }
+        .drawer.open { transform: translateX(0); }
+
+        /* Mobile Bottom Sheet Style for Drawers */
         @media (max-width: 768px) {
-            #chat-drawer {
-                top: auto; bottom: 0; left: 0; right: 0; width: 100%; height: 85vh;
+            .drawer {
+                top: auto; bottom: 0; left: 0; right: 0; width: 100%; height: auto; max-height: 85vh;
                 border-radius: 24px 24px 0 0; transform: translateY(100%);
+                border: none; box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
             }
-            #chat-drawer.open { transform: translateY(0); }
+            .drawer.open { transform: translateY(0); }
         }
-        .chat-header { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
-        .chat-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        .msg { display: flex; flex-direction: column; max-width: 85%; }
-        .msg.me { align-self: flex-end; align-items: flex-end; } .msg.them { align-self: flex-start; align-items: flex-start; }
-        .msg-bubble { padding: 10px 14px; border-radius: 18px; font-size: 14px; word-wrap: break-word; }
-        .msg.me .msg-bubble { background: var(--primary); color: #121212; border-bottom-right-radius: 4px; }
-        .msg.them .msg-bubble { background: var(--surface-light); color: white; border-bottom-left-radius: 4px; }
-        .chat-footer { padding: 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
-        .chat-input { flex: 1; background: #2c2c2c; border: none; padding: 12px; border-radius: 24px; color: white; outline: none; }
+
+        /* Chat Specific */
+        .chat-header {
+            padding: 18px 20px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            font-weight: 500; font-family: 'Google Sans'; font-size: 18px;
+        }
+        .chat-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; height: 60vh; }
         
-        .unread-dot { position: absolute; top: 10px; right: 10px; width: 10px; height: 10px; background: var(--danger); border-radius: 50%; display: none; }
+        .msg { display: flex; flex-direction: column; max-width: 85%; }
+        .msg.me { align-self: flex-end; align-items: flex-end; }
+        .msg.them { align-self: flex-start; align-items: flex-start; }
+        
+        .msg-name { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; margin-left: 4px; }
+        .msg-bubble { padding: 12px 16px; border-radius: 20px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+        .msg.me .msg-bubble { background: var(--primary); color: #121212; border-bottom-right-radius: 4px; }
+        .msg.them .msg-bubble { background: #333; color: white; border-bottom-left-radius: 4px; }
+
+        .chat-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 12px; }
+        .chat-input {
+            flex: 1; background: #2c2c2c; border: none; padding: 14px;
+            border-radius: 24px; color: white; outline: none; font-family: 'Inter'; font-size: 15px;
+        }
+        .chat-send { background: none; border: none; color: var(--primary); cursor: pointer; padding: 8px; transition: transform 0.1s;}
+        .chat-send:active { transform: scale(0.9); }
+
+        /* Options Drawer Content */
+        .options-grid {
+            padding: 24px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+        }
+        .opt-btn {
+            background: var(--surface-light); border: 1px solid transparent;
+            border-radius: 12px; padding: 20px; text-align: center;
+            color: white; cursor: pointer; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        .opt-btn:hover { background: #333; }
+        .opt-btn.active { background: rgba(138, 180, 248, 0.15); border-color: var(--primary); color: var(--primary); }
+        .opt-label { font-size: 13px; font-weight: 500; }
 
     </style>
 </head>
@@ -262,41 +282,52 @@
     <div id="lobby">
         <div class="lobby-card">
             <h1>Join Meeting</h1>
-            <p style="color:var(--text-muted); margin-bottom: 24px;">Secure, real-time conferencing.</p>
+            <p style="color:var(--text-muted); margin-bottom: 24px;">Premium video conferencing.</p>
             <input type="text" id="roomInput" class="input-box" placeholder="Enter Room Code" autocomplete="off">
             <button id="joinBtn" class="btn-primary" disabled>Join Room</button>
-            <button id="createBtn" class="btn-text" style="background:none; border:none; color:var(--primary); cursor:pointer;">Create New</button>
+            <button id="createBtn" class="btn-text">Create New Meeting</button>
         </div>
     </div>
 
     <div id="meeting-stage">
         <div id="video-grid">
-            </div>
-        <div class="filmstrip-container" id="filmstrip"></div>
+        </div>
     </div>
 
-    <div id="chat-drawer">
+    <div id="chat-drawer" class="drawer">
         <div class="chat-header">
             <span>Messages</span>
-            <button onclick="toggleChat()" style="background:none; border:none; color:var(--text-muted);"><i data-lucide="x"></i></button>
+            <button onclick="toggleChat()" style="background:none; border:none; color:var(--text-muted); cursor:pointer;"><i data-lucide="x"></i></button>
         </div>
-        <div class="chat-body" id="chatBody"></div>
+        <div class="chat-body" id="chatBody">
+            <div style="text-align:center; font-size:13px; color:#555; margin-top:20px;">
+                Messages are deleted when the call ends.
+            </div>
+        </div>
         <div class="chat-footer">
             <input type="text" id="chatInput" class="chat-input" placeholder="Type a message..." autocomplete="off">
-            <button id="sendBtn" style="background:none; border:none; color:var(--primary);"><i data-lucide="send-horizontal"></i></button>
+            <button id="sendBtn" class="chat-send" disabled><i data-lucide="send-horizontal"></i></button>
         </div>
     </div>
 
-    <div id="options-drawer">
-        <div class="opt-item" id="optShareScreen">
-            <i data-lucide="monitor-up"></i> Share Screen
+    <div id="options-drawer" class="drawer">
+        <div class="chat-header">
+            <span>Controls</span>
+            <button onclick="toggleOptions()" style="background:none; border:none; color:var(--text-muted); cursor:pointer;"><i data-lucide="x"></i></button>
         </div>
-        <div class="opt-item" id="optRaiseHand">
-            <i data-lucide="hand"></i> Raise Hand
-        </div>
-        <div style="height:1px; background:var(--border); margin:5px 0;"></div>
-        <div class="opt-item" onclick="toggleOptions()">
-            <i data-lucide="x"></i> Close Menu
+        <div class="options-grid">
+            <button id="optHand" class="opt-btn" onclick="toggleHand()">
+                <i data-lucide="hand"></i>
+                <span class="opt-label">Raise Hand</span>
+            </button>
+            <button id="optScreen" class="opt-btn" onclick="toggleScreen()">
+                <i data-lucide="monitor-up"></i>
+                <span class="opt-label">Share Screen</span>
+            </button>
+            <button id="optBlur" class="opt-btn" onclick="toggleBlur()">
+                <i data-lucide="aperture"></i>
+                <span class="opt-label">Blur BG</span>
+            </button>
         </div>
     </div>
 
@@ -305,13 +336,14 @@
             <button id="micBtn" class="btn-ctrl" title="Mic"><i data-lucide="mic"></i></button>
             <button id="camBtn" class="btn-ctrl" title="Camera"><i data-lucide="camera"></i></button>
             
+            <button id="moreBtn" class="btn-ctrl" title="More Options" onclick="toggleOptions()">
+                <i data-lucide="more-vertical"></i>
+                <div class="unread-dot" id="optionsDot"></div>
+            </button>
+            
             <button id="chatBtn" class="btn-ctrl" title="Chat" onclick="toggleChat()">
                 <i data-lucide="message-square"></i>
                 <div class="unread-dot" id="unreadDot"></div>
-            </button>
-            
-            <button id="moreBtn" class="btn-ctrl" title="Options" onclick="toggleOptions()">
-                <i data-lucide="ellipsis-vertical"></i>
             </button>
             
             <button id="hangupBtn" class="btn-ctrl hangup" title="Leave"><i data-lucide="phone-off"></i></button>
@@ -345,87 +377,72 @@
         let pcs = {};
         let audioCtx;
         let isMuted = false, isCamOff = false, isHandRaised = false, isChatOpen = false, isOptionsOpen = false;
-        let pinnedUserId = null; // Who is currently pinned?
+        let pinnedUserId = null; // null means Grid Mode, ID means Focus Mode
+        let isBlurEnabled = false;
 
-        // DOM
+        // DOM Elements
         const grid = document.getElementById('video-grid');
-        const filmstrip = document.getElementById('filmstrip');
         const lobby = document.getElementById('lobby');
         const stage = document.getElementById('meeting-stage');
         const controls = document.getElementById('controls');
-        const optionsDrawer = document.getElementById('options-drawer');
         const chatDrawer = document.getElementById('chat-drawer');
+        const optionsDrawer = document.getElementById('options-drawer');
         const unreadDot = document.getElementById('unreadDot');
-
-        // --- 1. LAYOUT ENGINE (Smart Grid + Pin Support) ---
+        
+        // --- 1. SMART GRID & PINNING ALGORITHM ---
         function calculateLayout() {
+            const count = grid.children.length;
+            if(count === 0) return;
+
+            // If a user is pinned, use Focus Mode logic
             if (pinnedUserId) {
-                // PIN MODE: One big video, rest in filmstrip (logic handled in CSS classes mainly)
-                grid.classList.add('pinned-mode');
-                filmstrip.style.display = 'flex';
-                
-                const cards = Array.from(grid.children);
-                cards.forEach(card => {
-                    if (card.id === `vid-${pinnedUserId}`) {
-                        card.classList.add('is-pinned');
+                Array.from(grid.children).forEach(card => {
+                    const id = card.id.replace('vid-', '');
+                    if (id === pinnedUserId) {
+                        card.style.display = 'block';
                         card.style.width = '100%';
                         card.style.height = '100%';
-                        card.style.display = 'block';
+                        card.classList.add('pinned-view');
                     } else {
-                        card.classList.remove('is-pinned');
-                        card.style.display = 'none'; // Hidden from main grid, clone shows in filmstrip?
-                        // Actually, easier approach: Move elements to filmstrip temporarily?
-                        // No, let's just make Grid hide them, and we clone streams to filmstrip? 
-                        // Simpler: CSS Grid area.
+                        card.style.display = 'none'; // Simple hide for now (could be filmstrip)
+                        card.classList.remove('pinned-view');
                     }
                 });
-                
-                // For this demo, let's keep it robust:
-                // If pinned, we just make that card absolute full width.
-                // Others are hidden. In a real app we'd move them to filmstrip.
-                // I will make the "Pinned" one z-index high.
                 return;
             }
 
-            // NORMAL GRID MODE
-            grid.classList.remove('pinned-mode');
-            filmstrip.style.display = 'none';
-            
-            const cards = Array.from(grid.children);
-            const count = cards.length;
-            if(count === 0) return;
-            
-            // Clean up pin styles
-            cards.forEach(c => {
-                c.classList.remove('is-pinned');
-                c.style.display = 'flex';
-                c.style.position = 'relative';
-                c.style.zIndex = 'auto';
+            // Normal Grid Logic
+            Array.from(grid.children).forEach(c => {
+                c.style.display = 'block';
+                c.classList.remove('pinned-view');
             });
 
-            // Grid Algo
             const width = stage.clientWidth - 40; 
-            const height = stage.clientHeight - 140; 
+            const height = stage.clientHeight - 140;
+
             let bestCols = 1, maxArea = 0;
 
             for (let cols = 1; cols <= count; cols++) {
                 const rows = Math.ceil(count / cols);
                 const hScale = width / cols;
                 const vScale = height / rows;
-                let w, h;
-                if (hScale * (9/16) < vScale) { w = hScale; h = hScale * (9/16); } 
-                else { h = vScale; w = vScale * (16/9); }
-                if (w * h > maxArea) { maxArea = w * h; bestCols = cols; }
+                let cardW, cardH;
+                if (hScale * (9/16) < vScale) { cardW = hScale; cardH = hScale * (9/16); } 
+                else { cardH = vScale; cardW = vScale * (16/9); }
+                const area = cardW * cardH;
+                if (area > maxArea) { maxArea = area; bestCols = cols; }
             }
 
             const finalW = (width / bestCols) - 16; 
             const finalH = finalW * (9/16);
 
-            cards.forEach(card => {
+            Array.from(grid.children).forEach(card => {
                 card.style.width = `${finalW}px`;
                 card.style.height = `${finalH}px`;
+                card.style.flex = "0 0 auto";
             });
         }
+        
         window.onresize = calculateLayout;
 
         // --- 2. VIDEO MANAGER ---
@@ -436,39 +453,76 @@
             card.className = 'vid-card';
             card.id = `vid-${uid}`;
             
-            // User Menu HTML
-            const menuHtml = `
-                <button class="card-more-btn" onclick="toggleCardMenu('${uid}')"><i data-lucide="more-horizontal"></i></button>
-                <div class="user-dropdown" id="menu-${uid}">
-                    <div class="dropdown-item" onclick="pinUser('${uid}')">
-                        <i data-lucide="pin" size="14"></i> Pin / Spotlight
-                    </div>
-                    <div class="dropdown-item" onclick="fullscreenUser('${uid}')">
-                        <i data-lucide="maximize" size="14"></i> Fullscreen
-                    </div>
-                </div>
-            `;
+            const mirrorClass = isLocal ? 'mirrored' : '';
 
             card.innerHTML = `
-                <video autoplay playsinline class="${isLocal ? 'mirrored' : ''}" ${isLocal ? 'muted' : ''}></video>
+                <video autoplay playsinline class="${mirrorClass}" ${isLocal ? 'muted' : ''}></video>
                 <div class="avatar" style="background:${stringToColor(uid)}">${uid[0]}</div>
                 <div class="name-tag">
                     <i data-lucide="mic-off" class="status-icon" size="12"></i>
                     <span>${isLocal ? 'You' : uid}</span>
                 </div>
                 <div class="hand-badge"><i data-lucide="hand" color="white" size="16"></i></div>
-                ${menuHtml}
+                
+                <button class="card-menu-btn" onclick="toggleCardMenu(event, '${uid}')">
+                    <i data-lucide="more-vertical" size="16"></i>
+                </button>
+                <div class="card-dropdown" id="menu-${uid}">
+                    <div class="dropdown-item" onclick="pinUser('${uid}')">
+                        <i data-lucide="pin" size="14"></i> ${pinnedUserId === uid ? 'Unpin' : 'Pin User'}
+                    </div>
+                    <div class="dropdown-item" onclick="enterFullscreen('${uid}')">
+                        <i data-lucide="maximize" size="14"></i> Fullscreen
+                    </div>
+                </div>
             `;
-            
             card.querySelector('video').srcObject = stream;
             grid.appendChild(card);
             lucide.createIcons();
+            
             calculateLayout();
         }
 
         function removeVideoCard(uid) {
             const card = document.getElementById(`vid-${uid}`);
             if(card) { card.remove(); calculateLayout(); }
+            if(pinnedUserId === uid) { pinnedUserId = null; calculateLayout(); }
+        }
+
+        // --- 3. MENU ACTIONS (Pin / Fullscreen) ---
+        window.toggleCardMenu = (e, uid) => {
+            e.stopPropagation();
+            // Close all others
+            document.querySelectorAll('.card-dropdown').forEach(d => d.classList.remove('show'));
+            // Toggle current
+            const menu = document.getElementById(`menu-${uid}`);
+            menu.classList.toggle('show');
+        }
+
+        // Close dropdowns when clicking anywhere else
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.card-dropdown').forEach(d => d.classList.remove('show'));
+        });
+
+        window.pinUser = (uid) => {
+            if (pinnedUserId === uid) {
+                pinnedUserId = null; // Unpin
+            } else {
+                pinnedUserId = uid; // Pin
+            }
+            // Update menu text for this user
+            const label = pinnedUserId === uid ? 'Unpin' : 'Pin User';
+            // Note: In real app, re-rendering text is cleaner, here we just trigger layout
+            calculateLayout();
+        }
+
+        window.enterFullscreen = (uid) => {
+            const card = document.getElementById(`vid-${uid}`);
+            if(card.requestFullscreen) {
+                card.requestFullscreen();
+            } else if(card.webkitRequestFullscreen) { /* Safari */
+                card.webkitRequestFullscreen();
+            }
         }
 
         function stringToColor(str) {
@@ -476,40 +530,7 @@
             return `hsl(${hash % 360}, 60%, 50%)`;
         }
 
-        // --- 3. PIN & FULLSCREEN LOGIC ---
-        window.toggleCardMenu = (uid) => {
-            // Close others
-            document.querySelectorAll('.user-dropdown').forEach(d => d.classList.remove('show'));
-            const menu = document.getElementById(`menu-${uid}`);
-            if(menu) menu.classList.toggle('show');
-            event.stopPropagation();
-        };
-
-        // Close dropdowns on click elsewhere
-        document.addEventListener('click', (e) => {
-            if(!e.target.closest('.card-more-btn')) {
-                document.querySelectorAll('.user-dropdown').forEach(d => d.classList.remove('show'));
-            }
-        });
-
-        window.pinUser = (uid) => {
-            if (pinnedUserId === uid) {
-                pinnedUserId = null; // Unpin
-            } else {
-                pinnedUserId = uid; // Pin new
-            }
-            calculateLayout();
-        };
-
-        window.fullscreenUser = (uid) => {
-            const vid = document.querySelector(`#vid-${uid} video`);
-            if (vid) {
-                if (vid.requestFullscreen) vid.requestFullscreen();
-                else if (vid.webkitRequestFullscreen) vid.webkitRequestFullscreen();
-            }
-        };
-
-        // --- 4. SIGNALING ---
+        // --- 4. SIGNALING & INIT ---
         document.getElementById('roomInput').oninput = (e) => document.getElementById('joinBtn').disabled = !e.target.value;
         document.getElementById('createBtn').onclick = () => start(Math.random().toString(36).substr(2, 6));
         document.getElementById('joinBtn').onclick = () => start(document.getElementById('roomInput').value.trim());
@@ -554,7 +575,7 @@
                 });
             });
 
-            // Signals
+            // Signals & Chat (Kept same as before)
             onSnapshot(collection(db, `rooms/${roomId}/signals`), (snap) => {
                 snap.docChanges().forEach(async change => {
                     if(change.type === 'added') {
@@ -567,7 +588,6 @@
                 });
             });
 
-            // Chat
             onSnapshot(query(collection(db, `rooms/${roomId}/chat`), orderBy('ts')), (snap) => {
                 snap.docChanges().forEach(change => {
                     if(change.type === 'added') {
@@ -612,6 +632,7 @@
             card.classList.toggle('hand-up', data.hand);
         }
 
+        // --- 6. AUDIO VISUALIZER ---
         function setupAudioViz(stream, uid) {
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const src = audioCtx.createMediaStreamSource(stream);
@@ -627,54 +648,44 @@
             }; loop();
         }
 
-        // --- 6. GLOBAL MENU & CONTROLS ---
-        window.toggleOptions = () => {
-            isOptionsOpen = !isOptionsOpen;
-            const btn = document.getElementById('moreBtn');
-            const drawer = document.getElementById('options-drawer');
-            
-            if(isOptionsOpen) {
-                drawer.classList.add('open');
-                btn.classList.add('active');
-            } else {
-                drawer.classList.remove('open');
-                btn.classList.remove('active');
-            }
-        };
-
+        // --- 7. CONTROLS & NEW DRAWER LOGIC ---
         const myDoc = () => doc(db, `rooms/${roomId}/users/${myId}`);
         
+        // Basic Mute/Cam
         document.getElementById('micBtn').onclick = (e) => {
             isMuted = !isMuted; localStream.getAudioTracks()[0].enabled = !isMuted;
-            e.currentTarget.classList.toggle('off', isMuted);
-            e.currentTarget.innerHTML = `<i data-lucide="${isMuted ? 'mic-off' : 'mic'}"></i>`;
-            lucide.createIcons();
+            updateBtn(e.currentTarget, isMuted, 'mic', 'mic-off');
             updateDoc(myDoc(), { mic: !isMuted });
             document.getElementById(`vid-${myId}`).classList.toggle('muted', isMuted);
         };
-        
         document.getElementById('camBtn').onclick = (e) => {
             isCamOff = !isCamOff; localStream.getVideoTracks()[0].enabled = !isCamOff;
-            e.currentTarget.classList.toggle('off', isCamOff);
-            e.currentTarget.innerHTML = `<i data-lucide="${isCamOff ? 'video-off' : 'camera'}"></i>`;
-            lucide.createIcons();
+            updateBtn(e.currentTarget, isCamOff, 'camera', 'camera-off');
             updateDoc(myDoc(), { cam: !isCamOff });
             document.getElementById(`vid-${myId}`).classList.toggle('cam-off', isCamOff);
         };
 
-        // --- OPTIONS DRAWER ACTIONS ---
-        document.getElementById('optRaiseHand').onclick = () => {
-            isHandRaised = !isHandRaised;
-            updateDoc(myDoc(), { hand: isHandRaised });
-            // Close menu
-            toggleOptions();
+        // --- NEW OPTION DRAWER LOGIC ---
+        window.toggleOptions = () => {
+            if(isChatOpen) window.toggleChat(); // Close chat if open
+
+            isOptionsOpen = !isOptionsOpen;
+            optionsDrawer.classList.toggle('open', isOptionsOpen);
+            stage.classList.toggle('drawer-open', isOptionsOpen);
+            document.getElementById('moreBtn').classList.toggle('active', isOptionsOpen);
+            setTimeout(calculateLayout, 300);
         };
 
-        document.getElementById('optShareScreen').onclick = async () => {
-             // Close menu
-             toggleOptions();
-             
-             if(!screenStream) {
+        // Option 1: Hand Raise
+        window.toggleHand = () => {
+            isHandRaised = !isHandRaised;
+            updateDoc(myDoc(), { hand: isHandRaised });
+            document.getElementById('optHand').classList.toggle('active', isHandRaised);
+        };
+
+        // Option 2: Share Screen
+        window.toggleScreen = async () => {
+            if(!screenStream) {
                 try {
                     screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
                     const trk = screenStream.getVideoTracks()[0];
@@ -684,11 +695,12 @@
                     }
                     const localVid = document.querySelector(`#vid-${myId} video`);
                     localVid.srcObject = screenStream;
-                    localVid.classList.remove('mirrored'); // Fix mirroring
-                    
+                    localVid.classList.remove('mirrored');
+                    document.getElementById('optScreen').classList.add('active');
                     trk.onended = stopScreen;
-                } catch(e) {}
-             } else stopScreen();
+                    window.toggleOptions(); // Close drawer after selecting
+                } catch(e) { console.error(e); }
+            } else stopScreen();
         };
 
         function stopScreen() {
@@ -699,23 +711,55 @@
             }
             const localVid = document.querySelector(`#vid-${myId} video`);
             localVid.srcObject = localStream;
-            localVid.classList.add('mirrored'); // Restore mirroring
-            
+            localVid.classList.add('mirrored');
+            document.getElementById('optScreen').classList.remove('active');
             if(screenStream) screenStream.getTracks().forEach(t=>t.stop());
             screenStream = null;
         }
 
-        document.getElementById('hangupBtn').onclick = () => window.location.reload();
+        // Option 3: Blur (Simulated for Demo)
+        window.toggleBlur = () => {
+            isBlurEnabled = !isBlurEnabled;
+            document.getElementById('optBlur').classList.toggle('active', isBlurEnabled);
+            
+            // To properly blur background in web requires TensorFlow/MediaPipe (Too heavy for this single file).
+            // We apply a visual filter to the video element to signify the state change, 
+            // though in a real app this would segmentation mask the user.
+            const localVid = document.querySelector(`#vid-${myId} video`);
+            if(isBlurEnabled) {
+                localVid.style.filter = "blur(5px)"; // Visual indicator only
+            } else {
+                localVid.style.filter = "none";
+            }
+        };
 
-        // --- 7. CHAT ---
+        // --- 8. CHAT LOGIC ---
         window.toggleChat = () => {
+            if(isOptionsOpen) window.toggleOptions(); // Close options if open
+
             isChatOpen = !isChatOpen;
             chatDrawer.classList.toggle('open', isChatOpen);
             stage.classList.toggle('drawer-open', isChatOpen);
             document.getElementById('chatBtn').classList.toggle('active', isChatOpen);
-            if(isChatOpen) unreadDot.style.display = 'none';
+            
+            if(isChatOpen) {
+                unreadDot.style.display = 'none';
+                setTimeout(() => { calculateLayout(); document.getElementById('chatInput').focus(); }, 300);
+            } else {
+                setTimeout(calculateLayout, 300);
+            }
         };
 
+        document.getElementById('hangupBtn').onclick = () => window.location.reload();
+
+        function updateBtn(btn, off, iconOn, iconOff) {
+            btn.classList.toggle('off-red', off);
+            btn.innerHTML = `<i data-lucide="${off ? iconOff : iconOn}"></i>`;
+            if(btn.id === 'moreBtn') btn.appendChild(document.getElementById('optionsDot'));
+            lucide.createIcons();
+        }
+
+        document.getElementById('chatInput').oninput = (e) => document.getElementById('sendBtn').disabled = !e.target.value.trim();
         document.getElementById('sendBtn').onclick = sendMsg;
         document.getElementById('chatInput').onkeydown = (e) => { if(e.key === 'Enter') sendMsg(); };
 
@@ -730,7 +774,7 @@
             const isMe = msg.sender === myId;
             const div = document.createElement('div');
             div.className = `msg ${isMe ? 'me' : 'them'}`;
-            div.innerHTML = `<div class="msg-bubble">${msg.text}</div>`;
+            div.innerHTML = `<div class="msg-name">${isMe ? 'You' : msg.sender}</div><div class="msg-bubble">${msg.text}</div>`;
             const body = document.getElementById('chatBody');
             body.appendChild(div);
             body.scrollTop = body.scrollHeight;

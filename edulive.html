@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edulinki Meet - Pro Grid</title>
+    <title>Edulinki Meet - Perfect Grid</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Google+Sans:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -17,7 +17,7 @@
             --danger: #ff5252;
             --text-main: #ffffff;
             --text-muted: #9aa0a6;
-            --glass-bg: rgba(30, 30, 30, 0.9);
+            --glass-bg: rgba(30, 30, 30, 0.85);
             --border: rgba(255, 255, 255, 0.1);
         }
 
@@ -37,87 +37,95 @@
         header {
             position: fixed; top: 0; left: 0; width: 100%; height: 60px;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px; z-index: 50;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            padding: 0 24px; z-index: 50;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
             pointer-events: none;
         }
-        .header-left { display: flex; align-items: center; gap: 10px; pointer-events: auto; }
-        .logo { font-family: 'Google Sans'; font-size: 18px; font-weight: 500; color: white; display: flex; align-items: center; gap: 8px;}
+        .header-left { display: flex; align-items: center; gap: 12px; pointer-events: auto; }
+        .logo { font-family: 'Google Sans'; font-size: 19px; font-weight: 500; color: white; display: flex; align-items: center; gap: 8px;}
         .room-badge {
-            background: rgba(255,255,255,0.15); backdrop-filter: blur(5px);
-            padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500;
-            display: none; pointer-events: auto;
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(8px);
+            padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
+            display: none; pointer-events: auto; border: 1px solid var(--border);
         }
 
         /* --- LOBBY --- */
         #lobby {
             position: absolute; inset: 0; z-index: 100;
             display: flex; align-items: center; justify-content: center;
-            background: var(--bg-dark);
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
         }
         .lobby-card {
-            background: var(--surface); padding: 30px; border-radius: 20px;
+            background: var(--surface); padding: 40px; border-radius: 24px;
             width: 90%; max-width: 400px; text-align: center;
             border: 1px solid var(--border);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
         }
-        .lobby-card h1 { font-family: 'Google Sans'; margin-bottom: 8px; }
+        .lobby-card h1 { font-family: 'Google Sans'; margin-bottom: 12px; font-weight: 400; font-size: 26px; }
         .input-box {
             background: var(--surface-light); border: 1px solid transparent;
-            width: 100%; padding: 14px; border-radius: 10px; color: white;
-            font-size: 16px; margin: 20px 0; outline: none; transition: 0.2s;
+            width: 100%; padding: 16px; border-radius: 12px; color: white;
+            font-size: 16px; margin: 24px 0; outline: none; transition: 0.2s;
         }
-        .input-box:focus { border-color: var(--primary); }
+        .input-box:focus { border-color: var(--primary); background: #333; }
         .btn-primary {
-            width: 100%; padding: 14px; background: var(--primary); color: #000;
-            border: none; border-radius: 10px; font-weight: 600; font-size: 16px;
-            cursor: pointer; margin-bottom: 10px;
+            width: 100%; padding: 16px; background: var(--primary); color: #000;
+            border: none; border-radius: 12px; font-weight: 600; font-size: 16px;
+            cursor: pointer; margin-bottom: 12px; transition: opacity 0.2s;
         }
-        .btn-text { background: none; border: none; color: var(--primary); cursor: pointer; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-text { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: 500; }
 
         /* --- STAGE (VIDEO GRID) --- */
         #meeting-stage {
             flex: 1; 
             display: none; 
             position: relative;
-            padding: 60px 10px 90px 10px; /* Header/Footer space */
+            /* Padding ensures header/footer don't cover videos */
+            padding: 70px 20px 100px 20px; 
             overflow: hidden;
             transition: margin-right 0.3s ease;
         }
         #meeting-stage.drawer-open { margin-right: 340px; } /* Desktop Push */
-        @media(max-width: 768px) { #meeting-stage.drawer-open { margin-right: 0; } } /* Mobile Overlay */
+        @media(max-width: 800px) { 
+            #meeting-stage { padding: 60px 10px 90px 10px; }
+            #meeting-stage.drawer-open { margin-right: 0; } 
+        }
 
-        /* The Grid Container */
+        /* The Grid Container - Flexbox with JS Calculation */
         #video-grid {
             width: 100%; height: 100%;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            align-content: center;
-            gap: 12px;
+            align-content: center; /* Centers the block of videos vertically */
+            align-items: center;
+            gap: 16px;
         }
 
         /* --- VIDEO CARD --- */
         .vid-card {
-            /* Width/Height set by JS Logic */
+            /* Width/Height injected by JS */
             position: relative; 
             background: #202124; 
-            border-radius: 12px; 
+            border-radius: 16px; 
             overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
             border: 2px solid transparent;
         }
-        .vid-card.speaking { border-color: var(--primary); }
+        .vid-card.speaking { border-color: var(--primary); box-shadow: 0 0 15px rgba(138, 180, 248, 0.3); }
 
         video { width: 100%; height: 100%; object-fit: cover; background: #000; }
+        
+        /* Mirroring: Only for local camera, NOT screen share */
         .mirrored { transform: scaleX(-1); }
 
         .name-tag {
-            position: absolute; bottom: 10px; left: 10px;
-            background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 6px;
+            position: absolute; bottom: 12px; left: 12px;
+            background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 6px;
             font-size: 12px; color: white; display: flex; align-items: center; gap: 6px;
-            backdrop-filter: blur(4px); pointer-events: none;
+            backdrop-filter: blur(4px); pointer-events: none; font-weight: 500;
         }
         
         .status-icon { color: var(--danger); display: none; }
@@ -126,92 +134,97 @@
         .avatar {
             position: absolute; inset: 0; background: #333;
             display: none; align-items: center; justify-content: center;
-            font-size: 40px; color: white; font-weight: bold;
+            font-size: 48px; color: white; font-weight: bold;
         }
         .vid-card.cam-off video { opacity: 0; }
         .vid-card.cam-off .avatar { display: flex; }
 
         .hand-badge {
-            position: absolute; top: 10px; left: 10px;
-            background: #2c2c2c; padding: 6px; border-radius: 50%;
-            display: none; animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: absolute; top: 12px; left: 12px;
+            background: #2c2c2c; padding: 8px; border-radius: 50%;
+            display: none; animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         .vid-card.hand-up .hand-badge { display: block; }
         @keyframes pop { from {transform: scale(0);} to {transform: scale(1);} }
 
         /* --- CONTROLS --- */
         .controls-wrapper {
-            position: fixed; bottom: 20px; left: 0; width: 100%;
+            position: fixed; bottom: 24px; left: 0; width: 100%;
             display: flex; justify-content: center; z-index: 60; pointer-events: none;
         }
         .control-bar {
-            background: var(--glass-bg); backdrop-filter: blur(10px);
-            padding: 8px 16px; border-radius: 50px; border: 1px solid var(--border);
-            display: flex; gap: 10px; pointer-events: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            background: var(--glass-bg); backdrop-filter: blur(16px);
+            padding: 10px 20px; border-radius: 50px; border: 1px solid var(--border);
+            display: flex; gap: 12px; pointer-events: auto;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
         }
         .btn-ctrl {
-            width: 44px; height: 44px; border-radius: 50%; border: none;
+            width: 48px; height: 48px; border-radius: 50%; border: none;
             background: transparent; color: white; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: 0.2s; position: relative;
         }
-        .btn-ctrl:hover { background: rgba(255,255,255,0.1); }
+        .btn-ctrl:hover { background: rgba(255,255,255,0.15); }
+        .btn-ctrl:active { transform: scale(0.95); }
         .btn-ctrl.active { background: var(--primary); color: black; }
-        .btn-ctrl.off { background: var(--surface-light); color: var(--text-muted); } /* Mic/Cam off state visual */
-        .btn-ctrl.off-red { background: var(--danger); color: white; } /* Strict Red for Off */
+        .btn-ctrl.off { background: rgba(255,255,255,0.1); color: var(--text-muted); }
+        .btn-ctrl.off-red { background: var(--danger); color: white; }
         
-        .btn-ctrl.hangup { background: var(--danger); width: 60px; border-radius: 30px; }
-        
+        .btn-ctrl.hangup { background: var(--danger); width: 64px; border-radius: 32px; margin-left: 8px;}
+        .btn-ctrl.hangup:hover { background: #d32f2f; }
+
         .unread-dot {
-            position: absolute; top: 2px; right: 2px; width: 10px; height: 10px;
-            background: var(--danger); border-radius: 50%; border: 2px solid var(--surface);
+            position: absolute; top: 10px; right: 10px; width: 10px; height: 10px;
+            background: var(--danger); border-radius: 50%; border: 2px solid #2e2e2e;
             display: none;
         }
 
-        /* --- CHAT DRAWER (Responsive) --- */
+        /* --- CHAT DRAWER --- */
         #chat-drawer {
             position: fixed; top: 16px; bottom: 16px; right: 16px; width: 320px;
             background: var(--surface); border-radius: 16px;
             border: 1px solid var(--border);
             display: flex; flex-direction: column; z-index: 100;
             transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: -5px 0 30px rgba(0,0,0,0.5);
+            box-shadow: -10px 0 40px rgba(0,0,0,0.6);
         }
         #chat-drawer.open { transform: translateX(0); }
 
-        /* Mobile Chat Style (Bottom Sheet) */
+        /* Mobile Chat (Bottom Sheet) */
         @media (max-width: 768px) {
             #chat-drawer {
                 top: auto; bottom: 0; left: 0; right: 0; width: 100%; height: 85vh;
-                border-radius: 20px 20px 0 0; transform: translateY(100%);
+                border-radius: 24px 24px 0 0; transform: translateY(100%);
+                border: none; box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
             }
             #chat-drawer.open { transform: translateY(0); }
         }
 
         .chat-header {
-            padding: 16px; border-bottom: 1px solid var(--border);
+            padding: 18px 20px; border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
-            font-weight: 600; font-family: 'Google Sans';
+            font-weight: 500; font-family: 'Google Sans'; font-size: 18px;
         }
-        .chat-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
         
         .msg { display: flex; flex-direction: column; max-width: 85%; }
         .msg.me { align-self: flex-end; align-items: flex-end; }
         .msg.them { align-self: flex-start; align-items: flex-start; }
         
         .msg-name { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; margin-left: 4px; }
-        .msg-bubble { padding: 10px 14px; border-radius: 18px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
+        .msg-bubble { padding: 12px 16px; border-radius: 20px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
         
-        .msg.me .msg-bubble { background: var(--primary); color: black; border-bottom-right-radius: 4px; }
-        .msg.them .msg-bubble { background: var(--surface-light); color: white; border-bottom-left-radius: 4px; }
+        .msg.me .msg-bubble { background: var(--primary); color: #121212; border-bottom-right-radius: 4px; }
+        .msg.them .msg-bubble { background: #333; color: white; border-bottom-left-radius: 4px; }
 
-        .chat-footer { padding: 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+        .chat-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 12px; }
         .chat-input {
-            flex: 1; background: var(--surface-light); border: none; padding: 12px;
-            border-radius: 24px; color: white; outline: none; font-family: 'Inter';
+            flex: 1; background: #2c2c2c; border: none; padding: 14px;
+            border-radius: 24px; color: white; outline: none; font-family: 'Inter'; font-size: 15px;
         }
-        .chat-send { background: none; border: none; color: var(--primary); cursor: pointer; padding: 8px; }
+        .chat-send { background: none; border: none; color: var(--primary); cursor: pointer; padding: 8px; transition: transform 0.1s;}
+        .chat-send:active { transform: scale(0.9); }
 
     </style>
 </head>
@@ -227,7 +240,7 @@
     <div id="lobby">
         <div class="lobby-card">
             <h1>Join Meeting</h1>
-            <p style="color:var(--text-muted); margin-bottom: 20px;">Secure, real-time conferencing.</p>
+            <p style="color:var(--text-muted); margin-bottom: 24px;">Premium video conferencing.</p>
             <input type="text" id="roomInput" class="input-box" placeholder="Enter Room Code" autocomplete="off">
             <button id="joinBtn" class="btn-primary" disabled>Join Room</button>
             <button id="createBtn" class="btn-text">Create New Meeting</button>
@@ -242,13 +255,15 @@
     <div id="chat-drawer">
         <div class="chat-header">
             <span>Messages</span>
-            <button onclick="toggleChat()" style="background:none; border:none; color:white; cursor:pointer;"><i data-lucide="x"></i></button>
+            <button onclick="toggleChat()" style="background:none; border:none; color:var(--text-muted); cursor:pointer;"><i data-lucide="x"></i></button>
         </div>
         <div class="chat-body" id="chatBody">
-            <div style="text-align:center; font-size:12px; color:#555; margin-top:20px;">Messages disappear after the call.</div>
+            <div style="text-align:center; font-size:13px; color:#555; margin-top:20px;">
+                Messages are deleted when the call ends.
+            </div>
         </div>
         <div class="chat-footer">
-            <input type="text" id="chatInput" class="chat-input" placeholder="Send a message..." autocomplete="off">
+            <input type="text" id="chatInput" class="chat-input" placeholder="Type a message..." autocomplete="off">
             <button id="sendBtn" class="chat-send" disabled><i data-lucide="send-horizontal"></i></button>
         </div>
     </div>
@@ -295,7 +310,7 @@
         let audioCtx;
         let isMuted = false, isCamOff = false, isHandRaised = false, isChatOpen = false;
 
-        // DOM
+        // DOM Elements
         const grid = document.getElementById('video-grid');
         const lobby = document.getElementById('lobby');
         const stage = document.getElementById('meeting-stage');
@@ -303,57 +318,57 @@
         const chatDrawer = document.getElementById('chat-drawer');
         const unreadDot = document.getElementById('unreadDot');
         
-        // --- 1. LAYOUT ENGINE (Smart Grid) ---
+        // --- 1. SMART GRID ALGORITHM (Google Meet Style) ---
         function calculateLayout() {
             const count = grid.children.length;
             if(count === 0) return;
 
-            // Dimensions of the stage container
-            const stageWidth = stage.clientWidth;
-            const stageHeight = stage.clientHeight;
-            
-            // Calculate best fit
+            // Get available dimensions (accounting for padding)
+            const width = stage.clientWidth - 40; 
+            const height = stage.clientHeight - 140; // Minus headers/footers
+
             let bestCols = 1;
             let bestRows = 1;
             let maxArea = 0;
 
-            // Brute force aspect ratio fit (1 to count columns)
+            // Iterate through 1 to N columns to find best fit
             for (let cols = 1; cols <= count; cols++) {
                 const rows = Math.ceil(count / cols);
-                const hScale = stageWidth / cols;
-                const vScale = stageHeight / rows;
                 
-                // We want 16:9 ratio cards
-                let width, height;
+                // Calculate max possible width/height per card based on grid slots
+                const hScale = width / cols;
+                const vScale = height / rows;
+                
+                // Force 16:9 Aspect Ratio
+                let cardW, cardH;
                 if (hScale * (9/16) < vScale) {
-                    width = hScale;
-                    height = hScale * (9/16);
+                    cardW = hScale;
+                    cardH = hScale * (9/16);
                 } else {
-                    height = vScale;
-                    width = vScale * (16/9);
+                    cardH = vScale;
+                    cardW = vScale * (16/9);
                 }
                 
-                const area = width * height;
+                const area = cardW * cardH;
                 if (area > maxArea) {
                     maxArea = area;
                     bestCols = cols;
+                    bestRows = rows;
                 }
             }
 
-            // Apply size
-            // Subtracting small gap for margins
-            const cardW = (stageWidth / bestCols) - 16; 
-            const cardH = cardW * (9/16);
+            // Apply calculated sizes with a small gap margin
+            const finalW = (width / bestCols) - 16; 
+            const finalH = finalW * (9/16);
 
             const cards = Array.from(grid.children);
             cards.forEach(card => {
-                card.style.width = `${cardW}px`;
-                card.style.height = `${cardH}px`;
-                card.style.flex = "0 0 auto"; // Prevent flexing weirdly
+                card.style.width = `${finalW}px`;
+                card.style.height = `${finalH}px`;
+                card.style.flex = "0 0 auto"; // Don't let flexbox mess with size
             });
         }
         
-        // Recalculate on window resize
         window.onresize = calculateLayout;
 
         // --- 2. VIDEO MANAGER ---
@@ -363,8 +378,13 @@
             const card = document.createElement('div');
             card.className = 'vid-card';
             card.id = `vid-${uid}`;
+            
+            // Note: .mirrored class is only added if isLocal AND it's not a screen share
+            // Initially, local cam is mirrored.
+            const mirrorClass = isLocal ? 'mirrored' : '';
+
             card.innerHTML = `
-                <video autoplay playsinline ${isLocal ? 'muted class="mirrored"' : ''}></video>
+                <video autoplay playsinline class="${mirrorClass}" ${isLocal ? 'muted' : ''}></video>
                 <div class="avatar" style="background:${stringToColor(uid)}">${uid[0]}</div>
                 <div class="name-tag">
                     <i data-lucide="mic-off" class="status-icon" size="12"></i>
@@ -376,7 +396,6 @@
             grid.appendChild(card);
             lucide.createIcons();
             
-            // Trigger layout recalculation
             calculateLayout();
         }
 
@@ -390,7 +409,7 @@
             return `hsl(${hash % 360}, 60%, 50%)`;
         }
 
-        // --- 3. INIT & SIGNALING ---
+        // --- 3. SIGNALING & INIT ---
         document.getElementById('roomInput').oninput = (e) => document.getElementById('joinBtn').disabled = !e.target.value;
         document.getElementById('createBtn').onclick = () => start(Math.random().toString(36).substr(2, 6));
         document.getElementById('joinBtn').onclick = () => start(document.getElementById('roomInput').value.trim());
@@ -408,7 +427,7 @@
                 addVideoCard(myId, localStream, true);
                 setupAudioViz(localStream, myId);
                 await joinRoom();
-            } catch(e) { alert("Camera Error"); }
+            } catch(e) { alert("Camera access required!"); }
         }
 
         async function joinRoom() {
@@ -459,7 +478,7 @@
             });
         }
 
-        // --- 4. WEBRTC ---
+        // --- 4. WEBRTC (MESH) ---
         async function createPeer(uid, initiator) {
             const pc = new RTCPeerConnection(iceServers);
             pcs[uid] = pc;
@@ -493,7 +512,7 @@
             card.classList.toggle('hand-up', data.hand);
         }
 
-        // --- 5. AUDIO GLOW ---
+        // --- 5. AUDIO VISUALIZER ---
         function setupAudioViz(stream, uid) {
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const src = audioCtx.createMediaStreamSource(stream);
@@ -537,7 +556,7 @@
             lucide.createIcons();
         }
 
-        // --- 7. CHAT & UTILS ---
+        // --- 7. CHAT LOGIC ---
         window.toggleChat = () => {
             isChatOpen = !isChatOpen;
             chatDrawer.classList.toggle('open', isChatOpen);
@@ -572,30 +591,50 @@
             body.appendChild(div);
             body.scrollTop = body.scrollHeight;
         }
-        
-        // Screen Share
+
+        // --- 8. SCREEN SHARE (FIXED MIRRORING) ---
         document.getElementById('screenBtn').onclick = async () => {
              if(!screenStream) {
                 try {
                     screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
                     const trk = screenStream.getVideoTracks()[0];
+                    
+                    // Replace tracks for remote peers
                     for(let uid in pcs) {
                         const snd = pcs[uid].getSenders().find(s => s.track.kind === 'video');
                         if(snd) snd.replaceTrack(trk);
                     }
-                    document.querySelector(`#vid-${myId} video`).srcObject = screenStream;
+                    
+                    // Update Local Video
+                    const localVid = document.querySelector(`#vid-${myId} video`);
+                    localVid.srcObject = screenStream;
+                    
+                    // *** FIX: REMOVE MIRROR CLASS FOR SCREEN SHARE ***
+                    localVid.classList.remove('mirrored');
+                    
+                    document.getElementById('screenBtn').classList.add('active');
+
                     trk.onended = stopScreen;
-                } catch(e) {}
+                } catch(e) { console.error(e); }
              } else stopScreen();
         };
 
         function stopScreen() {
             const trk = localStream.getVideoTracks()[0];
+            // Replace back to camera
             for(let uid in pcs) {
                 const snd = pcs[uid].getSenders().find(s => s.track.kind === 'video');
                 if(snd) snd.replaceTrack(trk);
             }
-            document.querySelector(`#vid-${myId} video`).srcObject = localStream;
+            
+            const localVid = document.querySelector(`#vid-${myId} video`);
+            localVid.srcObject = localStream;
+            
+            // *** FIX: ADD MIRROR CLASS BACK FOR CAMERA ***
+            localVid.classList.add('mirrored');
+            
+            document.getElementById('screenBtn').classList.remove('active');
+
             if(screenStream) screenStream.getTracks().forEach(t=>t.stop());
             screenStream = null;
         }

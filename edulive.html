@@ -3,537 +3,521 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edulinki Social Live</title>
+    <title>Edulinki Live</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --primary: #FE2C55; --dark: #121212; --gray: #2f2f2f; }
+        :root {
+            --primary: #fe2c55; /* TikTok Red */
+            --dark: #121212;
+            --overlay: rgba(0, 0, 0, 0.4);
+        }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #000; color: #fff; overflow: hidden; height: 100vh; }
+
+        /* --- APP CONTAINER --- */
+        #app { width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; }
+
+        /* --- VIEWS --- */
+        .view { flex: 1; display: none; flex-direction: column; position: relative; overflow-y: auto; }
+        .view.active { display: flex; }
+
+        /* --- FEED VIEW --- */
+        .feed-header { padding: 15px; background: rgba(0,0,0,0.8); position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(5px); }
+        .logo { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; }
+        .logo span { color: var(--primary); }
         
-        body {
-            margin: 0; background: #000; color: white;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden; height: 100vh; display: flex; flex-direction: column;
-        }
+        .room-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+        .room-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; aspect-ratio: 9/16; cursor: pointer; transition: transform 0.2s; }
+        .room-card:active { transform: scale(0.98); }
+        .room-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
+        .room-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px; background: linear-gradient(to top, black, transparent); }
+        .live-badge { position: absolute; top: 10px; left: 10px; background: var(--primary); padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+        .room-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; text-shadow: 0 1px 2px black; }
+        .viewer-count { font-size: 0.7rem; color: #ddd; }
 
-        /* --- NAVIGATION & PAGES --- */
-        .page {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; flex-direction: column;
-            background: #000; z-index: 1;
-        }
-        .page.active { display: flex; }
+        .empty-state { text-align: center; margin-top: 100px; color: #777; padding: 20px; }
+        .empty-state i { font-size: 3rem; margin-bottom: 10px; }
 
-        /* FOOTER NAV */
-        .nav-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
-            background: #000; border-top: 1px solid #222;
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 100; padding-bottom: 5px;
-        }
-        .nav-item {
-            color: #888; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px;
-            text-decoration: none; cursor: pointer; width: 60px;
-        }
-        .nav-item i { font-size: 20px; }
-        .nav-item.active { color: white; }
-        .nav-create-btn {
-            width: 45px; height: 30px; background: linear-gradient(90deg, #25F4EE 0%, #FE2C55 100%);
-            border-radius: 8px; display: flex; align-items: center; justify-content: center;
-        }
-        .nav-create-btn i { color: black; font-size: 14px; }
+        /* --- CREATE VIEW --- */
+        .create-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #1a1a1a; padding: 20px; }
+        .preview-box { width: 100%; max-width: 400px; aspect-ratio: 9/16; background: #000; border-radius: 15px; overflow: hidden; position: relative; border: 1px solid #333; margin-bottom: 20px; }
+        #previewVideo { width: 100%; height: 100%; object-fit: cover; }
+        .input-group { width: 100%; max-width: 400px; display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #333; color: white; outline: none; }
+        .btn-live { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        /* --- HOME FEED --- */
-        .feed-header { padding: 15px; font-weight: 700; font-size: 18px; border-bottom: 1px solid #222; }
-        .room-list { flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        /* --- LIVE ROOM VIEW (The TikTok Layout) --- */
+        .live-room { position: relative; background: #000; height: 100%; overflow: hidden; }
         
-        .room-card {
-            background: #1a1a1a; border-radius: 8px; overflow: hidden; position: relative;
-            aspect-ratio: 9/16; cursor: pointer; border: 1px solid #333;
-        }
-        .room-preview { width: 100%; height: 100%; object-fit: cover; background: #222; }
-        .room-overlay {
-            position: absolute; bottom: 0; left: 0; width: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-            padding: 10px;
-        }
-        .room-badge { position: absolute; top: 8px; left: 8px; background: var(--primary); font-size: 10px; padding: 2px 6px; border-radius: 4px; }
-        .room-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-        .room-user { font-size: 11px; color: #ccc; display: flex; align-items: center; gap: 5px; }
-
-        /* --- CREATE PAGE --- */
-        .create-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .create-input { background: #222; border: none; padding: 15px; border-radius: 8px; color: white; width: 100%; margin-bottom: 20px; font-size: 16px; }
-        .start-btn { background: var(--primary); color: white; border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; font-size: 16px; width: 100%; }
-
-        /* --- LIVE ROOM --- */
-        .video-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: #111; }
-        #mainVideo { width: 100%; height: 100%; object-fit: cover; }
+        /* Video Layer */
+        .video-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: flex; flex-direction: column; }
+        video { width: 100%; flex: 1; object-fit: cover; }
         
-        /* PiP for Co-Host */
-        .pip-window {
-            position: absolute; top: 100px; right: 20px; width: 100px; height: 150px;
-            border-radius: 8px; overflow: hidden; border: 2px solid rgba(255,255,255,0.3);
-            z-index: 2; display: none; background: #000;
-        }
-        .pip-window.active { display: block; }
-        #pipVideo { width: 100%; height: 100%; object-fit: cover; }
+        /* If Guest Joins (Split Screen) */
+        .video-layer.split video { height: 50%; border-bottom: 1px solid #333; }
 
         /* UI Overlay */
-        .live-ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
-        .live-ui * { pointer-events: auto; }
+        .ui-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 15px; background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%); }
         
-        .live-header { position: absolute; top: 20px; left: 15px; display: flex; align-items: center; gap: 10px; }
-        .host-pill { background: rgba(0,0,0,0.4); padding: 4px 12px 4px 4px; border-radius: 20px; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(5px); }
-        .avatar { width: 30px; height: 30px; background: #555; border-radius: 50%; border: 1px solid var(--primary); }
-        .viewer-count { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 4px; font-size: 12px; }
+        /* Top Bar */
+        .top-bar { display: flex; align-items: center; gap: 10px; pointer-events: auto; }
+        .host-pill { background: rgba(60, 60, 60, 0.6); backdrop-filter: blur(10px); padding: 4px 15px 4px 4px; border-radius: 20px; display: flex; align-items: center; gap: 8px; }
+        .host-avatar { width: 32px; height: 32px; background: #ddd; border-radius: 50%; overflow: hidden; }
+        .host-avatar img { width: 100%; height: 100%; }
+        .host-info { display: flex; flex-direction: column; }
+        .host-name { font-size: 0.8rem; font-weight: bold; }
+        .host-stats { font-size: 0.6rem; color: #ccc; }
+        .btn-close { margin-left: auto; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 
-        .close-btn { position: absolute; top: 60px; right: 20px; font-size: 24px; color: white; background: none; border: none; text-shadow: 0 2px 4px black; }
+        /* Bottom Area (Chat & Comments) */
+        .bottom-area { display: flex; flex-direction: column; gap: 10px; justify-content: flex-end; height: 50%; pointer-events: auto; }
+        
+        .chat-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; mask-image: linear-gradient(to bottom, transparent, black 20%); -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%); }
+        .chat-msg { margin-bottom: 8px; font-size: 0.9rem; text-shadow: 0 1px 2px black; animation: fadeInUp 0.3s ease; }
+        .chat-user { font-weight: 700; color: rgba(255,255,255,0.7); margin-right: 5px; }
+        .chat-text { color: white; }
+        .chat-system { color: #ffd700; font-style: italic; font-size: 0.85rem; }
 
-        /* Chat & Actions */
-        .chat-container {
-            position: absolute; bottom: 80px; left: 15px; width: 75%; height: 250px;
-            overflow-y: scroll; display: flex; flex-direction: column; justify-content: flex-end;
-            mask-image: linear-gradient(to top, black 80%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%);
-        }
-        .chat-msg { margin-bottom: 6px; font-size: 13px; text-shadow: 0 1px 2px black; }
-        .chat-name { font-weight: 700; color: #ddd; margin-right: 5px; }
+        .action-bar { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; }
+        .comment-input { flex: 1; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 10px 15px; color: white; outline: none; backdrop-filter: blur(5px); }
+        .icon-btn { background: none; border: none; color: white; font-size: 1.8rem; cursor: pointer; text-shadow: 0 2px 5px rgba(0,0,0,0.5); transition: transform 0.1s; }
+        .icon-btn:active { transform: scale(1.2); }
+        .btn-request { background: linear-gradient(45deg, #00c6ff, #0072ff); font-size: 0.8rem; padding: 8px 12px; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,114,255,0.3); }
 
-        .action-bar {
-            position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px;
-            display: flex; gap: 10px; align-items: center; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-        }
-        .chat-input {
-            flex: 1; background: rgba(255,255,255,0.15); border: none; border-radius: 20px;
-            padding: 10px 15px; color: white; backdrop-filter: blur(4px);
-        }
-        .icon-btn {
-            background: none; border: none; color: white; font-size: 28px; width: 40px;
-            display: flex; align-items: center; justify-content: center;
-        }
+        /* --- FOOTER NAV --- */
+        .footer-nav { height: 60px; background: #000; border-top: 1px solid #222; display: flex; align-items: center; justify-content: space-around; z-index: 50; }
+        .nav-item { color: #777; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+        .nav-item i { font-size: 1.4rem; }
+        .nav-item.active { color: white; }
+        .nav-create { width: 45px; height: 30px; background: linear-gradient(90deg, #00f2ea, #ff0050); border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .nav-create::after { content: '+'; font-size: 1.5rem; font-weight: bold; color: black; background: white; height: 100%; width: 80%; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
 
-        /* Requests & Modals */
-        .request-btn {
-            position: absolute; bottom: 100px; right: 15px;
-            background: linear-gradient(45deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%);
-            border: none; border-radius: 20px; padding: 8px 12px; color: white; font-size: 12px; font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
-        .modal {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #222; padding: 20px; border-radius: 12px; z-index: 200;
-            width: 80%; text-align: center; border: 1px solid #444; display: none;
-        }
-        .modal h3 { margin-top: 0; }
-        .modal-btns { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-accept { flex: 1; background: #28a745; border: none; padding: 10px; border-radius: 6px; color: white; }
-        .btn-deny { flex: 1; background: #dc3545; border: none; padding: 10px; border-radius: 6px; color: white; }
-
-        .floating-heart {
-            position: absolute; bottom: 80px; right: 20px; font-size: 30px;
-            animation: floatUp 2s ease-in-out forwards; pointer-events: none; z-index: 5;
-        }
-        @keyframes floatUp { 0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; } 100% { transform: translateY(-300px) scale(1.5) rotate(20deg); opacity: 0; } }
-
+        /* Animations */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div id="page-home" class="page active">
-        <div class="feed-header">Live Now</div>
-        <div class="room-list" id="roomList">
-            <div style="text-align:center; color:#666; width:200%; padding-top:50px;">Loading rooms...</div>
+<div id="app">
+    <div id="view-feed" class="view active">
+        <div class="feed-header">
+            <div class="logo">Edu<span>linki</span></div>
+            <i class="fas fa-search"></i>
         </div>
-        <div style="height: 60px;"></div> </div>
-
-    <div id="page-create" class="page">
-        <div class="create-container">
-            <h2 style="margin-bottom: 30px;">Go Live</h2>
-            <input type="text" id="newRoomName" class="create-input" placeholder="Add a title (e.g., Chill Vibes)...">
-            <button id="btnGoLive" class="start-btn">Start Broadcast</button>
+        <div id="roomList" class="room-grid">
+            </div>
+        <div id="emptyState" class="empty-state hidden">
+            <i class="fas fa-broadcast-tower"></i>
+            <p>No one is live right now.<br>Be the first!</p>
         </div>
-        <div style="height: 60px;"></div>
     </div>
 
-    <div id="page-live" class="page" style="z-index: 200; background: #000;">
-        <div class="video-layer">
-            <video id="mainVideo" autoplay playsinline></video>
-            <div id="pipContainer" class="pip-window">
-                <video id="pipVideo" autoplay playsinline></video>
+    <div id="view-create" class="view">
+        <div class="create-container">
+            <h3 style="margin-bottom: 20px;">Ready to go LIVE?</h3>
+            <div class="preview-box">
+                <video id="previewVideo" autoplay playsinline muted></video>
+                <div class="label" style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px; font-size: 12px;">Preview</div>
+            </div>
+            <div class="input-group">
+                <input type="text" id="roomNameInput" placeholder="Add a title to your live...">
+                <button class="btn-live" id="startLiveBtn">Go LIVE</button>
             </div>
         </div>
+    </div>
 
-        <div class="live-ui">
-            <div class="live-header">
-                <div class="host-pill">
-                    <div class="avatar"></div>
-                    <div id="uiHostName" style="font-size: 12px; font-weight: 700;">Host</div>
+    <div id="view-room" class="view">
+        <div class="live-room">
+            <div class="video-layer" id="videoLayer">
+                <video id="hostVideo" autoplay playsinline muted></video>
+                <video id="guestVideo" autoplay playsinline class="hidden"></video>
+            </div>
+
+            <div class="ui-layer">
+                <div class="top-bar">
+                    <div class="host-pill">
+                        <div class="host-avatar"><img src="https://i.pravatar.cc/100?img=12" alt=""></div>
+                        <div class="host-info">
+                            <div class="host-name" id="roomTitleDisplay">User123</div>
+                            <div class="host-stats"><span id="viewerCountDisplay">1</span> viewers</div>
+                        </div>
+                        <button class="btn-follow" style="background:var(--primary); border:none; color:white; border-radius:10px; padding:2px 8px; font-size:10px; font-weight:bold;">FOLLOW</button>
+                    </div>
+                    <button class="btn-close" id="leaveRoomBtn"><i class="fas fa-times"></i></button>
+                </div>
+
+                <div class="bottom-area">
+                    <div class="chat-container" id="chatContainer">
+                        </div>
+                    <div class="action-bar">
+                        <input type="text" class="comment-input" id="chatInput" placeholder="Say something...">
+                        
+                        <div id="viewerActions" style="display:flex; gap:10px;">
+                            <button class="icon-btn btn-request" id="requestJoinBtn"><i class="fas fa-video"></i> Join</button>
+                            <button class="icon-btn" style="color: #fe2c55;"><i class="fas fa-heart"></i></button>
+                            <button class="icon-btn"><i class="fas fa-share"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <button class="close-btn" id="btnCloseLive"><i class="fas fa-times"></i></button>
-            <div class="viewer-count"><i class="fas fa-eye"></i> <span id="uiViewerCount">1</span></div>
-
-            <button id="btnRequestJoin" class="request-btn" style="display:none;">
-                <i class="fas fa-video"></i> Request to Join
-            </button>
-
-            <div class="chat-container" id="chatBox"></div>
-
-            <div class="action-bar">
-                <input type="text" id="chatInput" class="chat-input" placeholder="Say something...">
-                <button class="icon-btn" id="btnSendChat" style="font-size: 20px;"><i class="fas fa-paper-plane"></i></button>
-                <button class="icon-btn" id="btnLike" style="color: #FE2C55;"><i class="fas fa-heart"></i></button>
-            </div>
-        </div>
-
-        <div id="requestModal" class="modal">
-            <h3>Guest Request</h3>
-            <p><span id="requesterName">User</span> wants to join the video!</p>
-            <div class="modal-btns">
-                <button class="btn-accept" id="btnAcceptRequest">Accept</button>
-                <button class="btn-deny" id="btnDenyRequest">Deny</button>
-            </div>
         </div>
     </div>
 
-    <div class="nav-footer">
-        <div class="nav-item active" onclick="navTo('home')"><i class="fas fa-home"></i><span>Home</span></div>
-        <div class="nav-item" onclick="navTo('create')">
-            <div class="nav-create-btn"><i class="fas fa-plus"></i></div>
+    <nav class="footer-nav" id="mainFooter">
+        <div class="nav-item active" onclick="navTo('feed')">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
         </div>
-        <div class="nav-item"><i class="far fa-user"></i><span>Me</span></div>
-    </div>
+        <div class="nav-item">
+            <div class="nav-create" onclick="navTo('create')"></div>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Me</span>
+        </div>
+    </nav>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, getDoc, updateDoc, deleteDoc, increment, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, getDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
-            authDomain: "edulinki.firebaseapp.com",
-            projectId: "edulinki",
-            storageBucket: "edulinki.firebasestorage.app",
-            messagingSenderId: "248886466474",
-            appId: "1:248886466474:web:160043201a6b28bafbbdd3"
-        };
+    // --- CONFIGURATION ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
+        authDomain: "edulinki.firebaseapp.com",
+        projectId: "edulinki",
+        storageBucket: "edulinki.firebasestorage.app",
+        messagingSenderId: "248886466474",
+        appId: "1:248886466474:web:160043201a6b28bafbbdd3",
+        measurementId: "G-MQBH12VL7N"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        // --- STATE ---
-        let myUserId = 'user_' + Math.random().toString(36).substr(2, 5);
-        let myUserName = 'User ' + Math.floor(Math.random() * 1000);
-        let currentRoomId = null;
-        let isHost = false;
-        let pc = null;
-        let localStream = null;
-        let unsubscribeRoom = null;
-        let unsubscribeChat = null;
+    // --- STATE ---
+    let localStream = null;
+    let remoteStream = null;
+    let peerConnection = null;
+    let currentRoomId = null;
+    let isHost = false;
+    let unsubscribeChat = null;
 
-        // WebRTC Config
-        const servers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }] };
+    // RTC Config
+    const servers = {
+        iceServers: [
+            { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }
+        ]
+    };
 
-        // --- DOM ELEMENTS ---
-        const pages = { home: document.getElementById('page-home'), create: document.getElementById('page-create'), live: document.getElementById('page-live') };
-        const roomList = document.getElementById('roomList');
-        const mainVideo = document.getElementById('mainVideo');
-        const pipVideo = document.getElementById('pipVideo');
-        const pipContainer = document.getElementById('pipContainer');
-        const chatBox = document.getElementById('chatBox');
-        
-        // --- NAVIGATION ---
-        window.navTo = (pageName) => {
-            Object.values(pages).forEach(p => p.classList.remove('active'));
-            pages[pageName].classList.add('active');
-            
-            // Toggle footer visibility (hide in live room)
-            document.querySelector('.nav-footer').style.display = (pageName === 'live') ? 'none' : 'flex';
-        };
+    // --- DOM ELEMENTS ---
+    const views = {
+        feed: document.getElementById('view-feed'),
+        create: document.getElementById('view-create'),
+        room: document.getElementById('view-room')
+    };
+    const footer = document.getElementById('mainFooter');
+    
+    // --- NAVIGATION LOGIC ---
+    window.navTo = async (viewName) => {
+        // Reset Views
+        Object.values(views).forEach(el => el.classList.remove('active'));
+        footer.style.display = 'flex'; // Show footer by default
 
-        // --- 1. FEED LOGIC ---
-        function loadRooms() {
-            const q = query(collection(db, 'rooms'), orderBy('createdAt', 'desc'), limit(20));
-            onSnapshot(q, (snapshot) => {
-                roomList.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    if(data.status === 'live') {
-                        const div = document.createElement('div');
-                        div.className = 'room-card';
-                        div.onclick = () => joinRoom(doc.id, data);
-                        div.innerHTML = `
-                            <div class="room-preview"></div>
-                            <div class="room-badge">LIVE</div>
-                            <div class="room-overlay">
-                                <div class="room-title">${data.title}</div>
-                                <div class="room-user"><i class="fas fa-user-circle"></i> ${data.hostName}</div>
-                            </div>
-                        `;
-                        roomList.appendChild(div);
-                    }
-                });
-                if(roomList.innerHTML === '') roomList.innerHTML = '<div style="padding:20px; text-align:center; color:#666">No one is live. Be the first!</div>';
-            });
+        if (viewName === 'feed') {
+            views.feed.classList.add('active');
+            stopMedia(); // Kill camera if leaving studio
+        } else if (viewName === 'create') {
+            views.create.classList.add('active');
+            await startLocalVideo('previewVideo');
+        } else if (viewName === 'room') {
+            views.room.classList.add('active');
+            footer.style.display = 'none'; // Hide footer in room
         }
-        loadRooms();
+    };
 
-        // --- 2. CREATE ROOM LOGIC ---
-        document.getElementById('btnGoLive').onclick = async () => {
-            const title = document.getElementById('newRoomName').value || "Chilling";
-            const roomId = 'room_' + Date.now();
-            currentRoomId = roomId;
-            isHost = true;
-
-            // 1. Get Camera
+    // --- WEBRTC & MEDIA ---
+    async function startLocalVideo(elementId) {
+        try {
             localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            mainVideo.srcObject = localStream;
-            mainVideo.muted = true; // Mute self
-
-            // 2. Create DB Entry
-            await setDoc(doc(db, 'rooms', roomId), {
-                title: title,
-                hostId: myUserId,
-                hostName: myUserName,
-                status: 'live',
-                createdAt: Date.now(),
-                likes: 0,
-                guestRequest: null 
-            });
-
-            // 3. Enter UI
-            enterLiveUI(roomId, title, myUserName);
-            setupHostLogic(roomId);
-        };
-
-        // --- 3. JOIN LOGIC (Viewer) ---
-        async function joinRoom(roomId, data) {
-            currentRoomId = roomId;
-            isHost = false;
-            
-            // Viewers don't get camera immediately. They just watch.
-            // Note: In this P2P demo, viewers can't see video unless they join.
-            // We will simulate the "View" by showing a placeholder or asking to join.
-            mainVideo.srcObject = null; // Clear video
-            
-            enterLiveUI(roomId, data.title, data.hostName);
-            setupViewerLogic(roomId);
+            const vidEl = document.getElementById(elementId);
+            vidEl.srcObject = localStream;
+            vidEl.muted = true; // Always mute local video to prevent feedback
+            return true;
+        } catch (e) {
+            alert("Camera access denied or failed.");
+            console.error(e);
+            return false;
         }
+    }
 
-        // --- SHARED UI LOGIC ---
-        function enterLiveUI(roomId, title, hostName) {
-            navTo('live');
-            document.getElementById('uiHostName').innerText = hostName;
-            chatBox.innerHTML = ''; // Clear chat
-            
-            // Chat Listener
-            unsubscribeChat = onSnapshot(query(collection(db, `rooms/${roomId}/comments`), orderBy('ts', 'asc')), (snap) => {
-                snap.docChanges().forEach(change => {
-                    if(change.type === 'added') addChatMsg(change.doc.data());
-                });
-            });
-
-            // Room Updates (Likes, Requests)
-            unsubscribeRoom = onSnapshot(doc(db, 'rooms', roomId), (snap) => {
-                const data = snap.data();
-                if(!data) { leaveRoom(); alert("Broadcast ended"); return; }
-                
-                // Update Like Count (simulated viewer count based on likes/random)
-                document.getElementById('uiViewerCount').innerText = Math.floor(data.likes / 2) + 1;
-
-                // Handle Likes Animation
-                if(data.lastLike > Date.now() - 2000) showFloatingHeart();
-
-                // Handle Join Requests
-                if(isHost && data.guestRequest && data.guestRequest.status === 'pending') {
-                    showRequestModal(data.guestRequest);
-                }
-                
-                // Handle Accepted Request (for the Guest)
-                if(!isHost && data.guestRequest && data.guestRequest.userId === myUserId && data.guestRequest.status === 'accepted') {
-                    startGuestWebRTC();
-                }
-            });
+    function stopMedia() {
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+            localStream = null;
         }
-
-        // --- CHAT & LIKES ---
-        function addChatMsg(data) {
-            const div = document.createElement('div');
-            div.className = 'chat-msg';
-            div.innerHTML = `<span class="chat-name">${data.name}:</span> ${data.msg}`;
-            chatBox.appendChild(div);
-            chatBox.scrollTop = chatBox.scrollHeight;
+        if (peerConnection) {
+            peerConnection.close();
+            peerConnection = null;
         }
+    }
 
-        document.getElementById('btnSendChat').onclick = async () => {
-            const input = document.getElementById('chatInput');
-            if(!input.value) return;
-            await addDoc(collection(db, `rooms/${currentRoomId}/comments`), {
-                name: myUserName, msg: input.value, ts: Date.now()
-            });
-            input.value = '';
-        };
+    // --- LOGIC: CREATE LIVE (HOST) ---
+    document.getElementById('startLiveBtn').addEventListener('click', async () => {
+        const title = document.getElementById('roomNameInput').value || "Chilling 🎵";
+        const roomId = "room_" + Date.now();
+        currentRoomId = roomId;
+        isHost = true;
 
-        document.getElementById('btnLike').onclick = async () => {
-            showFloatingHeart();
-            await updateDoc(doc(db, 'rooms', currentRoomId), {
-                likes: increment(1),
-                lastLike: Date.now()
-            });
-        };
-
-        function showFloatingHeart() {
-            const heart = document.createElement('div');
-            heart.classList.add('floating-heart');
-            heart.innerHTML = '<i class="fas fa-heart"></i>';
-            heart.style.color = `hsl(${Math.random() * 360}, 80%, 60%)`;
-            heart.style.right = (20 + Math.random() * 50) + 'px';
-            document.body.appendChild(heart);
-            setTimeout(() => heart.remove(), 2000);
-        }
-
-        // --- REQUEST TO JOIN LOGIC ---
+        // Move to Room View
+        navTo('room');
+        document.getElementById('roomTitleDisplay').innerText = title;
+        document.getElementById('videoLayer').classList.remove('split'); // Full screen initially
         
-        // Viewer Button
-        function setupViewerLogic(roomId) {
-            const btn = document.getElementById('btnRequestJoin');
-            btn.style.display = 'block';
-            btn.onclick = async () => {
-                btn.innerText = "Request Sent...";
-                btn.disabled = true;
-                await updateDoc(doc(db, 'rooms', roomId), {
-                    guestRequest: { userId: myUserId, name: myUserName, status: 'pending' }
-                });
-            };
-        }
+        // Setup Host Video
+        const hostVid = document.getElementById('hostVideo');
+        hostVid.srcObject = localStream;
 
-        // Host Modal
-        function showRequestModal(req) {
-            const modal = document.getElementById('requestModal');
-            document.getElementById('requesterName').innerText = req.name;
-            modal.style.display = 'block';
-
-            document.getElementById('btnAcceptRequest').onclick = async () => {
-                modal.style.display = 'none';
-                await updateDoc(doc(db, 'rooms', currentRoomId), {
-                    'guestRequest.status': 'accepted'
-                });
-                startHostWebRTC(); // Host gets ready
-            };
-
-            document.getElementById('btnDenyRequest').onclick = async () => {
-                modal.style.display = 'none';
-                await updateDoc(doc(db, 'rooms', currentRoomId), { guestRequest: null });
-            };
-        }
-
-        // --- WEBRTC (HOST & GUEST) ---
-        // This connects the Host (Main Video) with the Guest (PiP Video)
+        // Create Room in DB
+        const roomRef = doc(db, 'rooms', roomId);
         
-        async function startHostWebRTC() {
-            pc = new RTCPeerConnection(servers);
-            
-            // Push my tracks (I am main)
-            localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+        peerConnection = new RTCPeerConnection(servers);
+        
+        // Add local tracks to PeerConnection
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
-            // When I get their tracks (They are PiP)
-            pc.ontrack = (event) => {
-                pipContainer.classList.add('active');
-                pipVideo.srcObject = event.streams[0];
-            };
+        // Create Offer
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
 
-            // ICE
-            const candidatesCol = collection(db, `rooms/${currentRoomId}/candidates`);
-            pc.onicecandidate = (e) => e.candidate && addDoc(candidatesCol, { candidate: e.candidate.toJSON(), type: 'offer_cand' });
+        // Save Room Data
+        await setDoc(roomRef, {
+            title: title,
+            hostId: "user_" + Math.floor(Math.random()*1000),
+            offer: { type: offer.type, sdp: offer.sdp },
+            createdAt: serverTimestamp(),
+            active: true
+        });
 
-            // Create Offer
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            
-            await updateDoc(doc(db, 'rooms', currentRoomId), { offer: { type: offer.type, sdp: offer.sdp } });
+        // Listen for ICE Candidates
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+                addDoc(collection(roomRef, 'offerCandidates'), event.candidate.toJSON());
+            }
+        };
 
-            // Listen for Answer
-            onSnapshot(doc(db, 'rooms', currentRoomId), async (snap) => {
-                const data = snap.data();
-                if(!pc.currentRemoteDescription && data?.answer) {
-                    await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+        // Listen for Remote Stream (Guest)
+        peerConnection.ontrack = (event) => {
+            document.getElementById('guestVideo').srcObject = event.streams[0];
+            document.getElementById('guestVideo').classList.remove('hidden');
+            document.getElementById('videoLayer').classList.add('split'); // Split screen
+            addSystemMessage("A guest has joined the video!");
+        };
+
+        // Listen for Answer (Guest joining)
+        onSnapshot(roomRef, (snapshot) => {
+            const data = snapshot.data();
+            if (!peerConnection.currentRemoteDescription && data?.answer) {
+                const answer = new RTCSessionDescription(data.answer);
+                peerConnection.setRemoteDescription(answer);
+            }
+        });
+
+        // Listen for Guest Candidates
+        onSnapshot(collection(roomRef, 'answerCandidates'), (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    const candidate = new RTCIceCandidate(change.doc.data());
+                    peerConnection.addIceCandidate(candidate);
                 }
             });
-            
-            // Listen for Candidate
-            onSnapshot(candidatesCol, (snap) => {
-                snap.docChanges().forEach(change => {
-                    const data = change.doc.data();
-                    if(change.type === 'added' && data.type === 'answer_cand') {
-                        pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-                    }
-                });
-            });
-        }
+        });
 
-        async function startGuestWebRTC() {
-            document.getElementById('btnRequestJoin').style.display = 'none';
-            
-            // 1. Get My Cam
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            
-            // I am PiP for myself, Main is Host
-            pipContainer.classList.add('active');
-            pipVideo.srcObject = localStream; // My face in small box
-            pipVideo.muted = true;
+        setupChat(roomId);
+        addSystemMessage("You are Live! Waiting for viewers...");
+    });
 
-            pc = new RTCPeerConnection(servers);
-            localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+    // --- LOGIC: JOIN LIVE (VIEWER/GUEST) ---
+    async function joinRoom(roomId, title) {
+        currentRoomId = roomId;
+        isHost = false;
+        navTo('room');
+        
+        document.getElementById('roomTitleDisplay').innerText = title;
+        document.getElementById('videoLayer').classList.remove('split');
+        document.getElementById('hostVideo').srcObject = null; // Reset
+        document.getElementById('guestVideo').classList.add('hidden');
 
-            // Host is Main Video
-            pc.ontrack = (event) => {
-                mainVideo.srcObject = event.streams[0];
+        const roomRef = doc(db, 'rooms', roomId);
+        const roomSnap = await getDoc(roomRef);
+
+        if (!roomSnap.exists()) { alert("Live ended"); navTo('feed'); return; }
+
+        setupChat(roomId);
+        addSystemMessage("Welcome to the live!");
+
+        // Handle Request to Join (Guest Mode)
+        document.getElementById('requestJoinBtn').onclick = async () => {
+            addSystemMessage("Connecting to video...");
+            await startLocalVideo('guestVideo'); // Start my camera
+            
+            peerConnection = new RTCPeerConnection(servers);
+
+            // Add my tracks
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            // Set Remote (Host's Offer)
+            const offer = roomSnap.data().offer;
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+
+            // Create Answer
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+
+            // Update Room with Answer
+            await updateDoc(roomRef, { answer: { type: answer.type, sdp: answer.sdp } });
+
+            // Listen for Host Track
+            peerConnection.ontrack = (event) => {
+                const hostVid = document.getElementById('hostVideo');
+                hostVid.srcObject = event.streams[0];
+                hostVid.muted = false; // Unmute remote host
+                
+                // UI Update
+                document.getElementById('videoLayer').classList.add('split');
+                document.getElementById('guestVideo').classList.remove('hidden');
             };
 
-            // ICE
-            const candidatesCol = collection(db, `rooms/${currentRoomId}/candidates`);
-            pc.onicecandidate = (e) => e.candidate && addDoc(candidatesCol, { candidate: e.candidate.toJSON(), type: 'answer_cand' });
-
-            // Get Offer
-            const roomSnap = await getDoc(doc(db, 'rooms', currentRoomId));
-            const roomData = roomSnap.data();
-            
-            await pc.setRemoteDescription(new RTCSessionDescription(roomData.offer));
-            
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            
-            await updateDoc(doc(db, 'rooms', currentRoomId), { answer: { type: answer.type, sdp: answer.sdp } });
+            // Send my Candidates
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    addDoc(collection(roomRef, 'answerCandidates'), event.candidate.toJSON());
+                }
+            };
 
             // Listen for Host Candidates
-            onSnapshot(candidatesCol, (snap) => {
-                snap.docChanges().forEach(change => {
-                    const data = change.doc.data();
-                    if(change.type === 'added' && data.type === 'offer_cand') {
-                        pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+            onSnapshot(collection(roomRef, 'offerCandidates'), (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') {
+                        peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data()));
                     }
                 });
             });
-        }
-
-        // --- CLEANUP ---
-        function leaveRoom() {
-            if(unsubscribeChat) unsubscribeChat();
-            if(unsubscribeRoom) unsubscribeRoom();
-            if(pc) pc.close();
-            if(localStream) localStream.getTracks().forEach(t => t.stop());
             
-            if(isHost && currentRoomId) {
-                updateDoc(doc(db, 'rooms', currentRoomId), { status: 'ended' });
+            document.getElementById('requestJoinBtn').style.display = 'none'; // Hide button after joining
+        };
+    }
+
+    // --- FEED LOGIC ---
+    function loadFeed() {
+        const roomsQuery = query(collection(db, 'rooms'), orderBy('createdAt', 'desc'));
+        onSnapshot(roomsQuery, (snapshot) => {
+            const list = document.getElementById('roomList');
+            const empty = document.getElementById('emptyState');
+            list.innerHTML = '';
+            
+            if (snapshot.empty) {
+                empty.classList.remove('hidden');
+            } else {
+                empty.classList.add('hidden');
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if(!data.active) return;
+
+                    const card = document.createElement('div');
+                    card.className = 'room-card';
+                    // Random mockup image for the feed
+                    const bgId = Math.floor(Math.random() * 50);
+                    card.innerHTML = `
+                        <img src="https://picsum.photos/300/500?random=${doc.id}" alt="Live Cover">
+                        <div class="live-badge">LIVE</div>
+                        <div class="room-info">
+                            <div class="room-title">${data.title}</div>
+                            <div class="viewer-count">
+                                <i class="fas fa-user"></i> ${Math.floor(Math.random() * 100) + 1}
+                            </div>
+                        </div>
+                    `;
+                    card.onclick = () => joinRoom(doc.id, data.title);
+                    list.appendChild(card);
+                });
             }
-            
-            pipContainer.classList.remove('active');
-            navTo('home');
-            window.location.reload(); // Hard reset for safety
-        }
-        document.getElementById('btnCloseLive').onclick = leaveRoom;
+        });
+    }
 
-    </script>
+    // --- CHAT SYSTEM ---
+    function setupChat(roomId) {
+        const chatContainer = document.getElementById('chatContainer');
+        chatContainer.innerHTML = ''; // Clear old chat
+
+        const q = query(collection(db, 'rooms', roomId, 'messages'), orderBy('timestamp', 'asc'));
+        
+        if (unsubscribeChat) unsubscribeChat(); // Stop listening to old room
+
+        unsubscribeChat = onSnapshot(q, (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    const data = change.doc.data();
+                    renderMessage(data.user, data.text, data.isSystem);
+                }
+            });
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
+
+        // Send Message
+        const chatInput = document.getElementById('chatInput');
+        chatInput.onkeypress = async (e) => {
+            if (e.key === 'Enter' && chatInput.value.trim() !== '') {
+                const text = chatInput.value;
+                chatInput.value = '';
+                await addDoc(collection(db, 'rooms', roomId, 'messages'), {
+                    user: "User" + Math.floor(Math.random() * 999), // Random username for demo
+                    text: text,
+                    timestamp: serverTimestamp(),
+                    isSystem: false
+                });
+            }
+        };
+    }
+
+    function renderMessage(user, text, isSystem) {
+        const div = document.createElement('div');
+        div.className = 'chat-msg';
+        if (isSystem) {
+            div.innerHTML = `<span class="chat-system">${text}</span>`;
+        } else {
+            div.innerHTML = `<span class="chat-user">${user}:</span><span class="chat-text">${text}</span>`;
+        }
+        document.getElementById('chatContainer').appendChild(div);
+    }
+
+    function addSystemMessage(text) {
+        const div = document.createElement('div');
+        div.className = 'chat-msg';
+        div.innerHTML = `<span class="chat-system">${text}</span>`;
+        document.getElementById('chatContainer').appendChild(div);
+    }
+
+    // --- LEAVE / CLEANUP ---
+    document.getElementById('leaveRoomBtn').addEventListener('click', async () => {
+        if (confirm("Leave this live?")) {
+            if (isHost && currentRoomId) {
+                // Host deletes the room (simple cleanup)
+                await deleteDoc(doc(db, 'rooms', currentRoomId));
+            }
+            stopMedia();
+            navTo('feed');
+            currentRoomId = null;
+        }
+    });
+
+    // --- INIT ---
+    // Start by loading the feed
+    loadFeed();
+    navTo('feed'); // Start on home screen
+
+</script>
 </body>
 </html>

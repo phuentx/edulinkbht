@@ -1064,7 +1064,7 @@ Sign In to Continue
 </div>
 </div>
 <!-- NEW POST OPTIONS OVERLAY (Replaces old absolute menu) -->
-<div id="post-options-overlay" class="fixed inset-0 z-[100] flex justify-center items-end md:items-center hidden pointer-events-auto w-full h-full" onclick="closePostOptions()">
+<div id="post-options-overlay" class="fixed inset-0 z-[200] flex justify-center items-end md:items-center hidden pointer-events-auto w-full h-full" onclick="closePostOptions()">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
     <div id="post-options-container" class="bg-white w-full md:w-[400px] md:rounded-2xl rounded-t-[24px] shadow-2xl relative z-10 overflow-hidden md:p-0 p-2 pb-8 post-options-panel flex flex-col max-h-[80vh]" onclick="event.stopPropagation()">
         
@@ -1076,7 +1076,7 @@ Sign In to Continue
         <!-- Desktop Header (New) -->
         <div class="hidden md:flex justify-between items-center p-4 border-b border-gray-100">
             <h3 class="text-lg font-bold text-gray-900">Options</h3>
-            <button onclick="closePostOptions()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <button onclick="closePostOptions()" class="icon-btn hover:bg-gray-100 cursor-pointer pointer-events-auto"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
 
         <div id="post-options-content" class="flex flex-col gap-1 p-2 md:p-2 overflow-y-auto">
@@ -1239,7 +1239,7 @@ Sign In to Continue
                   </div>
                   <span class="md:hidden font-bold text-lg">Comments</span>
               </div>
-              <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+              <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 hidden md:flex cursor-pointer pointer-events-auto"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
               <button onclick="toggleMobileCommentDrawer()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
          </div>
 
@@ -2568,7 +2568,7 @@ ${collabIcon}
 <div class="post-meta flex items-center">${dateStr}</div>
 </div>
 </div>
-<button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event, '${post.id}', '${author.id}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
+<button class="icon-btn w-8 h-8 -mr-2 relative z-20" onclick="showPostOptions(event, '${post.id}', '${author.id}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
 </div>
 <div class="post-content">
 <div class="post-body" data-raw-text="${post.content.replace(/"/g, '&quot;')}">${tagsHTML}</div>
@@ -3751,24 +3751,25 @@ if(drawer) drawer.classList.toggle('open');
 }
 window.closePostView = function(fromHistory = false) {
 const overlay = document.getElementById('post-view-overlay');
-if(!overlay.classList.contains('hidden')) {
-    
-    // History Logic
-    if(!fromHistory) {
-        window.history.back();
-        return;
-    }
+if(overlay.classList.contains('hidden')) return;
 
-    overlay.classList.add('hidden');
-    overlay.classList.remove('flex');
-    document.body.classList.remove('reel-mode'); // Restore global nav
-    // Close drawer if open
-    const drawer = document.querySelector('.discussion-panel');
-    if(drawer) drawer.classList.remove('open');
-    window.currentViewingPostId = null;
-    window.replyingToCommentId = null;
-    const video = document.querySelector('#post-view-media-container video');
-    if(video) video.pause();
+// Immediate UI Update
+overlay.classList.add('hidden');
+overlay.classList.remove('flex');
+document.body.classList.remove('reel-mode'); // Restore global nav
+// Close drawer if open
+const drawer = document.querySelector('.discussion-panel');
+if(drawer) drawer.classList.remove('open');
+window.currentViewingPostId = null;
+window.replyingToCommentId = null;
+const video = document.querySelector('#post-view-media-container video');
+if(video) video.pause();
+
+// History Management
+if (!fromHistory) {
+    if (window.history.state && window.history.state.modal === 'post') {
+        window.history.back();
+    }
 }
 }
 function renderCommentsInModal(postId) {
@@ -3846,11 +3847,16 @@ document.getElementById('thread-input').focus();
 window.history.pushState({modal: 'thread'}, "", window.location.pathname);
 }
 window.closeThread = function(fromHistory = false) {
-if(!fromHistory) { window.history.back(); return; }
 document.getElementById('thread-overlay').classList.add('hidden');
 window.threadPostId = null;
 window.threadParentCommentId = null;
-window.replyingToCommentId = null; // Reset normal reply when closing thread
+window.replyingToCommentId = null; 
+
+if(!fromHistory) { 
+    if (window.history.state && window.history.state.modal === 'thread') {
+        window.history.back(); 
+    }
+}
 }
 window.renderThreadContent = function(postId, commentId) {
 const post = posts.find(p => p.id === postId);
@@ -4052,7 +4058,7 @@ window.showPostOptions = function(event, postId, authorId) {
     
     setTimeout(() => {
         container.classList.add('open');
-    }, 10);
+    }, 50);
 }
 
 window.closePostOptions = function(fromHistory = false) {
@@ -4061,16 +4067,19 @@ window.closePostOptions = function(fromHistory = false) {
     
     if(overlay.classList.contains('hidden')) return;
 
-    if (!fromHistory) {
-        window.history.back();
-        return;
-    }
-    
+    // Immediate UI Feedback
     container.classList.remove('open');
     setTimeout(() => {
         overlay.classList.add('hidden');
         overlay.classList.remove('flex');
     }, 300);
+
+    // Sync History
+    if (!fromHistory) {
+        if(window.history.state && window.history.state.modal === 'options') {
+            window.history.back();
+        }
+    }
 }
 
 // Global Popstate Handler

@@ -239,10 +239,18 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.comment:hover { background-color: #eff6ff; color: #2563eb; }
 .action-btn.bookmark:hover { background-color: #fefce8; color: #eab308; }
 .action-btn.share-btn:hover { background-color: #f3f4f6; color: var(--on-surface); }
-/* --- MENUS & OVERLAYS --- */
+/* --- MENUS --- */
 #compose-modal, #create-menu-modal, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #add-link-modal, #promo-modal, #login-modal, #post-options-overlay {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
+}
+/* Overlay override for post options to remove border */
+#post-options-overlay {
+    border: none;
+    box-shadow: none;
+}
+#post-options-overlay > div:last-child {
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
 }
 .compose-header {
 display: flex; align-items: center; justify-content: space-between;
@@ -315,6 +323,36 @@ border-left: 1px solid var(--outline);
 .icon-btn:hover { background-color: var(--hover-bg); color: var(--on-surface); }
 .hashtag { color: var(--primary); font-weight: 500; cursor: pointer; padding: 2px 6px; border-radius: 6px; }
 .hashtag:hover { background: #eff4ff; }
+/* --- POST OPTIONS OVERLAY STYLES --- */
+.post-option-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    color: #1f1f1f;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-radius: 12px;
+}
+.post-option-row:hover {
+    background-color: #f3f4f6;
+}
+.post-option-row.danger {
+    color: #ef4444;
+}
+.post-option-row.danger:hover {
+    background-color: #fef2f2;
+}
+/* Slide Up Animation for Mobile */
+.slide-up-content {
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+.slide-up-content.open {
+    transform: translateY(0);
+}
+
 /* --- UPDATED TABS STYLE (Twitter/X Style) --- */
 .tab-group {
 display: flex;
@@ -930,17 +968,6 @@ transition: background 0.2s;
 </div>
 </div>
 </div>
-<!-- POST OPTIONS OVERLAY (Replaces old absolute menu) -->
-<div id="post-options-overlay" class="fixed inset-0 z-[100] flex justify-center items-end md:items-center bg-black/50 backdrop-blur-sm hidden" onclick="closePostOptions()">
-    <div class="bg-white w-full md:w-[400px] rounded-t-2xl md:rounded-2xl p-4 shadow-2xl transform transition-all scale-100 flex flex-col gap-2 m-0 md:m-auto" onclick="event.stopPropagation()">
-        <!-- Handle bar for mobile -->
-        <div class="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mb-4 md:hidden"></div>
-        <div id="post-options-content" class="flex flex-col gap-1">
-            <!-- Dynamic Content -->
-        </div>
-        <button onclick="closePostOptions()" class="w-full py-3 mt-2 font-bold text-gray-900 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">Cancel</button>
-    </div>
-</div>
 <!-- LOGIN OVERLAY -->
 <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-white hidden">
 <div class="text-center p-8 max-w-md w-full">
@@ -1008,6 +1035,19 @@ Sign In to Continue
 <button onclick="savePromo()" class="px-4 py-2 bg-[#0b57d0] text-white font-bold text-sm rounded-lg hover:bg-blue-700">Save</button>
 </div>
 </div>
+</div>
+<!-- NEW POST OPTIONS OVERLAY (Replaces old absolute menu) -->
+<div id="post-options-overlay" class="fixed inset-0 z-[100] flex justify-center items-end md:items-center hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closePostOptions()"></div>
+    <div id="post-options-container" class="bg-white w-full md:w-[400px] md:rounded-2xl rounded-t-[24px] shadow-2xl relative z-10 overflow-hidden transform transition-transform duration-300 translate-y-full md:translate-y-0 md:scale-100 p-2 pb-8 md:pb-2 slide-up-content">
+        <div class="flex justify-center pt-3 pb-2 md:hidden" onclick="closePostOptions()">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+        </div>
+        <div id="post-options-content" class="flex flex-col gap-1 p-2">
+            <!-- Options injected here -->
+        </div>
+        <button onclick="closePostOptions()" class="w-full py-3 mt-2 text-sm font-bold text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl md:hidden">Cancel</button>
+    </div>
 </div>
 <!-- MOBILE NOTIFICATIONS HEADER -->
 <div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
@@ -1126,10 +1166,6 @@ Sign In to Continue
                         <i data-lucide="disc" class="w-5 h-5 text-white"></i>
                     </div>
                 </div>
-                <!-- Added More Button to Reel View -->
-                <div class="reel-interact-btn cursor-pointer" onclick="showPostOptions(event, window.currentViewingPostId)">
-                    <i data-lucide="more-horizontal" class="reel-interact-icon"></i>
-                </div>
             </div>
         </div>
     </div>
@@ -1165,12 +1201,8 @@ Sign In to Continue
                   </div>
                   <span class="md:hidden font-bold text-lg">Comments</span>
               </div>
-              <div class="flex items-center gap-2">
-                  <!-- Added More Button to Desktop/Drawer Header -->
-                  <button onclick="showPostOptions(event, window.currentViewingPostId)" class="icon-btn hover:bg-gray-100 w-9 h-9"><i data-lucide="more-horizontal" class="w-5 h-5 text-gray-500"></i></button>
-                  <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
-                  <button onclick="toggleMobileCommentDrawer()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
-              </div>
+              <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+              <button onclick="toggleMobileCommentDrawer()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
          </div>
 
          <!-- Scroll Area -->
@@ -1690,13 +1722,12 @@ const storage = getStorage(app);
 // Expose services globally
 window.auth = auth;
 window.db = db;
-// Global State Variables (attached to window for inline HTML access)
-window.currentUser = null;
-window.users = [];
-window.posts = [];
-window.notifications = [];
-window.savedPosts = [];
-// Internal State Variables
+// State Variables
+let currentUser = null;
+let users = [];
+let posts = [];
+let notifications = [];
+let savedPosts = [];
 let activeNotifTab = 'friends';
 let activeNetworkTab = 'people';
 window.replyingToCommentId = null;
@@ -1715,7 +1746,6 @@ window.currentEventCover = null;
 window.editingPostId = null;
 window.threadParentCommentId = null;
 window.threadPostId = null;
-window.currentViewingPostId = null;
 let currentEventCoverBlob = null;
 let currentAvatarBlob = null;
 let currentBannerBlob = null;
@@ -1788,13 +1818,13 @@ if (user) {
     let isOfficial = false;
     if(user.email === 'edulinkbht@gmail.com') { isOfficial = true; }
     if (userSnap.exists()) {
-        window.currentUser = { id: user.uid, ...userSnap.data() };
-        if(isOfficial && !window.currentUser.isOfficial) {
+        currentUser = { id: user.uid, ...userSnap.data() };
+        if(isOfficial && !currentUser.isOfficial) {
             await updateDoc(userRef, { isOfficial: true });
-            window.currentUser.isOfficial = true;
+            currentUser.isOfficial = true;
         }
     } else {
-        window.currentUser = {
+        currentUser = {
             id: user.uid,
             name: user.displayName || user.email.split('@')[0],
             email: user.email,
@@ -1809,21 +1839,21 @@ if (user) {
             settings: { privateNetwork: false },
             username: ""
         };
-        await setDoc(userRef, window.currentUser);
+        await setDoc(userRef, currentUser);
     }
     // Ensure defaults
-    window.currentUser.following = window.currentUser.following || [];
-    window.currentUser.followers = window.currentUser.followers || [];
-    window.currentUser.friends = window.currentUser.friends || [];
-    window.currentUser.saved = window.currentUser.saved || [];
-    window.currentUser.links = window.currentUser.links || [];
-    window.currentUser.settings = window.currentUser.settings || { privateNetwork: false };
-    
-    window.savedPosts = window.currentUser.saved;
+    currentUser.following = currentUser.following || [];
+    currentUser.followers = currentUser.followers || [];
+    currentUser.friends = currentUser.friends || [];
+    currentUser.saved = currentUser.saved || [];
+    currentUser.links = currentUser.links || [];
+    currentUser.settings = currentUser.settings || { privateNetwork: false };
+    window.currentUser = currentUser;
+    savedPosts = currentUser.saved;
     const params = new URLSearchParams(window.location.search);
     const sharedPostId = params.get('postId');
     // USERNAME CHECK
-    if(!window.currentUser.username) {
+    if(!currentUser.username) {
         document.getElementById('username-modal').classList.remove('hidden');
     }
     updateUserInterface();
@@ -1866,15 +1896,15 @@ const q = query(collection(db, "users"), where("username", "==", val));
 const snap = await getDocs(q);
 if(!snap.empty) { showToast("Username taken", true); return; }
 
-const userRef = doc(db, "users", window.currentUser.id);
+const userRef = doc(db, "users", currentUser.id);
 await updateDoc(userRef, { username: val });
-window.currentUser.username = val;
+currentUser.username = val;
 document.getElementById('username-modal').classList.add('hidden');
 showToast("Username set!");
 }
 function initRealtimeListeners() {
 onSnapshot(collection(db, "users"), (snapshot) => {
-window.users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 const netView = document.getElementById('view-network');
 if(netView && !netView.classList.contains('hidden')) renderNetwork();
 const profileView = document.getElementById('view-profile');
@@ -1899,7 +1929,7 @@ if(data.imageUrl) {
     } else {
         // Hide if explicitly no image, unless admin might want to edit it
         // For now hide it for regular users if empty
-        if(window.currentUser && window.currentUser.email !== 'edulinkbht@gmail.com') {
+        if(currentUser && currentUser.email !== 'edulinkbht@gmail.com') {
             section.classList.add('hidden');
         }
     }
@@ -1907,7 +1937,7 @@ if(data.imageUrl) {
 });
 const qPosts = query(collection(db, "posts"), orderBy("timestamp", "desc"));
 onSnapshot(qPosts, { includeMetadataChanges: true }, (snapshot) => {
-window.posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
+posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
 // REMOVED: if (snapshot.metadata.hasPendingWrites) return; 
 // Reason: To allow immediate rendering of local writes for "snappy" feel while maintaining sync.
 
@@ -1939,9 +1969,9 @@ if(likeCountElOverlay && window.currentViewingPostId === pid) {
 
 // Realtime Icon Sync - Check button class and update icon
 const likeBtn = document.getElementById(`like-btn-${pid}`);
-if(likeBtn && window.currentUser) {
+if(likeBtn && currentUser) {
     const icon = likeBtn.querySelector('svg') || likeBtn.querySelector('i');
-    const isLiked = p.likes && p.likes.includes(window.currentUser.id);
+    const isLiked = p.likes && p.likes.includes(currentUser.id);
     if(icon) {
         if(isLiked) {
             icon.classList.add('fill-red-500', 'text-red-500');
@@ -1971,7 +2001,7 @@ handleSearch(searchVal);
 const activePostView = document.querySelector('#post-view-overlay:not(.hidden)');
 if(activePostView && window.currentViewingPostId) {
 // Check if the current post was modified
-const currentPost = window.posts.find(p => p.id === window.currentViewingPostId);
+const currentPost = posts.find(p => p.id === window.currentViewingPostId);
 if(currentPost) {
 renderCommentsInModal(window.currentViewingPostId);
 // Realtime update for stats in overlay
@@ -1987,11 +2017,11 @@ renderRightSidebar();
 setTimeout(refreshIcons, 50); // Fallback
 });
 let isFirstNotifLoad = true;
-const qNotifs = query(collection(db, "notifications"), where("receiverId", "==", window.currentUser.id));
+const qNotifs = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
 onSnapshot(qNotifs, (snapshot) => {
-window.notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
-window.notifications.sort((a,b) => (b.timestamp?.toDate ? b.timestamp.toDate() : 0) - (a.timestamp?.toDate ? a.timestamp.toDate() : 0));
-const unreadCount = window.notifications.filter(n => !n.read).length;
+notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
+notifications.sort((a,b) => (b.timestamp?.toDate ? b.timestamp.toDate() : 0) - (a.timestamp?.toDate ? a.timestamp.toDate() : 0));
+const unreadCount = notifications.filter(n => !n.read).length;
 const badgeText = unreadCount > 99 ? '99+' : unreadCount;
 
 // Desktop Badge
@@ -2028,11 +2058,11 @@ renderWhoToFollow();
 }
 function renderWhoToFollow() {
 const list = document.getElementById('who-to-follow-list');
-if(!list || !window.currentUser) return;
+if(!list || !currentUser) return;
 list.innerHTML = '';
 // Filter users: Not me, and ensure name is valid/defined
-const candidates = window.users.filter(u => 
-    u.id !== window.currentUser.id && 
+const candidates = users.filter(u => 
+    u.id !== currentUser.id && 
     u.name && 
     u.name !== 'undefined' && 
     u.name.trim() !== ''
@@ -2121,7 +2151,7 @@ try {
 }
 }
 window.updatePostViewStats = function(postId) {
-const post = window.posts.find(p => p.id === postId);
+const post = posts.find(p => p.id === postId);
 if (!post) return;
 // Desktop Stats
 const deskLikeCount = document.getElementById('post-view-likes-count');
@@ -2149,7 +2179,7 @@ if(reelCommCount) reelCommCount.innerText = post.comments ? post.comments.length
 
 // Update Reel Icons state
 if(reelLikeIcon) {
-    const isLiked = post.likes && post.likes.includes(window.currentUser.id);
+    const isLiked = post.likes && post.likes.includes(currentUser.id);
     if(isLiked) {
         reelLikeIcon.classList.add('fill-red-500', 'text-red-500');
         reelLikeIcon.classList.remove('text-white');
@@ -2159,7 +2189,7 @@ if(reelLikeIcon) {
     }
 }
 if(reelSaveIcon) {
-    const isSaved = window.savedPosts.includes(postId);
+    const isSaved = savedPosts.includes(postId);
     if(isSaved) {
         reelSaveIcon.classList.add('fill-yellow-500', 'text-yellow-500');
         reelSaveIcon.classList.remove('text-white');
@@ -2170,31 +2200,31 @@ if(reelSaveIcon) {
 }
 }
 function updateUserInterface() {
-if(!window.currentUser) return;
-const nameEl = document.getElementById('sidebar-name'); if(nameEl) nameEl.innerText = window.currentUser.name;
-const avEl = document.getElementById('sidebar-avatar'); if(avEl) avEl.src = window.currentUser.avatar;
-const mobAv = document.getElementById('mobile-avatar'); if(mobAv) mobAv.src = window.currentUser.avatar;
-const headAv = document.getElementById('header-avatar'); if(headAv) headAv.src = window.currentUser.avatar;
-const compName = document.getElementById('compose-name'); if(compName) compName.innerText = window.currentUser.name;
-const compAv = document.getElementById('compose-avatar'); if(compAv) compAv.src = window.currentUser.avatar;
-const commAv = document.getElementById('comment-input-avatar'); if(commAv) commAv.src = window.currentUser.avatar;
-const commAvMob = document.getElementById('comment-input-avatar-mobile'); if(commAvMob) commAvMob.src = window.currentUser.avatar;
-const edName = document.getElementById('edit-name'); if(edName) edName.value = window.currentUser.name;
-const edBio = document.getElementById('edit-bio'); if(edBio) edBio.value = window.currentUser.bio;
-const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = window.currentUser.avatar;
-const edBanner = document.getElementById('edit-banner-link'); if(edBanner) edBanner.value = window.currentUser.banner || '';
-const threadAv = document.getElementById('thread-input-avatar'); if(threadAv) threadAv.src = window.currentUser.avatar;
-const bannerPos = window.currentUser.bannerPos || 50;
-const bannerUrl = window.currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+if(!currentUser) return;
+const nameEl = document.getElementById('sidebar-name'); if(nameEl) nameEl.innerText = currentUser.name;
+const avEl = document.getElementById('sidebar-avatar'); if(avEl) avEl.src = currentUser.avatar;
+const mobAv = document.getElementById('mobile-avatar'); if(mobAv) mobAv.src = currentUser.avatar;
+const headAv = document.getElementById('header-avatar'); if(headAv) headAv.src = currentUser.avatar;
+const compName = document.getElementById('compose-name'); if(compName) compName.innerText = currentUser.name;
+const compAv = document.getElementById('compose-avatar'); if(compAv) compAv.src = currentUser.avatar;
+const commAv = document.getElementById('comment-input-avatar'); if(commAv) commAv.src = currentUser.avatar;
+const commAvMob = document.getElementById('comment-input-avatar-mobile'); if(commAvMob) commAvMob.src = currentUser.avatar;
+const edName = document.getElementById('edit-name'); if(edName) edName.value = currentUser.name;
+const edBio = document.getElementById('edit-bio'); if(edBio) edBio.value = currentUser.bio;
+const edAv = document.getElementById('edit-avatar-preview'); if(edAv) edAv.src = currentUser.avatar;
+const edBanner = document.getElementById('edit-banner-link'); if(edBanner) edBanner.value = currentUser.banner || '';
+const threadAv = document.getElementById('thread-input-avatar'); if(threadAv) threadAv.src = currentUser.avatar;
+const bannerPos = currentUser.bannerPos || 50;
+const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
 document.getElementById('edit-banner-preview').src = bannerUrl;
 document.getElementById('edit-banner-preview').style.objectPosition = `center ${bannerPos}%`;
 document.getElementById('banner-pos-hint').innerText = `${bannerPos}%`;
 const togglePrivacy = document.getElementById('toggle-privacy');
 if(togglePrivacy) {
-if(window.currentUser.settings?.privateNetwork) togglePrivacy.classList.add('active');
+if(currentUser.settings?.privateNetwork) togglePrivacy.classList.add('active');
 else togglePrivacy.classList.remove('active');
 }
-if(window.currentUser.email === 'edulinkbht@gmail.com') {
+if(currentUser.email === 'edulinkbht@gmail.com') {
 const nav = document.querySelector('#desktop-nav-items');
 if(!document.getElementById('nav-announcements')) {
 const adminLink = document.createElement('a');
@@ -2279,11 +2309,11 @@ window.togglePrivacy = async function() {
 const toggle = document.getElementById('toggle-privacy');
 const isPrivate = !toggle.classList.contains('active');
 toggle.classList.toggle('active');
-const settings = window.currentUser.settings || {};
+const settings = currentUser.settings || {};
 settings.privateNetwork = isPrivate;
-const userRef = doc(db, "users", window.currentUser.id);
+const userRef = doc(db, "users", currentUser.id);
 await updateDoc(userRef, { settings: settings });
-window.currentUser.settings = settings;
+currentUser.settings = settings;
 showToast(`Account is now ${isPrivate ? 'Private' : 'Public'}`);
 }
 window.switchView = function(viewName) {
@@ -2375,11 +2405,11 @@ container.innerHTML = "";
 if (activeNetworkTab === 'people') {
 const grid = document.createElement('div');
 grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4 px-4 md:px-0";
-if (!window.currentUser || !window.currentUser.following) {
+if (!currentUser || !currentUser.following) {
 container.innerHTML += `<div class="flex flex-col items-center justify-center py-10 opacity-60"><p>Loading...</p></div>`;
 return;
 }
-const followingUsers = window.users.filter(u => window.currentUser.following.includes(u.id));
+const followingUsers = users.filter(u => currentUser.following.includes(u.id));
 if(followingUsers.length === 0) {
 container.innerHTML += `<div class="flex flex-col items-center justify-center py-10 opacity-60"><p>You aren't following anyone yet.</p></div>`;
 return;
@@ -2400,7 +2430,7 @@ grid.appendChild(card);
 });
 container.appendChild(grid);
 } else {
-const followingPosts = window.posts.filter(p => window.currentUser.following.includes(p.authorId));
+const followingPosts = posts.filter(p => currentUser.following.includes(p.authorId));
 const postsContainer = document.createElement('div');
 postsContainer.className = "space-y-4 px-4 md:px-0";
 if (followingPosts.length === 0) {
@@ -2415,17 +2445,17 @@ refreshIcons();
 window.renderFeed = function(filterTerm = "") {
 const container = document.getElementById('feed-container');
 container.innerHTML = "";
-let displayPosts = [...window.posts];
+let displayPosts = [...posts];
 if(filterTerm) {
 const term = filterTerm.toLowerCase();
 displayPosts = displayPosts.filter(p => p.content.toLowerCase().includes(term));
 }
 displayPosts = displayPosts.filter(p => {
-const isAuthor = p.authorId === window.currentUser.id;
-const author = window.users.find(u => u.id === p.authorId);
+const isAuthor = p.authorId === currentUser.id;
+const author = users.find(u => u.id === p.authorId);
 const isPublicPost = !p.settings || p.settings.privacy === 'public';
 const isPrivateAccount = author?.settings?.privateNetwork;
-const amFollowing = window.currentUser.following.includes(p.authorId);
+const amFollowing = currentUser.following.includes(p.authorId);
 if (isAuthor) return true;
 if (isPrivateAccount) return amFollowing;
 if (!isPublicPost) return amFollowing;
@@ -2436,9 +2466,9 @@ displayPosts.forEach(post => container.appendChild(createPostElement(post)));
 setTimeout(refreshIcons, 0);
 }
 function createPostElement(post) {
-const author = window.users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', isOfficial: false, id: post.authorId };
-const isLiked = post.likes ? post.likes.includes(window.currentUser.id) : false;
-const isSaved = window.savedPosts.includes(post.id);
+const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', isOfficial: false, id: post.authorId };
+const isLiked = post.likes ? post.likes.includes(currentUser.id) : false;
+const isSaved = savedPosts.includes(post.id);
 const dateStr = formatDate(post.timestamp);
 const settings = post.settings || { privacy: 'public', showLikes: true, showComments: true, allowLikeView: true, allowComments: true };
 const div = document.createElement('article');
@@ -2457,7 +2487,7 @@ mediaHTML = isVideo
 let tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag" onclick="event.stopPropagation(); openHashtag(\'$1\')">#$1</span>'));
 let officialBadge = author.isOfficial ? `<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>` : '';
 let lockIcon = settings.privacy === 'private' || author?.settings?.privateNetwork ? `<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>` : '';
-const canViewLikeList = settings.allowLikeView === undefined || settings.allowLikeView === true || author.id === window.currentUser.id || window.currentUser.email === 'edulinkbht@gmail.com';
+const canViewLikeList = settings.allowLikeView === undefined || settings.allowLikeView === true || author.id === currentUser.id || currentUser.email === 'edulinkbht@gmail.com';
 const likeCountDisplay = settings.showLikes
 ? `<span id="like-count-${post.id}" class="text-xs font-medium px-1 hover:underline cursor-pointer" onclick="${canViewLikeList ? `event.stopPropagation(); openLikes('${post.id}')` : ''}">${post.likes ? post.likes.length : 0}</span>` : '';
 const commentCountDisplay = settings.showComments ? `<span id="comment-count-${post.id}" class="text-xs font-medium">${post.comments ? post.comments.length : 0}</span>` : '';
@@ -2472,10 +2502,10 @@ collabIcon = `<div class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-
 }
 // LIKED BY LOGIC
 let likedByHTML = '';
-if (post.likes && post.likes.length > 0 && window.currentUser.following) {
-const friendLikes = post.likes.filter(id => window.currentUser.following.includes(id));
+if (post.likes && post.likes.length > 0 && currentUser.following) {
+const friendLikes = post.likes.filter(id => currentUser.following.includes(id));
 if (friendLikes.length > 0) {
-const firstFriend = window.users.find(u => u.id === friendLikes[0]);
+const firstFriend = users.find(u => u.id === friendLikes[0]);
 if (firstFriend) {
 const othersCount = friendLikes.length - 1;
 const othersText = othersCount > 0 ? `and ${othersCount} others` : '';
@@ -2602,9 +2632,9 @@ if(showPeopleList) {
     peopleList.classList.remove('hidden');
     peopleList.classList.add('flex');
     
-    let filteredUsers = window.users;
+    let filteredUsers = users;
     if(term.length > 0) {
-         filteredUsers = window.users.filter(u => {
+         filteredUsers = users.filter(u => {
             const name = (u.name || "").toLowerCase();
             const username = (u.username || "").toLowerCase();
             return name.includes(term) || username.includes(term);
@@ -2612,7 +2642,7 @@ if(showPeopleList) {
     } else {
         // Suggest random/all users if tab is 'people' but no search
         // For now just show first 10
-        filteredUsers = window.users.slice(0, 10);
+        filteredUsers = users.slice(0, 10);
     }
 
     peopleList.innerHTML = '';
@@ -2646,7 +2676,7 @@ if(showPeopleList) {
 }
 
 // Filter Posts (for non-people tabs)
-let filteredPosts = [...window.posts];
+let filteredPosts = [...posts];
 
 if(window.activeExploreTab === 'video') {
     filteredPosts = filteredPosts.filter(p => p.media && (p.media.includes('video') || p.media.endsWith('.mp4')));
@@ -2697,7 +2727,7 @@ content.innerHTML = '';
 
 // Only show people user follows or searches for logic could be added here
 // For now, show friends/following
-const relevantUsers = window.users.filter(u => u.id !== window.currentUser.id && (window.currentUser.following.includes(u.id) || window.currentUser.followers.includes(u.id)));
+const relevantUsers = users.filter(u => u.id !== currentUser.id && (currentUser.following.includes(u.id) || currentUser.followers.includes(u.id)));
 
 if(relevantUsers.length === 0) {
     content.innerHTML = `<div class="text-center text-gray-400 py-8">No contacts found to tag.</div>`;
@@ -2752,7 +2782,7 @@ window.selectedCollaborators = window.selectedCollaborators.filter(u => u.id !==
 renderCollabChips();
 }
 window.openCollabList = function(postId) {
-const post = window.posts.find(p => p.id === postId);
+const post = posts.find(p => p.id === postId);
 if(!post || !post.collaborators) return;
 const overlay = document.getElementById('user-list-overlay');
 const title = document.getElementById('user-list-title');
@@ -2843,18 +2873,18 @@ reelCount.innerText = count + 1;
 }
 }
 const postRef = doc(db, "posts", postId);
-const post = window.posts.find(p => p.id === postId);
-if(post.likes && post.likes.includes(window.currentUser.id)) {
-await updateDoc(postRef, { likes: arrayRemove(window.currentUser.id) });
+const post = posts.find(p => p.id === postId);
+if(post.likes && post.likes.includes(currentUser.id)) {
+await updateDoc(postRef, { likes: arrayRemove(currentUser.id) });
 } else {
-await updateDoc(postRef, { likes: arrayUnion(window.currentUser.id) });
-if(post.authorId !== window.currentUser.id) {
+await updateDoc(postRef, { likes: arrayUnion(currentUser.id) });
+if(post.authorId !== currentUser.id) {
 sendNotification(post.authorId, 'like', 'liked your post', postId);
 }
 }
 }
 window.openLikes = function(postId) {
-const post = window.posts.find(p => p.id === postId);
+const post = posts.find(p => p.id === postId);
 if(!post) return;
 const overlay = document.getElementById('likes-overlay');
 const content = document.getElementById('likes-list-content');
@@ -2864,7 +2894,7 @@ if(likeIds.length === 0) {
 content.innerHTML = `<div class="text-center text-gray-400 py-8">No likes yet.</div>`;
 } else {
 likeIds.forEach(uid => {
-const user = window.users.find(u => u.id === uid);
+const user = users.find(u => u.id === uid);
 if(user) {
 const div = document.createElement('div');
 div.className = "flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
@@ -2935,13 +2965,13 @@ reelSaveIcon.classList.add('text-white');
 reelSaveIcon.classList.add('fill-yellow-500', 'text-yellow-500');
 }
 }
-const userRef = doc(db, "users", window.currentUser.id);
-if(window.savedPosts.includes(postId)) {
+const userRef = doc(db, "users", currentUser.id);
+if(savedPosts.includes(postId)) {
 await updateDoc(userRef, { saved: arrayRemove(postId) });
-window.savedPosts = window.savedPosts.filter(id => id !== postId);
+savedPosts = savedPosts.filter(id => id !== postId);
 } else {
 await updateDoc(userRef, { saved: arrayUnion(postId) });
-window.savedPosts.push(postId);
+savedPosts.push(postId);
 }
 }
 window.sharePost = function(postId) {
@@ -2953,10 +2983,10 @@ showToast("Link copied to clipboard!");
 window.renderSaved = function() {
 const container = document.getElementById('saved-container');
 container.innerHTML = "";
-if(window.savedPosts.length === 0) {
+if(savedPosts.length === 0) {
 container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-60"><i data-lucide="bookmark" class="w-16 h-16 mb-2"></i><p>No saved posts yet</p></div>`;
 } else {
-const saved = window.posts.filter(p => window.savedPosts.includes(p.id));
+const saved = posts.filter(p => savedPosts.includes(p.id));
 saved.forEach(post => container.appendChild(createPostElement(post)));
 }
 setTimeout(refreshIcons, 0);
@@ -2964,7 +2994,7 @@ setTimeout(refreshIcons, 0);
 async function sendNotification(receiverId, type, content, postId = null) {
 await addDoc(collection(db, "notifications"), {
 receiverId,
-senderId: window.currentUser.id,
+senderId: currentUser.id,
 type,
 content,
 timestamp: serverTimestamp(),
@@ -3027,8 +3057,8 @@ renderNotifications(); // Re-render to update checkboxes
 window.renderNotifications = function() {
 const container = document.getElementById('notification-list');
 container.innerHTML = "";
-let filtered = window.notifications.filter(n => {
-const sender = window.users.find(u => u.id === n.senderId) || { name: 'Admin', isOfficial: false };
+let filtered = notifications.filter(n => {
+const sender = users.find(u => u.id === n.senderId) || { name: 'Admin', isOfficial: false };
 const isOfficial = n.type === 'official' || sender.isOfficial;
 
 // Tab Filter
@@ -3037,10 +3067,10 @@ if (activeNotifTab === 'official') {
     tabMatch = isOfficial;
 } else if (activeNotifTab === 'friends') {
     // Only show people I follow AND they are NOT official
-    tabMatch = !isOfficial && (window.currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request' || n.type === 'collab_request');
+    tabMatch = !isOfficial && (currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request' || n.type === 'collab_request');
 } else {
     // Others: Not official, Not Following
-    tabMatch = !isOfficial && !window.currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request' && n.type !== 'collab_request';
+    tabMatch = !isOfficial && !currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request' && n.type !== 'collab_request';
 }
 
 // Search Filter
@@ -3058,7 +3088,7 @@ container.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">No no
 return;
 }
 filtered.forEach(n => {
-const sender = window.users.find(u => u.id === n.senderId) || { name: 'Admin', avatar: '' };
+const sender = users.find(u => u.id === n.senderId) || { name: 'Admin', avatar: '' };
 const div = document.createElement('div');
 // Simplified List Item Design (Flat, no gaps)
 div.className = `w-full flex items-start gap-3 p-4 border-b border-gray-100 bg-white hover:bg-gray-50 transition-colors ${n.read ? '' : 'bg-blue-50/20'}`;
@@ -3128,7 +3158,7 @@ const postSnap = await getDoc(postRef);
 if(postSnap.exists()) {
 const post = postSnap.data();
 let collabs = post.collaborators || [];
-const idx = collabs.findIndex(c => c.id === window.currentUser.id);
+const idx = collabs.findIndex(c => c.id === currentUser.id);
 if(idx > -1) {
 collabs[idx].status = 'accepted';
 await updateDoc(postRef, { collaborators: collabs });
@@ -3143,17 +3173,17 @@ const postSnap = await getDoc(postRef);
 if(postSnap.exists()) {
 const post = postSnap.data();
 let collabs = post.collaborators || [];
-collabs = collabs.filter(c => c.id !== window.currentUser.id); // Remove user from collab list
+collabs = collabs.filter(c => c.id !== currentUser.id); // Remove user from collab list
 await updateDoc(postRef, { collaborators: collabs });
 showToast("Collaboration Declined");
 }
 await deleteDoc(doc(db, "notifications", notifId));
 }
 window.acceptFollow = async function(notifId, senderId) {
-const meRef = doc(db, "users", window.currentUser.id);
+const meRef = doc(db, "users", currentUser.id);
 await updateDoc(meRef, { followers: arrayUnion(senderId) });
 const senderRef = doc(db, "users", senderId);
-await updateDoc(senderRef, { following: arrayUnion(window.currentUser.id) });
+await updateDoc(senderRef, { following: arrayUnion(currentUser.id) });
 await deleteDoc(doc(db, "notifications", notifId));
 await sendNotification(senderId, 'follow', 'accepted your follow request');
 showToast("Follow request accepted");
@@ -3166,7 +3196,7 @@ showToast("Request accepted");
 window.clearAllNotifications = async function() {
 showAlert("Clear all notifications?", async () => {
 const batch = writeBatch(db);
-const q = query(collection(db, "notifications"), where("receiverId", "==", window.currentUser.id));
+const q = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
 const snap = await getDocs(q);
 snap.forEach(d => batch.delete(d.ref));
 await batch.commit();
@@ -3177,15 +3207,15 @@ window.toggleNotifications = function() {
 switchView('notifications');
 }
 window.showProfile = function(userId, tab = 'posts') {
-if(!userId) userId = window.currentUser.id;
-const user = window.users.find(u => u.id === userId);
+if(!userId) userId = currentUser.id;
+const user = users.find(u => u.id === userId);
 if(!user) return;
 window.currentViewingProfileId = userId;
 window.currentProfileTab = tab;
 const container = document.getElementById('view-profile');
 // Hide main header logic moved to switchView
-const isMe = userId === window.currentUser.id;
-const isFollowing = window.currentUser.following ? window.currentUser.following.includes(userId) : false;
+const isMe = userId === currentUser.id;
+const isFollowing = currentUser.following ? currentUser.following.includes(userId) : false;
 let actionBtn = "";
 if (isMe) {
 actionBtn = `<button onclick="openEditProfile()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200">Edit Profile</button>`;
@@ -3252,10 +3282,10 @@ renderProfileContent(window.currentViewingProfileId, tab);
 window.renderProfileContent = function(userId, tab) {
 const contentArea = document.getElementById('profile-content-area');
 contentArea.innerHTML = "";
-const user = window.users.find(u => u.id === userId);
+const user = users.find(u => u.id === userId);
 if (tab === 'links') {
     const links = user.links || [];
-    const isOwner = userId === window.currentUser.id;
+    const isOwner = userId === currentUser.id;
     
     let html = '<div class="max-w-4xl mx-auto py-6 space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 px-2">';
     
@@ -3289,7 +3319,7 @@ if (tab === 'links') {
 }
 
 // Privacy Check for Likes Tab
-if (tab === 'liked' && userId !== window.currentUser.id) {
+if (tab === 'liked' && userId !== currentUser.id) {
     contentArea.innerHTML = `
         <div class="flex flex-col items-center justify-center py-20 text-gray-400 opacity-60">
             <i data-lucide="lock" class="w-16 h-16 mb-2"></i>
@@ -3303,18 +3333,18 @@ if (tab === 'liked' && userId !== window.currentUser.id) {
 let targetPosts = [];
 
 if (tab === 'posts') {
-    targetPosts = window.posts.filter(p => p.authorId === userId);
+    targetPosts = posts.filter(p => p.authorId === userId);
 } else if (tab === 'saved') {
-    targetPosts = window.posts.filter(p => window.savedPosts.includes(p.id));
+    targetPosts = posts.filter(p => savedPosts.includes(p.id));
 } else if (tab === 'liked') {
-    targetPosts = window.posts.filter(p => p.likes && p.likes.includes(userId));
+    targetPosts = posts.filter(p => p.likes && p.likes.includes(userId));
 } else if (tab === 'tagged') {
-    targetPosts = window.posts.filter(p => p.collaborators && p.collaborators.some(c => c.id === userId && c.status === 'accepted'));
+    targetPosts = posts.filter(p => p.collaborators && p.collaborators.some(c => c.id === userId && c.status === 'accepted'));
 }
 
 // Visibility Check for normal profile viewing (not me)
-if (userId !== window.currentUser.id && tab === 'posts') {
-    const amFollowing = window.currentUser.following.includes(userId);
+if (userId !== currentUser.id && tab === 'posts') {
+    const amFollowing = currentUser.following.includes(userId);
     const isPrivateAcc = user?.settings?.privateNetwork;
     
     targetPosts = targetPosts.filter(p => {
@@ -3361,38 +3391,38 @@ const url = document.getElementById('new-link-url').value.trim();
 if(!title || !url) { showToast("Please fill all fields", true); return; }
 
 const newLink = { title, url, type: 'web' };
-const userRef = doc(db, "users", window.currentUser.id);
+const userRef = doc(db, "users", currentUser.id);
 await updateDoc(userRef, { links: arrayUnion(newLink) });
 
 // Update local state
-if(!window.currentUser.links) window.currentUser.links = [];
-window.currentUser.links.push(newLink);
+if(!currentUser.links) currentUser.links = [];
+currentUser.links.push(newLink);
 
 document.getElementById('add-link-modal').classList.add('hidden');
 document.getElementById('new-link-title').value = "";
 document.getElementById('new-link-url').value = "";
 
-renderProfileContent(window.currentUser.id, 'links');
+renderProfileContent(currentUser.id, 'links');
 showToast("Link added!");
 }
 window.deleteLink = async function(idx) {
 showAlert("Remove this link?", async () => {
-const linkToRemove = window.currentUser.links[idx];
-const userRef = doc(db, "users", window.currentUser.id);
+const linkToRemove = currentUser.links[idx];
+const userRef = doc(db, "users", currentUser.id);
 await updateDoc(userRef, { links: arrayRemove(linkToRemove) });
-window.currentUser.links.splice(idx, 1);
-    renderProfileContent(window.currentUser.id, 'links');
+currentUser.links.splice(idx, 1);
+    renderProfileContent(currentUser.id, 'links');
     showToast("Link removed");
 });
 }
 window.openEditProfile = function() {
-const bannerUrl = window.currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
-currentBannerPos = window.currentUser.bannerPos || 50;
+const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+currentBannerPos = currentUser.bannerPos || 50;
 initialBannerPos = currentBannerPos;
 document.getElementById('edit-banner-preview').src = bannerUrl;
 document.getElementById('edit-banner-preview').style.objectPosition = `center ${currentBannerPos}%`;
 document.getElementById('banner-pos-hint').innerText = `${currentBannerPos}%`;
-document.getElementById('edit-email').value = window.currentUser.email || "";
+document.getElementById('edit-email').value = currentUser.email || "";
 document.getElementById('edit-profile-overlay').classList.remove('pointer-events-none', 'opacity-0');
 }
 window.closeEditProfile = function() { document.getElementById('edit-profile-overlay').classList.add('pointer-events-none', 'opacity-0'); }
@@ -3423,35 +3453,35 @@ const name = document.getElementById('edit-name').value;
 const bio = document.getElementById('edit-bio').value;
 const bannerPos = currentBannerPos;
 if(!name) { showToast("Name is required"); btn.innerText = originalText; btn.disabled = false; return; }
-let avatarUrl = window.currentUser.avatar;
-let bannerUrl = window.currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+let avatarUrl = currentUser.avatar;
+let bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
 try {
 if(currentAvatarBlob) { avatarUrl = await uploadToImgHippo(currentAvatarBlob); }
 if(currentBannerBlob) { bannerUrl = await uploadToImgHippo(currentBannerBlob); }
 } catch (e) {
 console.error("Upload failed", e); showToast("Image upload failed"); btn.innerText = originalText; btn.disabled = false; return;
 }
-const userRef = doc(db, "users", window.currentUser.id);
+const userRef = doc(db, "users", currentUser.id);
 await updateDoc(userRef, { name, bio, avatar: avatarUrl, banner: bannerUrl, bannerPos });
-window.currentUser.name = name; window.currentUser.bio = bio; window.currentUser.avatar = avatarUrl; window.currentUser.banner = bannerUrl; window.currentUser.bannerPos = bannerPos;
+currentUser.name = name; currentUser.bio = bio; currentUser.avatar = avatarUrl; currentUser.banner = bannerUrl; currentUser.bannerPos = bannerPos;
 currentAvatarBlob = null; currentBannerBlob = null;
 updateUserInterface();
 closeEditProfile();
-showProfile(window.currentUser.id, window.currentProfileTab);
+showProfile(currentUser.id, window.currentProfileTab);
 showToast("Profile Updated");
 btn.innerText = originalText; btn.disabled = false;
 }
 window.doLogout = async function() { await signOut(auth); window.location.href = "index.html"; }
 window.toggleFollow = async function(userId) {
-const meRef = doc(db, "users", window.currentUser.id);
+const meRef = doc(db, "users", currentUser.id);
 const targetRef = doc(db, "users", userId);
-const targetUser = window.users.find(u => u.id === userId);
+const targetUser = users.find(u => u.id === userId);
 const isPrivate = targetUser?.settings?.privateNetwork;
-if(window.currentUser.following.includes(userId)) {
-window.currentUser.following = window.currentUser.following.filter(id => id !== userId);
+if(currentUser.following.includes(userId)) {
+currentUser.following = currentUser.following.filter(id => id !== userId);
 showToast("Unfollowed");
 await updateDoc(meRef, { following: arrayRemove(userId) });
-await updateDoc(targetRef, { followers: arrayRemove(window.currentUser.id) });
+await updateDoc(targetRef, { followers: arrayRemove(currentUser.id) });
 const btn = document.getElementById('profile-follow-btn');
 if(btn) btn.innerText = isPrivate ? 'Request' : 'Follow';
 } else {
@@ -3461,10 +3491,10 @@ sendNotification(userId, 'follow_request', 'wants to follow you');
 const btn = document.getElementById('profile-follow-btn');
 if(btn) btn.innerText = "Requested";
 } else {
-window.currentUser.following.push(userId);
+currentUser.following.push(userId);
 showToast("Following");
 await updateDoc(meRef, { following: arrayUnion(userId) });
-await updateDoc(targetRef, { followers: arrayUnion(window.currentUser.id) });
+await updateDoc(targetRef, { followers: arrayUnion(currentUser.id) });
 sendNotification(userId, 'follow', 'started following you');
 const btn = document.getElementById('profile-follow-btn');
 if(btn) btn.innerText = "Following";
@@ -3476,81 +3506,16 @@ const netView = document.getElementById('view-network');
 if(netView && !netView.classList.contains('hidden')) renderNetwork();
 refreshIcons();
 }
-// POST OPTIONS OVERLAY LOGIC
-window.showPostOptions = function(event, postId, authorId) {
-    if(event) event.stopPropagation();
-    
-    // If authorId not passed (e.g. from Reel view), lookup
-    if(!authorId && postId) {
-        const post = window.posts.find(p => p.id === postId);
-        if(post) authorId = post.authorId;
-    }
-
-    const overlay = document.getElementById('post-options-overlay');
-    const content = document.getElementById('post-options-content');
-    
-    const isAuthor = authorId === window.currentUser.id;
-    const isAdmin = window.currentUser.email === 'edulinkbht@gmail.com';
-    const canDelete = isAuthor || isAdmin;
-    
-    let html = '';
-    
-    if(isAuthor) {
-        html += `<button onclick="editPost('${postId}'); closePostOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 text-left rounded-xl transition-colors font-medium text-gray-700">
-            <i data-lucide="edit-2" class="w-5 h-5"></i> Edit Post
-        </button>`;
-    }
-    
-    if(canDelete) {
-        html += `<button onclick="deletePost('${postId}'); closePostOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 text-left rounded-xl transition-colors font-medium text-red-600">
-            <i data-lucide="trash-2" class="w-5 h-5"></i> Delete Post
-        </button>`;
-    }
-    
-    html += `<button onclick="sharePost('${postId}'); closePostOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 text-left rounded-xl transition-colors font-medium text-gray-700">
-        <i data-lucide="link" class="w-5 h-5"></i> Copy Link
-    </button>`;
-    
-    if(!isAuthor) {
-        html += `<button onclick="toggleSave('${postId}'); closePostOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 text-left rounded-xl transition-colors font-medium text-gray-700">
-            <i data-lucide="bookmark" class="w-5 h-5"></i> Save / Unsave
-        </button>`;
-        
-        html += `<button onclick="showToast('Reported to moderation'); closePostOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 text-left rounded-xl transition-colors font-medium text-red-600">
-            <i data-lucide="flag" class="w-5 h-5"></i> Report Post
-        </button>`;
-        
-        // Unfollow Option logic
-        if(window.currentUser.following.includes(authorId)) {
-             html += `<button onclick="toggleFollow('${authorId}'); closePostOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 text-left rounded-xl transition-colors font-medium text-gray-700">
-                <i data-lucide="user-minus" class="w-5 h-5"></i> Unfollow Author
-            </button>`;
-        }
-    }
-
-    content.innerHTML = html;
-    overlay.classList.remove('hidden');
-    // Ensure overlay is flex to center content
-    overlay.classList.add('flex');
-    refreshIcons();
-}
-
-window.closePostOptions = function() {
-    const overlay = document.getElementById('post-options-overlay');
-    overlay.classList.add('hidden');
-    overlay.classList.remove('flex');
-}
-
 // Open Post View - Refactored for new UI
 window.openPostView = function(postId) {
-const post = window.posts.find(p => p.id === postId);
+const post = posts.find(p => p.id === postId);
 if(!post) return;
 window.currentViewingPostId = postId;
 // Reset Classes
 const overlay = document.getElementById('post-view-overlay');
 overlay.classList.remove('mobile-reel-view');
 document.body.classList.remove('reel-mode'); // Reset body class
-const author = window.users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
+const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
 const dateStr = formatDate(post.timestamp);
 const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
 // Desktop Only Elements
@@ -3662,7 +3627,7 @@ captionArea.innerHTML = `<div class="flex gap-3"> <img src="${author.avatar}" cl
 renderCommentsInModal(postId);
 // Like Button State (Desktop)
 const likeBtn = document.getElementById('post-view-like-btn');
-const isLiked = post.likes && post.likes.includes(window.currentUser.id);
+const isLiked = post.likes && post.likes.includes(currentUser.id);
 likeBtn.classList.remove('fill-red-500', 'text-red-500', 'text-gray-700');
 if(isLiked) {
 likeBtn.classList.add('fill-red-500', 'text-red-500');
@@ -3680,7 +3645,7 @@ mobLikeBtn.classList.add('text-[#1f1f1f]');
 }
 // Save Button State (Desktop)
 const saveBtn = document.getElementById('post-view-save-btn');
-const isSaved = window.savedPosts.includes(postId);
+const isSaved = savedPosts.includes(postId);
 saveBtn.classList.remove('fill-yellow-500', 'text-yellow-500', 'text-gray-700');
 if(isSaved) {
 saveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
@@ -3756,7 +3721,7 @@ const video = document.querySelector('#post-view-media-container video');
 if(video) video.pause();
 }
 function renderCommentsInModal(postId) {
-const post = window.posts.find(p => p.id === postId);
+const post = posts.find(p => p.id === postId);
 if(!post) return;
 const container = document.getElementById('post-view-comments');
 let html = '';
@@ -3781,11 +3746,11 @@ setTimeout(refreshIcons, 0);
 }
 // Updated createCommentHTML to handle reply threading
 function createCommentHTML(c, allComments, postId, showRepliesLink = true) {
-const cAuthor = window.users.find(u => u.id === c.authorId) || { name: 'Unknown', avatar: '' };
-const isLiked = c.likes && c.likes.includes(window.currentUser.id);
+const cAuthor = users.find(u => u.id === c.authorId) || { name: 'Unknown', avatar: '' };
+const isLiked = c.likes && c.likes.includes(currentUser.id);
 const likeCount = c.likes ? c.likes.length : 0;
-const isMyComment = c.authorId === window.currentUser.id;
-const isAdmin = window.currentUser.email === 'edulinkbht@gmail.com';
+const isMyComment = c.authorId === currentUser.id;
+const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
 const canDelete = isMyComment || isAdmin;
 const replies = allComments.filter(r => r.parentId === c.id);
 const timeAgo = "Now"; // Simplified for this context
@@ -3835,7 +3800,7 @@ window.threadParentCommentId = null;
 window.replyingToCommentId = null; // Reset normal reply when closing thread
 }
 window.renderThreadContent = function(postId, commentId) {
-const post = window.posts.find(p => p.id === postId);
+const post = posts.find(p => p.id === postId);
 if (!post) return;
 const parentComment = post.comments.find(c => c.id === commentId);
 if (!parentComment) return;
@@ -3869,7 +3834,7 @@ const commentId = "c-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
 // Parent ID is explicitly the thread parent
 const newComment = { 
     id: commentId, 
-    authorId: window.currentUser.id, 
+    authorId: currentUser.id, 
     content: txt, 
     timestamp: Date.now(), 
     likes: [], 
@@ -3879,9 +3844,9 @@ const newComment = {
 await updateDoc(postRef, { comments: arrayUnion(newComment) });
 
 // Notification logic
-const post = window.posts.find(p => p.id === window.threadPostId);
+const post = posts.find(p => p.id === window.threadPostId);
 const parentComment = post.comments.find(c => c.id === window.threadParentCommentId);
-if (parentComment && parentComment.authorId !== window.currentUser.id) {
+if (parentComment && parentComment.authorId !== currentUser.id) {
     sendNotification(parentComment.authorId, 'reply', 'replied to your comment', window.threadPostId);
 }
 
@@ -3891,22 +3856,22 @@ document.getElementById('thread-input').value = "";
 window.deleteComment = async function(postId, commentId) {
 showAlert("Delete this comment?", async () => {
 const postRef = doc(db, "posts", postId);
-const post = window.posts.find(p => p.id === postId);
+const post = posts.find(p => p.id === postId);
 const updatedComments = post.comments.filter(c => c.id !== commentId && c.parentId !== commentId);
 await updateDoc(postRef, { comments: updatedComments });
 showToast("Comment deleted");
 });
 }
 window.toggleCommentLike = async function(postId, commentId) {
-const post = window.posts.find(p => p.id === postId);
+const post = posts.find(p => p.id === postId);
 if(!post) return;
 const comments = post.comments || [];
 const commentIndex = comments.findIndex(c => c.id === commentId);
 if(commentIndex === -1) return;
 const comment = comments[commentIndex];
 if(!comment.likes) comment.likes = [];
-if(comment.likes.includes(window.currentUser.id)) { comment.likes = comment.likes.filter(id => id !== window.currentUser.id); }
-else { comment.likes.push(window.currentUser.id); if(comment.authorId !== window.currentUser.id) sendNotification(comment.authorId, 'like', 'liked your comment', postId); }
+if(comment.likes.includes(currentUser.id)) { comment.likes = comment.likes.filter(id => id !== currentUser.id); }
+else { comment.likes.push(currentUser.id); if(comment.authorId !== currentUser.id) sendNotification(comment.authorId, 'like', 'liked your comment', postId); }
 comments[commentIndex] = comment;
 const postRef = doc(db, "posts", postId);
 await updateDoc(postRef, { comments: comments });
@@ -3922,13 +3887,13 @@ const txt = document.getElementById('comment-input-desktop').value.trim();
 if(!txt || !window.currentViewingPostId) return;
 const postRef = doc(db, "posts", window.currentViewingPostId);
 const commentId = "c-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
-const newComment = { id: commentId, authorId: window.currentUser.id, content: txt, timestamp: Date.now(), likes: [], parentId: window.replyingToCommentId };
+const newComment = { id: commentId, authorId: currentUser.id, content: txt, timestamp: Date.now(), likes: [], parentId: window.replyingToCommentId };
 await updateDoc(postRef, { comments: arrayUnion(newComment) });
-const post = window.posts.find(p => p.id === window.currentViewingPostId);
+const post = posts.find(p => p.id === window.currentViewingPostId);
 if (window.replyingToCommentId) {
 const parentComment = post.comments.find(c => c.id === window.replyingToCommentId);
-if (parentComment && parentComment.authorId !== window.currentUser.id) sendNotification(parentComment.authorId, 'reply', 'replied to your comment', window.currentViewingPostId);
-} else if(post && post.authorId !== window.currentUser.id) { sendNotification(post.authorId, 'comment', 'commented on your post', window.currentViewingPostId); }
+if (parentComment && parentComment.authorId !== currentUser.id) sendNotification(parentComment.authorId, 'reply', 'replied to your comment', window.currentViewingPostId);
+} else if(post && post.authorId !== currentUser.id) { sendNotification(post.authorId, 'comment', 'commented on your post', window.currentViewingPostId); }
 document.getElementById('comment-input-desktop').value = "";
 window.replyingToCommentId = null;
 }
@@ -3951,9 +3916,9 @@ const text = document.getElementById('announcement-text').value.trim();
 if(!text) return;
 showAlert("Send this announcement to all users?", async () => {
 let count = 0;
-for(const u of window.users) {
-if(u.id !== window.currentUser.id) {
-await addDoc(collection(db, "notifications"), { receiverId: u.id, senderId: window.currentUser.id, type: 'official', content: text, timestamp: serverTimestamp(), read: false });
+for(const u of users) {
+if(u.id !== currentUser.id) {
+await addDoc(collection(db, "notifications"), { receiverId: u.id, senderId: currentUser.id, type: 'official', content: text, timestamp: serverTimestamp(), read: false });
 count++;
 }
 }
@@ -3971,8 +3936,71 @@ window.closeEventComposer = function() { document.getElementById('event-overlay'
 window.handleEventCoverSelect = function(event) { const file = event.target.files[0]; if (file) { currentEventCoverBlob = file; const reader = new FileReader(); reader.onload = function(e) { window.currentEventCover = e.target.result; document.getElementById('event-cover-preview').src = window.currentEventCover; document.getElementById('event-cover-preview-container').classList.remove('hidden'); document.getElementById('add-cover-btn').classList.add('hidden'); }; reader.readAsDataURL(file); } }
 window.removeEventCover = function() { window.currentEventCover = null; currentEventCoverBlob = null; document.getElementById('event-cover-preview').src = ""; document.getElementById('event-cover-preview-container').classList.add('hidden'); document.getElementById('add-cover-btn').classList.remove('hidden'); document.getElementById('event-cover-input').value = ""; }
 window.publishEvent = function() { showToast("Events feature connected to backend soon!", false); closeEventComposer(); }
-// Post Logic
-window.editPost = function(postId) { const post = window.posts.find(p => p.id === postId); if(!post) return; document.getElementById('compose-text').value = post.content; window.editingPostId = postId; document.getElementById('compose-title-text').innerText = "Edit Post"; document.getElementById('btn-publish').innerText = "Update"; openCompose(); }
+// Post Logic - Updated to use new overlay
+window.showPostOptions = function(event, postId, authorId) {
+    event.stopPropagation();
+    const overlay = document.getElementById('post-options-overlay');
+    const container = document.getElementById('post-options-container');
+    const content = document.getElementById('post-options-content');
+    const isAuthor = authorId === currentUser.id;
+    const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
+    
+    let html = '';
+    
+    if (isAuthor) {
+        html += `
+        <div class="post-option-row" onclick="editPost('${postId}'); closePostOptions()">
+            <i data-lucide="edit-2" class="w-5 h-5"></i>
+            <span>Edit Post</span>
+        </div>
+        <div class="post-option-row danger" onclick="deletePost('${postId}'); closePostOptions()">
+            <i data-lucide="trash-2" class="w-5 h-5"></i>
+            <span>Delete Post</span>
+        </div>`;
+    } else {
+        html += `
+        <div class="post-option-row" onclick="toggleSave('${postId}'); closePostOptions()">
+            <i data-lucide="bookmark" class="w-5 h-5"></i>
+            <span>Save Post</span>
+        </div>
+        <div class="post-option-row danger" onclick="showToast('Report submitted'); closePostOptions()">
+            <i data-lucide="flag" class="w-5 h-5"></i>
+            <span>Report</span>
+        </div>`;
+        if (isAdmin) {
+             html += `
+            <div class="post-option-row danger" onclick="deletePost('${postId}'); closePostOptions()">
+                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                <span>Delete (Admin)</span>
+            </div>`;
+        }
+    }
+    
+    content.innerHTML = html;
+    refreshIcons();
+    
+    overlay.classList.remove('hidden');
+    // Trigger animation
+    setTimeout(() => {
+        container.classList.add('open');
+    }, 10);
+}
+
+window.closePostOptions = function() {
+    const overlay = document.getElementById('post-options-overlay');
+    const container = document.getElementById('post-options-container');
+    
+    container.classList.remove('open');
+    setTimeout(() => {
+        overlay.classList.add('hidden');
+    }, 300);
+}
+
+window.hidePostMenu = function() { 
+    // Fallback for old menu, just in case
+    document.getElementById('global-post-menu').classList.remove('active'); 
+}
+window.editPost = function(postId) { const post = posts.find(p => p.id === postId); if(!post) return; document.getElementById('compose-text').value = post.content; window.editingPostId = postId; document.getElementById('compose-title-text').innerText = "Edit Post"; document.getElementById('btn-publish').innerText = "Update"; openCompose(); }
 window.deletePost = async function(postId) { showAlert("Delete this post?", async () => { await deleteDoc(doc(db, "posts", postId)); showToast("Post deleted"); }); }
 window.openCompose = function() {
 window.selectedCollaborators = [];
@@ -4021,7 +4049,7 @@ if(window.currentMediaBlob) {
 try { mediaUrl = await uploadToImgHippo(window.currentMediaBlob); }
 catch (err) {
 console.error("ImgHippo failed, falling back to Firebase Storage", err);
-const mediaRef = ref(storage, `posts/${window.currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`);
+const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`);
 await uploadBytes(mediaRef, window.currentMediaBlob);
 mediaUrl = await getDownloadURL(mediaRef);
 }
@@ -4032,7 +4060,7 @@ if(window.selectedCollaborators && window.selectedCollaborators.length > 0) {
 // So we add doc then notify.
 }
 const postData = {
-authorId: window.currentUser.id,
+authorId: currentUser.id,
 content: textRaw,
 media: mediaUrl,
 timestamp: serverTimestamp(),

@@ -3,34 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edulinki Live - Stable</title>
+    <title>Edulinki Live - Fixed</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
-        :root { --bg: #000; --primary: #fe2c55; --glass: rgba(255, 255, 255, 0.15); }
+        :root { --bg: #000; --primary: #fe2c55; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; height: 100vh; overflow: hidden; }
 
-        /* HOME FEED */
+        /* HOME */
         #home-feed { position: absolute; inset: 0; z-index: 50; background: #121212; display: flex; flex-direction: column; }
         .feed-header { padding: 15px 20px; background: #000; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
         .logo span { color: var(--primary); }
         .grid { flex: 1; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
-        .card { 
-            aspect-ratio: 9/16; background: #222; border-radius: 12px; position: relative; overflow: hidden; cursor: pointer; 
-        }
+        .card { aspect-ratio: 9/16; background: #222; border-radius: 12px; position: relative; overflow: hidden; cursor: pointer; }
         .card-badge { position: absolute; top: 10px; left: 10px; background: var(--primary); padding: 3px 6px; font-size: 10px; border-radius: 4px; font-weight: bold; }
         .card-info { position: absolute; bottom: 0; width: 100%; padding: 10px; background: linear-gradient(transparent, black); }
+        
+        .fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 12px 30px; border-radius: 30px; border: none; font-weight: bold; display: flex; align-items: center; gap: 8px; cursor: pointer; }
 
-        .fab { 
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            background: var(--primary); color: white; padding: 12px 30px; border-radius: 30px; 
-            font-weight: bold; border: none; display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 15px rgba(254,44,85,0.5);
-        }
-
-        /* LIVE STAGE */
+        /* LIVE */
         #live-stage { position: absolute; inset: 0; z-index: 100; display: none; background: #000; }
         #video-layer { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; }
         video { width: 100%; height: 100%; object-fit: cover; }
@@ -38,22 +32,19 @@
 
         #ui-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; }
         .top-bar { padding: 40px 16px 10px; display: flex; justify-content: space-between; pointer-events: auto; background: linear-gradient(black, transparent); }
-        .host-info { background: rgba(0,0,0,0.5); padding: 4px 12px 4px 4px; border-radius: 30px; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(5px); }
+        .host-pill { background: rgba(0,0,0,0.5); padding: 4px 12px 4px 4px; border-radius: 30px; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(5px); }
         .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        
+
         .bottom-bar { padding: 16px; pointer-events: auto; background: linear-gradient(transparent, black); }
         .chat-box { height: 200px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; mask-image: linear-gradient(transparent, black 20%); }
         .msg { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 12px; align-self: flex-start; font-size: 13px; backdrop-filter: blur(4px); }
-        .input-row { display: flex; gap: 10px; }
         .chat-input { flex: 1; background: rgba(255,255,255,0.2); border: none; padding: 12px; border-radius: 20px; color: white; outline: none; }
-        .icon-btn { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.1); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
-        /* Hearts */
         .hearts-box { position: absolute; bottom: 80px; right: 20px; width: 50px; height: 300px; pointer-events: none; }
         .heart { position: absolute; bottom: 0; animation: float 2s forwards; font-size: 24px; }
         @keyframes float { 0% { transform: translateY(0) scale(0.5); opacity: 1; } 100% { transform: translateY(-200px) scale(1.5); opacity: 0; } }
 
-        /* Setup */
+        /* SETUP */
         #setup { position: fixed; inset: 0; background: #000; z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; }
         .preview { width: 80%; aspect-ratio: 9/16; background: #222; border-radius: 20px; overflow: hidden; margin-bottom: 20px; }
     </style>
@@ -75,31 +66,28 @@
             <video id="previewVid" autoplay playsinline muted class="host-mirror"></video>
         </div>
         <input id="streamTitle" type="text" placeholder="Add a title..." style="background:#333; border:none; padding:15px; border-radius:10px; color:white; width:80%; margin-bottom:15px; outline:none;">
-        <button onclick="startHosting()" style="background:var(--primary); border:none; padding:15px 40px; border-radius:30px; color:white; font-weight:bold; font-size:16px;">Start Live</button>
+        <button onclick="startHosting()" style="background:var(--primary); border:none; padding:15px 40px; border-radius:30px; color:white; font-weight:bold;">Start Live</button>
     </div>
 
     <div id="live-stage">
         <div id="video-layer"></div>
-        
         <div id="ui-layer">
             <div class="top-bar">
-                <div class="host-info">
+                <div class="host-pill">
                     <div class="avatar" id="hostIcon">H</div>
                     <div>
                         <div style="font-size:13px; font-weight:bold" id="hostName">Host</div>
                         <div style="font-size:10px; opacity:0.8"><span id="viewCount">0</span> Viewers</div>
                     </div>
                 </div>
-                <button class="icon-btn" onclick="leaveRoom()"><i data-lucide="x"></i></button>
+                <button onclick="leaveRoom()" style="background:none; border:none; color:white;"><i data-lucide="x"></i></button>
             </div>
-
             <div class="hearts-box" id="hearts"></div>
-
             <div class="bottom-bar">
                 <div class="chat-box" id="chat"></div>
-                <div class="input-row">
+                <div style="display:flex; gap:10px;">
                     <input id="msgInput" class="chat-input" placeholder="Say something..." autocomplete="off">
-                    <button class="icon-btn" onclick="sendHeart()" style="background:linear-gradient(45deg, #ff0050, #00f2ea)"><i data-lucide="heart" fill="white"></i></button>
+                    <button onclick="sendHeart()" style="width:44px; height:44px; border-radius:50%; background:linear-gradient(45deg, #ff0050, #00f2ea); border:none; display:flex; align-items:center; justify-content:center;"><i data-lucide="heart" fill="white"></i></button>
                 </div>
             </div>
         </div>
@@ -107,11 +95,10 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, increment, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, increment, query, where, orderBy } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         lucide.createIcons();
 
-        // 1. CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
             authDomain: "edulinki.firebaseapp.com",
@@ -124,23 +111,22 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         
-        const iceServers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }] };
+        const iceServers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302'] }] };
 
-        // 2. STATE
         let localStream;
-        let role = null; 
+        let role = null;
         let roomId = null;
         let myId = Math.random().toString(36).substr(2, 6).toUpperCase();
-        let pcs = {}; // Store peer connections
-        
-        // 3. UI FUNCTIONS
+        let pcs = {}; // Peer connections
+
+        // --- SETUP ---
         window.openSetup = async () => {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
                 document.getElementById('previewVid').srcObject = localStream;
                 document.getElementById('home-feed').style.display = 'none';
                 document.getElementById('setup').style.display = 'flex';
-            } catch(e) { alert("Camera denied"); }
+            } catch(e) { alert("Camera Error"); }
         }
 
         window.closeSetup = () => {
@@ -149,7 +135,7 @@
             document.getElementById('home-feed').style.display = 'flex';
         }
 
-        // 4. HOME FEED LISTENER
+        // --- HOME FEED ---
         onSnapshot(query(collection(db, "rooms"), where("status", "==", "live")), (snap) => {
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
@@ -158,7 +144,6 @@
                 const div = document.createElement('div');
                 div.className = 'card';
                 div.onclick = () => joinStream(d.id, data);
-                // Placeholder gradient BG
                 const hue = parseInt(d.id, 36) % 360;
                 div.innerHTML = `
                     <div style="width:100%; height:100%; background:linear-gradient(45deg, hsl(${hue}, 60%, 20%), #000);"></div>
@@ -173,34 +158,25 @@
             if(snap.empty) grid.innerHTML = '<div style="color:#666; width:200%; text-align:center; padding:50px;">No active streams</div>';
         });
 
-        // 5. HOST LOGIC
+        // --- HOST LOGIC ---
         window.startHosting = async () => {
             const title = document.getElementById('streamTitle').value || "Chilling";
             roomId = myId;
             role = 'host';
 
-            // Switch UI
             document.getElementById('setup').style.display = 'none';
             document.getElementById('live-stage').style.display = 'block';
 
-            // Show Local Video
             const vid = document.createElement('video');
             vid.srcObject = localStream;
             vid.autoplay = true; vid.muted = true; vid.className = 'host-mirror';
             document.getElementById('video-layer').appendChild(vid);
 
-            // DB Room
             await setDoc(doc(db, "rooms", roomId), {
                 hostId: myId, hostName: "Host " + myId, title, status: 'live', viewers: 0
             });
 
-            // Listen for Viewers
-            listenForOffers();
-            listenForInteractions();
-        }
-
-        function listenForOffers() {
-            // Watch for offers from viewers
+            // Listen for Viewers JOINING
             onSnapshot(collection(db, `rooms/${roomId}/offers`), (snap) => {
                 snap.docChanges().forEach(async change => {
                     if (change.type === 'added') {
@@ -209,17 +185,30 @@
                     }
                 });
             });
+
+            // Listen for ICE from Viewers
+            onSnapshot(collection(db, `rooms/${roomId}/candidates`), (snap) => {
+                snap.docChanges().forEach(async change => {
+                    if (change.type === 'added') {
+                        const data = change.doc.data();
+                        // Host receives candidates addressed to them
+                        if (data.to === myId) {
+                            const pc = pcs[data.from];
+                            if(pc) pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+                        }
+                    }
+                });
+            });
+
+            listenForInteractions();
         }
 
         async function handleViewerJoin(viewerId, offer) {
-            console.log("Viewer Joining:", viewerId);
             const pc = new RTCPeerConnection(iceServers);
             pcs[viewerId] = pc;
 
-            // Add Host Tracks
             localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
-            // ICE Handling
             pc.onicecandidate = e => {
                 if(e.candidate) addDoc(collection(db, `rooms/${roomId}/candidates`), { 
                     candidate: e.candidate.toJSON(), to: viewerId, from: myId 
@@ -230,13 +219,12 @@
             const answer = await pc.createAnswer();
             await pc.setLocalDescription(answer);
 
-            // Send Answer
             await addDoc(collection(db, `rooms/${roomId}/answers`), {
                 answer, to: viewerId, from: myId
             });
         }
 
-        // 6. VIEWER LOGIC
+        // --- VIEWER LOGIC ---
         async function joinStream(id, data) {
             roomId = id;
             role = 'viewer';
@@ -245,7 +233,7 @@
             document.getElementById('hostName').innerText = data.hostName;
 
             await updateDoc(doc(db, "rooms", roomId), { viewers: increment(1) });
-            
+
             const pc = new RTCPeerConnection(iceServers);
             pcs['host'] = pc;
 
@@ -260,6 +248,26 @@
                 document.getElementById('video-layer').appendChild(vid);
             };
 
+            // LISTEN FOR ANSWER
+            onSnapshot(collection(db, `rooms/${roomId}/answers`), (snap) => {
+                snap.docChanges().forEach(async change => {
+                    if (change.type === 'added') {
+                        const d = change.doc.data();
+                        if (d.to === myId) await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
+                    }
+                });
+            });
+
+            // LISTEN FOR ICE (FROM HOST)
+            onSnapshot(collection(db, `rooms/${roomId}/candidates`), (snap) => {
+                snap.docChanges().forEach(async change => {
+                    if (change.type === 'added') {
+                        const d = change.doc.data();
+                        if (d.to === myId) await pc.addIceCandidate(new RTCIceCandidate(d.candidate));
+                    }
+                });
+            });
+
             pc.onicecandidate = e => {
                 if(e.candidate) addDoc(collection(db, `rooms/${roomId}/candidates`), { 
                     candidate: e.candidate.toJSON(), to: data.hostId, from: myId 
@@ -268,44 +276,18 @@
 
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
-
-            // Send Offer
-            await addDoc(collection(db, `rooms/${roomId}/offers`), {
-                offer, to: data.hostId, from: myId
-            });
-
-            // Listen for Answer
-            onSnapshot(collection(db, `rooms/${roomId}/answers`), (snap) => {
-                snap.docChanges().forEach(async change => {
-                    if(change.type === 'added') {
-                        const d = change.doc.data();
-                        if(d.to === myId) await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
-                    }
-                });
-            });
-
-            // Listen for ICE
-            onSnapshot(collection(db, `rooms/${roomId}/candidates`), (snap) => {
-                snap.docChanges().forEach(async change => {
-                    if(change.type === 'added') {
-                        const d = change.doc.data();
-                        if(d.to === myId) await pc.addIceCandidate(new RTCIceCandidate(d.candidate));
-                    }
-                });
-            });
+            await addDoc(collection(db, `rooms/${roomId}/offers`), { offer, to: data.hostId, from: myId });
 
             listenForInteractions();
         }
 
-        // 7. INTERACTIONS (Chat & Hearts)
+        // --- INTERACTIONS ---
         function listenForInteractions() {
-            // Room Stats
             onSnapshot(doc(db, "rooms", roomId), (d) => {
                 if(d.exists()) document.getElementById('viewCount').innerText = d.data().viewers;
-                else if(role === 'viewer') { alert("Live Ended"); window.location.reload(); }
+                else location.reload();
             });
 
-            // Chat
             const chatBox = document.getElementById('chat');
             onSnapshot(query(collection(db, `rooms/${roomId}/chat`), orderBy('ts')), (snap) => {
                 snap.docChanges().forEach(c => {
@@ -320,7 +302,6 @@
                 });
             });
 
-            // Hearts
             onSnapshot(collection(db, `rooms/${roomId}/hearts`), (snap) => {
                 snap.docChanges().forEach(c => {
                     if(c.type === 'added' && !c.doc.metadata.hasPendingWrites) spawnHeart();
@@ -351,19 +332,11 @@
             setTimeout(() => h.remove(), 2000);
         }
 
-        // 8. CLEANUP
         window.leaveRoom = async () => {
-            if(role === 'host') {
-                if(confirm("End Live?")) {
-                    await updateDoc(doc(db, "rooms", roomId), { status: 'ended' });
-                    window.location.reload();
-                }
-            } else {
-                await updateDoc(doc(db, "rooms", roomId), { viewers: increment(-1) });
-                window.location.reload();
-            }
+            if(role === 'host') await updateDoc(doc(db, "rooms", roomId), { status: 'ended' });
+            else await updateDoc(doc(db, "rooms", roomId), { viewers: increment(-1) });
+            location.reload();
         }
-
     </script>
 </body>
 </html>

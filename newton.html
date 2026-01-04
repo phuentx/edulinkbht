@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Newton AI - Scholar Edition</title>
+<title>Newton AI - Scholar & Code Edition</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
@@ -19,6 +19,19 @@
     // Initialize PDF.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 </script>
+
+<!-- PrismJS for Syntax Highlighting (Code Mode) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-tsx.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
 
 <!-- TradingView Widget -->
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
@@ -46,6 +59,7 @@
                     scholarBg: '#FFFBEB',
                     studyBg: '#ECFDF5',
                     studyBorder: '#A7F3D0',
+                    codeBg: '#1e1e1e', /* Dark editor background */
                 },
                 fontFamily: {
                     sans: ['Inter', 'sans-serif'],
@@ -109,37 +123,61 @@
     .prose-content a { color: #2563EB; text-decoration: underline; text-underline-offset: 2px; }
     .prose-content blockquote { border-left: 3px solid #E5E7EB; padding-left: 1rem; color: #6B7280; margin-left: 0; }
     
-    /* Code Blocks */
+    /* Code Blocks - Modern "Canvas" Style */
     .code-block-wrapper {
-        background-color: #F8F9FA;
-        border: 1px solid #E5E7EB;
+        background-color: #1e1e1e;
+        border: 1px solid #333;
         border-radius: 8px;
         margin: 1.5em 0;
         overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
     .code-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 8px 16px;
-        background-color: #F3F4F6;
-        border-bottom: 1px solid #E5E7EB;
+        padding: 10px 16px;
+        background-color: #252526;
+        border-bottom: 1px solid #333;
         font-size: 0.75rem;
-        color: #6B7280;
-        font-family: 'Inter', sans-serif;
+        color: #9CA3AF;
+        font-family: 'JetBrains Mono', monospace;
         font-weight: 500;
+    }
+    .code-header-actions {
+        display: flex;
+        gap: 8px;
+    }
+    .code-action-btn {
+        background: transparent;
+        border: none;
+        color: #9CA3AF;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .code-action-btn:hover {
+        background: rgba(255,255,255,0.1);
+        color: white;
     }
     .prose-content pre {
         margin: 0;
         padding: 16px;
         overflow-x: auto;
-        background-color: transparent;
+        background-color: #1e1e1e; /* Match wrapper */
+        color: #d4d4d4; /* Default light text */
     }
     .prose-content code {
         font-family: 'JetBrains Mono', monospace;
         font-size: 0.875rem;
-        color: #1F2937;
+        text-shadow: none; /* Remove Prism text shadow if any */
     }
+    /* Inline code styling */
     .prose-content :not(pre) > code {
         background-color: #F3F4F6;
         padding: 2px 6px;
@@ -148,6 +186,37 @@
         color: #D97757;
         font-weight: 500;
         border: 1px solid #E5E7EB;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* CODE PLAN CARD (Refined Prompt UI) */
+    .code-plan-card {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        border-left: 4px solid #6366F1; /* Indigo accent */
+    }
+    .code-plan-title {
+        color: #4338CA;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .code-plan-content {
+        font-size: 0.9rem;
+        color: #334155;
+        line-height: 1.5;
+    }
+    .code-plan-content strong {
+        color: #1E293B;
+        font-weight: 600;
     }
 
     /* WEB GRID */
@@ -562,6 +631,17 @@
     </div>
 </div>
 
+<!-- HTML Preview Modal (For Code Mode) -->
+<div id="preview-modal" class="fixed inset-0 z-[120] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-200">
+    <div class="bg-white rounded-lg shadow-2xl w-[90vw] h-[85vh] relative flex flex-col overflow-hidden">
+        <div class="h-10 bg-gray-100 border-b border-gray-200 flex items-center justify-between px-4">
+            <span class="text-sm font-semibold text-gray-600 flex items-center gap-2"><i class="fa-solid fa-eye"></i> Live Preview</span>
+            <button onclick="closePreviewModal()" class="text-gray-500 hover:text-gray-800"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <iframe id="preview-frame" class="w-full h-full bg-white"></iframe>
+    </div>
+</div>
+
 <!-- URL Input Modal -->
 <div id="url-modal" class="fixed inset-0 z-[110] hidden flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-200">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-95 opacity-0" id="url-modal-content">
@@ -710,7 +790,8 @@
                         <button onclick="toggleWebSearch()" id="toolbar-web-btn" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors relative" title="Web Search"><i class="fa-solid fa-globe"></i></button>
                         <button onclick="toggleScholarMode()" id="toolbar-scholar-btn" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors" title="Scholar Mode"><i class="fa-solid fa-graduation-cap"></i></button>
                         <button onclick="toggleIdeaMode()" id="toolbar-idea-btn" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors" title="Idea Mode"><i class="fa-regular fa-lightbulb"></i></button>
-                         <button onclick="toggleStudyMode()" id="toolbar-study-btn" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors" title="Study Mode"><i class="fa-solid fa-microscope"></i></button>
+                        <button onclick="toggleStudyMode()" id="toolbar-study-btn" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors" title="Study Mode"><i class="fa-solid fa-microscope"></i></button>
+                        <button onclick="toggleCodeMode()" id="toolbar-code-btn" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors" title="Code Canvas"><i class="fa-solid fa-code"></i></button>
                     </div>
                     <div class="flex items-center gap-2">
                          <span id="char-count" class="text-xs text-gray-300 font-mono hidden sm:inline">0</span>
@@ -735,6 +816,7 @@
     let isWebSearchMode = false;
     let isIdeaMode = false;
     let isStudyMode = false;
+    let isCodeMode = false;
     let webSearchFocus = 'all'; // all, social, finance, academic
     
     // Updated: Array to store multiple attachments
@@ -773,6 +855,31 @@
             modal.classList.add('hidden');
             document.getElementById('modal-img').src = '';
         }, 300);
+    }
+
+    // --- Preview Modal Logic ---
+    function openPreviewModal(htmlContent) {
+        const modal = document.getElementById('preview-modal');
+        const frame = document.getElementById('preview-frame');
+        
+        // Write content to iframe
+        const doc = frame.contentDocument || frame.contentWindow.document;
+        doc.open();
+        doc.write(htmlContent);
+        doc.close();
+
+        modal.classList.remove('hidden');
+        setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    }
+
+    function closePreviewModal() {
+        const modal = document.getElementById('preview-modal');
+        modal.classList.add('opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            const frame = document.getElementById('preview-frame');
+            frame.src = 'about:blank'; // Clear content
+        }, 200);
     }
 
     // --- URL Modal Logic ---
@@ -870,14 +977,17 @@
         const webBtn = document.getElementById('toolbar-web-btn');
         const ideaBtn = document.getElementById('toolbar-idea-btn');
         const studyBtn = document.getElementById('toolbar-study-btn');
+        const codeBtn = document.getElementById('toolbar-code-btn');
         const headScholarBtn = document.getElementById('header-scholar-btn');
         const input = document.getElementById('user-input');
 
         // Reset UI
-        scholarBtn.className = "w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-colors";
-        webBtn.className = "w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-colors relative";
-        ideaBtn.className = "w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-colors";
-        studyBtn.className = "w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-colors";
+        const defaultClass = "w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-colors";
+        scholarBtn.className = defaultClass;
+        webBtn.className = defaultClass + " relative";
+        ideaBtn.className = defaultClass;
+        studyBtn.className = defaultClass;
+        codeBtn.className = defaultClass;
 
         headScholarBtn.classList.remove('text-[#D97757]');
         
@@ -886,7 +996,7 @@
         input.placeholder = "Ask anything...";
 
         if (isScholarMode) {
-            isWebSearchMode = false; isIdeaMode = false; isStudyMode = false;
+            isWebSearchMode = false; isIdeaMode = false; isStudyMode = false; isCodeMode = false;
             badge.innerHTML += `<span class="mode-badge bg-[#FFF4F0] text-[#D97757] border border-[#FED7AA]"><i class="fa-solid fa-graduation-cap"></i> Scholar Mode</span>`;
             badge.classList.remove('hidden');
             scholarBtn.className = "w-8 h-8 flex items-center justify-center rounded-lg text-gray-900 bg-gray-100 transition-colors";
@@ -895,7 +1005,7 @@
         }
 
         if (isWebSearchMode) {
-            isScholarMode = false; isIdeaMode = false; isStudyMode = false;
+            isScholarMode = false; isIdeaMode = false; isStudyMode = false; isCodeMode = false;
             let focusIcon = 'fa-globe';
             let focusColor = 'text-gray-900';
             let focusText = 'Web Search';
@@ -911,7 +1021,7 @@
         }
         
         if (isIdeaMode) {
-            isScholarMode = false; isWebSearchMode = false; isStudyMode = false;
+            isScholarMode = false; isWebSearchMode = false; isStudyMode = false; isCodeMode = false;
             badge.innerHTML += `<span class="mode-badge bg-[#FFF4F0] text-[#D97757] border border-[#FED7AA]"><i class="fa-regular fa-lightbulb"></i> Startup Blueprint</span>`;
             badge.classList.remove('hidden');
             ideaBtn.className = "w-8 h-8 flex items-center justify-center rounded-lg text-gray-900 bg-gray-100 transition-colors";
@@ -919,15 +1029,34 @@
         }
 
         if (isStudyMode) {
-            isScholarMode = false; isWebSearchMode = false; isIdeaMode = false;
+            isScholarMode = false; isWebSearchMode = false; isIdeaMode = false; isCodeMode = false;
             badge.innerHTML += `<span class="mode-badge bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]"><i class="fa-solid fa-microscope"></i> Study Mode</span>`;
             badge.classList.remove('hidden');
             studyBtn.className = "w-8 h-8 flex items-center justify-center rounded-lg text-gray-900 bg-gray-100 transition-colors";
             input.placeholder = "Enter a complex math problem or science topic...";
         }
+
+        if (isCodeMode) {
+            isScholarMode = false; isWebSearchMode = false; isIdeaMode = false; isStudyMode = false;
+            badge.innerHTML += `<span class="mode-badge bg-[#312e81] text-indigo-100 border border-indigo-500"><i class="fa-solid fa-code"></i> Code Canvas</span>`;
+            badge.classList.remove('hidden');
+            codeBtn.className = "w-8 h-8 flex items-center justify-center rounded-lg text-gray-900 bg-gray-100 transition-colors";
+            input.placeholder = "Describe the app or script you want to build...";
+        }
     }
 
-    function toggleScholarMode() { isScholarMode = !isScholarMode; if(isScholarMode) { isWebSearchMode = false; isIdeaMode = false; isStudyMode = false; } updateModeUI(); closeWebMenu(); }
+    function toggleScholarMode() { isScholarMode = !isScholarMode; if(isScholarMode) resetOtherModes('scholar'); updateModeUI(); closeWebMenu(); }
+    function toggleIdeaMode() { isIdeaMode = !isIdeaMode; if(isIdeaMode) resetOtherModes('idea'); updateModeUI(); closeWebMenu(); }
+    function toggleStudyMode() { isStudyMode = !isStudyMode; if(isStudyMode) resetOtherModes('study'); updateModeUI(); closeWebMenu(); }
+    function toggleCodeMode() { isCodeMode = !isCodeMode; if(isCodeMode) resetOtherModes('code'); updateModeUI(); closeWebMenu(); }
+
+    function resetOtherModes(current) {
+        if(current !== 'scholar') isScholarMode = false;
+        if(current !== 'web') isWebSearchMode = false;
+        if(current !== 'idea') isIdeaMode = false;
+        if(current !== 'study') isStudyMode = false;
+        if(current !== 'code') isCodeMode = false;
+    }
     
     // Updated Logic for Web Search Toggle
     function toggleWebSearch() {
@@ -956,9 +1085,7 @@
     function setWebFocus(focus) {
         webSearchFocus = focus;
         isWebSearchMode = true;
-        isScholarMode = false; 
-        isIdeaMode = false; 
-        isStudyMode = false;
+        resetOtherModes('web');
         
         // Update menu active states
         document.querySelectorAll('.focus-menu-item').forEach(el => {
@@ -973,9 +1100,6 @@
     function closeWebMenu() {
         document.getElementById('web-search-menu').classList.add('hidden');
     }
-
-    function toggleIdeaMode() { isIdeaMode = !isIdeaMode; if(isIdeaMode) { isScholarMode = false; isWebSearchMode = false; isStudyMode = false; } updateModeUI(); closeWebMenu(); }
-    function toggleStudyMode() { isStudyMode = !isStudyMode; if(isStudyMode) { isScholarMode = false; isWebSearchMode = false; isIdeaMode = false; } updateModeUI(); closeWebMenu(); }
     
     // Attachment Menu Functions
     function toggleAttachmentMenu() {
@@ -1016,6 +1140,11 @@
         const urlContent = document.getElementById('url-modal-content');
         if(urlModal.contains(event.target) && !urlContent.contains(event.target) && !urlModal.classList.contains('hidden')) {
             closeUrlModal();
+        }
+        
+        const previewModal = document.getElementById('preview-modal');
+        if(previewModal.contains(event.target) && !previewModal.children[0].contains(event.target) && !previewModal.classList.contains('hidden')) {
+            closePreviewModal();
         }
     });
 
@@ -1090,6 +1219,7 @@
         isScholarMode = false;
         isIdeaMode = false;
         isStudyMode = false;
+        isCodeMode = false;
         webSearchFocus = 'all';
         clearAttachments();
         updateModeUI();
@@ -1322,6 +1452,8 @@
             // New Regex for Financial Charts
             const chartRegex = /<<<CHART_START>>>([\s\S]*?)<<<CHART_END>>>/;
             const thoughtRegex = /<<<THOUGHT_START>>>([\s\S]*?)<<<THOUGHT_END>>>/;
+            // Code Mode Specific Regex
+            const codePlanRegex = /<<<PLAN_START>>>([\s\S]*?)<<<PLAN_END>>>/;
             
             let processedContent = msg.content;
             let ideaData = null;
@@ -1330,12 +1462,20 @@
             let followUpData = null;
             let chartSymbol = null;
             let thoughtProcess = null;
+            let codePlan = null;
 
             // 0. Parse Thought Process
             const thoughtMatch = processedContent.match(thoughtRegex);
             if (thoughtMatch) {
                 thoughtProcess = thoughtMatch[1].trim();
                 processedContent = processedContent.replace(thoughtMatch[0], '');
+            }
+
+            // 0.5 Parse Code Plan
+            const planMatch = processedContent.match(codePlanRegex);
+            if (planMatch) {
+                codePlan = planMatch[1].trim();
+                processedContent = processedContent.replace(planMatch[0], '');
             }
             
             // 1. Try Strict Tags for Idea Mode
@@ -1589,6 +1729,18 @@
                 });
                 followUpHtml += `</div>`;
                 contentHtml += followUpHtml;
+            }
+
+            // --- INJECT CODE PLAN (CODE MODE) ---
+            if (codePlan) {
+                const planHtml = `
+                <div class="code-plan-card">
+                    <div class="code-plan-title"><i class="fa-solid fa-compass-drafting"></i> Implementation Plan</div>
+                    <div class="code-plan-content">
+                        ${marked.parse(codePlan)}
+                    </div>
+                </div>`;
+                contentHtml = planHtml + contentHtml;
             }
 
             // --- INJECT IDEA BLUEPRINT ---
@@ -1894,6 +2046,7 @@
                         ${msg.mode === 'web' ? '<span class="text-[10px] bg-blue-50 text-accentBlue px-2 rounded-full font-bold">WEB</span>' : ''}
                         ${msg.mode === 'idea' ? '<span class="text-[10px] bg-[#FFF4F0] text-[#D97757] px-2 rounded-full font-bold border border-[#FED7AA]">STARTUP BLUEPRINT</span>' : ''}
                         ${msg.mode === 'study' ? '<span class="text-[10px] bg-[#ECFDF5] text-[#059669] px-2 rounded-full font-bold border border-[#A7F3D0]">STUDY MODE</span>' : ''}
+                        ${msg.mode === 'code' ? '<span class="text-[10px] bg-[#312e81] text-indigo-100 px-2 rounded-full font-bold border border-indigo-500">CODE CANVAS</span>' : ''}
                     </div>
                     ${locationsHtml}
                     <div class="prose-content text-textSecondary leading-7 message-content-box">
@@ -1920,14 +2073,37 @@
         }
         
         if(isAI) {
+            // Updated Code Block Rendering with Canvas Logic
             div.querySelectorAll('pre code').forEach((block) => {
                 const parent = block.parentElement;
+                
+                // Add Prism class
+                const lang = block.className.replace('language-', '') || 'txt';
+                block.className = `language-${lang}`; // Ensure standard class
+                
                 const wrapper = document.createElement('div');
                 wrapper.className = 'code-block-wrapper';
-                const lang = block.className.replace('language-', '') || 'Code';
-                wrapper.innerHTML = `<div class="code-header"><span>${lang.toUpperCase()}</span><button onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText)"><i class="fa-regular fa-copy"></i></button></div>`;
+                
+                // Add specific logic for HTML/Web preview
+                let previewBtn = '';
+                if (lang === 'html' || lang === 'xml' || lang === 'svg') {
+                    previewBtn = `<button onclick="openPreviewModal(decodeURIComponent('${encodeURIComponent(block.innerText)}'))" class="code-action-btn"><i class="fa-solid fa-eye"></i> Preview</button>`;
+                }
+
+                wrapper.innerHTML = `
+                <div class="code-header">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-code text-xs"></i> ${lang.toUpperCase()}</span>
+                    <div class="code-header-actions">
+                        ${previewBtn}
+                        <button onclick="navigator.clipboard.writeText(this.closest('.code-block-wrapper').querySelector('code').innerText)" class="code-action-btn"><i class="fa-regular fa-copy"></i> Copy</button>
+                    </div>
+                </div>`;
+                
                 parent.parentNode.insertBefore(wrapper, parent);
                 wrapper.appendChild(parent);
+                
+                // Trigger Prism Highlight
+                if(window.Prism) Prism.highlightElement(block);
             });
 
             if (mapData && mapData.length > 0) {
@@ -2173,7 +2349,7 @@
         inputEl.style.height = 'auto';
         document.getElementById('char-count').innerText = '0';
 
-        const currentMode = isStudyMode ? 'study' : (isIdeaMode ? 'idea' : (isScholarMode ? 'scholar' : (isWebSearchMode ? 'web' : 'normal')));
+        const currentMode = isStudyMode ? 'study' : (isIdeaMode ? 'idea' : (isScholarMode ? 'scholar' : (isWebSearchMode ? 'web' : (isCodeMode ? 'code' : 'normal'))));
         
         // Capture attached media for this message and clear state
         const sentAttachments = [...attachments];
@@ -2402,6 +2578,35 @@
             ${historyString}
             
             Current Topic: ${text}`;
+
+        } else if (isCodeMode) {
+            // NEW: CODE MODE PROMPT
+            prompt = `Role: Senior Staff Software Engineer (Newton Code Canvas).
+            Task: 
+            1. Analyze the user's coding request.
+            2. Refine the requirements and create a brief technical specification.
+            3. Generate clean, modern, efficient, and complete code (single file if web app).
+            
+            ${thinkingInstruction}
+
+            OUTPUT FORMAT:
+            
+            First, output the Refined Plan in this specific format:
+            <<<PLAN_START>>>
+            **Goal:** [Brief statement of what will be built]
+            **Tech Stack:** [e.g., HTML5, Tailwind, JS, React, etc.]
+            **Architecture:** [Brief explanation of the approach]
+            <<<PLAN_END>>>
+
+            Then, provide the explanation and the code blocks.
+            Use standard Markdown code blocks for code (e.g. \`\`\`html ... \`\`\`).
+            
+            If it's a web application, try to keep it in a single file (HTML + embedded CSS/JS) so it's easy to copy/paste or preview.
+
+            ### CONVERSATION HISTORY (Truncated) ###
+            ${historyString}
+            
+            Current Request: ${text}`;
 
         } else if (isWebSearchMode) {
             let focusInstruction = "";

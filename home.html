@@ -240,17 +240,9 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.bookmark:hover { background-color: #fefce8; color: #eab308; }
 .action-btn.share-btn:hover { background-color: #f3f4f6; color: var(--on-surface); }
 /* --- MENUS --- */
-#compose-modal, #create-menu-modal, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #add-link-modal, #promo-modal, #login-modal, #post-options-overlay {
+#compose-modal, #create-menu-modal, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #add-link-modal, #promo-modal, #login-modal {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
-}
-/* Overlay override for post options to remove border */
-#post-options-overlay {
-    border: none;
-    box-shadow: none;
-}
-#post-options-overlay > div:last-child {
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
 }
 .compose-header {
 display: flex; align-items: center; justify-content: space-between;
@@ -323,36 +315,6 @@ border-left: 1px solid var(--outline);
 .icon-btn:hover { background-color: var(--hover-bg); color: var(--on-surface); }
 .hashtag { color: var(--primary); font-weight: 500; cursor: pointer; padding: 2px 6px; border-radius: 6px; }
 .hashtag:hover { background: #eff4ff; }
-/* --- POST OPTIONS OVERLAY STYLES --- */
-.post-option-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    color: #1f1f1f;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
-    border-radius: 12px;
-}
-.post-option-row:hover {
-    background-color: #f3f4f6;
-}
-.post-option-row.danger {
-    color: #ef4444;
-}
-.post-option-row.danger:hover {
-    background-color: #fef2f2;
-}
-/* Slide Up Animation for Mobile */
-.slide-up-content {
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
-}
-.slide-up-content.open {
-    transform: translateY(0);
-}
-
 /* --- UPDATED TABS STYLE (Twitter/X Style) --- */
 .tab-group {
 display: flex;
@@ -647,37 +609,35 @@ background: transparent;
 }
 /* Media Stage (Left) */
 .stage-panel {
-    flex: 1;
-    height: 100%;
-    background: radial-gradient(circle at center, #2e2e2e 0%, #1a1a1a 100%);
-    border-radius: 24px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
-    min-width: 0; 
+flex: 1;
+height: 100%;
+background: radial-gradient(circle at center, #2e2e2e 0%, #1a1a1a 100%);
+border-radius: 24px;
+position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+overflow: hidden;
+box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+min-width: 0;
 }
-
 .stage-content {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+max-width: 100%;
+max-height: 100%;
+object-fit: contain;
 }
-
 /* Conversation Panel (Right) */
 .discussion-panel {
-    width: 420px;
-    height: 100%;
-    background: #ffffff;
-    border-radius: 24px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 15px 40px -10px rgba(0,0,0,0.15);
-    overflow: hidden;
-    flex-shrink: 0;
-    border: 1px solid rgba(255,255,255,0.1);
+width: 420px;
+height: 100%;
+background: #ffffff;
+border-radius: 24px;
+display: flex;
+flex-direction: column;
+box-shadow: 0 15px 40px -10px rgba(0,0,0,0.15);
+overflow: hidden;
+flex-shrink: 0;
+border: 1px solid rgba(255,255,255,0.1);
 }
 }
 /* Mobile Post View Layout */
@@ -691,92 +651,83 @@ height: 100%;
 overflow: hidden;
 }
 .mobile-header {
-    display: flex; 
-    flex-shrink: 0;
-    height: 60px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
-    border-bottom: 1px solid #f0f0f0;
-    background: #fff;
-    z-index: 20;
+display: flex;
+flex-shrink: 0;
+height: 60px;
+align-items: center;
+justify-content: space-between;
+padding: 0 16px;
+border-bottom: 1px solid #f0f0f0;
+background: #fff;
+z-index: 20;
 }
-
 .stage-panel {
-    flex: 1; 
-    background: #000; 
-    width: 100%;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+flex: 1;
+background: #000;
+width: 100%;
+position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+overflow: hidden;
 }
-
 .stage-content {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+width: 100%;
+height: 100%;
+object-fit: contain;
 }
-
 .mobile-footer {
-    display: block; 
-    flex-shrink: 0;
-    background: #fff;
-    border-top: 1px solid #f0f0f0;
-    padding: 12px 16px;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom, 20px)); 
-    z-index: 20;
+display: block;
+flex-shrink: 0;
+background: #fff;
+border-top: 1px solid #f0f0f0;
+padding: 12px 16px;
+padding-bottom: calc(12px + env(safe-area-inset-bottom, 20px));
+z-index: 20;
 }
-
 .mobile-actions-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 8px;
 }
-
 .mobile-action-group {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+display: flex;
+align-items: center;
+gap: 16px;
 }
-
 .mobile-caption-text {
-    font-size: 14px;
-    line-height: 1.5;
-    max-height: 80px;
-    overflow-y: auto;
-    color: #1f1f1f;
+font-size: 14px;
+line-height: 1.5;
+max-height: 80px;
+overflow-y: auto;
+color: #1f1f1f;
 }
-
 /* Discussion panel (Drawer) stays absolute/fixed */
 .discussion-panel {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 75vh;
-    background: #fff;
-    z-index: 50;
-    border-radius: 20px 20px 0 0;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
-    display: flex;
-    flex-direction: column;
+position: absolute;
+bottom: 0;
+left: 0;
+right: 0;
+height: 75vh;
+background: #fff;
+z-index: 50;
+border-radius: 20px 20px 0 0;
+box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+transform: translateY(100%);
+transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+display: flex;
+flex-direction: column;
 }
 .discussion-panel.open {
-    transform: translateY(0);
+transform: translateY(0);
 }
-
 .caption-box {
-    display: none !important;
+display: none !important;
 }
-
 .discussion-header {
-    border-radius: 20px 20px 0 0;
-    background: white;
+border-radius: 20px 20px 0 0;
+background: white;
 }
 }
 .discussion-header {
@@ -855,7 +806,7 @@ cursor: pointer;
 transition: color 0.2s;
 }
 .comment-action-link:hover { color: var(--on-surface); }
-/* My Comment Variation /
+/* My Comment Variation */
 .comment-row.me {
 flex-direction: row-reverse;
 }
@@ -863,7 +814,7 @@ flex-direction: row-reverse;
 justify-content: flex-end;
 }
 .comment-row.me .comment-bubble {
-background: #eff6ff; / Light Blue */
+background: #eff6ff; /* Light Blue */
 border-radius: 16px 0 16px 16px;
 color: #1e3a8a;
 }
@@ -954,7 +905,7 @@ transition: background 0.2s;
 .trend-count { font-size: 11px; color: var(--text-secondary); }
 </style>
 </head>
-<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]">
+<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
 <!-- LOADING OVERLAY -->
 <div id="app-loader"><div class="loader-spinner"></div></div>
 <!-- CUSTOM ALERT MODAL -->
@@ -1036,17 +987,10 @@ Sign In to Continue
 </div>
 </div>
 </div>
-<!-- NEW POST OPTIONS OVERLAY (Replaces old absolute menu) -->
-<div id="post-options-overlay" class="fixed inset-0 z-[100] flex justify-center items-end md:items-center hidden">
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closePostOptions()"></div>
-    <div id="post-options-container" class="bg-white w-full md:w-[400px] md:rounded-2xl rounded-t-[24px] shadow-2xl relative z-10 overflow-hidden transform transition-transform duration-300 translate-y-full md:translate-y-0 md:scale-100 p-2 pb-8 md:pb-2 slide-up-content">
-        <div class="flex justify-center pt-3 pb-2 md:hidden" onclick="closePostOptions()">
-            <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
-        </div>
-        <div id="post-options-content" class="flex flex-col gap-1 p-2">
-            <!-- Options injected here -->
-        </div>
-        <button onclick="closePostOptions()" class="w-full py-3 mt-2 text-sm font-bold text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl md:hidden">Cancel</button>
+<!-- Post Options Overlay (New) -->
+<div id="post-options-overlay" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="hidePostMenu()">
+    <div id="post-options-modal" class="bg-white w-[90%] max-w-[300px] rounded-2xl shadow-2xl transform scale-95 transition-transform duration-200 overflow-hidden flex flex-col p-2" onclick="event.stopPropagation()">
+        <!-- Content injected via JS -->
     </div>
 </div>
 <!-- MOBILE NOTIFICATIONS HEADER -->
@@ -1101,142 +1045,141 @@ Sign In to Continue
 <div class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onclick="closePostView()"></div>
 <!-- Floating Stage Layout -->
 <div class="post-modal-layout scale-in relative z-10">
+<!-- 1. Mobile Header (Standard) -->
+<div class="mobile-header md:hidden">
+    <div class="flex items-center gap-3 cursor-pointer" onclick="closePostView(); if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
+        <img id="mobile-post-pfp" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
+        <span id="mobile-post-username" class="font-bold text-sm text-[#1f1f1f]">User</span>
+    </div>
+    <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 w-9 h-9 border border-gray-200"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
+</div>
+
+<!-- Reel Header (Mobile Only) -->
+<div id="mobile-reel-header" class="mobile-reel-header md:hidden">
+    <button onclick="closePostView()" class="reel-back-btn">
+        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+    </button>
+    <span class="ml-4 text-white font-bold text-lg">Reel</span>
+</div>
+
+<!-- 2. Media Stage -->
+<div id="post-view-media-container" class="stage-panel group relative">
+     <!-- Media Injected Here -->
+     <div id="video-play-overlay" class="play-pause-overlay"><i data-lucide="play" class="play-pause-icon"></i></div>
+</div>
+
+<!-- REEL UI LAYER (MOBILE VIDEO ONLY) -->
+<div id="reel-ui-layer" class="reel-ui-layer md:hidden">
+    <!-- Top Spacer (Header occupies space) -->
+    <div class="mt-14 pointer-events-none"></div>
     
-    <!-- 1. Mobile Header (Standard) -->
-    <div class="mobile-header md:hidden">
-        <div class="flex items-center gap-3 cursor-pointer" onclick="closePostView(); if(window.currentViewingProfileId) showProfile(window.currentViewingProfileId)">
-            <img id="mobile-post-pfp" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
-            <span id="mobile-post-username" class="font-bold text-sm text-[#1f1f1f]">User</span>
-        </div>
-        <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 w-9 h-9 border border-gray-200"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
-    </div>
-
-    <!-- Reel Header (Mobile Only) -->
-    <div id="mobile-reel-header" class="mobile-reel-header md:hidden">
-        <button onclick="closePostView()" class="reel-back-btn">
-            <i data-lucide="chevron-left" class="w-6 h-6"></i>
-        </button>
-        <span class="ml-4 text-white font-bold text-lg">Reel</span>
-    </div>
-
-    <!-- 2. Media Stage -->
-    <div id="post-view-media-container" class="stage-panel group relative">
-         <!-- Media Injected Here -->
-         <div id="video-play-overlay" class="play-pause-overlay"><i data-lucide="play" class="play-pause-icon"></i></div>
-    </div>
-
-    <!-- REEL UI LAYER (MOBILE VIDEO ONLY) -->
-    <div id="reel-ui-layer" class="reel-ui-layer md:hidden">
-        <!-- Top Spacer (Header occupies space) -->
-        <div class="mt-14 pointer-events-none"></div>
-        
-        <!-- Bottom -->
-        <div class="flex items-end justify-between w-full">
-            <!-- Left Info -->
-            <div class="flex flex-col gap-3 max-w-[80%] text-white drop-shadow-md pointer-events-auto pb-2">
-                <div class="flex items-center gap-2 cursor-pointer" id="reel-user-info-area">
-                    <img id="reel-user-avatar" src="" class="w-8 h-8 rounded-full border border-white/50 object-cover">
-                    <span id="reel-username" class="font-bold text-sm">Username</span>
-                    <button id="reel-follow-btn" class="bg-white/20 backdrop-blur text-xs px-2.5 py-1 rounded-md font-medium border border-white/30 hidden">Follow</button>
-                </div>
-                <div id="reel-caption" class="text-sm leading-snug opacity-90 break-words"></div>
+    <!-- Bottom -->
+    <div class="flex items-end justify-between w-full">
+        <!-- Left Info -->
+        <div class="flex flex-col gap-3 max-w-[80%] text-white drop-shadow-md pointer-events-auto pb-2">
+            <div class="flex items-center gap-2 cursor-pointer" id="reel-user-info-area">
+                <img id="reel-user-avatar" src="" class="w-8 h-8 rounded-full border border-white/50 object-cover">
+                <span id="reel-username" class="font-bold text-sm">Username</span>
+                <button id="reel-follow-btn" class="bg-white/20 backdrop-blur text-xs px-2.5 py-1 rounded-md font-medium border border-white/30 hidden">Follow</button>
             </div>
+            <div id="reel-caption" class="text-sm leading-snug opacity-90 break-words"></div>
+        </div>
 
-            <!-- Right Actions -->
-            <div class="flex flex-col gap-5 items-center pointer-events-auto pb-2 mr-1">
-                <div class="reel-interact-btn cursor-pointer">
-                    <div onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)">
-                        <i id="reel-like-icon" data-lucide="heart" class="reel-interact-icon"></i>
-                    </div>
-                    <span id="reel-like-count" class="reel-interact-text mt-1 p-1" onclick="if(window.currentViewingPostId) openLikes(window.currentViewingPostId)">0</span>
+        <!-- Right Actions -->
+        <div class="flex flex-col gap-5 items-center pointer-events-auto pb-2 mr-1">
+            <div class="reel-interact-btn cursor-pointer">
+                <div onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)">
+                    <i id="reel-like-icon" data-lucide="heart" class="reel-interact-icon"></i>
                 </div>
-                <div class="reel-interact-btn cursor-pointer" onclick="toggleMobileCommentDrawer()">
-                    <i data-lucide="message-circle" class="reel-interact-icon"></i>
-                    <span id="reel-comment-count" class="reel-interact-text">0</span>
-                </div>
-                <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)">
-                    <i data-lucide="send" class="reel-interact-icon transform -rotate-12"></i>
-                </div>
-                <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)">
-                    <i id="reel-save-icon" data-lucide="bookmark" class="reel-interact-icon"></i>
-                </div>
-                <!-- Music/Audio Indicator -->
-                <div class="reel-interact-btn mt-2">
-                    <div class="reel-audio-btn">
-                        <i data-lucide="disc" class="w-5 h-5 text-white"></i>
-                    </div>
+                <span id="reel-like-count" class="reel-interact-text mt-1 p-1" onclick="if(window.currentViewingPostId) openLikes(window.currentViewingPostId)">0</span>
+            </div>
+            <div class="reel-interact-btn cursor-pointer" onclick="toggleMobileCommentDrawer()">
+                <i data-lucide="message-circle" class="reel-interact-icon"></i>
+                <span id="reel-comment-count" class="reel-interact-text">0</span>
+            </div>
+            <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)">
+                <i data-lucide="send" class="reel-interact-icon transform -rotate-12"></i>
+            </div>
+            <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)">
+                <i id="reel-save-icon" data-lucide="bookmark" class="reel-interact-icon"></i>
+            </div>
+            <!-- Music/Audio Indicator -->
+            <div class="reel-interact-btn mt-2">
+                <div class="reel-audio-btn">
+                    <i data-lucide="disc" class="w-5 h-5 text-white"></i>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- 3. Mobile Footer (Standard - Hidden in Reel Mode) -->
-    <div class="mobile-footer md:hidden">
-        <div class="mobile-actions-bar">
-            <div class="mobile-action-group">
-                <i id="mobile-action-like" data-lucide="heart" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)"></i>
-                <i data-lucide="message-circle" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="toggleMobileCommentDrawer()"></i>
-                <i data-lucide="send" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)"></i>
-            </div>
-            <i id="mobile-action-save" data-lucide="bookmark" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)"></i>
+<!-- 3. Mobile Footer (Standard - Hidden in Reel Mode) -->
+<div class="mobile-footer md:hidden">
+    <div class="mobile-actions-bar">
+        <div class="mobile-action-group">
+            <i id="mobile-action-like" data-lucide="heart" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) toggleLike(window.currentViewingPostId)"></i>
+            <i data-lucide="message-circle" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="toggleMobileCommentDrawer()"></i>
+            <i data-lucide="send" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)"></i>
         </div>
-        <div id="mobile-like-count" class="text-sm font-bold text-[#1f1f1f] mb-1">0 likes</div>
-        <div id="mobile-post-caption" class="mobile-caption-text">
-            <!-- Caption Text -->
-        </div>
+        <i id="mobile-action-save" data-lucide="bookmark" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId) toggleSave(window.currentViewingPostId)"></i>
     </div>
+    <div id="mobile-like-count" class="text-sm font-bold text-[#1f1f1f] mb-1">0 likes</div>
+    <div id="mobile-post-caption" class="mobile-caption-text">
+        <!-- Caption Text -->
+    </div>
+</div>
 
-    <!-- 4. Right Panel: Conversation (Desktop) / Comment Drawer (Mobile) -->
-    <div class="discussion-panel">
-         <!-- Sticky Header -->
-         <div class="discussion-header">
-              <div class="flex items-center gap-3">
-                  <!-- Hide info on mobile header since it's in main layout -->
-                  <div class="flex items-center gap-3 md:flex hidden">
-                      <img id="post-view-avatar" class="w-10 h-10 rounded-full border border-gray-100 object-cover cursor-pointer hover:ring-2 hover:ring-blue-100 transition-all">
-                      <div class="flex flex-col">
-                          <span id="post-view-username" class="font-bold text-sm text-gray-900 cursor-pointer hover:underline">Username</span>
-                          <span class="text-[11px] text-gray-400 font-medium" id="post-view-date">Just now</span>
-                      </div>
+<!-- 4. Right Panel: Conversation (Desktop) / Comment Drawer (Mobile) -->
+<div class="discussion-panel">
+     <!-- Sticky Header -->
+     <div class="discussion-header">
+          <div class="flex items-center gap-3">
+              <!-- Hide info on mobile header since it's in main layout -->
+              <div class="flex items-center gap-3 md:flex hidden">
+                  <img id="post-view-avatar" class="w-10 h-10 rounded-full border border-gray-100 object-cover cursor-pointer hover:ring-2 hover:ring-blue-100 transition-all">
+                  <div class="flex flex-col">
+                      <span id="post-view-username" class="font-bold text-sm text-gray-900 cursor-pointer hover:underline">Username</span>
+                      <span class="text-[11px] text-gray-400 font-medium" id="post-view-date">Just now</span>
                   </div>
-                  <span class="md:hidden font-bold text-lg">Comments</span>
               </div>
-              <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
-              <button onclick="toggleMobileCommentDrawer()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
-         </div>
+              <span class="md:hidden font-bold text-lg">Comments</span>
+          </div>
+          <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+          <button onclick="toggleMobileCommentDrawer()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+     </div>
 
-         <!-- Scroll Area -->
-         <div id="post-view-scroll" class="discussion-scroll scroll-smooth">
-              <!-- Caption Section (Desktop Only - Hidden on Mobile via CSS to avoid dupes) -->
-              <div id="post-view-caption-area" class="caption-box">
-                  <!-- Caption Injected -->
-              </div>
-              
-              <!-- Realtime Chat/Comments -->
-              <div id="post-view-comments" class="comments-list"></div>
-         </div>
+     <!-- Scroll Area -->
+     <div id="post-view-scroll" class="discussion-scroll scroll-smooth">
+          <!-- Caption Section (Desktop Only - Hidden on Mobile via CSS to avoid dupes) -->
+          <div id="post-view-caption-area" class="caption-box">
+              <!-- Caption Injected -->
+          </div>
+          
+          <!-- Realtime Chat/Comments -->
+          <div id="post-view-comments" class="comments-list"></div>
+     </div>
 
-         <!-- Sticky Footer -->
-         <div class="discussion-footer">
-              <div class="flex justify-between items-center mb-3 px-1 hidden md:flex">
-                   <div class="flex gap-4">
-                       <i id="post-view-like-btn" data-lucide="heart" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
-                       <i data-lucide="message-circle" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="document.getElementById('comment-input-desktop').focus()"></i>
-                       <i data-lucide="send" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)"></i>
-                   </div>
-                   <div class="flex gap-4 items-center">
-                       <span class="font-bold text-sm text-gray-900" id="post-view-likes-count">0 likes</span>
-                       <i id="post-view-save-btn" data-lucide="bookmark" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
-                   </div>
-              </div>
+     <!-- Sticky Footer -->
+     <div class="discussion-footer">
+          <div class="flex justify-between items-center mb-3 px-1 hidden md:flex">
+               <div class="flex gap-4">
+                   <i id="post-view-like-btn" data-lucide="heart" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
+                   <i data-lucide="message-circle" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="document.getElementById('comment-input-desktop').focus()"></i>
+                   <i data-lucide="send" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="if(window.currentViewingPostId) sharePost(window.currentViewingPostId)"></i>
+               </div>
+               <div class="flex gap-4 items-center">
+                   <span class="font-bold text-sm text-gray-900" id="post-view-likes-count">0 likes</span>
+                   <i id="post-view-save-btn" data-lucide="bookmark" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
+               </div>
+          </div>
 
-              <!-- Input Capsule -->
-              <div class="chat-input-wrapper">
-                  <textarea id="comment-input-desktop" placeholder="Add a comment..." class="flex-1 max-h-20 bg-transparent outline-none text-sm resize-none h-5 py-0.5 text-gray-800 placeholder-gray-400" onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitCommentDesktop(); }"></textarea>
-                  <button onclick="submitCommentDesktop()" class="text-[#0b57d0] font-bold text-sm px-3 py-1 hover:bg-blue-50 rounded-full transition-colors">Post</button>
-              </div>
-         </div>
-    </div>
+          <!-- Input Capsule -->
+          <div class="chat-input-wrapper">
+              <textarea id="comment-input-desktop" placeholder="Add a comment..." class="flex-1 max-h-20 bg-transparent outline-none text-sm resize-none h-5 py-0.5 text-gray-800 placeholder-gray-400" onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitCommentDesktop(); }"></textarea>
+              <button onclick="submitCommentDesktop()" class="text-[#0b57d0] font-bold text-sm px-3 py-1 hover:bg-blue-50 rounded-full transition-colors">Post</button>
+          </div>
+     </div>
+</div>
 </div>
 </div>
 <div id="lightbox" class="fixed inset-0 bg-black/95 z-[9999] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300" onclick="closeLightbox()">
@@ -1628,23 +1571,22 @@ Change
 </div>
 <!-- Desktop Header: Tabs below header -->
 <div class="hidden md:block w-full bg-white z-10 border-b border-gray-100">
-    <div class="max-w-5xl mx-auto tab-group border-b-0 px-0 justify-center">
-         <button id="tab-explore-main-d" onclick="switchExploreMainTab('explore')" class="tab-btn active max-w-[120px]">
-            <i data-lucide="grid" class="w-4 h-4"></i> Posts
-        </button>
-        <button id="tab-explore-video-d" onclick="switchExploreMainTab('video')" class="tab-btn max-w-[120px]">
-            <i data-lucide="play-circle" class="w-4 h-4"></i> Videos
-        </button>
-        <button id="tab-explore-people-d" onclick="switchExploreMainTab('people')" class="tab-btn max-w-[120px]">
-            <i data-lucide="users" class="w-4 h-4"></i> People
-        </button>
-    </div>
+<div class="max-w-5xl mx-auto tab-group border-b-0 px-0 justify-center">
+<button id="tab-explore-main-d" onclick="switchExploreMainTab('explore')" class="tab-btn active max-w-[120px]">
+<i data-lucide="grid" class="w-4 h-4"></i> Posts
+</button>
+<button id="tab-explore-video-d" onclick="switchExploreMainTab('video')" class="tab-btn max-w-[120px]">
+<i data-lucide="play-circle" class="w-4 h-4"></i> Videos
+</button>
+<button id="tab-explore-people-d" onclick="switchExploreMainTab('people')" class="tab-btn max-w-[120px]">
+<i data-lucide="users" class="w-4 h-4"></i> People
+</button>
 </div>
-
+</div>
 <div id="explore-content-wrapper" class="pb-20 max-w-5xl mx-auto py-6">
-    <!-- Results -->
-    <div id="explore-people-results" class="hidden flex-col gap-2 p-4"></div>
-    <div id="explore-results" class="space-y-0 pt-0"></div>
+<!-- Results -->
+<div id="explore-people-results" class="hidden flex-col gap-2 p-4"></div>
+<div id="explore-results" class="space-y-0 pt-0"></div>
 </div>
 </div>
 </main>
@@ -1656,26 +1598,25 @@ Change
 </div>
 </div>
 <div class="flex-1 overflow-y-auto p-5">
-    <!-- Who to Follow -->
-    <div class="mb-8">
-        <h3 class="text-lg font-bold text-[#1f1f1f] mb-4">Who to follow</h3>
-        <div id="who-to-follow-list" class="flex flex-col gap-4">
-            <!-- Injected via JS -->
-        </div>
+<!-- Who to Follow -->
+<div class="mb-8">
+<h3 class="text-lg font-bold text-[#1f1f1f] mb-4">Who to follow</h3>
+<div id="who-to-follow-list" class="flex flex-col gap-4">
+<!-- Injected via JS -->
+</div>
+</div>
+<!-- Promoted Section -->
+<div id="promo-section" class="hidden">
+    <div class="relative group rounded-xl overflow-hidden cursor-pointer">
+        <a id="promo-link" href="#" target="_blank" class="block w-full h-full">
+            <img id="promo-image" src="" class="w-full h-auto object-cover rounded-xl border border-gray-200 hover:opacity-95 transition-opacity">
+        </a>
+        <button id="edit-promo-btn" onclick="openPromoModal(event)" class="absolute top-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 hidden z-20">
+            <i data-lucide="edit-2" class="w-4 h-4"></i>
+        </button>
+        <div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-md font-medium uppercase tracking-wide backdrop-blur-sm pointer-events-none">Promoted</div>
     </div>
-
-    <!-- Promoted Section -->
-    <div id="promo-section" class="hidden">
-        <div class="relative group rounded-xl overflow-hidden cursor-pointer">
-            <a id="promo-link" href="#" target="_blank" class="block w-full h-full">
-                <img id="promo-image" src="" class="w-full h-auto object-cover rounded-xl border border-gray-200 hover:opacity-95 transition-opacity">
-            </a>
-            <button id="edit-promo-btn" onclick="openPromoModal(event)" class="absolute top-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 hidden z-20">
-                <i data-lucide="edit-2" class="w-4 h-4"></i>
-            </button>
-            <div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-md font-medium uppercase tracking-wide backdrop-blur-sm pointer-events-none">Promoted</div>
-        </div>
-    </div>
+</div>
 </div>
 </aside>
 </div>
@@ -1691,10 +1632,10 @@ Change
 <i data-lucide="plus-square"></i>
 </div>
 <div class="mobile-nav-item" onclick="switchView('notifications')">
-    <div class="relative">
-        <i data-lucide="bell"></i>
-        <span id="mobile-footer-badge" class="mobile-footer-badge">0</span>
-    </div>
+<div class="relative">
+<i data-lucide="bell"></i>
+<span id="mobile-footer-badge" class="mobile-footer-badge">0</span>
+</div>
 </div>
 <div class="mobile-nav-item" onclick="showProfile(auth.currentUser ? auth.currentUser.uid : null)">
 <img id="mobile-avatar" src="" class="w-6 h-6 rounded-full border border-gray-200">
@@ -1800,7 +1741,6 @@ const seconds = Math.floor(diff / 1000);
 const minutes = Math.floor(seconds / 60);
 const hours = Math.floor(minutes / 60);
 const days = Math.floor(hours / 24);
-
 if (seconds < 60) return 'Just now';
 if (minutes < 60) return `${minutes}m ago`;
 if (hours < 24) return `${hours}h ago`;
@@ -1812,76 +1752,76 @@ onAuthStateChanged(auth, async (user) => {
 const loader = document.getElementById('app-loader');
 const loginOverlay = document.getElementById('login-overlay');
 if (user) {
-    loginOverlay.classList.add('hidden');
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-    let isOfficial = false;
-    if(user.email === 'edulinkbht@gmail.com') { isOfficial = true; }
-    if (userSnap.exists()) {
-        currentUser = { id: user.uid, ...userSnap.data() };
-        if(isOfficial && !currentUser.isOfficial) {
-            await updateDoc(userRef, { isOfficial: true });
-            currentUser.isOfficial = true;
-        }
-    } else {
-        currentUser = {
-            id: user.uid,
-            name: user.displayName || user.email.split('@')[0],
-            email: user.email,
-            avatar: user.photoURL || `https://api.dicebear.com/9.x/lorelei/svg?seed=${user.uid}`,
-            bio: "New EduLink Member",
-            following: [],
-            followers: [],
-            friends: [],
-            saved: [],
-            links: [],
-            isOfficial: isOfficial,
-            settings: { privateNetwork: false },
-            username: ""
-        };
-        await setDoc(userRef, currentUser);
-    }
-    // Ensure defaults
-    currentUser.following = currentUser.following || [];
-    currentUser.followers = currentUser.followers || [];
-    currentUser.friends = currentUser.friends || [];
-    currentUser.saved = currentUser.saved || [];
-    currentUser.links = currentUser.links || [];
-    currentUser.settings = currentUser.settings || { privateNetwork: false };
-    window.currentUser = currentUser;
-    savedPosts = currentUser.saved;
-    const params = new URLSearchParams(window.location.search);
-    const sharedPostId = params.get('postId');
-    // USERNAME CHECK
-    if(!currentUser.username) {
-        document.getElementById('username-modal').classList.remove('hidden');
-    }
-    updateUserInterface();
-    initRealtimeListeners();
-    refreshIcons();
-    initBannerDrag();
-    if(loader) loader.style.opacity = '0';
-    setTimeout(() => { if(loader) loader.remove(); }, 500);
-    if(sharedPostId) {
-        setTimeout(() => {
-            openPostView(sharedPostId);
-            window.history.pushState({}, document.title, window.location.pathname);
-        }, 1000);
-    }
+loginOverlay.classList.add('hidden');
+const userRef = doc(db, "users", user.uid);
+const userSnap = await getDoc(userRef);
+let isOfficial = false;
+if(user.email === 'edulinkbht@gmail.com') { isOfficial = true; }
+if (userSnap.exists()) {
+currentUser = { id: user.uid, ...userSnap.data() };
+if(isOfficial && !currentUser.isOfficial) {
+await updateDoc(userRef, { isOfficial: true });
+currentUser.isOfficial = true;
+}
 } else {
-    // Show login overlay instead of redirecting
-    if(loader) loader.style.display = 'none';
-    loginOverlay.classList.remove('hidden');
+currentUser = {
+id: user.uid,
+name: user.displayName || user.email.split('@')[0],
+email: user.email,
+avatar: user.photoURL || `https://api.dicebear.com/9.x/lorelei/svg?seed=${user.uid}`,
+bio: "New EduLink Member",
+following: [],
+followers: [],
+friends: [],
+saved: [],
+links: [],
+isOfficial: isOfficial,
+settings: { privateNetwork: false },
+username: ""
+};
+await setDoc(userRef, currentUser);
+}
+// Ensure defaults
+currentUser.following = currentUser.following || [];
+currentUser.followers = currentUser.followers || [];
+currentUser.friends = currentUser.friends || [];
+currentUser.saved = currentUser.saved || [];
+currentUser.links = currentUser.links || [];
+currentUser.settings = currentUser.settings || { privateNetwork: false };
+window.currentUser = currentUser;
+savedPosts = currentUser.saved;
+const params = new URLSearchParams(window.location.search);
+const sharedPostId = params.get('postId');
+// USERNAME CHECK
+if(!currentUser.username) {
+document.getElementById('username-modal').classList.remove('hidden');
+}
+updateUserInterface();
+initRealtimeListeners();
+refreshIcons();
+initBannerDrag();
+if(loader) loader.style.opacity = '0';
+setTimeout(() => { if(loader) loader.remove(); }, 500);
+if(sharedPostId) {
+setTimeout(() => {
+openPostView(sharedPostId);
+window.history.pushState({}, document.title, window.location.pathname);
+}, 1000);
+}
+} else {
+// Show login overlay instead of redirecting
+if(loader) loader.style.display = 'none';
+loginOverlay.classList.remove('hidden');
 }
 });
 window.doLogin = async function() {
-    const provider = new GoogleAuthProvider();
-    try {
-        await signInWithPopup(auth, provider);
-    } catch (error) {
-        console.error("Login Failed", error);
-        showToast("Login failed: " + error.message, true);
-    }
+const provider = new GoogleAuthProvider();
+try {
+await signInWithPopup(auth, provider);
+} catch (error) {
+console.error("Login Failed", error);
+showToast("Login failed: " + error.message, true);
+}
 }
 window.saveUsername = async function() {
 const input = document.getElementById('new-username-input');
@@ -1890,12 +1830,10 @@ const val = input.value.trim().toLowerCase();
 if(val.length < 3) { showToast("Too short", true); return; }
 if(/\s/.test(val)) { showToast("No spaces allowed", true); return; }
 if(!/^[a-z0-9_.]+$/.test(val)) { showToast("Letters, numbers, underscores only", true); return; }
-
 // Check uniqueness (Client side scan for demo, backend rule better)
 const q = query(collection(db, "users"), where("username", "==", val));
 const snap = await getDocs(q);
 if(!snap.empty) { showToast("Username taken", true); return; }
-
 const userRef = doc(db, "users", currentUser.id);
 await updateDoc(userRef, { username: val });
 currentUser.username = val;
@@ -1923,24 +1861,23 @@ const section = document.getElementById('promo-section');
 const img = document.getElementById('promo-image');
 const link = document.getElementById('promo-link');
 if(data.imageUrl) {
-        section.classList.remove('hidden');
-        img.src = data.imageUrl;
-        link.href = data.linkUrl || '#';
-    } else {
-        // Hide if explicitly no image, unless admin might want to edit it
-        // For now hide it for regular users if empty
-        if(currentUser && currentUser.email !== 'edulinkbht@gmail.com') {
-            section.classList.add('hidden');
-        }
-    }
+section.classList.remove('hidden');
+img.src = data.imageUrl;
+link.href = data.linkUrl || '#';
+} else {
+// Hide if explicitly no image, unless admin might want to edit it
+// For now hide it for regular users if empty
+if(currentUser && currentUser.email !== 'edulinkbht@gmail.com') {
+section.classList.add('hidden');
+}
+}
 }
 });
 const qPosts = query(collection(db, "posts"), orderBy("timestamp", "desc"));
 onSnapshot(qPosts, { includeMetadataChanges: true }, (snapshot) => {
 posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
-// REMOVED: if (snapshot.metadata.hasPendingWrites) return; 
+// REMOVED: if (snapshot.metadata.hasPendingWrites) return;
 // Reason: To allow immediate rendering of local writes for "snappy" feel while maintaining sync.
-
 const changes = snapshot.docChanges();
 let shouldFullRender = false;
 if (document.getElementById('feed-container').children.length === 0) {
@@ -1962,23 +1899,22 @@ if(commentCountEl) {
 commentCountEl.innerText = p.comments ? p.comments.length : 0;
 }
 // Update count overlay text
-const likeCountElOverlay = document.getElementById(`post-view-likes-count`);
+const likeCountElOverlay = document.getElementById('post-view-likes-count');
 if(likeCountElOverlay && window.currentViewingPostId === pid) {
-    likeCountElOverlay.innerText = `${p.likes ? p.likes.length : 0} likes`;
+likeCountElOverlay.innerText = `${p.likes ? p.likes.length : 0} likes`;
 }
-
 // Realtime Icon Sync - Check button class and update icon
 const likeBtn = document.getElementById(`like-btn-${pid}`);
 if(likeBtn && currentUser) {
-    const icon = likeBtn.querySelector('svg') || likeBtn.querySelector('i');
-    const isLiked = p.likes && p.likes.includes(currentUser.id);
-    if(icon) {
-        if(isLiked) {
-            icon.classList.add('fill-red-500', 'text-red-500');
-        } else {
-            icon.classList.remove('fill-red-500', 'text-red-500');
-        }
-    }
+const icon = likeBtn.querySelector('svg') || likeBtn.querySelector('i');
+const isLiked = p.likes && p.likes.includes(currentUser.id);
+if(icon) {
+if(isLiked) {
+icon.classList.add('fill-red-500', 'text-red-500');
+} else {
+icon.classList.remove('fill-red-500', 'text-red-500');
+}
+}
 }
 }
 });
@@ -2023,29 +1959,26 @@ notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp
 notifications.sort((a,b) => (b.timestamp?.toDate ? b.timestamp.toDate() : 0) - (a.timestamp?.toDate ? a.timestamp.toDate() : 0));
 const unreadCount = notifications.filter(n => !n.read).length;
 const badgeText = unreadCount > 99 ? '99+' : unreadCount;
-
 // Desktop Badge
 const desktopBadge = document.getElementById('nav-notif-badge');
 if(desktopBadge) {
-    if(unreadCount > 0) {
-        desktopBadge.style.display = 'flex';
-        desktopBadge.innerText = badgeText;
-    } else {
-        desktopBadge.style.display = 'none';
-    }
+if(unreadCount > 0) {
+desktopBadge.style.display = 'flex';
+desktopBadge.innerText = badgeText;
+} else {
+desktopBadge.style.display = 'none';
 }
-
+}
 // Mobile Footer Badge
 const mobileBadge = document.getElementById('mobile-footer-badge');
 if(mobileBadge) {
-    if(unreadCount > 0) {
-        mobileBadge.style.display = 'flex';
-        mobileBadge.innerText = badgeText;
-    } else {
-        mobileBadge.style.display = 'none';
-    }
+if(unreadCount > 0) {
+mobileBadge.style.display = 'flex';
+mobileBadge.innerText = badgeText;
+} else {
+mobileBadge.style.display = 'none';
 }
-
+}
 // NO AUDIO (Removed per request)
 isFirstNotifLoad = false;
 const activeNotif = document.querySelector('#view-notifications:not(.hidden)');
@@ -2061,35 +1994,24 @@ const list = document.getElementById('who-to-follow-list');
 if(!list || !currentUser) return;
 list.innerHTML = '';
 // Filter users: Not me, and ensure name is valid/defined
-const candidates = users.filter(u => 
-    u.id !== currentUser.id && 
-    u.name && 
-    u.name !== 'undefined' && 
-    u.name.trim() !== ''
+const candidates = users.filter(u =>
+u.id !== currentUser.id &&
+u.name &&
+u.name !== 'undefined' &&
+u.name.trim() !== ''
 );
-
 // Shuffle and pick 3
 const shuffled = candidates.sort(() => 0.5 - Math.random()).slice(0, 3);
-
 if(shuffled.length === 0) {
-    list.innerHTML = `<div class="text-sm text-gray-400 p-2">No suggestions right now.</div>`;
+list.innerHTML = `<div class="text-sm text-gray-400 p-2">No suggestions right now.</div>`;
 } else {
-    shuffled.forEach(u => {
-        const div = document.createElement('div');
-        div.className = "flex items-center justify-between";
-        div.onclick = () => showProfile(u.id);
-        div.innerHTML = `
-            <div class="flex items-center gap-3 overflow-hidden">
-                <img src="${u.avatar}" class="w-10 h-10 rounded-full bg-gray-200 object-cover shrink-0">
-                <div class="min-w-0">
-                    <div class="font-bold text-sm text-gray-900 truncate hover:underline cursor-pointer">${u.name}</div>
-                    <div class="text-xs text-gray-500 truncate">@${u.username || 'user'}</div>
-                </div>
-            </div>
-            <button onclick="event.stopPropagation(); toggleFollow('${u.id}')" class="bg-black text-white text-xs px-3 py-1.5 rounded-full font-bold hover:bg-gray-800 transition-colors">Follow</button>
-        `;
-        list.appendChild(div);
-    });
+shuffled.forEach(u => {
+const div = document.createElement('div');
+div.className = "flex items-center justify-between";
+div.onclick = () => showProfile(u.id);
+div.innerHTML = `<div class="flex items-center gap-3 overflow-hidden"> <img src="${u.avatar}" class="w-10 h-10 rounded-full bg-gray-200 object-cover shrink-0"> <div class="min-w-0"> <div class="font-bold text-sm text-gray-900 truncate hover:underline cursor-pointer">${u.name}</div> <div class="text-xs text-gray-500 truncate">@${u.username || 'user'}</div> </div> </div> <button onclick="event.stopPropagation(); toggleFollow('${u.id}')" class="bg-black text-white text-xs px-3 py-1.5 rounded-full font-bold hover:bg-gray-800 transition-colors">Follow</button>`;
+list.appendChild(div);
+});
 }
 }
 // PROMO ADMIN FUNCTIONS
@@ -2117,37 +2039,34 @@ btn.innerText = "Saving...";
 btn.disabled = true;
 let imgUrl = document.getElementById('promo-img-url').value.trim();
 const linkUrl = document.getElementById('promo-target-url').value.trim();
-
 if(window.currentPromoBlob) {
-    try {
-        imgUrl = await uploadToImgHippo(window.currentPromoBlob);
-    } catch(e) {
-        console.error(e);
-        showToast("Upload failed");
-        btn.innerText = oldText;
-        btn.disabled = false;
-        return;
-    }
-}
-
-if(!imgUrl) {
-    showToast("Image URL required");
-    btn.innerText = oldText;
-    btn.disabled = false;
-    return;
-}
-
 try {
-    await setDoc(doc(db, "global", "promo"), { imageUrl: imgUrl, linkUrl: linkUrl });
-    showToast("Promo updated!");
-    document.getElementById('promo-modal').classList.add('hidden');
-    window.currentPromoBlob = null;
+imgUrl = await uploadToImgHippo(window.currentPromoBlob);
 } catch(e) {
-    console.error(e);
-    showToast("Error saving promo");
+console.error(e);
+showToast("Upload failed");
+btn.innerText = oldText;
+btn.disabled = false;
+return;
+}
+}
+if(!imgUrl) {
+showToast("Image URL required");
+btn.innerText = oldText;
+btn.disabled = false;
+return;
+}
+try {
+await setDoc(doc(db, "global", "promo"), { imageUrl: imgUrl, linkUrl: linkUrl });
+showToast("Promo updated!");
+document.getElementById('promo-modal').classList.add('hidden');
+window.currentPromoBlob = null;
+} catch(e) {
+console.error(e);
+showToast("Error saving promo");
 } finally {
-    btn.innerText = oldText;
-    btn.disabled = false;
+btn.innerText = oldText;
+btn.disabled = false;
 }
 }
 window.updatePostViewStats = function(postId) {
@@ -2156,47 +2075,43 @@ if (!post) return;
 // Desktop Stats
 const deskLikeCount = document.getElementById('post-view-likes-count');
 if (deskLikeCount) {
-    deskLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
+deskLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
 }
-
 // Mobile Stats
 const mobLikeCount = document.getElementById('mobile-like-count');
 if (mobLikeCount) {
-    mobLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
-    // Ensure visibility respects settings
-    const showLikes = post.settings?.showLikes !== false;
-    mobLikeCount.style.display = showLikes ? 'block' : 'none';
+mobLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
+// Ensure visibility respects settings
+const showLikes = post.settings?.showLikes !== false;
+mobLikeCount.style.display = showLikes ? 'block' : 'none';
 }
-
 // Reel Mode Stats
 const reelLikeCount = document.getElementById('reel-like-count');
 const reelCommCount = document.getElementById('reel-comment-count');
 const reelLikeIcon = document.getElementById('reel-like-icon');
 const reelSaveIcon = document.getElementById('reel-save-icon');
-
 if(reelLikeCount) reelLikeCount.innerText = post.likes ? post.likes.length : 0;
 if(reelCommCount) reelCommCount.innerText = post.comments ? post.comments.length : 0;
-
 // Update Reel Icons state
 if(reelLikeIcon) {
-    const isLiked = post.likes && post.likes.includes(currentUser.id);
-    if(isLiked) {
-        reelLikeIcon.classList.add('fill-red-500', 'text-red-500');
-        reelLikeIcon.classList.remove('text-white');
-    } else {
-        reelLikeIcon.classList.remove('fill-red-500', 'text-red-500');
-        reelLikeIcon.classList.add('text-white');
-    }
+const isLiked = post.likes && post.likes.includes(currentUser.id);
+if(isLiked) {
+reelLikeIcon.classList.add('fill-red-500', 'text-red-500');
+reelLikeIcon.classList.remove('text-white');
+} else {
+reelLikeIcon.classList.remove('fill-red-500', 'text-red-500');
+reelLikeIcon.classList.add('text-white');
+}
 }
 if(reelSaveIcon) {
-    const isSaved = savedPosts.includes(postId);
-    if(isSaved) {
-        reelSaveIcon.classList.add('fill-yellow-500', 'text-yellow-500');
-        reelSaveIcon.classList.remove('text-white');
-    } else {
-        reelSaveIcon.classList.remove('fill-yellow-500', 'text-yellow-500');
-        reelSaveIcon.classList.add('text-white');
-    }
+const isSaved = savedPosts.includes(postId);
+if(isSaved) {
+reelSaveIcon.classList.add('fill-yellow-500', 'text-yellow-500');
+reelSaveIcon.classList.remove('text-white');
+} else {
+reelSaveIcon.classList.remove('fill-yellow-500', 'text-yellow-500');
+reelSaveIcon.classList.add('text-white');
+}
 }
 }
 function updateUserInterface() {
@@ -2563,7 +2478,6 @@ const headerInput = document.getElementById('global-search');
 const mobileInput = document.getElementById('mobile-explore-search');
 if(headerInput) headerInput.value = searchVal;
 if(mobileInput) mobileInput.value = searchVal;
-
 // Force Tags tab if needed, otherwise search all
 handleSearch(searchVal);
 }
@@ -2573,28 +2487,23 @@ window.activeExploreTab = tabName;
 // Mobile Tabs
 const mobileTabs = ['main', 'video', 'people'];
 mobileTabs.forEach(t => {
-    const btn = document.getElementById(`tab-explore-${t}`);
-    if(btn) btn.classList.remove('active');
+const btn = document.getElementById(`tab-explore-${t}`);
+if(btn) btn.classList.remove('active');
 });
-
 // Desktop Tabs
 const deskTabs = ['main-d', 'video-d', 'people-d'];
 deskTabs.forEach(t => {
-    const btn = document.getElementById(`tab-explore-${t}`);
-    if(btn) btn.classList.remove('active');
+const btn = document.getElementById(`tab-explore-${t}`);
+if(btn) btn.classList.remove('active');
 });
-
 // Set Active
 const targetMobile = document.getElementById(`tab-explore-${tabName === 'explore' ? 'main' : tabName}`);
 const targetDesk = document.getElementById(`tab-explore-${tabName === 'explore' ? 'main' : tabName}-d`);
-
 if(targetMobile) targetMobile.classList.add('active');
 if(targetDesk) targetDesk.classList.add('active');
-
 // Reset category logic (simplified)
 if(tabName === 'video') window.activeExploreCategory = 'All';
 else window.activeExploreCategory = 'For You';
-
 handleSearch(document.getElementById('mobile-explore-search').value);
 }
 window.toggleExploreSearch = function() {
@@ -2615,106 +2524,94 @@ switchView('explore');
 const term = query ? query.toLowerCase().trim() : '';
 const headerInput = document.getElementById('global-search');
 const mobileInput = document.getElementById('mobile-explore-search');
-
 // People List Elements
 const peopleList = document.getElementById('explore-people-results');
-
 // Sync inputs
 if(headerInput && headerInput.value !== query) headerInput.value = query;
 if(mobileInput && mobileInput.value !== query) mobileInput.value = query;
-
 const view = document.getElementById('explore-results');
-
 // Logic: Show people list ONLY if tab is 'people'
 const showPeopleList = window.activeExploreTab === 'people';
-
 if(showPeopleList) {
-    peopleList.classList.remove('hidden');
-    peopleList.classList.add('flex');
-    
-    let filteredUsers = users;
-    if(term.length > 0) {
-         filteredUsers = users.filter(u => {
-            const name = (u.name || "").toLowerCase();
-            const username = (u.username || "").toLowerCase();
-            return name.includes(term) || username.includes(term);
-        });
-    } else {
-        // Suggest random/all users if tab is 'people' but no search
-        // For now just show first 10
-        filteredUsers = users.slice(0, 10);
-    }
-
-    peopleList.innerHTML = '';
-    if(filteredUsers.length > 0) {
-        filteredUsers.forEach(u => {
-            const div = document.createElement('div');
-            div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer border border-gray-100 mb-1";
-            div.onclick = () => showProfile(u.id);
-            div.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <img src="${u.avatar}" class="w-10 h-10 rounded-full border border-gray-100 object-cover">
-                    <div>
-                        <div class="font-bold text-sm text-gray-900">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>':''}</div>
-                        <div class="text-xs text-gray-500">@${u.username || 'user'}</div>
-                    </div>
-                </div>
-            `;
-            peopleList.appendChild(div);
-        });
-    } else {
-        peopleList.innerHTML = `<div class="text-gray-400 text-xs italic text-center py-4">No people found</div>`;
-    }
-    
-    // Hide Post Grid when in People tab
-    view.innerHTML = '';
-    return; 
-
-} else {
-    peopleList.classList.add('hidden');
-    peopleList.classList.remove('flex');
-}
-
-// Filter Posts (for non-people tabs)
-let filteredPosts = [...posts];
-
-if(window.activeExploreTab === 'video') {
-    filteredPosts = filteredPosts.filter(p => p.media && (p.media.includes('video') || p.media.endsWith('.mp4')));
-}
-
-if(term) {
-    const keywords = term.split(" ").filter(k => k.length > 0);
-    filteredPosts = filteredPosts.filter(p => {
-        const content = (p.content || '').toLowerCase();
-        return keywords.some(k => content.includes(k));
+peopleList.classList.remove('hidden');
+peopleList.classList.add('flex');
+let filteredUsers = users;
+if(term.length > 0) {
+     filteredUsers = users.filter(u => {
+        const name = (u.name || "").toLowerCase();
+        const username = (u.username || "").toLowerCase();
+        return name.includes(term) || username.includes(term);
     });
 } else {
-    // Randomize for explore feel
-    filteredPosts = filteredPosts.sort(() => 0.5 - Math.random());
+    // Suggest random/all users if tab is 'people' but no search
+    // For now just show first 10
+    filteredUsers = users.slice(0, 10);
 }
 
+peopleList.innerHTML = '';
+if(filteredUsers.length > 0) {
+    filteredUsers.forEach(u => {
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer border border-gray-100 mb-1";
+        div.onclick = () => showProfile(u.id);
+        div.innerHTML = `
+            <div class="flex items-center gap-3">
+                <img src="${u.avatar}" class="w-10 h-10 rounded-full border border-gray-100 object-cover">
+                <div>
+                    <div class="font-bold text-sm text-gray-900">${u.name} ${u.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 inline text-blue-500"></i>':''}</div>
+                    <div class="text-xs text-gray-500">@${u.username || 'user'}</div>
+                </div>
+            </div>
+        `;
+        peopleList.appendChild(div);
+    });
+} else {
+    peopleList.innerHTML = `<div class="text-gray-400 text-xs italic text-center py-4">No people found</div>`;
+}
+
+// Hide Post Grid when in People tab
+view.innerHTML = '';
+return;
+} else {
+peopleList.classList.add('hidden');
+peopleList.classList.remove('flex');
+}
+// Filter Posts (for non-people tabs)
+let filteredPosts = [...posts];
+if(window.activeExploreTab === 'video') {
+filteredPosts = filteredPosts.filter(p => p.media && (p.media.includes('video') || p.media.endsWith('.mp4')));
+}
+if(term) {
+const keywords = term.split(" ").filter(k => k.length > 0);
+filteredPosts = filteredPosts.filter(p => {
+const content = (p.content || '').toLowerCase();
+return keywords.some(k => content.includes(k));
+});
+} else {
+// Randomize for explore feel
+filteredPosts = filteredPosts.sort(() => 0.5 - Math.random());
+}
 // Render Grid
 let html = '';
 if(filteredPosts.length === 0) {
-    html = `<div class="text-center py-20 text-gray-400"><p>No posts found.</p></div>`;
+html = `<div class="text-center py-20 text-gray-400"><p>No posts found.</p></div>`;
 } else {
-    html = `<div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0.5 md:gap-4">`;
-    filteredPosts.forEach(p => {
-        let content = '';
-        if (p.media) {
-            if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
-                    content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
-            } else {
-                    content = `<img src="${p.media}" class="w-full h-full object-cover">`;
-            }
-        } else {
-            content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
-        }
-        html += `<div class="relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity rounded-none md:rounded-xl" onclick="openPostView('${p.id}')">${content}</div>`;
-    });
-    html += `</div>`;
+html = `<div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0.5 md:gap-4">`;
+filteredPosts.forEach(p => {
+let content = '';
+if (p.media) {
+if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
+content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
+} else {
+content = `<img src="${p.media}" class="w-full h-full object-cover">`;
 }
-
+} else {
+content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
+}
+html += `<div class="relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity rounded-none md:rounded-xl" onclick="openPostView('${p.id}')">${content}</div>`;
+});
+html += `</div>`;
+}
 view.innerHTML = html;
 refreshIcons();
 }
@@ -2724,33 +2621,21 @@ const title = document.getElementById('user-list-title');
 const content = document.getElementById('user-list-content');
 title.innerText = "Tag Collaborators";
 content.innerHTML = '';
-
 // Only show people user follows or searches for logic could be added here
 // For now, show friends/following
 const relevantUsers = users.filter(u => u.id !== currentUser.id && (currentUser.following.includes(u.id) || currentUser.followers.includes(u.id)));
-
 if(relevantUsers.length === 0) {
-    content.innerHTML = `<div class="text-center text-gray-400 py-8">No contacts found to tag.</div>`;
+content.innerHTML = `<div class="text-center text-gray-400 py-8">No contacts found to tag.</div>`;
 } else {
-    relevantUsers.forEach(u => {
-        const isSelected = window.selectedCollaborators.find(sc => sc.id === u.id);
-        const div = document.createElement('div');
-        div.className = `flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer ${isSelected ? 'bg-gray-100' : ''}`;
-        div.onclick = () => toggleCollaborator(u);
-        div.innerHTML = `
-            <div class="flex items-center gap-3">
-                <img src="${u.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover">
-                <div>
-                    <div class="font-bold text-sm text-gray-900">${u.name}</div>
-                    <div class="text-xs text-gray-500">@${u.username || 'user'}</div>
-                </div>
-            </div>
-            ${isSelected ? '<i data-lucide="check" class="text-gray-600 w-5 h-5"></i>' : ''}
-        `;
-        content.appendChild(div);
-    });
+relevantUsers.forEach(u => {
+const isSelected = window.selectedCollaborators.find(sc => sc.id === u.id);
+const div = document.createElement('div');
+div.className = `flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer ${isSelected ? 'bg-gray-100' : ''}`;
+div.onclick = () => toggleCollaborator(u);
+div.innerHTML = `<div class="flex items-center gap-3"> <img src="${u.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"> <div> <div class="font-bold text-sm text-gray-900">${u.name}</div> <div class="text-xs text-gray-500">@${u.username || 'user'}</div> </div> </div> ${isSelected ? '<i data-lucide="check" class="text-gray-600 w-5 h-5"></i>' : ''}`;
+content.appendChild(div);
+});
 }
-
 overlay.classList.remove('hidden');
 refreshIcons();
 }
@@ -2787,28 +2672,16 @@ if(!post || !post.collaborators) return;
 const overlay = document.getElementById('user-list-overlay');
 const title = document.getElementById('user-list-title');
 const content = document.getElementById('user-list-content');
-
 title.innerText = "Collaborators";
 content.innerHTML = '';
-
 const accepted = post.collaborators.filter(c => c.status === 'accepted');
-
 accepted.forEach(c => {
-    const div = document.createElement('div');
-    div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
-    div.onclick = () => { closeUserList(); showProfile(c.id); };
-    div.innerHTML = `
-        <div class="flex items-center gap-3">
-            <img src="${c.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover">
-            <div>
-                <div class="font-bold text-sm text-gray-900">${c.name}</div>
-                <div class="text-xs text-gray-500">@${c.username || 'user'}</div>
-            </div>
-        </div>
-    `;
-    content.appendChild(div);
+const div = document.createElement('div');
+div.className = "flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer";
+div.onclick = () => { closeUserList(); showProfile(c.id); };
+div.innerHTML = `<div class="flex items-center gap-3"> <img src="${c.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"> <div> <div class="font-bold text-sm text-gray-900">${c.name}</div> <div class="text-xs text-gray-500">@${c.username || 'user'}</div> </div> </div>`;
+content.appendChild(div);
 });
-
 overlay.classList.remove('hidden');
 }
 window.toggleLike = async function(postId) {
@@ -3060,29 +2933,25 @@ container.innerHTML = "";
 let filtered = notifications.filter(n => {
 const sender = users.find(u => u.id === n.senderId) || { name: 'Admin', isOfficial: false };
 const isOfficial = n.type === 'official' || sender.isOfficial;
-
 // Tab Filter
 let tabMatch = false;
 if (activeNotifTab === 'official') {
-    tabMatch = isOfficial;
+tabMatch = isOfficial;
 } else if (activeNotifTab === 'friends') {
-    // Only show people I follow AND they are NOT official
-    tabMatch = !isOfficial && (currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request' || n.type === 'collab_request');
+// Only show people I follow AND they are NOT official
+tabMatch = !isOfficial && (currentUser.following.includes(n.senderId) || n.type === 'follow_request' || n.type === 'message_request' || n.type === 'collab_request');
 } else {
-    // Others: Not official, Not Following
-    tabMatch = !isOfficial && !currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request' && n.type !== 'collab_request';
+// Others: Not official, Not Following
+tabMatch = !isOfficial && !currentUser.following.includes(n.senderId) && n.type !== 'follow_request' && n.type !== 'message_request' && n.type !== 'collab_request';
 }
-
 // Search Filter
 if(window.notifSearchTerm) {
-    const contentMatch = n.content.toLowerCase().includes(window.notifSearchTerm);
-    const nameMatch = sender.name.toLowerCase().includes(window.notifSearchTerm);
-    return tabMatch && (contentMatch || nameMatch);
+const contentMatch = n.content.toLowerCase().includes(window.notifSearchTerm);
+const nameMatch = sender.name.toLowerCase().includes(window.notifSearchTerm);
+return tabMatch && (contentMatch || nameMatch);
 }
-
 return tabMatch;
 });
-
 if (filtered.length === 0) {
 container.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">No notifications here</div>`;
 return;
@@ -3092,7 +2961,6 @@ const sender = users.find(u => u.id === n.senderId) || { name: 'Admin', avatar: 
 const div = document.createElement('div');
 // Simplified List Item Design (Flat, no gaps)
 div.className = `w-full flex items-start gap-3 p-4 border-b border-gray-100 bg-white hover:bg-gray-50 transition-colors ${n.read ? '' : 'bg-blue-50/20'}`;
-
 // Simple Icon Logic
 let icon = "";
 let iconBg = "";
@@ -3104,11 +2972,9 @@ else if(n.type === 'official') { icon = '<i data-lucide="megaphone" class="w-3.5
 else if(n.type === 'follow_request') { icon = '<i data-lucide="lock" class="w-3.5 h-3.5 text-white"></i>'; iconBg = "bg-orange-500"; }
 else if(n.type === 'collab_request') { icon = '<i data-lucide="users" class="w-3.5 h-3.5 text-white"></i>'; iconBg = "bg-pink-500"; }
 else { icon = '<i data-lucide="bell" class="w-3.5 h-3.5 text-white"></i>'; iconBg = "bg-gray-500"; }
-
 let clickAction = (n.type === 'like' || n.type === 'comment' || n.type === 'reply') && n.postId
 ? `onclick="if(!window.notifSelectionMode) openPostView('${n.postId}')"`
 : `onclick="if(!window.notifSelectionMode) showProfile('${sender.id}')"`;
-
 let actionButtons = '';
 if(n.type === 'follow_request') {
 actionButtons = `<div class="flex gap-2 mt-2"><button onclick="acceptFollow('${n.id}', '${sender.id}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-md font-bold hover:bg-blue-700 transition-colors">Accept</button><button onclick="deleteNotification('${n.id}')" class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-md font-bold hover:bg-gray-200 transition-colors">Delete</button></div>`;
@@ -3118,7 +2984,6 @@ if(n.type === 'collab_request') {
 actionButtons = `<div class="flex gap-2 mt-2"><button onclick="acceptCollab('${n.id}', '${n.postId}')" class="text-xs bg-blue-600 text-white px-3 py-1 rounded-md font-bold hover:bg-blue-700">Accept</button><button onclick="declineCollab('${n.id}', '${n.postId}')" class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-md font-bold hover:bg-gray-200">Decline</button></div>`;
 clickAction = '';
 }
-
 // Selection Checkbox
 let checkboxHTML = '';
 if(window.notifSelectionMode) {
@@ -3126,7 +2991,6 @@ const isChecked = window.selectedNotifs.has(n.id) ? 'checked' : '';
 checkboxHTML = `<div class="pt-1"><input type="checkbox" ${isChecked} onchange="toggleNotifSelect('${n.id}')" class="w-4 h-4 accent-blue-600 cursor-pointer rounded"></div>`;
 clickAction = ''; // Disable navigation when selecting
 }
-
 div.innerHTML = `
 ${checkboxHTML}
 <div class="relative cursor-pointer shrink-0" onclick="if(!window.notifSelectionMode) showProfile('${sender.id}')">
@@ -3134,12 +2998,12 @@ ${checkboxHTML}
 <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${iconBg} flex items-center justify-center border border-white shadow-sm">${icon}</div>
 </div>
 <div class="flex-1 min-w-0 pt-0.5">
-    <div class="text-[14px] leading-snug cursor-pointer" ${clickAction}>
-        <span class="font-bold text-gray-900 hover:underline">${sender.name}</span>
-        <span class="text-gray-600 ml-1">${n.content}</span>
-    </div>
-    <div class="text-[11px] text-gray-400 mt-1">${formatDate(n.timestamp)}</div>
-    ${actionButtons}
+<div class="text-[14px] leading-snug cursor-pointer" ${clickAction}>
+<span class="font-bold text-gray-900 hover:underline">${sender.name}</span>
+<span class="text-gray-600 ml-1">${n.content}</span>
+</div>
+<div class="text-[11px] text-gray-400 mt-1">${formatDate(n.timestamp)}</div>
+${actionButtons}
 </div>
 ${!window.notifSelectionMode ? `<button onclick="deleteNotification('${n.id}')" class="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all self-start -mt-1 -mr-2"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>` : ''}
 `;
@@ -3284,104 +3148,97 @@ const contentArea = document.getElementById('profile-content-area');
 contentArea.innerHTML = "";
 const user = users.find(u => u.id === userId);
 if (tab === 'links') {
-    const links = user.links || [];
-    const isOwner = userId === currentUser.id;
-    
-    let html = '<div class="max-w-4xl mx-auto py-6 space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 px-2">';
-    
-    if (isOwner) {
-        html += `<button onclick="document.getElementById('add-link-modal').classList.remove('hidden')" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center justify-center gap-2 h-full"><i data-lucide="plus" class="w-5 h-5"></i> Add New Link</button>`;
-    }
-    
-    if (links.length === 0) {
-        if(!isOwner) html += `<div class="col-span-2 text-center text-gray-400 py-10">No links added yet.</div>`;
-    } else {
-        links.forEach((link, idx) => {
-            html += `
-            <a href="${link.url}" target="_blank" class="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200 group relative">
-                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-200 mr-4 shrink-0">
-                    <i data-lucide="link" class="w-5 h-5 text-blue-600"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="font-bold text-gray-900 truncate">${link.title}</div>
-                    <div class="text-xs text-gray-500 truncate">${link.url}</div>
-                </div>
-                <i data-lucide="external-link" class="w-4 h-4 text-gray-400 ml-2"></i>
-                ${isOwner ? `<button onclick="event.preventDefault(); deleteLink(${idx})" class="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50"><i data-lucide="trash-2" class="w-3 h-3"></i></button>` : ''}
-            </a>
-            `;
-        });
-    }
-    html += '</div>';
-    contentArea.innerHTML = html;
-    refreshIcons();
-    return;
+const links = user.links || [];
+const isOwner = userId === currentUser.id;
+code
+Code
+let html = '<div class="max-w-4xl mx-auto py-6 space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 px-2">';
+
+if (isOwner) {
+    html += `<button onclick="document.getElementById('add-link-modal').classList.remove('hidden')" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center justify-center gap-2 h-full"><i data-lucide="plus" class="w-5 h-5"></i> Add New Link</button>`;
 }
 
+if (links.length === 0) {
+    if(!isOwner) html += `<div class="col-span-2 text-center text-gray-400 py-10">No links added yet.</div>`;
+} else {
+    links.forEach((link, idx) => {
+        html += `
+        <a href="${link.url}" target="_blank" class="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200 group relative">
+            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-200 mr-4 shrink-0">
+                <i data-lucide="link" class="w-5 h-5 text-blue-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="font-bold text-gray-900 truncate">${link.title}</div>
+                <div class="text-xs text-gray-500 truncate">${link.url}</div>
+            </div>
+            <i data-lucide="external-link" class="w-4 h-4 text-gray-400 ml-2"></i>
+            ${isOwner ? `<button onclick="event.preventDefault(); deleteLink(${idx})" class="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50"><i data-lucide="trash-2" class="w-3 h-3"></i></button>` : ''}
+        </a>
+        `;
+    });
+}
+html += '</div>';
+contentArea.innerHTML = html;
+refreshIcons();
+return;
+}
 // Privacy Check for Likes Tab
 if (tab === 'liked' && userId !== currentUser.id) {
-    contentArea.innerHTML = `
-        <div class="flex flex-col items-center justify-center py-20 text-gray-400 opacity-60">
-            <i data-lucide="lock" class="w-16 h-16 mb-2"></i>
-            <p>This user's likes are private.</p>
-        </div>
-    `;
-    refreshIcons();
-    return;
+contentArea.innerHTML = `<div class="flex flex-col items-center justify-center py-20 text-gray-400 opacity-60"> <i data-lucide="lock" class="w-16 h-16 mb-2"></i> <p>This user's likes are private.</p> </div>`;
+refreshIcons();
+return;
 }
-
 let targetPosts = [];
-
 if (tab === 'posts') {
-    targetPosts = posts.filter(p => p.authorId === userId);
+targetPosts = posts.filter(p => p.authorId === userId);
 } else if (tab === 'saved') {
-    targetPosts = posts.filter(p => savedPosts.includes(p.id));
+targetPosts = posts.filter(p => savedPosts.includes(p.id));
 } else if (tab === 'liked') {
-    targetPosts = posts.filter(p => p.likes && p.likes.includes(userId));
+targetPosts = posts.filter(p => p.likes && p.likes.includes(userId));
 } else if (tab === 'tagged') {
-    targetPosts = posts.filter(p => p.collaborators && p.collaborators.some(c => c.id === userId && c.status === 'accepted'));
+targetPosts = posts.filter(p => p.collaborators && p.collaborators.some(c => c.id === userId && c.status === 'accepted'));
 }
-
 // Visibility Check for normal profile viewing (not me)
 if (userId !== currentUser.id && tab === 'posts') {
-    const amFollowing = currentUser.following.includes(userId);
-    const isPrivateAcc = user?.settings?.privateNetwork;
-    
-    targetPosts = targetPosts.filter(p => {
-         const isPublic = !p.settings || p.settings.privacy === 'public';
-         if (isPrivateAcc && !amFollowing) return false;
-         return isPublic || amFollowing;
-    });
+const amFollowing = currentUser.following.includes(userId);
+const isPrivateAcc = user?.settings?.privateNetwork;
+code
+Code
+targetPosts = targetPosts.filter(p => {
+     const isPublic = !p.settings || p.settings.privacy === 'public';
+     if (isPrivateAcc && !amFollowing) return false;
+     return isPublic || amFollowing;
+});
 }
-
 if (targetPosts.length === 0) {
-    contentArea.innerHTML = `<div class="text-center py-20 text-gray-400">No posts yet</div>`;
+contentArea.innerHTML = `<div class="text-center py-20 text-gray-400">No posts yet</div>`;
 } else {
-    let gridHTML = `<div class="grid-post-container">`;
-    targetPosts.forEach(p => {
-        let content = '';
-        if (p.media) {
-            if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
-                 content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
-            } else {
-                 content = `<img src="${p.media}" class="w-full h-full object-cover">`;
-            }
-        } else {
-            // Text placeholder for grid
-            content = `<div class="grid-post-text-preview">${p.content.substring(0, 60)}${p.content.length>60?'...':''}</div>`;
-        }
-        
-        gridHTML += `
-        <div class="grid-post-item group" onclick="openPostView('${p.id}')">
-            ${content}
-            <div class="grid-post-overlay">
-                <div class="flex items-center gap-1"><i data-lucide="heart" class="w-5 h-5 fill-white"></i> ${p.likes ? p.likes.length : 0}</div>
-                <div class="flex items-center gap-1"><i data-lucide="message-circle" class="w-5 h-5 fill-white"></i> ${p.comments ? p.comments.length : 0}</div>
-            </div>
-        </div>`;
-    });
-    gridHTML += `</div>`;
-    contentArea.innerHTML = gridHTML;
+let gridHTML = `<div class="grid-post-container">`;
+targetPosts.forEach(p => {
+let content = '';
+if (p.media) {
+if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
+content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
+} else {
+content = `<img src="${p.media}" class="w-full h-full object-cover">`;
+}
+} else {
+// Text placeholder for grid
+content = `<div class="grid-post-text-preview">${p.content.substring(0, 60)}${p.content.length>60?'...':''}</div>`;
+}
+code
+Code
+gridHTML += `
+    <div class="grid-post-item group" onclick="openPostView('${p.id}')">
+        ${content}
+        <div class="grid-post-overlay">
+            <div class="flex items-center gap-1"><i data-lucide="heart" class="w-5 h-5 fill-white"></i> ${p.likes ? p.likes.length : 0}</div>
+            <div class="flex items-center gap-1"><i data-lucide="message-circle" class="w-5 h-5 fill-white"></i> ${p.comments ? p.comments.length : 0}</div>
+        </div>
+    </div>`;
+});
+gridHTML += `</div>`;
+contentArea.innerHTML = gridHTML;
 }
 setTimeout(refreshIcons, 0);
 }
@@ -3389,19 +3246,15 @@ window.saveLink = async function() {
 const title = document.getElementById('new-link-title').value.trim();
 const url = document.getElementById('new-link-url').value.trim();
 if(!title || !url) { showToast("Please fill all fields", true); return; }
-
 const newLink = { title, url, type: 'web' };
 const userRef = doc(db, "users", currentUser.id);
 await updateDoc(userRef, { links: arrayUnion(newLink) });
-
 // Update local state
 if(!currentUser.links) currentUser.links = [];
 currentUser.links.push(newLink);
-
 document.getElementById('add-link-modal').classList.add('hidden');
 document.getElementById('new-link-title').value = "";
 document.getElementById('new-link-url').value = "";
-
 renderProfileContent(currentUser.id, 'links');
 showToast("Link added!");
 }
@@ -3411,8 +3264,8 @@ const linkToRemove = currentUser.links[idx];
 const userRef = doc(db, "users", currentUser.id);
 await updateDoc(userRef, { links: arrayRemove(linkToRemove) });
 currentUser.links.splice(idx, 1);
-    renderProfileContent(currentUser.id, 'links');
-    showToast("Link removed");
+renderProfileContent(currentUser.id, 'links');
+showToast("Link removed");
 });
 }
 window.openEditProfile = function() {
@@ -3518,14 +3371,13 @@ document.body.classList.remove('reel-mode'); // Reset body class
 const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
 const dateStr = formatDate(post.timestamp);
 const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
-// Desktop Only Elements
 const mediaContainer = document.getElementById('post-view-media-container');
 const captionArea = document.getElementById('post-view-caption-area');
+const showLikes = post.settings?.showLikes !== false;
+// DESKTOP ELEMENTS POPULATION
 document.getElementById('post-view-avatar').src = author.avatar;
 document.getElementById('post-view-username').innerText = author.name;
 document.getElementById('post-view-date').innerText = dateStr;
-// Settings Logic
-const showLikes = post.settings?.showLikes !== false;
 const likeCountText = showLikes ? `${post.likes ? post.likes.length : 0} likes` : '';
 document.getElementById('post-view-likes-count').innerText = likeCountText;
 document.getElementById('post-view-avatar').onclick = () => showProfile(author.id);
@@ -3537,7 +3389,7 @@ document.getElementById('mobile-post-caption').innerHTML = tagsHTML;
 const mobileLikeCount = document.getElementById('mobile-like-count');
 if(showLikes) {
 mobileLikeCount.style.display = 'block';
-mobileLikeCount.innerText = post.likes ? post.likes.length : 0;
+mobileLikeCount.innerText = `${post.likes ? post.likes.length : 0} likes`;
 } else {
 mobileLikeCount.style.display = 'none';
 }
@@ -3586,37 +3438,38 @@ videoEl.playsInline = true;
 videoEl.muted = false; // Try sound on desktop
 videoEl.loop = true;
 // Toggle Play/Pause Logic
-     const togglePlay = (e) => {
-         e.stopPropagation();
-         if (videoEl.paused) {
-             videoEl.play();
-             playOverlay.classList.remove('show');
-         } else {
-             videoEl.pause();
-             playOverlay.classList.add('show');
-         }
-     };
-     
-     videoEl.onclick = togglePlay;
-     playOverlay.onclick = togglePlay; 
-     
-     // Set initial state
-     playOverlay.classList.add('show');
-
-     // Mobile Reel Logic Check
-     if(window.innerWidth < 768) {
-         videoEl.onloadedmetadata = function() {
-             // Reel Mode if video is vertical-ish (or always for mobile video?)
-             overlay.classList.add('mobile-reel-view');
-             document.body.classList.add('reel-mode'); // Hide global nav
-             this.className = "w-full h-full object-cover"; // Full bleed
-             this.muted = false; 
-             // this.play().catch(() => { this.muted = true; this.play(); }); <-- Remove play call
-         };
-     }
-     mediaContainer.insertBefore(videoEl, playOverlay);
+const togglePlay = (e) => {
+e.stopPropagation();
+if (videoEl.paused) {
+videoEl.play();
+playOverlay.classList.remove('show');
 } else {
-     mediaContainer.innerHTML = `<img src="${post.media}" class="stage-content rounded-lg shadow-2xl">`;
+videoEl.pause();
+playOverlay.classList.add('show');
+}
+};
+code
+Code
+videoEl.onclick = togglePlay;
+ playOverlay.onclick = togglePlay; 
+ 
+ // Set initial state
+ playOverlay.classList.add('show');
+
+ // Mobile Reel Logic Check
+ if(window.innerWidth < 768) {
+     videoEl.onloadedmetadata = function() {
+         // Reel Mode if video is vertical-ish (or always for mobile video?)
+         overlay.classList.add('mobile-reel-view');
+         document.body.classList.add('reel-mode'); // Hide global nav
+         this.className = "w-full h-full object-cover"; // Full bleed
+         this.muted = false; 
+         // this.play().catch(() => { this.muted = true; this.play(); }); <-- Remove play call
+     };
+ }
+ mediaContainer.insertBefore(videoEl, playOverlay);
+} else {
+mediaContainer.innerHTML = `<img src="${post.media}" class="stage-content rounded-lg shadow-2xl">`;
 }
 } else {
 mediaContainer.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-white opacity-40"> <i data-lucide="image-off" class="w-16 h-16 mb-2"></i> <span class="text-sm font-medium">No Media</span> </div>`;
@@ -3689,19 +3542,18 @@ const el = document.getElementById('reel-caption');
 if(!el || !el.dataset.full) return;
 const isExpanded = el.getAttribute('data-expanded') === 'true';
 const fullText = el.dataset.full;
-
 if (isExpanded) {
-    // Collapse
-    el.innerHTML = `<span>${fullText.substring(0, 80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">more</span>`;
-    el.setAttribute('data-expanded', 'false');
-    el.style.overflowY = 'hidden';
-    el.style.maxHeight = '';
+// Collapse
+el.innerHTML = `<span>${fullText.substring(0, 80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">more</span>`;
+el.setAttribute('data-expanded', 'false');
+el.style.overflowY = 'hidden';
+el.style.maxHeight = '';
 } else {
-    // Expand
-    el.innerHTML = `<span>${fullText}</span> <span class="font-bold text-gray-300 cursor-pointer block mt-1" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">less</span>`;
-    el.setAttribute('data-expanded', 'true');
-    el.style.overflowY = 'auto';
-    el.style.maxHeight = '200px';
+// Expand
+el.innerHTML = `<span>${fullText}</span> <span class="font-bold text-gray-300 cursor-pointer block mt-1" onclick="event.stopPropagation(); toggleReelCaption('${postId}')">less</span>`;
+el.setAttribute('data-expanded', 'true');
+el.style.overflowY = 'auto';
+el.style.maxHeight = '200px';
 }
 }
 window.toggleMobileCommentDrawer = function() {
@@ -3804,24 +3656,20 @@ const post = posts.find(p => p.id === postId);
 if (!post) return;
 const parentComment = post.comments.find(c => c.id === commentId);
 if (!parentComment) return;
-
 const replies = post.comments.filter(c => c.parentId === commentId);
 const container = document.getElementById('thread-content');
-
 // Render Parent Comment (Full styling, no "View replies" button)
 let html = `<div class="p-4 border-b border-gray-100 bg-white">` + createCommentHTML(parentComment, post.comments, postId, false) + `</div>`;
-
 // Render Replies
 html += `<div class="p-4 pl-8 space-y-4">`;
 if (replies.length > 0) {
-    replies.forEach(r => {
-         html += createCommentHTML(r, post.comments, postId, false);
-    });
+replies.forEach(r => {
+html += createCommentHTML(r, post.comments, postId, false);
+});
 } else {
-    html += `<div class="text-center text-gray-400 text-sm py-4">No replies yet.</div>`;
+html += `<div class="text-center text-gray-400 text-sm py-4">No replies yet.</div>`;
 }
 html += `</div>`;
-
 container.innerHTML = html;
 setTimeout(refreshIcons, 0);
 }
@@ -3830,26 +3678,22 @@ const txt = document.getElementById('thread-input').value.trim();
 if (!txt || !window.threadPostId || !window.threadParentCommentId) return;
 const postRef = doc(db, "posts", window.threadPostId);
 const commentId = "c-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
-
 // Parent ID is explicitly the thread parent
-const newComment = { 
-    id: commentId, 
-    authorId: currentUser.id, 
-    content: txt, 
-    timestamp: Date.now(), 
-    likes: [], 
-    parentId: window.threadParentCommentId 
+const newComment = {
+id: commentId,
+authorId: currentUser.id,
+content: txt,
+timestamp: Date.now(),
+likes: [],
+parentId: window.threadParentCommentId
 };
-
 await updateDoc(postRef, { comments: arrayUnion(newComment) });
-
 // Notification logic
 const post = posts.find(p => p.id === window.threadPostId);
 const parentComment = post.comments.find(c => c.id === window.threadParentCommentId);
 if (parentComment && parentComment.authorId !== currentUser.id) {
-    sendNotification(parentComment.authorId, 'reply', 'replied to your comment', window.threadPostId);
+sendNotification(parentComment.authorId, 'reply', 'replied to your comment', window.threadPostId);
 }
-
 document.getElementById('thread-input').value = "";
 // Re-render handled by realtime listener
 }
@@ -3936,70 +3780,55 @@ window.closeEventComposer = function() { document.getElementById('event-overlay'
 window.handleEventCoverSelect = function(event) { const file = event.target.files[0]; if (file) { currentEventCoverBlob = file; const reader = new FileReader(); reader.onload = function(e) { window.currentEventCover = e.target.result; document.getElementById('event-cover-preview').src = window.currentEventCover; document.getElementById('event-cover-preview-container').classList.remove('hidden'); document.getElementById('add-cover-btn').classList.add('hidden'); }; reader.readAsDataURL(file); } }
 window.removeEventCover = function() { window.currentEventCover = null; currentEventCoverBlob = null; document.getElementById('event-cover-preview').src = ""; document.getElementById('event-cover-preview-container').classList.add('hidden'); document.getElementById('add-cover-btn').classList.remove('hidden'); document.getElementById('event-cover-input').value = ""; }
 window.publishEvent = function() { showToast("Events feature connected to backend soon!", false); closeEventComposer(); }
-// Post Logic - Updated to use new overlay
+// Post Logic
 window.showPostOptions = function(event, postId, authorId) {
     event.stopPropagation();
     const overlay = document.getElementById('post-options-overlay');
-    const container = document.getElementById('post-options-container');
-    const content = document.getElementById('post-options-content');
+    const modal = document.getElementById('post-options-modal');
+    
+    // Logic to determine buttons
     const isAuthor = authorId === currentUser.id;
-    const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
-    
-    let html = '';
-    
-    if (isAuthor) {
-        html += `
-        <div class="post-option-row" onclick="editPost('${postId}'); closePostOptions()">
-            <i data-lucide="edit-2" class="w-5 h-5"></i>
-            <span>Edit Post</span>
-        </div>
-        <div class="post-option-row danger" onclick="deletePost('${postId}'); closePostOptions()">
-            <i data-lucide="trash-2" class="w-5 h-5"></i>
-            <span>Delete Post</span>
-        </div>`;
-    } else {
-        html += `
-        <div class="post-option-row" onclick="toggleSave('${postId}'); closePostOptions()">
-            <i data-lucide="bookmark" class="w-5 h-5"></i>
-            <span>Save Post</span>
-        </div>
-        <div class="post-option-row danger" onclick="showToast('Report submitted'); closePostOptions()">
-            <i data-lucide="flag" class="w-5 h-5"></i>
-            <span>Report</span>
-        </div>`;
-        if (isAdmin) {
-             html += `
-            <div class="post-option-row danger" onclick="deletePost('${postId}'); closePostOptions()">
-                <i data-lucide="trash-2" class="w-5 h-5"></i>
-                <span>Delete (Admin)</span>
-            </div>`;
-        }
-    }
-    
-    content.innerHTML = html;
-    refreshIcons();
-    
-    overlay.classList.remove('hidden');
-    // Trigger animation
-    setTimeout(() => {
-        container.classList.add('open');
-    }, 10);
-}
+    const isAdmin = currentUser.email === 'edulinkbht@gmail.com'; 
+    const post = posts.find(p => p.id === postId);
+    const isSaved = savedPosts.includes(postId);
+    const saveText = isSaved ? 'Unsave Post' : 'Save Post';
+    const saveIconClass = isSaved ? 'fill-yellow-500 text-yellow-500' : '';
 
-window.closePostOptions = function() {
-    const overlay = document.getElementById('post-options-overlay');
-    const container = document.getElementById('post-options-container');
-    
-    container.classList.remove('open');
+    let html = '';
+
+    if (isAuthor) {
+        html += `<button onclick="editPost('${postId}'); hidePostMenu()" class="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 font-medium text-gray-700 rounded-lg transition-colors"><i data-lucide="edit-2" class="w-5 h-5"></i> Edit Post</button>`;
+        html += `<button onclick="deletePost('${postId}'); hidePostMenu()" class="w-full text-left px-4 py-3 hover:bg-red-50 flex items-center gap-3 font-medium text-red-600 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-5 h-5"></i> Delete Post</button>`;
+    } else {
+        html += `<button onclick="toggleSave('${postId}'); hidePostMenu()" class="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 font-medium text-gray-700 rounded-lg transition-colors"><i data-lucide="bookmark" class="w-5 h-5 ${saveIconClass}"></i> ${saveText}</button>`;
+
+        if (isAdmin) {
+             html += `<button onclick="deletePost('${postId}'); hidePostMenu()" class="w-full text-left px-4 py-3 hover:bg-red-50 flex items-center gap-3 font-medium text-red-600 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-5 h-5"></i> Delete (Admin)</button>`;
+        }
+
+        html += `<button onclick="showToast('Reported for review'); hidePostMenu()" class="w-full text-left px-4 py-3 hover:bg-red-50 flex items-center gap-3 font-medium text-red-600 rounded-lg transition-colors"><i data-lucide="flag" class="w-5 h-5"></i> Report</button>`;
+    }
+
+    modal.innerHTML = html;
+    overlay.classList.remove('hidden');
+    // Animate in
     setTimeout(() => {
-        overlay.classList.add('hidden');
-    }, 300);
+        overlay.classList.remove('opacity-0');
+        modal.classList.remove('scale-95');
+    }, 10);
+    refreshIcons();
 }
 
 window.hidePostMenu = function() { 
-    // Fallback for old menu, just in case
-    document.getElementById('global-post-menu').classList.remove('active'); 
+    const overlay = document.getElementById('post-options-overlay');
+    const modal = document.getElementById('post-options-modal');
+    overlay.classList.add('opacity-0');
+    modal.classList.add('scale-95');
+    setTimeout(() => {
+        overlay.classList.add('hidden');
+    }, 200);
 }
+
 window.editPost = function(postId) { const post = posts.find(p => p.id === postId); if(!post) return; document.getElementById('compose-text').value = post.content; window.editingPostId = postId; document.getElementById('compose-title-text').innerText = "Edit Post"; document.getElementById('btn-publish').innerText = "Update"; openCompose(); }
 window.deletePost = async function(postId) { showAlert("Delete this post?", async () => { await deleteDoc(doc(db, "posts", postId)); showToast("Post deleted"); }); }
 window.openCompose = function() {
@@ -4086,9 +3915,9 @@ postId = docRef.id;
 showToast("Posted!");
 // Notify Collaborators
 if(window.selectedCollaborators && window.selectedCollaborators.length > 0) {
-    window.selectedCollaborators.forEach(c => {
-        sendNotification(c.id, 'collab_request', 'invited you to collaborate on a post', postId);
-    });
+window.selectedCollaborators.forEach(c => {
+sendNotification(c.id, 'collab_request', 'invited you to collaborate on a post', postId);
+});
 }
 }
 closeCompose(); document.getElementById('compose-text').value = ""; removeMedia(); } catch (e) { console.error(e); showToast("Error posting", true); } finally { btn.innerHTML = originalHtml; btn.disabled = false; refreshIcons(); } }
@@ -4096,30 +3925,27 @@ window.showToast = function(message, isError = false) { const toast = document.g
 window.openLightbox = function(src, type = 'image') { const wrapper = document.getElementById('lightbox-wrapper'); const lightbox = document.getElementById('lightbox'); if (type === 'video' || src.includes('.mp4') || src.includes('data:video') || src.includes('.webm')) { wrapper.innerHTML = `<video src="${src}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`; } else { wrapper.innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; } lightbox.classList.add('active'); lightbox.classList.remove('pointer-events-none'); lightbox.classList.remove('opacity-0'); }
 window.closeLightbox = function() { const lightbox = document.getElementById('lightbox'); lightbox.classList.remove('active'); lightbox.classList.add('pointer-events-none'); lightbox.classList.add('opacity-0'); const video = lightbox.querySelector('video'); if(video) video.pause(); }
 window.copyText = function(text, btn) { navigator.clipboard.writeText(decodeURIComponent(text)).then(() => { showToast("Copied to clipboard"); }); };
-window.insertCodeBlock = function() { const ta = document.getElementById('compose-text'); ta.value += "\n```javascript\n// Code here\n```\n"; ta.focus(); };
-
+window.insertCodeBlock = function() { const ta = document.getElementById('compose-text'); ta.value += "\njavascript\n// Code here\n\n"; ta.focus(); };
 // MUTATION OBSERVER TO FIX ICONS DISAPPEARING
 const observer = new MutationObserver((mutations) => {
-  let shouldRefresh = false;
-  mutations.forEach((mutation) => {
-    // Check if new nodes are added, specifically looking for our app structure or icon containers
-    if (mutation.addedNodes.length > 0) {
-        // Simple check to see if an element with 'data-lucide' was added or a wrapper that might contain it
-        // To be safe and ensure icons always render, we flag for refresh.
-        // We debounce this to avoid performance hits on massive DOM changes.
-        shouldRefresh = true;
-    }
-  });
-  if (shouldRefresh) {
-    // Using a small timeout to bundle rapid changes and ensure DOM is ready
-    if(window.lucideRefreshTimeout) clearTimeout(window.lucideRefreshTimeout);
-    window.lucideRefreshTimeout = setTimeout(refreshIcons, 10);
-  }
+let shouldRefresh = false;
+mutations.forEach((mutation) => {
+// Check if new nodes are added, specifically looking for our app structure or icon containers
+if (mutation.addedNodes.length > 0) {
+// Simple check to see if an element with 'data-lucide' was added or a wrapper that might contain it
+// To be safe and ensure icons always render, we flag for refresh.
+// We debounce this to avoid performance hits on massive DOM changes.
+shouldRefresh = true;
+}
 });
-
+if (shouldRefresh) {
+// Using a small timeout to bundle rapid changes and ensure DOM is ready
+if(window.lucideRefreshTimeout) clearTimeout(window.lucideRefreshTimeout);
+window.lucideRefreshTimeout = setTimeout(refreshIcons, 10);
+}
+});
 // Start observing the document body for added nodes
 observer.observe(document.body, { childList: true, subtree: true });
-
 refreshIcons();
 </script>
 </body>

@@ -1053,15 +1053,26 @@ Sign In to Continue
 </div>
 </div>
 <!-- NEW POST OPTIONS OVERLAY (Replaces old absolute menu) -->
-<div id="post-options-overlay" class="fixed inset-0 z-[100] flex justify-center items-end md:items-center hidden">
+<div id="post-options-overlay" class="fixed inset-0 z-[100] flex justify-center items-end md:items-center hidden pointer-events-auto">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closePostOptions()"></div>
-    <div id="post-options-container" class="bg-white w-full md:w-[400px] md:rounded-2xl rounded-t-[24px] shadow-2xl relative z-10 overflow-hidden p-2 pb-8 md:pb-2 post-options-panel">
+    <div id="post-options-container" class="bg-white w-full md:w-[400px] md:rounded-2xl rounded-t-[24px] shadow-2xl relative z-10 overflow-hidden md:p-0 p-2 pb-8 post-options-panel flex flex-col max-h-[80vh]">
+        
+        <!-- Mobile Handle -->
         <div class="flex justify-center pt-3 pb-2 md:hidden" onclick="closePostOptions()">
             <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
         </div>
-        <div id="post-options-content" class="flex flex-col gap-1 p-2">
+
+        <!-- Desktop Header (New) -->
+        <div class="hidden md:flex justify-between items-center p-4 border-b border-gray-100">
+            <h3 class="text-lg font-bold text-gray-900">Options</h3>
+            <button onclick="closePostOptions()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <div id="post-options-content" class="flex flex-col gap-1 p-2 md:p-2 overflow-y-auto">
             <!-- Options injected here -->
         </div>
+        
+        <!-- Mobile Cancel -->
         <button onclick="closePostOptions()" class="w-full py-3 mt-2 text-sm font-bold text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl md:hidden">Cancel</button>
     </div>
 </div>
@@ -4005,11 +4016,9 @@ window.showPostOptions = function(event, postId, authorId) {
     // Show overlay
     overlay.classList.remove('hidden');
     overlay.classList.add('flex');
-    
-    // Icons
     refreshIcons();
     
-    // Animation frame for smooth slide up
+    // Smooth Animation
     requestAnimationFrame(() => {
         container.classList.add('open');
     });
@@ -4022,6 +4031,7 @@ window.closePostOptions = function() {
     container.classList.remove('open');
     setTimeout(() => {
         overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
     }, 300);
 }
 

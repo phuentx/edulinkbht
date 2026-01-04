@@ -240,7 +240,7 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.bookmark:hover { background-color: #fefce8; color: #eab308; }
 .action-btn.share-btn:hover { background-color: #f3f4f6; color: var(--on-surface); }
 /* --- COMPOSE & CREATE MENUS --- */
-#compose-modal, #create-menu-modal, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #add-link-modal, #promo-modal {
+#compose-modal, #create-menu-modal, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #add-link-modal, #promo-modal, #upload-options-modal {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
 }
@@ -957,6 +957,70 @@ transition: background 0.2s;
 .trend-rank { font-size: 11px; color: var(--text-secondary); margin-bottom: 2px; }
 .trend-tag { font-weight: 700; color: var(--on-surface); margin-bottom: 2px; font-size: 15px; }
 .trend-count { font-size: 11px; color: var(--text-secondary); }
+/* Carousel Styles */
+.post-carousel {
+position: relative;
+width: 100%;
+overflow: hidden;
+background-color: #000;
+aspect-ratio: 4/5; /* Instagram Portrait Aspect Ratio */
+}
+.post-carousel-inner {
+display: flex;
+transition: transform 0.3s ease-out;
+height: 100%;
+}
+.post-carousel-item {
+min-width: 100%;
+height: 100%;
+display: flex;
+justify-content: center;
+align-items: center;
+background: #000;
+}
+.post-carousel-item img, .post-carousel-item video {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+.carousel-dots {
+position: absolute;
+bottom: 10px;
+left: 0;
+right: 0;
+display: flex;
+justify-content: center;
+gap: 6px;
+z-index: 10;
+}
+.carousel-dot {
+width: 6px;
+height: 6px;
+border-radius: 50%;
+background: rgba(255,255,255,0.5);
+transition: background 0.2s;
+}
+.carousel-dot.active {
+background: #fff;
+}
+.carousel-nav-btn {
+position: absolute;
+top: 50%;
+transform: translateY(-50%);
+background: rgba(0,0,0,0.5);
+color: white;
+border-radius: 50%;
+width: 24px;
+height: 24px;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+z-index: 10;
+border: none;
+}
+.carousel-nav-btn.prev { left: 8px; }
+.carousel-nav-btn.next { right: 8px; }
 </style>
 </head>
 <body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]">
@@ -1040,6 +1104,22 @@ transition: background 0.2s;
     </div>
     <button onclick="hidePostMenu()" class="w-full py-3 mt-2 font-bold text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">Cancel</button>
   </div>
+</div>
+<!-- UPLOAD OPTIONS MODAL -->
+<div id="upload-options-modal" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden" onclick="document.getElementById('upload-options-modal').classList.add('hidden')">
+    <div class="bg-white w-[90%] max-w-[300px] rounded-2xl shadow-xl p-4 transform scale-100 transition-transform" onclick="event.stopPropagation()">
+        <h3 class="text-center font-bold text-gray-900 mb-4 text-lg">Select Upload Type</h3>
+        <div class="flex flex-col gap-3">
+            <button onclick="triggerUpload('single')" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors">
+                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><i data-lucide="image" class="w-5 h-5"></i></div>
+                <span class="font-bold text-gray-700">Single</span>
+            </button>
+            <button onclick="triggerUpload('multiple')" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors">
+                <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600"><i data-lucide="layers" class="w-5 h-5"></i></div>
+                <span class="font-bold text-gray-700">Multiple (Carousel)</span>
+            </button>
+        </div>
+    </div>
 </div>
 <!-- MOBILE NOTIFICATIONS HEADER -->
 <div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
@@ -1434,14 +1514,14 @@ Change
 </div>
 <textarea id="compose-text" placeholder="What do you want to share today?" class="compose-textarea"></textarea>
 <div id="media-preview-container" class="hidden media-preview-wrapper group">
-<img id="media-preview-img" src="" class="hidden media-preview-content">
-<video id="media-preview-video" src="" class="hidden media-preview-content" controls></video>
-<button onclick="removeMedia()" class="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1.5 hover:bg-black/80 transition-colors shadow-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
+    <!-- Updated preview logic will be injected here -->
+    <div id="preview-inner" class="flex overflow-x-auto gap-2 p-2"></div>
+    <button onclick="removeMedia()" class="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1.5 hover:bg-black/80 transition-colors shadow-sm z-10"><i data-lucide="x" class="w-4 h-4"></i></button>
 </div>
 <div id="collab-chips-container" class="flex flex-wrap mb-2"></div>
 <div class="compose-tools">
 <div class="tool-group">
-<button onclick="document.getElementById('media-input').click()" class="tool-btn" title="Upload Media"><i data-lucide="image" class="w-5 h-5"></i></button>
+<button onclick="openUploadOptions()" class="tool-btn" title="Upload Media"><i data-lucide="image" class="w-5 h-5"></i></button>
 <button onclick="promptForImageLink()" class="tool-btn" title="Image Link"><i data-lucide="link" class="w-5 h-5"></i></button>
 <button onclick="insertCodeBlock()" class="tool-btn" title="Add Code"><i data-lucide="code-2" class="w-5 h-5"></i></button>
 <button onclick="openCollabSelector()" class="tool-btn text-gray-600 bg-gray-50" title="Tag Collaborators"><i data-lucide="users" class="w-5 h-5"></i></button>
@@ -1730,7 +1810,8 @@ window.activeExploreTab = 'explore'; // Default tab
 window.activeExploreCategory = 'For You'; // Default category
 window.currentProfileTab = 'posts';
 // Global Vars for App Logic
-window.currentMedia = null;
+window.currentMedia = [];
+window.uploadMode = 'single'; // 'single' or 'multiple'
 window.currentMediaType = null;
 window.isWebSearchActive = false; // Kept to avoid break but unused
 let stopGeneration = false;
@@ -2448,12 +2529,57 @@ div.className = "post-card group overflow-hidden fade-in";
 div.onclick = () => openPostView(post.id);
 let mediaHTML = "";
 if (post.media) {
-const isVideo = post.media.startsWith('data:video') || post.media.includes('.mp4') || post.media.includes('.webm');
-mediaHTML = isVideo
-? `<div class="mt-3 rounded-xl overflow-hidden"><video src="${post.media}" class="w-full max-h-[400px]" controls onclick="event.stopPropagation()"></video></div>`
-: `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer" onclick="event.stopPropagation(); openLightbox('${post.media}', 'image')">
-<img src="${post.media}" class="w-full max-h-[400px] object-cover bg-gray-50">
-</div>`;
+    // Array of media or single string
+    const mediaArray = Array.isArray(post.media) ? post.media : [post.media];
+    
+    if (mediaArray.length === 1) {
+        const src = mediaArray[0];
+        const isVideo = src.startsWith('data:video') || src.includes('.mp4') || src.includes('.webm');
+        mediaHTML = isVideo
+        ? `<div class="mt-3 rounded-xl overflow-hidden aspect-[4/5] bg-black flex items-center justify-center"><video src="${src}" class="w-full h-full object-cover" controls onclick="event.stopPropagation()"></video></div>`
+        : `<div class="mt-3 rounded-xl overflow-hidden cursor-pointer aspect-[4/5] bg-gray-100" onclick="event.stopPropagation(); openLightbox('${src}', 'image')">
+        <img src="${src}" class="w-full h-full object-cover">
+        </div>`;
+    } else if (mediaArray.length > 1) {
+        // Carousel Logic
+        let slides = '';
+        mediaArray.forEach(src => {
+            const isVideo = src.startsWith('data:video') || src.includes('.mp4') || src.includes('.webm');
+            if(isVideo) {
+                slides += `<div class="post-carousel-item"><video src="${src}" controls></video></div>`;
+            } else {
+                slides += `<div class="post-carousel-item"><img src="${src}"></div>`;
+            }
+        });
+        
+        let dots = '';
+        for(let i=0; i<mediaArray.length; i++) {
+            dots += `<div class="carousel-dot ${i===0?'active':''}" id="dot-${post.id}-${i}"></div>`;
+        }
+
+        mediaHTML = `
+        <div class="mt-3 rounded-xl overflow-hidden post-carousel" id="carousel-${post.id}">
+            <div class="post-carousel-inner" id="inner-${post.id}" style="width: ${mediaArray.length * 100}%">
+                ${slides}
+            </div>
+            <button class="carousel-nav-btn prev" onclick="event.stopPropagation(); moveCarousel('${post.id}', -1)">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <button class="carousel-nav-btn next" onclick="event.stopPropagation(); moveCarousel('${post.id}', 1)">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+            <div class="carousel-dots">
+                ${dots}
+            </div>
+            <div class="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm pointer-events-none">
+                <span id="counter-${post.id}">1</span>/${mediaArray.length}
+            </div>
+        </div>
+        `;
+        // Initialize carousel state if needed
+        if(!window.carouselStates) window.carouselStates = {};
+        window.carouselStates[post.id] = { index: 0, total: mediaArray.length };
+    }
 }
 // Updated Hashtag Parsing with Click Handler
 let tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag" onclick="event.stopPropagation(); openHashtag(\'$1\')">#$1</span>'));
@@ -2525,6 +2651,33 @@ ${likeCountDisplay}
 </div>
 `;
 return div;
+}
+window.moveCarousel = function(postId, direction) {
+    if(!window.carouselStates || !window.carouselStates[postId]) return;
+    const state = window.carouselStates[postId];
+    const newIndex = state.index + direction;
+    
+    if (newIndex >= 0 && newIndex < state.total) {
+        state.index = newIndex;
+        const inner = document.getElementById(`inner-${postId}`);
+        if(inner) {
+            // Calculate translation based on number of items
+            // width is 100% * count. To move one slide, translate by -100% / count? No.
+            // transform: translateX(-index * (100 / total) %)
+            inner.style.transform = `translateX(-${(state.index * 100) / state.total}%)`;
+        }
+        
+        // Update Dots
+        const dots = document.querySelectorAll(`#carousel-${postId} .carousel-dot`);
+        dots.forEach((d, idx) => {
+            if(idx === state.index) d.classList.add('active');
+            else d.classList.remove('active');
+        });
+
+        // Update Counter
+        const counter = document.getElementById(`counter-${postId}`);
+        if(counter) counter.innerText = state.index + 1;
+    }
 }
 window.openHashtag = function(tag) {
 if(!tag) return;
@@ -2651,7 +2804,7 @@ if(showPeopleList) {
 let filteredPosts = [...posts];
 
 if(window.activeExploreTab === 'video') {
-    filteredPosts = filteredPosts.filter(p => p.media && (p.media.includes('video') || p.media.endsWith('.mp4')));
+    filteredPosts = filteredPosts.filter(p => p.media && (Array.isArray(p.media) ? p.media.some(m => m.includes('video') || m.endsWith('.mp4')) : (p.media.includes('video') || p.media.endsWith('.mp4'))));
 }
 
 if(term) {
@@ -2673,11 +2826,15 @@ if(filteredPosts.length === 0) {
     html = `<div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0.5 md:gap-4">`;
     filteredPosts.forEach(p => {
         let content = '';
-        if (p.media) {
-            if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
-                    content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
+        const mediaSrc = Array.isArray(p.media) ? p.media[0] : p.media;
+        if (mediaSrc) {
+            if (mediaSrc.includes('video') || mediaSrc.endsWith('.mp4') || mediaSrc.startsWith('data:video')) {
+                    content = `<video src="${mediaSrc}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
             } else {
-                    content = `<img src="${p.media}" class="w-full h-full object-cover">`;
+                    content = `<img src="${mediaSrc}" class="w-full h-full object-cover">`;
+            }
+            if(Array.isArray(p.media) && p.media.length > 1) {
+                content += `<div class="absolute top-2 right-2"><i data-lucide="layers" class="w-4 h-4 text-white drop-shadow-md"></i></div>`;
             }
         } else {
             content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
@@ -3336,11 +3493,15 @@ if (targetPosts.length === 0) {
     let gridHTML = `<div class="grid-post-container">`;
     targetPosts.forEach(p => {
         let content = '';
-        if (p.media) {
-            if (p.media.includes('video') || p.media.endsWith('.mp4') || p.media.startsWith('data:video')) {
-                 content = `<video src="${p.media}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
+        const mediaSrc = Array.isArray(p.media) ? p.media[0] : p.media;
+        if (mediaSrc) {
+            if (mediaSrc.includes('video') || mediaSrc.endsWith('.mp4') || mediaSrc.startsWith('data:video')) {
+                 content = `<video src="${mediaSrc}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
             } else {
-                 content = `<img src="${p.media}" class="w-full h-full object-cover">`;
+                 content = `<img src="${mediaSrc}" class="w-full h-full object-cover">`;
+            }
+            if(Array.isArray(p.media) && p.media.length > 1) {
+                content += `<div class="absolute top-2 right-2"><i data-lucide="layers" class="w-4 h-4 text-white drop-shadow-md"></i></div>`;
             }
         } else {
             // Text placeholder for grid
@@ -3551,49 +3712,86 @@ playOverlay.className = 'play-pause-overlay';
 playOverlay.innerHTML = '<i data-lucide="play" class="play-pause-icon"></i>';
 mediaContainer.appendChild(playOverlay);
 if (post.media) {
-const isVideo = post.media.includes('video') || post.media.endsWith('.mp4') || post.media.startsWith('data:video');
-if (isVideo) {
-const videoEl = document.createElement('video');
-videoEl.src = post.media;
-videoEl.className = "stage-content rounded-lg shadow-2xl";
-videoEl.controls = false; // Custom controls
-videoEl.playsInline = true;
-// videoEl.autoplay = true; <-- Remove
-videoEl.muted = false; // Try sound on desktop
-videoEl.loop = true;
-// Toggle Play/Pause Logic
-     const togglePlay = (e) => {
-         e.stopPropagation();
-         if (videoEl.paused) {
-             videoEl.play();
-             playOverlay.classList.remove('show');
-         } else {
-             videoEl.pause();
-             playOverlay.classList.add('show');
-         }
-     };
-     
-     videoEl.onclick = togglePlay;
-     playOverlay.onclick = togglePlay; 
-     
-     // Set initial state
-     playOverlay.classList.add('show');
+    const mediaArray = Array.isArray(post.media) ? post.media : [post.media];
+    
+    if (mediaArray.length === 1) {
+        const src = mediaArray[0];
+        const isVideo = src.includes('video') || src.endsWith('.mp4') || src.startsWith('data:video');
+        if (isVideo) {
+            const videoEl = document.createElement('video');
+            videoEl.src = src;
+            videoEl.className = "stage-content rounded-lg shadow-2xl";
+            videoEl.controls = false; // Custom controls
+            videoEl.playsInline = true;
+            videoEl.muted = false; // Try sound on desktop
+            videoEl.loop = true;
+            
+            const togglePlay = (e) => {
+                e.stopPropagation();
+                if (videoEl.paused) {
+                    videoEl.play();
+                    playOverlay.classList.remove('show');
+                } else {
+                    videoEl.pause();
+                    playOverlay.classList.add('show');
+                }
+            };
+            
+            videoEl.onclick = togglePlay;
+            playOverlay.onclick = togglePlay; 
+            
+            // Set initial state
+            playOverlay.classList.add('show');
 
-     // Mobile Reel Logic Check
-     if(window.innerWidth < 768) {
-         videoEl.onloadedmetadata = function() {
-             // Reel Mode if video is vertical-ish (or always for mobile video?)
-             overlay.classList.add('mobile-reel-view');
-             document.body.classList.add('reel-mode'); // Hide global nav
-             this.className = "w-full h-full object-cover"; // Full bleed
-             this.muted = false; 
-             // this.play().catch(() => { this.muted = true; this.play(); }); <-- Remove play call
-         };
-     }
-     mediaContainer.insertBefore(videoEl, playOverlay);
-} else {
-     mediaContainer.innerHTML = `<img src="${post.media}" class="stage-content rounded-lg shadow-2xl">`;
-}
+            // Mobile Reel Logic Check
+            if(window.innerWidth < 768) {
+                videoEl.onloadedmetadata = function() {
+                    overlay.classList.add('mobile-reel-view');
+                    document.body.classList.add('reel-mode');
+                    this.className = "w-full h-full object-cover";
+                    this.muted = false; 
+                };
+            }
+            mediaContainer.insertBefore(videoEl, playOverlay);
+        } else {
+            mediaContainer.innerHTML = `<img src="${src}" class="stage-content rounded-lg shadow-2xl">`;
+        }
+    } else if (mediaArray.length > 1) {
+        // Carousel Logic
+        let slides = '';
+        mediaArray.forEach(src => {
+            const isVideo = src.startsWith('data:video') || src.includes('.mp4') || src.includes('.webm');
+            if(isVideo) {
+                slides += `<div class="post-carousel-item"><video src="${src}" controls></video></div>`;
+            } else {
+                slides += `<div class="post-carousel-item"><img src="${src}"></div>`;
+            }
+        });
+        
+        let dots = '';
+        for(let i=0; i<mediaArray.length; i++) {
+            dots += `<div class="carousel-dot ${i===0?'active':''}" id="overlay-dot-${post.id}-${i}"></div>`;
+        }
+
+        mediaContainer.innerHTML = `
+        <div class="rounded-lg overflow-hidden post-carousel shadow-2xl" id="overlay-carousel-${post.id}">
+            <div class="post-carousel-inner" id="overlay-inner-${post.id}" style="width: ${mediaArray.length * 100}%">
+                ${slides}
+            </div>
+            <button class="carousel-nav-btn prev" onclick="event.stopPropagation(); moveCarousel('${post.id}', -1, true)">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <button class="carousel-nav-btn next" onclick="event.stopPropagation(); moveCarousel('${post.id}', 1, true)">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+            <div class="carousel-dots">
+                ${dots}
+            </div>
+        </div>
+        `;
+        if(!window.carouselStates) window.carouselStates = {};
+        window.carouselStates[`overlay-${post.id}`] = { index: 0, total: mediaArray.length };
+    }
 } else {
 mediaContainer.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-white opacity-40"> <i data-lucide="image-off" class="w-16 h-16 mb-2"></i> <span class="text-sm font-medium">No Media</span> </div>`;
 }
@@ -3891,14 +4089,12 @@ window.replyingToCommentId = null;
 window.promptForImageLink = function() {
 const url = prompt("Enter Image URL:");
 if(url && (url.startsWith('http') || url.startsWith('data:'))) {
-window.currentMedia = url;
+window.currentMedia = [url];
 window.currentMediaType = 'image';
 const container = document.getElementById('media-preview-container');
 container.classList.remove('hidden');
-const img = document.getElementById('media-preview-img');
-img.src = window.currentMedia;
-img.classList.remove('hidden');
-document.getElementById('media-preview-video').classList.add('hidden');
+const inner = document.getElementById('preview-inner');
+inner.innerHTML = `<img src="${url}" class="h-20 w-20 object-cover rounded-md">`;
 showToast("Image link added");
 }
 }
@@ -4005,8 +4201,54 @@ if(area.classList.contains('hidden')) arrow.style.transform = 'rotate(0deg)';
 else arrow.style.transform = 'rotate(180deg)';
 }
 // AI Stuff Removed as requested.
-window.handleFileSelect = function(event) { const file = event.target.files[0]; if (file) { window.currentMediaBlob = file; const reader = new FileReader(); reader.onload = function(e) { window.currentMedia = e.target.result; window.currentMediaType = file.type.startsWith('video') ? 'video' : 'image'; const container = document.getElementById('media-preview-container'); container.classList.remove('hidden'); if(window.currentMediaType === 'video') { const vid = document.getElementById('media-preview-video'); vid.src = window.currentMedia; vid.classList.remove('hidden'); document.getElementById('media-preview-img').classList.add('hidden'); } else { const img = document.getElementById('media-preview-img'); img.src = window.currentMedia; img.classList.remove('hidden'); document.getElementById('media-preview-video').classList.add('hidden'); } showToast("Media Uploaded"); }; reader.readAsDataURL(file); } }
-window.removeMedia = function() { window.currentMedia = null; window.currentMediaType = null; window.mediaVisionLog = ""; window.currentMediaBlob = null; document.getElementById('media-preview-container').classList.add('hidden'); document.getElementById('media-input').value = ""; }
+window.openUploadOptions = function() {
+    document.getElementById('upload-options-modal').classList.remove('hidden');
+}
+window.triggerUpload = function(mode) {
+    window.uploadMode = mode;
+    document.getElementById('upload-options-modal').classList.add('hidden');
+    const input = document.getElementById('media-input');
+    if (mode === 'multiple') {
+        input.setAttribute('multiple', '');
+    } else {
+        input.removeAttribute('multiple');
+    }
+    input.click();
+}
+window.handleFileSelect = function(event) {
+    const files = event.target.files;
+    if (files.length > 0) {
+        window.currentMediaBlob = []; // Store raw files
+        window.currentMedia = []; // Store data URLs
+        
+        const container = document.getElementById('media-preview-container');
+        container.classList.remove('hidden');
+        const inner = document.getElementById('preview-inner');
+        inner.innerHTML = ''; // Clear old
+
+        const promises = Array.from(files).map(file => {
+            window.currentMediaBlob.push(file);
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    window.currentMedia.push(e.target.result);
+                    const isVideo = file.type.startsWith('video');
+                    const el = document.createElement(isVideo ? 'video' : 'img');
+                    el.src = e.target.result;
+                    el.className = "h-20 w-20 object-cover rounded-md border border-gray-200 shrink-0";
+                    inner.appendChild(el);
+                    resolve();
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        Promise.all(promises).then(() => {
+            showToast(`${files.length} file${files.length>1?'s':''} ready`);
+        });
+    }
+}
+window.removeMedia = function() { window.currentMedia = []; window.mediaVisionLog = ""; window.currentMediaBlob = []; document.getElementById('media-preview-container').classList.add('hidden'); document.getElementById('media-input').value = ""; }
 // ImgHippo Upload
 async function uploadToImgHippo(file) {
 const formData = new FormData();
@@ -4028,28 +4270,37 @@ const showLikes = document.getElementById('post-setting-likes').checked;
 const showComments = document.getElementById('post-setting-comments').checked;
 const allowLikeView = document.getElementById('post-setting-like-view').checked;
 const allowComments = document.getElementById('post-setting-allow-comments').checked;
-if (!textRaw.trim() && !window.currentMedia) { showToast("Empty post!", true); return; }
+if (!textRaw.trim() && window.currentMedia.length === 0) { showToast("Empty post!", true); return; }
 const originalHtml = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Posting...`; btn.disabled = true; refreshIcons();
 try {
-let mediaUrl = window.currentMedia;
-if(window.currentMediaBlob) {
-try { mediaUrl = await uploadToImgHippo(window.currentMediaBlob); }
-catch (err) {
-console.error("ImgHippo failed, falling back to Firebase Storage", err);
-const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${window.currentMediaBlob.name}`);
-await uploadBytes(mediaRef, window.currentMediaBlob);
-mediaUrl = await getDownloadURL(mediaRef);
+let mediaUrls = [];
+if(window.currentMediaBlob && window.currentMediaBlob.length > 0) {
+    for (const blob of window.currentMediaBlob) {
+        try { 
+            const url = await uploadToImgHippo(blob); 
+            mediaUrls.push(url);
+        } catch (err) {
+            console.error("ImgHippo failed, falling back to Firebase Storage", err);
+            const mediaRef = ref(storage, `posts/${currentUser.id}/${Date.now()}_${blob.name}`);
+            await uploadBytes(mediaRef, blob);
+            const url = await getDownloadURL(mediaRef);
+            mediaUrls.push(url);
+        }
+    }
+} else if (window.currentMedia.length > 0) {
+    // Handling direct links added via prompt
+    mediaUrls = window.currentMedia;
 }
-}
-// Send Collab Notifications
-if(window.selectedCollaborators && window.selectedCollaborators.length > 0) {
-// Logic inside publish because we need post ID first? No, we need ID first.
-// So we add doc then notify.
-}
+
+// Ensure single string if only 1, array if multiple (but keep array structure in new data model for consistency if possible, but existing code expects string for single)
+// Actually, let's store array for future proofing but support legacy string
+// For this update, let's store single string if 1, array if > 1 to maintain back compatibility with existing 'post.media' checks unless we refactor all access
+let mediaPayload = mediaUrls.length === 1 ? mediaUrls[0] : (mediaUrls.length > 0 ? mediaUrls : null);
+
 const postData = {
 authorId: currentUser.id,
 content: textRaw,
-media: mediaUrl,
+media: mediaPayload,
 timestamp: serverTimestamp(),
 likes: [],
 comments: [],
@@ -4084,6 +4335,34 @@ window.openLightbox = function(src, type = 'image') { const wrapper = document.g
 window.closeLightbox = function() { const lightbox = document.getElementById('lightbox'); lightbox.classList.remove('active'); lightbox.classList.add('pointer-events-none'); lightbox.classList.add('opacity-0'); const video = lightbox.querySelector('video'); if(video) video.pause(); }
 window.copyText = function(text, btn) { navigator.clipboard.writeText(decodeURIComponent(text)).then(() => { showToast("Copied to clipboard"); }); };
 window.insertCodeBlock = function() { const ta = document.getElementById('compose-text'); ta.value += "\n```javascript\n// Code here\n```\n"; ta.focus(); };
+window.moveCarousel = function(postId, direction, isOverlay = false) {
+    const key = isOverlay ? `overlay-${postId}` : postId;
+    if(!window.carouselStates || !window.carouselStates[key]) return;
+    const state = window.carouselStates[key];
+    const newIndex = state.index + direction;
+    
+    if (newIndex >= 0 && newIndex < state.total) {
+        state.index = newIndex;
+        const innerId = isOverlay ? `overlay-inner-${postId}` : `inner-${postId}`;
+        const wrapperId = isOverlay ? `overlay-carousel-${postId}` : `carousel-${postId}`;
+        
+        const inner = document.getElementById(innerId);
+        if(inner) {
+            inner.style.transform = `translateX(-${(state.index * 100) / state.total}%)`;
+        }
+        
+        // Update Dots
+        const dots = document.querySelectorAll(`#${wrapperId} .carousel-dot`);
+        dots.forEach((d, idx) => {
+            if(idx === state.index) d.classList.add('active');
+            else d.classList.remove('active');
+        });
+
+        // Update Counter
+        const counter = document.getElementById(isOverlay ? `overlay-counter-${postId}` : `counter-${postId}`);
+        if(counter) counter.innerText = state.index + 1;
+    }
+}
 refreshIcons();
 </script>
 </body>

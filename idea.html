@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edulinki Live - Fixed</title>
+    <title>Edulinki Live - Guest Mode</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
-        :root { --bg: #000; --primary: #fe2c55; }
+        :root { --bg: #000; --primary: #fe2c55; --accent: #25f4ee; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; height: 100vh; overflow: hidden; }
 
@@ -21,12 +21,15 @@
         .card { aspect-ratio: 9/16; background: #222; border-radius: 12px; position: relative; overflow: hidden; cursor: pointer; }
         .card-badge { position: absolute; top: 10px; left: 10px; background: var(--primary); padding: 3px 6px; font-size: 10px; border-radius: 4px; font-weight: bold; }
         .card-info { position: absolute; bottom: 0; width: 100%; padding: 10px; background: linear-gradient(transparent, black); }
-        
         .fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 12px 30px; border-radius: 30px; border: none; font-weight: bold; display: flex; align-items: center; gap: 8px; cursor: pointer; }
 
-        /* LIVE */
+        /* LIVE STAGE */
         #live-stage { position: absolute; inset: 0; z-index: 100; display: none; background: #000; }
-        #video-layer { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; }
+        
+        /* Video Layout (Split Screen Support) */
+        #video-layer { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; }
+        /* When Guest Joins, we split height 50/50 */
+        #video-layer.split video { height: 50%; }
         video { width: 100%; height: 100%; object-fit: cover; }
         .host-mirror { transform: scaleX(-1); }
 
@@ -37,14 +40,20 @@
 
         .bottom-bar { padding: 16px; pointer-events: auto; background: linear-gradient(transparent, black); }
         .chat-box { height: 200px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; mask-image: linear-gradient(transparent, black 20%); }
-        .msg { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 12px; align-self: flex-start; font-size: 13px; backdrop-filter: blur(4px); }
+        .msg { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 12px; align-self: flex-start; font-size: 13px; backdrop-filter: blur(4px); max-width: 80%; }
         .chat-input { flex: 1; background: rgba(255,255,255,0.2); border: none; padding: 12px; border-radius: 20px; color: white; outline: none; }
-        
-        .hearts-box { position: absolute; bottom: 80px; right: 20px; width: 50px; height: 300px; pointer-events: none; }
-        .heart { position: absolute; bottom: 0; animation: float 2s forwards; font-size: 24px; }
-        @keyframes float { 0% { transform: translateY(0) scale(0.5); opacity: 1; } 100% { transform: translateY(-200px) scale(1.5); opacity: 0; } }
+        .icon-btn { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.1); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        /* SETUP */
+        /* Request Modal */
+        #request-popup {
+            position: absolute; top: 100px; left: 20px; right: 20px;
+            background: rgba(20, 20, 20, 0.9); border: 1px solid #333;
+            padding: 15px; border-radius: 12px; display: none; pointer-events: auto;
+            backdrop-filter: blur(10px); z-index: 50;
+        }
+        .req-btn { padding: 8px 16px; border-radius: 20px; border:none; font-weight:bold; cursor:pointer; }
+
+        /* Setup */
         #setup { position: fixed; inset: 0; background: #000; z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; }
         .preview { width: 80%; aspect-ratio: 9/16; background: #222; border-radius: 20px; overflow: hidden; margin-bottom: 20px; }
     </style>
@@ -66,11 +75,23 @@
             <video id="previewVid" autoplay playsinline muted class="host-mirror"></video>
         </div>
         <input id="streamTitle" type="text" placeholder="Add a title..." style="background:#333; border:none; padding:15px; border-radius:10px; color:white; width:80%; margin-bottom:15px; outline:none;">
-        <button onclick="startHosting()" style="background:var(--primary); border:none; padding:15px 40px; border-radius:30px; color:white; font-weight:bold;">Start Live</button>
+        <button onclick="startHosting()" style="background:var(--primary); border:none; padding:15px 40px; border-radius:30px; color:white; font-weight:bold; font-size:16px;">Start Live</button>
     </div>
 
     <div id="live-stage">
-        <div id="video-layer"></div>
+        
+        <div id="video-layer">
+            <video id="mainVideo" autoplay playsinline class="host-mirror"></video>
+            </div>
+        
+        <div id="request-popup">
+            <div style="font-size:14px; margin-bottom:10px;">User wants to join video</div>
+            <div style="display:flex; gap:10px;">
+                <button class="req-btn" style="background:var(--primary); color:white; flex:1;" onclick="acceptRequest()">Accept</button>
+                <button class="req-btn" style="background:#333; color:white; flex:1;" onclick="hideRequest()">Decline</button>
+            </div>
+        </div>
+
         <div id="ui-layer">
             <div class="top-bar">
                 <div class="host-pill">
@@ -80,14 +101,19 @@
                         <div style="font-size:10px; opacity:0.8"><span id="viewCount">0</span> Viewers</div>
                     </div>
                 </div>
-                <button onclick="leaveRoom()" style="background:none; border:none; color:white;"><i data-lucide="x"></i></button>
+                <button class="icon-btn" onclick="leaveRoom()"><i data-lucide="x"></i></button>
             </div>
-            <div class="hearts-box" id="hearts"></div>
+
             <div class="bottom-bar">
                 <div class="chat-box" id="chat"></div>
                 <div style="display:flex; gap:10px;">
                     <input id="msgInput" class="chat-input" placeholder="Say something..." autocomplete="off">
-                    <button onclick="sendHeart()" style="width:44px; height:44px; border-radius:50%; background:linear-gradient(45deg, #ff0050, #00f2ea); border:none; display:flex; align-items:center; justify-content:center;"><i data-lucide="heart" fill="white"></i></button>
+                    
+                    <button id="joinReqBtn" class="icon-btn" onclick="requestToJoin()" style="background:#333; display:none;">
+                        <i data-lucide="hand"></i>
+                    </button>
+                    
+                    <button class="icon-btn" onclick="sendHeart()" style="background:linear-gradient(45deg, #ff0050, #00f2ea)"><i data-lucide="heart" fill="white"></i></button>
                 </div>
             </div>
         </div>
@@ -95,10 +121,11 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, increment, query, where, orderBy } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, increment, query, where, orderBy, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         lucide.createIcons();
 
+        // 1. CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
             authDomain: "edulinki.firebaseapp.com",
@@ -113,20 +140,22 @@
         
         const iceServers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302'] }] };
 
+        // 2. STATE
         let localStream;
-        let role = null;
+        let role = null; 
         let roomId = null;
         let myId = Math.random().toString(36).substr(2, 6).toUpperCase();
-        let pcs = {}; // Peer connections
+        let pcs = {}; 
+        let pendingGuestId = null;
 
-        // --- SETUP ---
+        // 3. UI FUNCTIONS
         window.openSetup = async () => {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
                 document.getElementById('previewVid').srcObject = localStream;
                 document.getElementById('home-feed').style.display = 'none';
                 document.getElementById('setup').style.display = 'flex';
-            } catch(e) { alert("Camera Error"); }
+            } catch(e) { alert("Camera denied"); }
         }
 
         window.closeSetup = () => {
@@ -135,7 +164,7 @@
             document.getElementById('home-feed').style.display = 'flex';
         }
 
-        // --- HOME FEED ---
+        // 4. HOME FEED
         onSnapshot(query(collection(db, "rooms"), where("status", "==", "live")), (snap) => {
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
@@ -158,136 +187,178 @@
             if(snap.empty) grid.innerHTML = '<div style="color:#666; width:200%; text-align:center; padding:50px;">No active streams</div>';
         });
 
-        // --- HOST LOGIC ---
+        // 5. HOST LOGIC
         window.startHosting = async () => {
             const title = document.getElementById('streamTitle').value || "Chilling";
-            roomId = myId;
-            role = 'host';
+            roomId = myId; role = 'host';
 
             document.getElementById('setup').style.display = 'none';
             document.getElementById('live-stage').style.display = 'block';
+            document.getElementById('joinReqBtn').style.display = 'none'; // Host doesn't need request btn
 
-            const vid = document.createElement('video');
-            vid.srcObject = localStream;
-            vid.autoplay = true; vid.muted = true; vid.className = 'host-mirror';
-            document.getElementById('video-layer').appendChild(vid);
+            document.getElementById('mainVideo').srcObject = localStream;
 
             await setDoc(doc(db, "rooms", roomId), {
-                hostId: myId, hostName: "Host " + myId, title, status: 'live', viewers: 0
+                hostId: myId, hostName: "Host " + myId, title, status: 'live', viewers: 0, guestId: null
             });
 
-            // Listen for Viewers JOINING
+            // Listen for Viewer Offers
             onSnapshot(collection(db, `rooms/${roomId}/offers`), (snap) => {
                 snap.docChanges().forEach(async change => {
                     if (change.type === 'added') {
                         const data = change.doc.data();
-                        handleViewerJoin(data.from, data.offer);
+                        handlePeerConnection(data.from, data.offer);
                     }
                 });
             });
 
-            // Listen for ICE from Viewers
-            onSnapshot(collection(db, `rooms/${roomId}/candidates`), (snap) => {
-                snap.docChanges().forEach(async change => {
-                    if (change.type === 'added') {
-                        const data = change.doc.data();
-                        // Host receives candidates addressed to them
-                        if (data.to === myId) {
-                            const pc = pcs[data.from];
-                            if(pc) pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-                        }
+            // Listen for Join Requests
+            onSnapshot(collection(db, `rooms/${roomId}/requests`), (snap) => {
+                snap.docChanges().forEach(change => {
+                    if(change.type === 'added') {
+                        pendingGuestId = change.doc.data().userId;
+                        document.getElementById('request-popup').style.display = 'block';
                     }
                 });
             });
 
-            listenForInteractions();
+            listenForCommon();
         }
 
-        async function handleViewerJoin(viewerId, offer) {
+        async function handlePeerConnection(viewerId, offer) {
             const pc = new RTCPeerConnection(iceServers);
             pcs[viewerId] = pc;
-
+            
+            // Host sends their stream
             localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
+            // If a Guest stream comes in
+            pc.ontrack = e => {
+                const guestVid = document.createElement('video');
+                guestVid.srcObject = e.streams[0];
+                guestVid.autoplay = true; guestVid.playsInline = true; 
+                
+                const layer = document.getElementById('video-layer');
+                layer.classList.add('split'); // CSS 50/50 split
+                layer.appendChild(guestVid);
+            };
+
             pc.onicecandidate = e => {
-                if(e.candidate) addDoc(collection(db, `rooms/${roomId}/candidates`), { 
-                    candidate: e.candidate.toJSON(), to: viewerId, from: myId 
-                });
+                if(e.candidate) addDoc(collection(db, `rooms/${roomId}/candidates`), { candidate: e.candidate.toJSON(), to: viewerId, from: myId });
             };
 
             await pc.setRemoteDescription(new RTCSessionDescription(offer));
             const answer = await pc.createAnswer();
             await pc.setLocalDescription(answer);
 
-            await addDoc(collection(db, `rooms/${roomId}/answers`), {
-                answer, to: viewerId, from: myId
-            });
+            await addDoc(collection(db, `rooms/${roomId}/answers`), { answer, to: viewerId, from: myId });
         }
 
-        // --- VIEWER LOGIC ---
+        // Host UI Actions
+        window.acceptRequest = async () => {
+            document.getElementById('request-popup').style.display = 'none';
+            // Tell DB who the guest is
+            await updateDoc(doc(db, "rooms", roomId), { guestId: pendingGuestId });
+        };
+        window.hideRequest = () => { document.getElementById('request-popup').style.display = 'none'; };
+
+
+        // 6. VIEWER LOGIC
         async function joinStream(id, data) {
-            roomId = id;
-            role = 'viewer';
+            roomId = id; role = 'viewer';
             document.getElementById('home-feed').style.display = 'none';
             document.getElementById('live-stage').style.display = 'block';
             document.getElementById('hostName').innerText = data.hostName;
+            document.getElementById('joinReqBtn').style.display = 'flex'; // Show hand button
 
             await updateDoc(doc(db, "rooms", roomId), { viewers: increment(1) });
+            
+            // Connect to Host (Receive Only initially)
+            connectToHost(data.hostId, false);
+            
+            // Watch if I become Guest
+            onSnapshot(doc(db, "rooms", roomId), async (docSnap) => {
+                if(docSnap.exists() && docSnap.data().guestId === myId) {
+                    // I AM SELECTED! Upgrade connection to Send Video
+                    try {
+                        const guestStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                        // Add tracks to existing PC or renegotiate. For simplicity, we re-connect with video.
+                        // Actually, easiest way is to add tracks to existing connection, but let's just make a new offer with video.
+                        connectToHost(data.hostId, true, guestStream);
+                        alert("You are now live!");
+                    } catch(e) { alert("Camera Error"); }
+                }
+                // Also Check if room ended
+                if(!docSnap.exists() || docSnap.data().status === 'ended') {
+                     alert("Live Ended"); location.reload();
+                }
+                document.getElementById('viewCount').innerText = docSnap.data().viewers;
+            });
 
+            listenForCommon();
+        }
+
+        async function connectToHost(hostId, sendingVideo, stream = null) {
             const pc = new RTCPeerConnection(iceServers);
             pcs['host'] = pc;
 
-            pc.addTransceiver('video', { direction: 'recvonly' });
-            pc.addTransceiver('audio', { direction: 'recvonly' });
+            if(sendingVideo && stream) {
+                stream.getTracks().forEach(t => pc.addTrack(t, stream));
+                // Show local preview of self
+                const selfVid = document.createElement('video');
+                selfVid.srcObject = stream; selfVid.autoplay = true; selfVid.muted = true;
+                const layer = document.getElementById('video-layer');
+                layer.classList.add('split');
+                layer.appendChild(selfVid);
+            } else {
+                pc.addTransceiver('video', { direction: 'recvonly' });
+                pc.addTransceiver('audio', { direction: 'recvonly' });
+            }
 
             pc.ontrack = e => {
-                const vid = document.createElement('video');
-                vid.srcObject = e.streams[0];
-                vid.autoplay = true; vid.playsInline = true;
-                document.getElementById('video-layer').innerHTML = '';
-                document.getElementById('video-layer').appendChild(vid);
+                // This is the Host's stream
+                document.getElementById('mainVideo').srcObject = e.streams[0];
             };
 
-            // LISTEN FOR ANSWER
-            onSnapshot(collection(db, `rooms/${roomId}/answers`), (snap) => {
-                snap.docChanges().forEach(async change => {
-                    if (change.type === 'added') {
-                        const d = change.doc.data();
-                        if (d.to === myId) await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
-                    }
-                });
-            });
-
-            // LISTEN FOR ICE (FROM HOST)
-            onSnapshot(collection(db, `rooms/${roomId}/candidates`), (snap) => {
-                snap.docChanges().forEach(async change => {
-                    if (change.type === 'added') {
-                        const d = change.doc.data();
-                        if (d.to === myId) await pc.addIceCandidate(new RTCIceCandidate(d.candidate));
-                    }
-                });
-            });
-
             pc.onicecandidate = e => {
-                if(e.candidate) addDoc(collection(db, `rooms/${roomId}/candidates`), { 
-                    candidate: e.candidate.toJSON(), to: data.hostId, from: myId 
-                });
+                if(e.candidate) addDoc(collection(db, `rooms/${roomId}/candidates`), { candidate: e.candidate.toJSON(), to: hostId, from: myId });
             };
 
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
-            await addDoc(collection(db, `rooms/${roomId}/offers`), { offer, to: data.hostId, from: myId });
+            await addDoc(collection(db, `rooms/${roomId}/offers`), { offer, to: hostId, from: myId });
 
-            listenForInteractions();
-        }
-
-        // --- INTERACTIONS ---
-        function listenForInteractions() {
-            onSnapshot(doc(db, "rooms", roomId), (d) => {
-                if(d.exists()) document.getElementById('viewCount').innerText = d.data().viewers;
-                else location.reload();
+            // Listen for Answer
+            const unsub = onSnapshot(collection(db, `rooms/${roomId}/answers`), (snap) => {
+                snap.docChanges().forEach(async change => {
+                    if(change.type === 'added') {
+                        const d = change.doc.data();
+                        if(d.to === myId) await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
+                    }
+                });
             });
 
+            // Listen for ICE
+            onSnapshot(collection(db, `rooms/${roomId}/candidates`), (snap) => {
+                snap.docChanges().forEach(async change => {
+                    if(change.type === 'added') {
+                        const d = change.doc.data();
+                        if(d.to === myId) await pc.addIceCandidate(new RTCIceCandidate(d.candidate));
+                    }
+                });
+            });
+        }
+
+        // Viewer Action: Request to Join
+        window.requestToJoin = async () => {
+            document.getElementById('joinReqBtn').style.color = 'var(--primary)';
+            await addDoc(collection(db, `rooms/${roomId}/requests`), { userId: myId, name: "User" });
+            alert("Request sent to host!");
+        };
+
+        // 7. COMMON LISTENERS
+        function listenForCommon() {
+            // Chat
             const chatBox = document.getElementById('chat');
             onSnapshot(query(collection(db, `rooms/${roomId}/chat`), orderBy('ts')), (snap) => {
                 snap.docChanges().forEach(c => {
@@ -295,16 +366,10 @@
                         const d = c.doc.data();
                         const div = document.createElement('div');
                         div.className = 'msg';
-                        div.innerText = `${d.name}: ${d.text}`;
+                        div.innerHTML = `<span style="opacity:0.6; margin-right:5px; font-weight:bold">${d.name}:</span>${d.text}`;
                         chatBox.appendChild(div);
                         chatBox.scrollTop = chatBox.scrollHeight;
                     }
-                });
-            });
-
-            onSnapshot(collection(db, `rooms/${roomId}/hearts`), (snap) => {
-                snap.docChanges().forEach(c => {
-                    if(c.type === 'added' && !c.doc.metadata.hasPendingWrites) spawnHeart();
                 });
             });
         }
@@ -318,24 +383,19 @@
             }
         }
 
-        window.sendHeart = async () => {
-            spawnHeart();
-            await addDoc(collection(db, `rooms/${roomId}/hearts`), { ts: Date.now() });
-        }
-
-        function spawnHeart() {
-            const h = document.createElement('div');
-            h.className = 'heart';
-            h.innerText = ['❤️','🔥','😍'][Math.floor(Math.random()*3)];
-            h.style.left = Math.random()*20 + 'px';
-            document.getElementById('hearts').appendChild(h);
-            setTimeout(() => h.remove(), 2000);
-        }
-
         window.leaveRoom = async () => {
-            if(role === 'host') await updateDoc(doc(db, "rooms", roomId), { status: 'ended' });
-            else await updateDoc(doc(db, "rooms", roomId), { viewers: increment(-1) });
-            location.reload();
+            if(role === 'host') {
+                if(confirm("End Live for everyone?")) {
+                    await updateDoc(doc(db, "rooms", roomId), { status: 'ended' });
+                    // Host clean up logic could go here (delete subcollections), but requires admin SDK usually.
+                    // Simple approach: Delete the room doc.
+                    await deleteDoc(doc(db, "rooms", roomId));
+                    location.reload();
+                }
+            } else {
+                await updateDoc(doc(db, "rooms", roomId), { viewers: increment(-1) });
+                location.reload();
+            }
         }
     </script>
 </body>

@@ -249,8 +249,11 @@ border: 1px solid var(--outline);
     border: none;
     box-shadow: none;
 }
-#post-options-overlay > div:last-child {
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+/* Only apply bottom sheet shadow on mobile to prevent desktop artifacts */
+@media (max-width: 767px) {
+    #post-options-overlay > div:last-child {
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+    }
 }
 .compose-header {
 display: flex; align-items: center; justify-content: space-between;
@@ -3783,7 +3786,7 @@ const replies = allComments.filter(r => r.parentId === c.id);
 const timeAgo = "Now"; // Simplified for this context
 let html = `
 <div class="comment-row ${isMyComment ? 'me' : ''}">
-<img src="${cAuthor.avatar}" class="w-8 h-8 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover cursor-pointer hover:opacity-80 transition-opacity" onclick="showProfile('${c.authorId}')">
+<img src="${cAuthor.avatar}" class="w-8 h-8 rounded-full bg-gray-100 border border-gray-100 shrink-0 object-cover cursor-pointer" onclick="showProfile('${c.authorId}')">
 <div class="comment-content-box">
 <div class="comment-meta">
 <span class="font-bold text-gray-900 cursor-pointer" onclick="showProfile('${c.authorId}')">${cAuthor.name}</span>
@@ -4018,10 +4021,10 @@ window.showPostOptions = function(event, postId, authorId) {
     overlay.classList.add('flex');
     refreshIcons();
     
-    // Smooth Animation
-    requestAnimationFrame(() => {
+    // Smooth Animation - using timeout to ensure browser paints first
+    setTimeout(() => {
         container.classList.add('open');
-    });
+    }, 10);
 }
 
 window.closePostOptions = function() {

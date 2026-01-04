@@ -369,14 +369,14 @@ border-left: 1px solid var(--outline);
 
 @media (min-width: 768px) {
     /* Desktop: Scale/Fade In Center */
+    /* Remove default opacity:0 to ensure it is visible even if animation glitches */
     .post-options-panel {
         transform: scale(0.95);
-        opacity: 0;
+        opacity: 1; 
         transform-origin: center center;
     }
     .post-options-panel.open {
         transform: scale(1);
-        opacity: 1;
     }
 }
 
@@ -1076,7 +1076,7 @@ Sign In to Continue
         <!-- Desktop Header (New) -->
         <div class="hidden md:flex justify-between items-center p-4 border-b border-gray-100">
             <h3 class="text-lg font-bold text-gray-900">Options</h3>
-            <button onclick="closePostOptions()" class="icon-btn hover:bg-gray-100 cursor-pointer pointer-events-auto"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <button onclick="closePostOptions()" class="icon-btn hover:bg-gray-100 cursor-pointer pointer-events-auto relative z-50 bg-transparent" type="button"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
 
         <div id="post-options-content" class="flex flex-col gap-1 p-2 md:p-2 overflow-y-auto">
@@ -2568,7 +2568,7 @@ ${collabIcon}
 <div class="post-meta flex items-center">${dateStr}</div>
 </div>
 </div>
-<button class="icon-btn w-8 h-8 -mr-2 relative z-20" onclick="showPostOptions(event, '${post.id}', '${author.id}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
+<button class="icon-btn w-8 h-8 -mr-2 relative z-40 bg-transparent hover:bg-gray-100 !important" onclick="showPostOptions(event, '${post.id}', '${author.id}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
 </div>
 <div class="post-content">
 <div class="post-body" data-raw-text="${post.content.replace(/"/g, '&quot;')}">${tagsHTML}</div>
@@ -4053,12 +4053,13 @@ window.showPostOptions = function(event, postId, authorId) {
     
     // Show overlay with RAF for smooth animation
     overlay.classList.remove('hidden');
-    overlay.classList.add('flex');
+    // Force flex to ensure it's visible on desktop
+    overlay.style.display = 'flex';
     refreshIcons();
     
     setTimeout(() => {
         container.classList.add('open');
-    }, 50);
+    }, 10);
 }
 
 window.closePostOptions = function(fromHistory = false) {
@@ -4071,8 +4072,9 @@ window.closePostOptions = function(fromHistory = false) {
     container.classList.remove('open');
     setTimeout(() => {
         overlay.classList.add('hidden');
+        overlay.style.display = ''; // Clear inline style
         overlay.classList.remove('flex');
-    }, 300);
+    }, 150);
 
     // Sync History
     if (!fromHistory) {

@@ -959,7 +959,7 @@ transition: background 0.2s;
 .trend-count { font-size: 11px; color: var(--text-secondary); }
 </style>
 </head>
-<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
+<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]">
 <!-- LOADING OVERLAY -->
 <div id="app-loader"><div class="loader-spinner"></div></div>
 <!-- CUSTOM ALERT MODAL -->
@@ -1029,8 +1029,18 @@ transition: background 0.2s;
 </div>
 </div>
 </div>
-<!-- Post Options Global Menu -->
-<div id="global-post-menu" class="post-options-menu"></div>
+<!-- POST OPTIONS OVERLAY (Replaces old menu) -->
+<div id="post-options-overlay" class="fixed inset-0 z-[75] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="hidePostMenu()">
+  <div id="post-options-modal" class="bg-white w-full md:w-[400px] md:rounded-[24px] rounded-t-[24px] shadow-2xl p-4 transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200" onclick="event.stopPropagation()">
+    <div class="flex justify-center mb-4 md:hidden">
+        <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+    </div>
+    <div id="post-options-content" class="flex flex-col gap-2">
+       <!-- Content injected here -->
+    </div>
+    <button onclick="hidePostMenu()" class="w-full py-3 mt-2 font-bold text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">Cancel</button>
+  </div>
+</div>
 <!-- MOBILE NOTIFICATIONS HEADER -->
 <div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
 <div class="h-14 flex items-center justify-between px-4 shrink-0 relative">
@@ -3896,26 +3906,65 @@ window.handleEventCoverSelect = function(event) { const file = event.target.file
 window.removeEventCover = function() { window.currentEventCover = null; currentEventCoverBlob = null; document.getElementById('event-cover-preview').src = ""; document.getElementById('event-cover-preview-container').classList.add('hidden'); document.getElementById('add-cover-btn').classList.remove('hidden'); document.getElementById('event-cover-input').value = ""; }
 window.publishEvent = function() { showToast("Events feature connected to backend soon!", false); closeEventComposer(); }
 // Post Logic
+// UPDATED: Now shows an overlay instead of positioning a div
 window.showPostOptions = function(event, postId, authorId) {
-event.stopPropagation();
-const menu = document.getElementById('global-post-menu');
-const btn = event.currentTarget;
-const rect = btn.getBoundingClientRect();
-const isAuthor = authorId === currentUser.id;
-const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
-const canEdit = isAuthor;
-const canDelete = isAuthor || isAdmin;
-let menuContent = '';
-if(canEdit) { menuContent += `<div class="post-option-item" onclick="editPost('${postId}')"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit</div>`; }
-if(canDelete) { menuContent += `<div class="post-option-item danger" onclick="deletePost('${postId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>`; }
-if(!isAuthor) { menuContent += `<div class="post-option-item" onclick="showToast('Post Saved')"><i data-lucide="bookmark" class="w-4 h-4"></i> Save</div><div class="post-option-item danger" onclick="showToast('Reported')"><i data-lucide="flag" class="w-4 h-4"></i> Report</div>`; }
-menu.innerHTML = menuContent;
-refreshIcons();
-menu.style.top = (rect.bottom + window.scrollY) + 'px';
-menu.style.left = (rect.right - 160) + 'px';
-menu.classList.add('active');
+    event.stopPropagation();
+    const overlay = document.getElementById('post-options-overlay');
+    const modal = document.getElementById('post-options-modal');
+    const content = document.getElementById('post-options-content');
+    
+    // Logic to determine user permissions
+    const isAuthor = authorId === currentUser.id;
+    const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
+    const canEdit = isAuthor;
+    const canDelete = isAuthor || isAdmin;
+
+    let html = '';
+    
+    if(canEdit) {
+        html += `<button onclick="editPost('${postId}'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors font-bold text-gray-800 text-left"><i data-lucide="edit-2" class="w-5 h-5"></i> Edit Post</button>`;
+    }
+    
+    if(canDelete) {
+        html += `<button onclick="deletePost('${postId}'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="trash-2" class="w-5 h-5"></i> Delete Post</button>`;
+    }
+    
+    if(!isAuthor) {
+        // Check if saved
+        const isSaved = savedPosts.includes(postId);
+        html += `<button onclick="toggleSave('${postId}'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors font-bold text-gray-800 text-left"><i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-yellow-500 text-yellow-500' : ''}"></i> ${isSaved ? 'Unsave' : 'Save'} Post</button>`;
+        
+        html += `<button onclick="showToast('Reported'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="flag" class="w-5 h-5"></i> Report Post</button>`;
+    }
+    
+    // Copy Link option for everyone
+    html += `<button onclick="sharePost('${postId}'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors font-bold text-gray-800 text-left"><i data-lucide="link" class="w-5 h-5"></i> Copy Link</button>`;
+
+    content.innerHTML = html;
+    refreshIcons();
+
+    // Show Overlay
+    overlay.classList.remove('hidden');
+    // Trigger animation
+    requestAnimationFrame(() => {
+        overlay.classList.remove('opacity-0');
+        modal.classList.remove('translate-y-full', 'md:scale-95');
+        modal.classList.add('translate-y-0', 'md:scale-100');
+    });
 }
-window.hidePostMenu = function() { document.getElementById('global-post-menu').classList.remove('active'); }
+
+window.hidePostMenu = function() {
+    const overlay = document.getElementById('post-options-overlay');
+    const modal = document.getElementById('post-options-modal');
+    
+    overlay.classList.add('opacity-0');
+    modal.classList.add('translate-y-full', 'md:scale-95');
+    modal.classList.remove('translate-y-0', 'md:scale-100');
+    
+    setTimeout(() => {
+        overlay.classList.add('hidden');
+    }, 200);
+}
 window.editPost = function(postId) { const post = posts.find(p => p.id === postId); if(!post) return; document.getElementById('compose-text').value = post.content; window.editingPostId = postId; document.getElementById('compose-title-text').innerText = "Edit Post"; document.getElementById('btn-publish').innerText = "Update"; openCompose(); }
 window.deletePost = async function(postId) { showAlert("Delete this post?", async () => { await deleteDoc(doc(db, "posts", postId)); showToast("Post deleted"); }); }
 window.openCompose = function() {

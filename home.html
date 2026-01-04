@@ -240,7 +240,7 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.bookmark:hover { background-color: #fefce8; color: #eab308; }
 .action-btn.share-btn:hover { background-color: #f3f4f6; color: var(--on-surface); }
 /* --- MENUS --- */
-#compose-modal, #create-menu-modal, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #add-link-modal, #promo-modal, #login-modal {
+#compose-modal, #create-menu-modal, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #add-link-modal, #promo-modal, #login-modal, #post-options-overlay {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
 }
@@ -315,49 +315,6 @@ border-left: 1px solid var(--outline);
 .icon-btn:hover { background-color: var(--hover-bg); color: var(--on-surface); }
 .hashtag { color: var(--primary); font-weight: 500; cursor: pointer; padding: 2px 6px; border-radius: 6px; }
 .hashtag:hover { background: #eff4ff; }
-/* --- POST MENU STYLES --- */
-.post-options-menu {
-position: absolute;
-background: var(--surface);
-border: 1px solid var(--outline);
-border-radius: 12px;
-box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-width: 160px;
-z-index: 50;
-opacity: 0;
-pointer-events: none;
-transform: scale(0.95);
-transition: all 0.1s ease-out;
-padding: 6px;
-}
-.post-options-menu.active {
-opacity: 1;
-pointer-events: auto;
-transform: scale(1);
-}
-.post-option-item {
-display: flex;
-align-items: center;
-gap: 10px;
-padding: 10px;
-font-size: 14px;
-color: var(--on-surface);
-cursor: pointer;
-border-radius: 8px;
-transition: background 0.1s;
-font-weight: 500;
-}
-.post-option-item:hover {
-background: var(--hover-bg);
-color: var(--on-surface);
-}
-.post-option-item.danger {
-color: #d92d20;
-}
-.post-option-item.danger:hover {
-background: #fef2f2;
-color: #b91c1c;
-}
 /* --- UPDATED TABS STYLE (Twitter/X Style) --- */
 .tab-group {
 display: flex;
@@ -959,7 +916,7 @@ transition: background 0.2s;
 .trend-count { font-size: 11px; color: var(--text-secondary); }
 </style>
 </head>
-<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
+<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]">
 <!-- LOADING OVERLAY -->
 <div id="app-loader"><div class="loader-spinner"></div></div>
 <!-- CUSTOM ALERT MODAL -->
@@ -972,6 +929,17 @@ transition: background 0.2s;
 <button class="px-4 py-2 bg-[#0b57d0] text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition-colors" id="alert-confirm-btn">Confirm</button>
 </div>
 </div>
+</div>
+<!-- POST OPTIONS OVERLAY (Replaces old absolute menu) -->
+<div id="post-options-overlay" class="fixed inset-0 z-[80] flex justify-center items-end md:items-center bg-black/40 backdrop-blur-sm hidden" onclick="closePostOptions()">
+    <div class="bg-white w-full md:w-[350px] rounded-t-[20px] md:rounded-2xl shadow-2xl p-4 transform transition-transform duration-200 scale-100 opacity-100 flex flex-col gap-2 relative" onclick="event.stopPropagation()">
+        <!-- Handle bar for mobile -->
+        <div class="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mb-4 md:hidden"></div>
+        <div id="post-options-content" class="flex flex-col gap-1">
+            <!-- Dynamic Content -->
+        </div>
+        <button onclick="closePostOptions()" class="w-full py-3 mt-2 font-bold text-gray-900 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">Cancel</button>
+    </div>
 </div>
 <!-- LOGIN OVERLAY -->
 <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-white hidden">
@@ -1041,8 +1009,6 @@ Sign In to Continue
 </div>
 </div>
 </div>
-<!-- Post Options Global Menu -->
-<div id="global-post-menu" class="post-options-menu"></div>
 <!-- MOBILE NOTIFICATIONS HEADER -->
 <div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
 <div class="h-14 flex items-center justify-between px-4 shrink-0 relative">
@@ -1160,6 +1126,10 @@ Sign In to Continue
                         <i data-lucide="disc" class="w-5 h-5 text-white"></i>
                     </div>
                 </div>
+                <!-- Added More Button to Reel View -->
+                <div class="reel-interact-btn cursor-pointer" onclick="showPostOptions(event, window.currentViewingPostId, posts.find(p=>p.id===window.currentViewingPostId)?.authorId)">
+                    <i data-lucide="more-horizontal" class="reel-interact-icon"></i>
+                </div>
             </div>
         </div>
     </div>
@@ -1195,8 +1165,12 @@ Sign In to Continue
                   </div>
                   <span class="md:hidden font-bold text-lg">Comments</span>
               </div>
-              <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
-              <button onclick="toggleMobileCommentDrawer()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+              <div class="flex items-center gap-2">
+                  <!-- Added More Button to Desktop/Drawer Header -->
+                  <button onclick="showPostOptions(event, window.currentViewingPostId, posts.find(p=>p.id===window.currentViewingPostId)?.authorId)" class="icon-btn hover:bg-gray-100 w-9 h-9"><i data-lucide="more-horizontal" class="w-5 h-5 text-gray-500"></i></button>
+                  <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+                  <button onclick="toggleMobileCommentDrawer()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+              </div>
          </div>
 
          <!-- Scroll Area -->
@@ -3500,6 +3474,64 @@ const netView = document.getElementById('view-network');
 if(netView && !netView.classList.contains('hidden')) renderNetwork();
 refreshIcons();
 }
+// POST OPTIONS OVERLAY LOGIC
+window.showPostOptions = function(event, postId, authorId) {
+    if(event) event.stopPropagation();
+    const overlay = document.getElementById('post-options-overlay');
+    const content = document.getElementById('post-options-content');
+    
+    const isAuthor = authorId === currentUser.id;
+    const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
+    const canDelete = isAuthor || isAdmin;
+    
+    let html = '';
+    
+    if(isAuthor) {
+        html += `<button onclick="editPost('${postId}'); closePostOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 text-left rounded-xl transition-colors font-medium text-gray-700">
+            <i data-lucide="edit-2" class="w-5 h-5"></i> Edit Post
+        </button>`;
+    }
+    
+    if(canDelete) {
+        html += `<button onclick="deletePost('${postId}'); closePostOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 text-left rounded-xl transition-colors font-medium text-red-600">
+            <i data-lucide="trash-2" class="w-5 h-5"></i> Delete Post
+        </button>`;
+    }
+    
+    html += `<button onclick="sharePost('${postId}'); closePostOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 text-left rounded-xl transition-colors font-medium text-gray-700">
+        <i data-lucide="link" class="w-5 h-5"></i> Copy Link
+    </button>`;
+    
+    if(!isAuthor) {
+        html += `<button onclick="toggleSave('${postId}'); closePostOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 text-left rounded-xl transition-colors font-medium text-gray-700">
+            <i data-lucide="bookmark" class="w-5 h-5"></i> Save / Unsave
+        </button>`;
+        
+        html += `<button onclick="showToast('Reported to moderation'); closePostOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 text-left rounded-xl transition-colors font-medium text-red-600">
+            <i data-lucide="flag" class="w-5 h-5"></i> Report Post
+        </button>`;
+        
+        // Unfollow Option logic
+        if(currentUser.following.includes(authorId)) {
+             html += `<button onclick="toggleFollow('${authorId}'); closePostOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 text-left rounded-xl transition-colors font-medium text-gray-700">
+                <i data-lucide="user-minus" class="w-5 h-5"></i> Unfollow Author
+            </button>`;
+        }
+    }
+
+    content.innerHTML = html;
+    overlay.classList.remove('hidden');
+    refreshIcons();
+}
+
+window.closePostOptions = function() {
+    document.getElementById('post-options-overlay').classList.add('hidden');
+}
+
+window.hidePostMenu = function() {
+    // Legacy function support - no longer needed with overlay but kept to prevent errors
+}
+
 // Open Post View - Refactored for new UI
 window.openPostView = function(postId) {
 const post = posts.find(p => p.id === postId);
@@ -3931,26 +3963,6 @@ window.handleEventCoverSelect = function(event) { const file = event.target.file
 window.removeEventCover = function() { window.currentEventCover = null; currentEventCoverBlob = null; document.getElementById('event-cover-preview').src = ""; document.getElementById('event-cover-preview-container').classList.add('hidden'); document.getElementById('add-cover-btn').classList.remove('hidden'); document.getElementById('event-cover-input').value = ""; }
 window.publishEvent = function() { showToast("Events feature connected to backend soon!", false); closeEventComposer(); }
 // Post Logic
-window.showPostOptions = function(event, postId, authorId) {
-event.stopPropagation();
-const menu = document.getElementById('global-post-menu');
-const btn = event.currentTarget;
-const rect = btn.getBoundingClientRect();
-const isAuthor = authorId === currentUser.id;
-const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
-const canEdit = isAuthor;
-const canDelete = isAuthor || isAdmin;
-let menuContent = '';
-if(canEdit) { menuContent += `<div class="post-option-item" onclick="editPost('${postId}')"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit</div>`; }
-if(canDelete) { menuContent += `<div class="post-option-item danger" onclick="deletePost('${postId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>`; }
-if(!isAuthor) { menuContent += `<div class="post-option-item" onclick="showToast('Post Saved')"><i data-lucide="bookmark" class="w-4 h-4"></i> Save</div><div class="post-option-item danger" onclick="showToast('Reported')"><i data-lucide="flag" class="w-4 h-4"></i> Report</div>`; }
-menu.innerHTML = menuContent;
-refreshIcons();
-menu.style.top = (rect.bottom + window.scrollY) + 'px';
-menu.style.left = (rect.right - 160) + 'px';
-menu.classList.add('active');
-}
-window.hidePostMenu = function() { document.getElementById('global-post-menu').classList.remove('active'); }
 window.editPost = function(postId) { const post = posts.find(p => p.id === postId); if(!post) return; document.getElementById('compose-text').value = post.content; window.editingPostId = postId; document.getElementById('compose-title-text').innerText = "Edit Post"; document.getElementById('btn-publish').innerText = "Update"; openCompose(); }
 window.deletePost = async function(postId) { showAlert("Delete this post?", async () => { await deleteDoc(doc(db, "posts", postId)); showToast("Post deleted"); }); }
 window.openCompose = function() {

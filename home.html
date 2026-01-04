@@ -360,6 +360,7 @@ border-left: 1px solid var(--outline);
         border-bottom-left-radius: 0 !important;
         border-bottom-right-radius: 0 !important;
         margin: 0 !important;
+        transform-origin: center bottom;
     }
     .post-options-panel.open {
         transform: translateY(0);
@@ -371,6 +372,7 @@ border-left: 1px solid var(--outline);
     .post-options-panel {
         transform: scale(0.95);
         opacity: 0;
+        transform-origin: center center;
     }
     .post-options-panel.open {
         transform: scale(1);
@@ -1062,9 +1064,9 @@ Sign In to Continue
 </div>
 </div>
 <!-- NEW POST OPTIONS OVERLAY (Replaces old absolute menu) -->
-<div id="post-options-overlay" class="fixed inset-0 z-[100] flex justify-center items-end md:items-center hidden pointer-events-auto">
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closePostOptions()"></div>
-    <div id="post-options-container" class="bg-white w-full md:w-[400px] md:rounded-2xl rounded-t-[24px] shadow-2xl relative z-10 overflow-hidden md:p-0 p-2 pb-8 post-options-panel flex flex-col max-h-[80vh] transition-all duration-300">
+<div id="post-options-overlay" class="fixed inset-0 z-[100] flex justify-center items-end md:items-center hidden pointer-events-auto w-full h-full" onclick="closePostOptions()">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+    <div id="post-options-container" class="bg-white w-full md:w-[400px] md:rounded-2xl rounded-t-[24px] shadow-2xl relative z-10 overflow-hidden md:p-0 p-2 pb-8 post-options-panel flex flex-col max-h-[80vh]" onclick="event.stopPropagation()">
         
         <!-- Mobile Handle -->
         <div class="flex justify-center pt-3 pb-2 md:hidden" onclick="closePostOptions()">
@@ -1901,7 +1903,7 @@ if (user) {
     if(sharedPostId) {
         setTimeout(() => {
             openPostView(sharedPostId);
-            window.history.pushState({}, document.title, window.location.pathname);
+            window.history.pushState({modal: 'post'}, document.title, window.location.pathname);
         }, 1000);
     }
 } else {
@@ -3547,6 +3549,9 @@ window.openPostView = function(postId) {
 const post = posts.find(p => p.id === postId);
 if(!post) return;
 window.currentViewingPostId = postId;
+// Push history state
+window.history.pushState({modal: 'post'}, "", window.location.pathname);
+
 // Reset Classes
 const overlay = document.getElementById('post-view-overlay');
 overlay.classList.remove('mobile-reel-view');
@@ -3744,17 +3749,27 @@ window.toggleMobileCommentDrawer = function() {
 const drawer = document.querySelector('.discussion-panel');
 if(drawer) drawer.classList.toggle('open');
 }
-window.closePostView = function() {
-document.getElementById('post-view-overlay').classList.add('hidden');
-document.getElementById('post-view-overlay').classList.remove('flex');
-document.body.classList.remove('reel-mode'); // Restore global nav
-// Close drawer if open
-const drawer = document.querySelector('.discussion-panel');
-if(drawer) drawer.classList.remove('open');
-window.currentViewingPostId = null;
-window.replyingToCommentId = null;
-const video = document.querySelector('#post-view-media-container video');
-if(video) video.pause();
+window.closePostView = function(fromHistory = false) {
+const overlay = document.getElementById('post-view-overlay');
+if(!overlay.classList.contains('hidden')) {
+    
+    // History Logic
+    if(!fromHistory) {
+        window.history.back();
+        return;
+    }
+
+    overlay.classList.add('hidden');
+    overlay.classList.remove('flex');
+    document.body.classList.remove('reel-mode'); // Restore global nav
+    // Close drawer if open
+    const drawer = document.querySelector('.discussion-panel');
+    if(drawer) drawer.classList.remove('open');
+    window.currentViewingPostId = null;
+    window.replyingToCommentId = null;
+    const video = document.querySelector('#post-view-media-container video');
+    if(video) video.pause();
+}
 }
 function renderCommentsInModal(postId) {
 const post = posts.find(p => p.id === postId);
@@ -3828,8 +3843,10 @@ window.threadParentCommentId = commentId;
 renderThreadContent(postId, commentId);
 document.getElementById('thread-overlay').classList.remove('hidden');
 document.getElementById('thread-input').focus();
+window.history.pushState({modal: 'thread'}, "", window.location.pathname);
 }
-window.closeThread = function() {
+window.closeThread = function(fromHistory = false) {
+if(!fromHistory) { window.history.back(); return; }
 document.getElementById('thread-overlay').classList.add('hidden');
 window.threadPostId = null;
 window.threadParentCommentId = null;
@@ -3974,10 +3991,16 @@ window.removeEventCover = function() { window.currentEventCover = null; currentE
 window.publishEvent = function() { showToast("Events feature connected to backend soon!", false); closeEventComposer(); }
 // Post Logic - Updated to use new overlay
 window.showPostOptions = function(event, postId, authorId) {
-    event.stopPropagation();
+    if(event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
     const overlay = document.getElementById('post-options-overlay');
     const container = document.getElementById('post-options-container');
     const content = document.getElementById('post-options-content');
+    
+    // Push state so back button works
+    window.history.pushState({modal: 'options'}, "", window.location.pathname);
     
     const isAuthor = authorId === currentUser.id;
     const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
@@ -4022,20 +4045,26 @@ window.showPostOptions = function(event, postId, authorId) {
     
     content.innerHTML = html;
     
-    // Show overlay
+    // Show overlay with RAF for smooth animation
     overlay.classList.remove('hidden');
     overlay.classList.add('flex');
     refreshIcons();
     
-    // Smooth Animation - using timeout to ensure browser paints first
     setTimeout(() => {
         container.classList.add('open');
     }, 10);
 }
 
-window.closePostOptions = function() {
+window.closePostOptions = function(fromHistory = false) {
     const overlay = document.getElementById('post-options-overlay');
     const container = document.getElementById('post-options-container');
+    
+    if(overlay.classList.contains('hidden')) return;
+
+    if (!fromHistory) {
+        window.history.back();
+        return;
+    }
     
     container.classList.remove('open');
     setTimeout(() => {
@@ -4044,9 +4073,36 @@ window.closePostOptions = function() {
     }, 300);
 }
 
+// Global Popstate Handler
+window.addEventListener('popstate', (event) => {
+    // Check Post Options
+    if(!document.getElementById('post-options-overlay').classList.contains('hidden')) {
+        closePostOptions(true);
+        return;
+    }
+    // Check Thread
+    if(!document.getElementById('thread-overlay').classList.contains('hidden')) {
+        closeThread(true);
+        return;
+    }
+    // Check Post View
+    if(!document.getElementById('post-view-overlay').classList.contains('hidden')) {
+        closePostView(true);
+        return;
+    }
+});
+
+// Escape Key Handler
+window.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') {
+        const hasOverlay = document.querySelectorAll('.open, #post-view-overlay:not(.hidden), #thread-overlay:not(.hidden)').length > 0;
+        if(hasOverlay) window.history.back();
+    }
+});
+
 window.hidePostMenu = function() { 
     // Fallback for old menu, just in case
-    document.getElementById('global-post-menu').classList.remove('active'); 
+    document.getElementById('global-post-menu')?.classList.remove('active'); 
 }
 window.editPost = function(postId) { const post = posts.find(p => p.id === postId); if(!post) return; document.getElementById('compose-text').value = post.content; window.editingPostId = postId; document.getElementById('compose-title-text').innerText = "Edit Post"; document.getElementById('btn-publish').innerText = "Update"; openCompose(); }
 window.deletePost = async function(postId) { showAlert("Delete this post?", async () => { await deleteDoc(doc(db, "posts", postId)); showToast("Post deleted"); }); }

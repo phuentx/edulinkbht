@@ -240,9 +240,17 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.bookmark:hover { background-color: #fefce8; color: #eab308; }
 .action-btn.share-btn:hover { background-color: #f3f4f6; color: var(--on-surface); }
 /* --- MENUS --- */
-#compose-modal, #create-menu-modal, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #add-link-modal, #promo-modal, #login-modal {
+#compose-modal, #create-menu-modal, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #add-link-modal, #promo-modal, #login-modal, #post-options-overlay {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
+}
+/* Overlay override for post options to remove border */
+#post-options-overlay {
+    border: none;
+    box-shadow: none;
+}
+#post-options-overlay > div:last-child {
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
 }
 .compose-header {
 display: flex; align-items: center; justify-content: space-between;
@@ -315,49 +323,52 @@ border-left: 1px solid var(--outline);
 .icon-btn:hover { background-color: var(--hover-bg); color: var(--on-surface); }
 .hashtag { color: var(--primary); font-weight: 500; cursor: pointer; padding: 2px 6px; border-radius: 6px; }
 .hashtag:hover { background: #eff4ff; }
-/* --- POST MENU STYLES --- */
-.post-options-menu {
-position: absolute;
-background: var(--surface);
-border: 1px solid var(--outline);
-border-radius: 12px;
-box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-width: 160px;
-z-index: 50;
-opacity: 0;
-pointer-events: none;
-transform: scale(0.95);
-transition: all 0.1s ease-out;
-padding: 6px;
+/* --- POST OPTIONS OVERLAY STYLES --- */
+.post-option-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    color: #1f1f1f;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-radius: 12px;
 }
-.post-options-menu.active {
-opacity: 1;
-pointer-events: auto;
-transform: scale(1);
+.post-option-row:hover {
+    background-color: #f3f4f6;
 }
-.post-option-item {
-display: flex;
-align-items: center;
-gap: 10px;
-padding: 10px;
-font-size: 14px;
-color: var(--on-surface);
-cursor: pointer;
-border-radius: 8px;
-transition: background 0.1s;
-font-weight: 500;
+.post-option-row.danger {
+    color: #ef4444;
 }
-.post-option-item:hover {
-background: var(--hover-bg);
-color: var(--on-surface);
+.post-option-row.danger:hover {
+    background-color: #fef2f2;
 }
-.post-option-item.danger {
-color: #d92d20;
+/* Fixed Post Options Animation */
+.post-options-panel {
+    transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s;
 }
-.post-option-item.danger:hover {
-background: #fef2f2;
-color: #b91c1c;
+
+@media (max-width: 767px) {
+    .post-options-panel {
+        transform: translateY(100%);
+    }
+    .post-options-panel.open {
+        transform: translateY(0);
+    }
 }
+
+@media (min-width: 768px) {
+    .post-options-panel {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    .post-options-panel.open {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 /* --- UPDATED TABS STYLE (Twitter/X Style) --- */
 .tab-group {
 display: flex;
@@ -959,7 +970,7 @@ transition: background 0.2s;
 .trend-count { font-size: 11px; color: var(--text-secondary); }
 </style>
 </head>
-<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]" onclick="hidePostMenu()">
+<body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-[#f9fafb]">
 <!-- LOADING OVERLAY -->
 <div id="app-loader"><div class="loader-spinner"></div></div>
 <!-- CUSTOM ALERT MODAL -->
@@ -1041,8 +1052,19 @@ Sign In to Continue
 </div>
 </div>
 </div>
-<!-- Post Options Global Menu -->
-<div id="global-post-menu" class="post-options-menu"></div>
+<!-- NEW POST OPTIONS OVERLAY (Replaces old absolute menu) -->
+<div id="post-options-overlay" class="fixed inset-0 z-[100] flex justify-center items-end md:items-center hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closePostOptions()"></div>
+    <div id="post-options-container" class="bg-white w-full md:w-[400px] md:rounded-2xl rounded-t-[24px] shadow-2xl relative z-10 overflow-hidden p-2 pb-8 md:pb-2 post-options-panel">
+        <div class="flex justify-center pt-3 pb-2 md:hidden" onclick="closePostOptions()">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+        </div>
+        <div id="post-options-content" class="flex flex-col gap-1 p-2">
+            <!-- Options injected here -->
+        </div>
+        <button onclick="closePostOptions()" class="w-full py-3 mt-2 text-sm font-bold text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl md:hidden">Cancel</button>
+    </div>
+</div>
 <!-- MOBILE NOTIFICATIONS HEADER -->
 <div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
 <div class="h-14 flex items-center justify-between px-4 shrink-0 relative">
@@ -3930,27 +3952,83 @@ window.closeEventComposer = function() { document.getElementById('event-overlay'
 window.handleEventCoverSelect = function(event) { const file = event.target.files[0]; if (file) { currentEventCoverBlob = file; const reader = new FileReader(); reader.onload = function(e) { window.currentEventCover = e.target.result; document.getElementById('event-cover-preview').src = window.currentEventCover; document.getElementById('event-cover-preview-container').classList.remove('hidden'); document.getElementById('add-cover-btn').classList.add('hidden'); }; reader.readAsDataURL(file); } }
 window.removeEventCover = function() { window.currentEventCover = null; currentEventCoverBlob = null; document.getElementById('event-cover-preview').src = ""; document.getElementById('event-cover-preview-container').classList.add('hidden'); document.getElementById('add-cover-btn').classList.remove('hidden'); document.getElementById('event-cover-input').value = ""; }
 window.publishEvent = function() { showToast("Events feature connected to backend soon!", false); closeEventComposer(); }
-// Post Logic
+// Post Logic - Updated to use new overlay
 window.showPostOptions = function(event, postId, authorId) {
-event.stopPropagation();
-const menu = document.getElementById('global-post-menu');
-const btn = event.currentTarget;
-const rect = btn.getBoundingClientRect();
-const isAuthor = authorId === currentUser.id;
-const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
-const canEdit = isAuthor;
-const canDelete = isAuthor || isAdmin;
-let menuContent = '';
-if(canEdit) { menuContent += `<div class="post-option-item" onclick="editPost('${postId}')"><i data-lucide="edit-2" class="w-4 h-4"></i> Edit</div>`; }
-if(canDelete) { menuContent += `<div class="post-option-item danger" onclick="deletePost('${postId}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</div>`; }
-if(!isAuthor) { menuContent += `<div class="post-option-item" onclick="showToast('Post Saved')"><i data-lucide="bookmark" class="w-4 h-4"></i> Save</div><div class="post-option-item danger" onclick="showToast('Reported')"><i data-lucide="flag" class="w-4 h-4"></i> Report</div>`; }
-menu.innerHTML = menuContent;
-refreshIcons();
-menu.style.top = (rect.bottom + window.scrollY) + 'px';
-menu.style.left = (rect.right - 160) + 'px';
-menu.classList.add('active');
+    event.stopPropagation();
+    const overlay = document.getElementById('post-options-overlay');
+    const container = document.getElementById('post-options-container');
+    const content = document.getElementById('post-options-content');
+    
+    const isAuthor = authorId === currentUser.id;
+    const isAdmin = currentUser.email === 'edulinkbht@gmail.com';
+    
+    let html = '';
+    
+    if (isAuthor) {
+        html += `
+        <div class="post-option-row" onclick="editPost('${postId}'); closePostOptions()">
+            <i data-lucide="edit-2" class="w-5 h-5"></i>
+            <span>Edit Post</span>
+        </div>
+        <div class="post-option-row danger" onclick="deletePost('${postId}'); closePostOptions()">
+            <i data-lucide="trash-2" class="w-5 h-5"></i>
+            <span>Delete Post</span>
+        </div>`;
+    } else {
+        html += `
+        <div class="post-option-row" onclick="toggleSave('${postId}'); closePostOptions()">
+            <i data-lucide="bookmark" class="w-5 h-5"></i>
+            <span>${savedPosts.includes(postId) ? 'Unsave Post' : 'Save Post'}</span>
+        </div>
+        <div class="post-option-row danger" onclick="showToast('Report submitted'); closePostOptions()">
+            <i data-lucide="flag" class="w-5 h-5"></i>
+            <span>Report</span>
+        </div>`;
+        if (isAdmin) {
+             html += `
+            <div class="post-option-row danger" onclick="deletePost('${postId}'); closePostOptions()">
+                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                <span>Delete (Admin)</span>
+            </div>`;
+        }
+    }
+    
+    // Always add Copy Link
+    html += `
+    <div class="post-option-row" onclick="sharePost('${postId}'); closePostOptions()">
+        <i data-lucide="link" class="w-5 h-5"></i>
+        <span>Copy Link</span>
+    </div>`;
+    
+    content.innerHTML = html;
+    
+    // Show overlay
+    overlay.classList.remove('hidden');
+    overlay.classList.add('flex');
+    
+    // Icons
+    refreshIcons();
+    
+    // Animation frame for smooth slide up
+    requestAnimationFrame(() => {
+        container.classList.add('open');
+    });
 }
-window.hidePostMenu = function() { document.getElementById('global-post-menu').classList.remove('active'); }
+
+window.closePostOptions = function() {
+    const overlay = document.getElementById('post-options-overlay');
+    const container = document.getElementById('post-options-container');
+    
+    container.classList.remove('open');
+    setTimeout(() => {
+        overlay.classList.add('hidden');
+    }, 300);
+}
+
+window.hidePostMenu = function() { 
+    // Fallback for old menu, just in case
+    document.getElementById('global-post-menu').classList.remove('active'); 
+}
 window.editPost = function(postId) { const post = posts.find(p => p.id === postId); if(!post) return; document.getElementById('compose-text').value = post.content; window.editingPostId = postId; document.getElementById('compose-title-text').innerText = "Edit Post"; document.getElementById('btn-publish').innerText = "Update"; openCompose(); }
 window.deletePost = async function(postId) { showAlert("Delete this post?", async () => { await deleteDoc(doc(db, "posts", postId)); showToast("Post deleted"); }); }
 window.openCompose = function() {

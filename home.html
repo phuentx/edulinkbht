@@ -203,6 +203,7 @@ display: flex; justify-content: space-between; align-items: flex-start; margin-b
 }
 .post-avatar-container {
 position: relative;
+flex-shrink: 0;
 }
 .post-avatar {
 width: 44px; height: 44px;
@@ -2543,13 +2544,13 @@ likedByHTML = `<div class="flex items-center mt-3 ml-1"> <img src="${firstFriend
 div.innerHTML = `
 <div class="p-4 md:p-5">
 <div class="post-header">
-<div class="flex gap-3">
+<div class="flex gap-3 flex-1 min-w-0 pr-2">
 <div class="post-avatar-container">
 <img src="${author.avatar}" class="post-avatar">
 </div>
-<div>
+<div class="min-w-0">
 <div class="flex items-center">
-<span class="post-author-name" onclick="event.stopPropagation(); showProfile('${author.id}')">${author.name}</span>
+<span class="post-author-name truncate" onclick="event.stopPropagation(); showProfile('${author.id}')">${author.name}</span>
 ${officialBadge}
 ${lockIcon}
 ${collabIcon}
@@ -2557,7 +2558,7 @@ ${collabIcon}
 <div class="post-meta flex items-center">${dateStr}</div>
 </div>
 </div>
-<button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event, '${post.id}', '${author.id}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
+<button class="icon-btn w-8 h-8 shrink-0" onclick="showPostOptions(event, '${post.id}', '${author.id}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
 </div>
 <div class="post-content">
 <div class="post-body" data-raw-text="${post.content.replace(/"/g, '&quot;')}">${tagsHTML}</div>
@@ -4014,15 +4015,14 @@ window.showPostOptions = function(event, postId, authorId) {
     
     content.innerHTML = html;
     
-    // Show overlay
+    // Force reset classes first to ensure transition
     overlay.classList.remove('hidden');
     overlay.classList.add('flex');
     
-    // Use small timeout to ensure display:flex is applied before adding animation class
-    setTimeout(() => {
-        container.classList.add('open');
-    }, 10);
+    // Force reflow
+    void overlay.offsetWidth;
     
+    container.classList.add('open');
     refreshIcons();
 }
 

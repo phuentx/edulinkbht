@@ -96,7 +96,7 @@ color: var(--primary);
 background-color: #eff4ff;
 font-weight: 600;
 }
-/* Notification Badge Logic */
+/* Notification Badge Logic (TikTok Style) */
 .nav-badge {
 position: absolute;
 top: 10px;
@@ -116,12 +116,12 @@ border: 2px solid #fff;
 display: none;
 z-index: 10;
 }
-/* Mobile Footer Badge */
+/* Mobile Footer Badge - Attached to Icon */
 .mobile-footer-badge {
 position: absolute;
 top: -4px;
 right: -4px;
-background-color: #fe2c55;
+background-color: #fe2c55; /* TikTok Red */
 color: white;
 font-size: 10px;
 font-weight: 700;
@@ -143,7 +143,7 @@ padding: 10px 16px;
 }
 .nav-badge {
 right: auto;
-left: 28px;
+left: 28px; /* Adjusted to sit near the icon */
 top: 8px;
 }
 }
@@ -239,8 +239,8 @@ background: transparent; border: none; cursor: pointer;
 .action-btn.comment:hover { background-color: #eff6ff; color: #2563eb; }
 .action-btn.bookmark:hover { background-color: #fefce8; color: #eab308; }
 .action-btn.share-btn:hover { background-color: #f3f4f6; color: var(--on-surface); }
-/* --- MENUS --- */
-#compose-modal, #create-menu-modal, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #add-link-modal, #promo-modal, #login-modal {
+/* --- COMPOSE & CREATE MENUS --- */
+#compose-modal, #create-menu-modal, #edit-profile-modal, #user-list-modal, #settings-modal, #likes-overlay, #username-modal, #add-link-modal, #promo-modal {
 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 border: 1px solid var(--outline);
 }
@@ -973,18 +973,6 @@ transition: background 0.2s;
 </div>
 </div>
 </div>
-<!-- LOGIN OVERLAY -->
-<div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-white hidden">
-<div class="text-center p-8 max-w-md w-full">
-<img src="https://i.imghippo.com/files/vgr8207c.png" class="w-16 h-16 mx-auto mb-4 object-contain">
-<h1 class="text-3xl font-bold text-[#1f1f1f] mb-2 google-font">Welcome to EduLink</h1>
-<p class="text-gray-500 mb-8">Connect, share, and learn with your professional network.</p>
-<button onclick="doLogin()" class="w-full bg-[#0b57d0] text-white py-3.5 rounded-full font-bold text-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-200">
-Sign In to Continue
-</button>
-<p class="text-xs text-gray-400 mt-6">By continuing, you agree to our Terms of Service.</p>
-</div>
-</div>
 <!-- USERNAME SETUP MODAL -->
 <div id="username-modal" class="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
 <div class="bg-white w-[90%] max-w-[400px] rounded-[24px] shadow-2xl p-8 relative flex flex-col items-center">
@@ -1074,14 +1062,14 @@ Sign In to Continue
 <!-- THREAD OVERLAY (Redesigned) -->
 <div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center">
 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div>
-<div id="thread-modal-box" class="bg-white w-full h-[75vh] md:w-[600px] md:h-[85vh] rounded-t-[24px] md:rounded-2xl shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in">
-<div class="h-14 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white z-10 sticky top-0 rounded-t-[20px]">
+<div class="bg-white w-full md:w-[600px] h-[95vh] md:h-[85vh] md:rounded-2xl rounded-t-2xl shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in">
+<div class="h-14 border-b border-gray-100 flex items-center justify-between px-4 shrink-0 bg-white z-10 sticky top-0">
 <button onclick="closeThread()" class="p-2 -ml-2 rounded-full hover:bg-gray-100"><i data-lucide="x" class="w-6 h-6 text-gray-600"></i></button>
 <span class="font-bold text-lg text-[#1f1f1f]">Thread</span>
 <div class="w-8"></div>
 </div>
 <div id="thread-content" class="flex-1 overflow-y-auto p-0 scroll-smooth bg-white"></div>
-<div class="border-t border-gray-100 p-3 bg-white shrink-0 sticky bottom-0 z-20 pb-[env(safe-area-inset-bottom)]">
+<div class="border-t border-gray-100 p-3 bg-white shrink-0 sticky bottom-0 z-20">
 <div class="bg-gray-100 rounded-3xl p-1.5 flex gap-2 items-center focus-within:ring-2 focus-within:ring-blue-100 transition-all">
 <img id="thread-input-avatar" src="" class="w-8 h-8 rounded-full bg-gray-200 object-cover ml-1 shrink-0">
 <input id="thread-input" placeholder="Reply to thread..." class="flex-1 bg-transparent outline-none text-sm px-2 h-10">
@@ -1697,7 +1685,7 @@ Change
 <input type="file" id="media-input" class="hidden" accept="image/*,video/*" onchange="handleFileSelect(event)">
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, addDoc, onSnapshot, query, orderBy, where, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadString, getDownloadURL, uploadBytes } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 const firebaseConfig = {
@@ -1748,6 +1736,7 @@ window.currentPromoBlob = null;
 window.notifSelectionMode = false;
 window.selectedNotifs = new Set();
 window.notifSearchTerm = '';
+const notifAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
 // Collab State
 window.selectedCollaborators = [];
 // Header Scroll Logic
@@ -1804,79 +1793,66 @@ return date.toLocaleDateString();
 // Auth Listener
 onAuthStateChanged(auth, async (user) => {
 const loader = document.getElementById('app-loader');
-const loginOverlay = document.getElementById('login-overlay');
 if (user) {
-    loginOverlay.classList.add('hidden');
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-    let isOfficial = false;
-    if(user.email === 'edulinkbht@gmail.com') { isOfficial = true; }
-    if (userSnap.exists()) {
-        currentUser = { id: user.uid, ...userSnap.data() };
-        if(isOfficial && !currentUser.isOfficial) {
-            await updateDoc(userRef, { isOfficial: true });
-            currentUser.isOfficial = true;
-        }
-    } else {
-        currentUser = {
-            id: user.uid,
-            name: user.displayName || user.email.split('@')[0],
-            email: user.email,
-            avatar: user.photoURL || `https://api.dicebear.com/9.x/lorelei/svg?seed=${user.uid}`,
-            bio: "New EduLink Member",
-            following: [],
-            followers: [],
-            friends: [],
-            saved: [],
-            links: [],
-            isOfficial: isOfficial,
-            settings: { privateNetwork: false },
-            username: ""
-        };
-        await setDoc(userRef, currentUser);
-    }
-    // Ensure defaults
-    currentUser.following = currentUser.following || [];
-    currentUser.followers = currentUser.followers || [];
-    currentUser.friends = currentUser.friends || [];
-    currentUser.saved = currentUser.saved || [];
-    currentUser.links = currentUser.links || [];
-    currentUser.settings = currentUser.settings || { privateNetwork: false };
-    window.currentUser = currentUser;
-    savedPosts = currentUser.saved;
-    const params = new URLSearchParams(window.location.search);
-    const sharedPostId = params.get('postId');
-    // USERNAME CHECK
-    if(!currentUser.username) {
-        document.getElementById('username-modal').classList.remove('hidden');
-    }
-    updateUserInterface();
-    initRealtimeListeners();
-    refreshIcons();
-    initBannerDrag();
-    if(loader) loader.style.opacity = '0';
-    setTimeout(() => { if(loader) loader.remove(); }, 500);
-    if(sharedPostId) {
-        setTimeout(() => {
-            openPostView(sharedPostId);
-            window.history.pushState({}, document.title, window.location.pathname);
-        }, 1000);
-    }
+const userRef = doc(db, "users", user.uid);
+const userSnap = await getDoc(userRef);
+let isOfficial = false;
+if(user.email === 'edulinkbht@gmail.com') { isOfficial = true; }
+if (userSnap.exists()) {
+currentUser = { id: user.uid, ...userSnap.data() };
+if(isOfficial && !currentUser.isOfficial) {
+await updateDoc(userRef, { isOfficial: true });
+currentUser.isOfficial = true;
+}
 } else {
-    // Show login overlay instead of redirecting
-    if(loader) loader.style.display = 'none';
-    loginOverlay.classList.remove('hidden');
+currentUser = {
+id: user.uid,
+name: user.displayName || user.email.split('@')[0],
+email: user.email,
+avatar: user.photoURL || `https://api.dicebear.com/9.x/lorelei/svg?seed=${user.uid}`,
+bio: "New EduLink Member",
+following: [],
+followers: [],
+friends: [],
+saved: [],
+links: [],
+isOfficial: isOfficial,
+settings: { privateNetwork: false },
+username: ""
+};
+await setDoc(userRef, currentUser);
+}
+// Ensure defaults
+currentUser.following = currentUser.following || [];
+currentUser.followers = currentUser.followers || [];
+currentUser.friends = currentUser.friends || [];
+currentUser.saved = currentUser.saved || [];
+currentUser.links = currentUser.links || [];
+currentUser.settings = currentUser.settings || { privateNetwork: false };
+window.currentUser = currentUser;
+savedPosts = currentUser.saved;
+const params = new URLSearchParams(window.location.search);
+const sharedPostId = params.get('postId');
+// USERNAME CHECK
+if(!currentUser.username) {
+document.getElementById('username-modal').classList.remove('hidden');
+}
+updateUserInterface();
+initRealtimeListeners();
+refreshIcons();
+initBannerDrag();
+if(loader) loader.style.opacity = '0';
+setTimeout(() => { if(loader) loader.remove(); }, 500);
+if(sharedPostId) {
+setTimeout(() => {
+openPostView(sharedPostId);
+window.history.pushState({}, document.title, window.location.pathname);
+}, 1000);
+}
+} else {
+window.location.href = 'index.html';
 }
 });
-window.doLogin = async function() {
-    const provider = new GoogleAuthProvider();
-    try {
-        await signInWithPopup(auth, provider);
-    } catch (error) {
-        console.error("Login Failed", error);
-        showToast("Login failed: " + error.message, true);
-    }
-}
 window.saveUsername = async function() {
 const input = document.getElementById('new-username-input');
 const val = input.value.trim().toLowerCase();
@@ -1932,9 +1908,9 @@ if(data.imageUrl) {
 const qPosts = query(collection(db, "posts"), orderBy("timestamp", "desc"));
 onSnapshot(qPosts, { includeMetadataChanges: true }, (snapshot) => {
 posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp }));
-// REMOVED: if (snapshot.metadata.hasPendingWrites) return; 
-// Reason: To allow immediate rendering of local writes for "snappy" feel while maintaining sync.
-
+if (snapshot.metadata.hasPendingWrites) {
+return;
+}
 const changes = snapshot.docChanges();
 let shouldFullRender = false;
 if (document.getElementById('feed-container').children.length === 0) {
@@ -1946,7 +1922,6 @@ shouldFullRender = true;
 } else if (change.type === "modified") {
 const p = change.doc.data();
 const pid = change.doc.id;
-// Update count text
 const likeCountEl = document.getElementById(`like-count-${pid}`);
 if(likeCountEl) {
 likeCountEl.innerText = p.likes ? p.likes.length : 0;
@@ -1954,25 +1929,6 @@ likeCountEl.innerText = p.likes ? p.likes.length : 0;
 const commentCountEl = document.getElementById(`comment-count-${pid}`);
 if(commentCountEl) {
 commentCountEl.innerText = p.comments ? p.comments.length : 0;
-}
-// Update count overlay text
-const likeCountElOverlay = document.getElementById(`post-view-likes-count`);
-if(likeCountElOverlay && window.currentViewingPostId === pid) {
-    likeCountElOverlay.innerText = `${p.likes ? p.likes.length : 0} likes`;
-}
-
-// Realtime Icon Sync - Check button class and update icon
-const likeBtn = document.getElementById(`like-btn-${pid}`);
-if(likeBtn && currentUser) {
-    const icon = likeBtn.querySelector('svg') || likeBtn.querySelector('i');
-    const isLiked = p.likes && p.likes.includes(currentUser.id);
-    if(icon) {
-        if(isLiked) {
-            icon.classList.add('fill-red-500', 'text-red-500');
-        } else {
-            icon.classList.remove('fill-red-500', 'text-red-500');
-        }
-    }
 }
 }
 });
@@ -2008,7 +1964,7 @@ renderThreadContent(window.threadPostId, window.threadParentCommentId);
 }
 // Update Trending Panel
 renderRightSidebar();
-setTimeout(refreshIcons, 50); // Fallback
+setTimeout(refreshIcons, 50);
 });
 let isFirstNotifLoad = true;
 const qNotifs = query(collection(db, "notifications"), where("receiverId", "==", currentUser.id));
@@ -2040,7 +1996,17 @@ if(mobileBadge) {
     }
 }
 
-// NO AUDIO (Removed per request)
+// Notification Sound Logic
+if(!isFirstNotifLoad) {
+snapshot.docChanges().forEach(change => {
+if(change.type === 'added') {
+const n = change.doc.data();
+if(!n.read && (Date.now() - (n.timestamp ? n.timestamp.toMillis() : Date.now())) < 5000) {
+notifAudio.play().catch(e => console.log('Audio error:', e));
+}
+}
+});
+}
 isFirstNotifLoad = false;
 const activeNotif = document.querySelector('#view-notifications:not(.hidden)');
 if(activeNotif) renderNotifications();
@@ -2456,8 +2422,7 @@ if (!isPublicPost) return amFollowing;
 return true;
 });
 displayPosts.forEach(post => container.appendChild(createPostElement(post)));
-// Fix for icons randomly disappearing: Force refresh after DOM update
-setTimeout(refreshIcons, 0);
+refreshIcons();
 }
 function createPostElement(post) {
 const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', isOfficial: false, id: post.authorId };
@@ -2983,7 +2948,7 @@ container.innerHTML = `<div class="flex flex-col items-center justify-center h-f
 const saved = posts.filter(p => savedPosts.includes(p.id));
 saved.forEach(post => container.appendChild(createPostElement(post)));
 }
-setTimeout(refreshIcons, 0);
+refreshIcons();
 }
 async function sendNotification(receiverId, type, content, postId = null) {
 await addDoc(collection(db, "notifications"), {
@@ -3139,7 +3104,7 @@ ${!window.notifSelectionMode ? `<button onclick="deleteNotification('${n.id}')" 
 `;
 container.appendChild(div);
 });
-setTimeout(refreshIcons, 0);
+refreshIcons();
 }
 window.deleteNotification = async function(id) {
 showAlert("Delete this notification?", async () => {
@@ -3377,7 +3342,7 @@ if (targetPosts.length === 0) {
     gridHTML += `</div>`;
     contentArea.innerHTML = gridHTML;
 }
-setTimeout(refreshIcons, 0);
+refreshIcons();
 }
 window.saveLink = async function() {
 const title = document.getElementById('new-link-title').value.trim();
@@ -3676,7 +3641,7 @@ if(msg) msg.style.display = 'none';
 }
 overlay.classList.remove('hidden');
 overlay.classList.add('flex');
-setTimeout(refreshIcons, 0);
+refreshIcons();
 }
 window.toggleReelCaption = function(postId) {
 const el = document.getElementById('reel-caption');
@@ -3736,7 +3701,7 @@ html += createCommentHTML(c, post.comments, postId, true);
 });
 }
 container.innerHTML = html;
-setTimeout(refreshIcons, 0);
+refreshIcons();
 }
 // Updated createCommentHTML to handle reply threading
 function createCommentHTML(c, allComments, postId, showRepliesLink = true) {
@@ -3817,7 +3782,7 @@ if (replies.length > 0) {
 html += `</div>`;
 
 container.innerHTML = html;
-setTimeout(refreshIcons, 0);
+refreshIcons();
 }
 window.submitThreadReply = async function() {
 const txt = document.getElementById('thread-input').value.trim();
@@ -4048,29 +4013,6 @@ window.openLightbox = function(src, type = 'image') { const wrapper = document.g
 window.closeLightbox = function() { const lightbox = document.getElementById('lightbox'); lightbox.classList.remove('active'); lightbox.classList.add('pointer-events-none'); lightbox.classList.add('opacity-0'); const video = lightbox.querySelector('video'); if(video) video.pause(); }
 window.copyText = function(text, btn) { navigator.clipboard.writeText(decodeURIComponent(text)).then(() => { showToast("Copied to clipboard"); }); };
 window.insertCodeBlock = function() { const ta = document.getElementById('compose-text'); ta.value += "\n```javascript\n// Code here\n```\n"; ta.focus(); };
-
-// MUTATION OBSERVER TO FIX ICONS DISAPPEARING
-const observer = new MutationObserver((mutations) => {
-  let shouldRefresh = false;
-  mutations.forEach((mutation) => {
-    // Check if new nodes are added, specifically looking for our app structure or icon containers
-    if (mutation.addedNodes.length > 0) {
-        // Simple check to see if an element with 'data-lucide' was added or a wrapper that might contain it
-        // To be safe and ensure icons always render, we flag for refresh.
-        // We debounce this to avoid performance hits on massive DOM changes.
-        shouldRefresh = true;
-    }
-  });
-  if (shouldRefresh) {
-    // Using a small timeout to bundle rapid changes and ensure DOM is ready
-    if(window.lucideRefreshTimeout) clearTimeout(window.lucideRefreshTimeout);
-    window.lucideRefreshTimeout = setTimeout(refreshIcons, 10);
-  }
-});
-
-// Start observing the document body for added nodes
-observer.observe(document.body, { childList: true, subtree: true });
-
 refreshIcons();
 </script>
 </body>

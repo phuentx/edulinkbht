@@ -825,6 +825,7 @@
 
     const mapsStore = {}; 
     const mapMarkersStore = {};
+    const previewStore = {}; // NEW: Store preview content
 
     // --- Modal Logic ---
     function openImageModal(src, caption) {
@@ -857,11 +858,14 @@
         }, 300);
     }
 
-    // --- Preview Modal Logic ---
-    function openPreviewModal(htmlContent) {
+    // --- Preview Modal Logic (Refined) ---
+    function openPreviewModal(previewId) {
         const modal = document.getElementById('preview-modal');
         const frame = document.getElementById('preview-frame');
         
+        const htmlContent = previewStore[previewId];
+        if (!htmlContent) return;
+
         // Write content to iframe
         const doc = frame.contentDocument || frame.contentWindow.document;
         doc.open();
@@ -2087,7 +2091,10 @@
                 // Add specific logic for HTML/Web preview
                 let previewBtn = '';
                 if (lang === 'html' || lang === 'xml' || lang === 'svg') {
-                    previewBtn = `<button onclick="openPreviewModal(decodeURIComponent('${encodeURIComponent(block.innerText)}'))" class="code-action-btn"><i class="fa-solid fa-eye"></i> Preview</button>`;
+                    // NEW: Use previewStore to handle large content
+                    const previewId = 'prev-' + Date.now() + Math.random().toString(36).substr(2, 9);
+                    previewStore[previewId] = block.innerText;
+                    previewBtn = `<button onclick="openPreviewModal('${previewId}')" class="code-action-btn"><i class="fa-solid fa-eye"></i> Preview</button>`;
                 }
 
                 wrapper.innerHTML = `
@@ -2601,7 +2608,10 @@
             Then, provide the explanation and the code blocks.
             Use standard Markdown code blocks for code (e.g. \`\`\`html ... \`\`\`).
             
-            If it's a web application, try to keep it in a single file (HTML + embedded CSS/JS) so it's easy to copy/paste or preview.
+            IMPORTANT:
+            - Output the FULL COMPLETE CODE. Do not skip sections.
+            - If it's a web application, keep it in a single file (HTML + embedded CSS/JS).
+            - Do not output raw JSON. Output standard Markdown.
 
             ### CONVERSATION HISTORY (Truncated) ###
             ${historyString}
@@ -2750,10 +2760,29 @@
             }
             
             const aiText = await response.text();
+            let finalContent = aiText;
+            
+            // Try parsing as JSON if it looks like JSON
+            if (aiText.trim().startsWith('{')) {
+                try {
+                    const parsed = JSON.parse(aiText);
+                    if (parsed.content) finalContent = parsed.content;
+                    else if (parsed.choices && parsed.choices[0] && parsed.choices[0].message) finalContent = parsed.choices[0].message.content;
+                    // Handle specific case from user log if it's a specific provider format
+                    else if (parsed.reasoning_content && !parsed.content) {
+                         // If we only got reasoning, maybe the model stopped? 
+                         // Or maybe the content is effectively the reasoning?
+                         // Let's use reasoning if content is missing, but prepend a note.
+                         finalContent = "Thinking process:\n" + parsed.reasoning_content + "\n\n(No final output provided)";
+                    }
+                } catch (e) {
+                    // console.warn("Not JSON or failed to parse");
+                }
+            }
 
             document.getElementById(loadingId).remove();
 
-            const aiMsg = { role: 'ai', content: aiText, mode: currentMode };
+            const aiMsg = { role: 'ai', content: finalContent, mode: currentMode };
             if(chat) {
                 chat.messages.push(aiMsg);
                 localStorage.setItem('newton_chats', JSON.stringify(chats));

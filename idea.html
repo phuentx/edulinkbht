@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edulinki Live Feed</title>
+    <title>Edulinki Live - Mixer Engine</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -13,151 +13,102 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; height: 100vh; overflow: hidden; }
 
-        /* --- FEED (Scrollable Vertical) --- */
-        #feed-container {
-            position: absolute; inset: 0; z-index: 50;
-            overflow-y: scroll; scroll-snap-type: y mandatory;
-            background: #111;
-        }
-
-        /* Hide Scrollbar */
-        #feed-container::-webkit-scrollbar { display: none; }
-        #feed-container { -ms-overflow-style: none; scrollbar-width: none; }
-
+        /* --- FEED --- */
+        #feed-view { position: absolute; inset: 0; z-index: 50; background: #111; overflow-y: scroll; scroll-snap-type: y mandatory; }
+        #feed-view::-webkit-scrollbar { display: none; }
+        
         .feed-item {
-            position: relative; width: 100%; height: 100dvh;
-            scroll-snap-align: start; background: #222;
-            display: flex; align-items: center; justify-content: center;
+            width: 100%; height: 100dvh; scroll-snap-align: start; position: relative;
+            background: #222; display: flex; align-items: center; justify-content: center;
         }
-
-        .feed-bg {
-            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.6;
-            transition: opacity 0.3s;
-        }
-        .feed-overlay {
-            position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent 40%);
-            display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
-        }
-
-        /* Feed Info */
+        .feed-gradient { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent 50%); z-index: 2; }
+        .feed-info { position: absolute; bottom: 80px; left: 20px; z-index: 3; max-width: 70%; }
         .f-user { font-size: 18px; font-weight: 700; margin-bottom: 5px; text-shadow: 0 2px 4px black; }
-        .f-desc { font-size: 14px; opacity: 0.9; margin-bottom: 20px; max-width: 80%; }
-        .f-btn {
-            background: var(--primary); color: white; border: none; padding: 12px 30px;
-            border-radius: 30px; font-weight: 700; font-size: 16px; width: fit-content;
-            cursor: pointer; box-shadow: 0 4px 15px rgba(254,44,85,0.4);
+        .f-btn { 
+            background: var(--primary); border: none; color: white; padding: 10px 24px; 
+            border-radius: 30px; font-weight: 700; margin-top: 10px; cursor: pointer;
         }
 
-        /* Loading / Empty State */
-        .empty-state {
-            height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555;
-        }
+        .fab { position: fixed; top: 20px; right: 20px; z-index: 100; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; font-size: 13px; }
 
-        /* --- HEADER & FAB --- */
-        .app-header {
-            position: fixed; top: 0; left: 0; width: 100%; padding: 15px 20px;
-            z-index: 60; display: flex; justify-content: space-between; align-items: center;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); pointer-events: none;
-        }
-        .logo { font-size: 20px; font-weight: 800; color: white; text-shadow: 0 2px 5px black; }
-        .logo span { color: var(--primary); }
-
-        .fab {
-            position: fixed; top: 15px; right: 20px; z-index: 70;
-            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
-            color: white; padding: 8px 16px; border-radius: 20px; backdrop-filter: blur(5px);
-            font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px;
-        }
-
-        /* --- LIVE STAGE --- */
-        #live-stage { position: absolute; inset: 0; z-index: 100; display: none; background: #000; }
+        /* --- LIVE ROOM --- */
+        #live-view { position: absolute; inset: 0; z-index: 100; display: none; background: #000; }
         
-        #video-layer { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; }
-        #video-layer.split video { height: 50%; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        .host-mirror { transform: scaleX(-1); }
-
-        #ui-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; }
-        .top-bar { padding: 50px 16px 10px; display: flex; justify-content: space-between; pointer-events: auto; }
-        .host-pill { background: rgba(0,0,0,0.4); padding: 4px 12px 4px 4px; border-radius: 30px; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); }
-        .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; }
-
-        .bottom-bar { padding: 16px; pointer-events: auto; background: linear-gradient(transparent, black 80%); }
-        .chat-box { height: 250px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; mask-image: linear-gradient(transparent, black 10%); }
-        .msg { background: rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 16px; align-self: flex-start; font-size: 13px; backdrop-filter: blur(4px); max-width: 85%; line-height: 1.4; }
-        .chat-input { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 24px; color: white; outline: none; }
+        /* The Canvas is what we actually stream, but we hide it visually and show the video element playing the stream */
+        canvas { display: none; } 
         
-        /* Popup */
-        #request-popup { position: absolute; top: 100px; left: 20px; right: 20px; background: #222; padding: 20px; border-radius: 12px; display: none; pointer-events: auto; z-index: 200; border: 1px solid #444; }
+        #main-video { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* UI Overlay */
+        #ui-layer { position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 40px 16px 20px; }
+        .top-row { display: flex; justify-content: space-between; align-items: flex-start; pointer-events: auto; }
+        .host-tag { background: rgba(0,0,0,0.4); border-radius: 30px; padding: 4px 12px 4px 4px; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); }
+        .h-avi { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        
+        .chat-area { height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; mask-image: linear-gradient(transparent, black 10%); pointer-events: auto; margin-bottom: 10px; }
+        .msg { background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 12px; align-self: flex-start; font-size: 13px; backdrop-filter: blur(4px); max-width: 80%; }
+        
+        .controls { display: flex; gap: 10px; pointer-events: auto; align-items: center; }
+        .chat-inp { flex: 1; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 24px; color: white; outline: none; }
+        .act-btn { width: 44px; height: 44px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; background: rgba(255,255,255,0.2); color: white; }
 
         /* Setup */
-        #setup { position: fixed; inset: 0; background: #000; z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .preview { width: 100%; height: 100%; position: absolute; inset: 0; object-fit: cover; opacity: 0.5; }
-        .setup-ui { position: relative; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 30px; }
+        #setup-view { position: fixed; inset: 0; z-index: 200; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        
+        /* Hidden Guest Video Element (For Mixer) */
+        #guest-source { display: none; }
 
     </style>
 </head>
 <body>
 
-    <div id="feed-container">
-        <div class="app-header">
-            <div class="logo">Edulinki<span>Live</span></div>
-        </div>
+    <div id="feed-view">
         <button class="fab" onclick="openSetup()"><i data-lucide="plus" size="16"></i> GO LIVE</button>
-        
-        <div id="feed-items"></div>
+        <div id="feed-list"></div>
     </div>
 
-    <div id="setup">
-        <video id="previewVid" autoplay playsinline muted class="host-mirror" style="position:absolute; width:100%; height:100%; object-fit:cover;"></video>
-        <button onclick="closeSetup()" style="position:absolute; top:40px; right:20px; background:none; border:none; color:white; z-index:10;"><i data-lucide="x" size="28"></i></button>
-        
-        <div class="setup-ui">
-            <h2 style="margin-bottom:20px; font-weight:800; font-size:24px;">Get Ready</h2>
-            <input id="streamTitle" type="text" placeholder="Add a catchy title..." 
-                style="background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); padding:16px; border-radius:12px; color:white; width:100%; margin-bottom:20px; outline:none; font-size:16px;">
-            <button onclick="startHosting()" style="background:var(--primary); border:none; padding:18px; border-radius:30px; color:white; font-weight:700; font-size:18px; width:100%; box-shadow:0 5px 20px rgba(254,44,85,0.5);">Start LIVE</button>
+    <div id="setup-view">
+        <video id="preview-vid" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover; position:absolute; opacity:0.5;"></video>
+        <div style="z-index:2; width:80%; text-align:center;">
+            <input id="room-title" type="text" placeholder="Live Title..." style="background:rgba(0,0,0,0.5); border:1px solid #555; padding:15px; width:100%; color:white; border-radius:10px; margin-bottom:20px; outline:none;">
+            <button onclick="startLive()" style="background:var(--primary); width:100%; padding:15px; border:none; border-radius:30px; color:white; font-weight:bold; font-size:18px;">Start Broadcast</button>
+            <button onclick="closeSetup()" style="background:none; border:none; color:#aaa; margin-top:20px;">Cancel</button>
         </div>
     </div>
 
-    <div id="live-stage">
+    <div id="live-view">
+        <video id="main-video" autoplay playsinline></video>
         
-        <div id="video-layer">
-            <video id="mainVideo" autoplay playsinline class="host-mirror"></video>
-        </div>
+        <video id="guest-source" autoplay playsinline></video>
         
-        <div id="request-popup">
-            <div style="font-size:16px; margin-bottom:15px; font-weight:600;">👋 Guest Request</div>
-            <p style="color:#aaa; margin-bottom:20px; font-size:14px;">A viewer wants to join your stream with video.</p>
-            <div style="display:flex; gap:10px;">
-                <button style="flex:1; padding:12px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:bold;" onclick="acceptRequest()">Accept</button>
-                <button style="flex:1; padding:12px; background:#444; color:white; border:none; border-radius:8px; font-weight:bold;" onclick="hideRequest()">Ignore</button>
-            </div>
-        </div>
+        <canvas id="mixer-canvas" width="720" height="1280"></canvas>
 
         <div id="ui-layer">
-            <div class="top-bar">
-                <div class="host-pill">
-                    <div class="avatar" id="hostIcon">H</div>
+            <div class="top-row">
+                <div class="host-tag">
+                    <div class="h-avi" id="ui-avi">H</div>
                     <div>
-                        <div style="font-size:13px; font-weight:bold" id="hostName">Host</div>
-                        <div style="font-size:11px; opacity:0.8; color:#ddd;"><span id="viewCount">0</span> Watching</div>
+                        <div style="font-weight:700; font-size:14px;" id="ui-name">Host</div>
+                        <div style="font-size:11px; opacity:0.7"><span id="ui-viewers">0</span> watching</div>
                     </div>
                 </div>
-                <button onclick="leaveRoom()" style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); width:36px; height:36px; border-radius:50%; color:white; display:flex; align-items:center; justify-content:center;"><i data-lucide="x"></i></button>
+                <button class="act-btn" onclick="leave()" style="width:36px; height:36px;"><i data-lucide="x" size="18"></i></button>
             </div>
 
-            <div class="bottom-bar">
-                <div class="chat-box" id="chat"></div>
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <input id="msgInput" class="chat-input" placeholder="Add a comment..." autocomplete="off">
+            <div>
+                <div class="chat-area" id="chat-list"></div>
+                <div class="controls">
+                    <input id="chat-input" class="chat-inp" placeholder="Comment..." autocomplete="off">
                     
-                    <button id="joinReqBtn" onclick="requestToJoin()" style="background:rgba(255,255,255,0.1); border:none; width:44px; height:44px; border-radius:50%; color:white; display:none; align-items:center; justify-content:center;">
-                        <i data-lucide="video"></i> </button>
-                    
-                    <button onclick="sendHeart()" style="background:linear-gradient(45deg, #ff0050, #00f2ea); border:none; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
-                        <i data-lucide="heart" fill="white"></i>
+                    <button id="btn-request" class="act-btn" onclick="sendRequest()" style="display:none;">
+                        <i data-lucide="hand"></i>
                     </button>
+                    
+                    <button id="btn-accept" class="act-btn" onclick="acceptGuest()" style="display:none; background:#00c853;">
+                        <i data-lucide="user-plus"></i>
+                    </button>
+
+                    <button class="act-btn" style="background:linear-gradient(45deg, #ff0050, #00f2ea);"><i data-lucide="heart" fill="white"></i></button>
                 </div>
             </div>
         </div>
@@ -165,7 +116,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, increment, query, where, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, increment, query, where, orderBy, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         lucide.createIcons();
 
@@ -180,110 +131,152 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        
         const iceServers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302'] }] };
 
-        // STATE
-        let localStream;
+        // GLOBAL STATE
         let role = null; 
         let roomId = null;
         let myId = Math.random().toString(36).substr(2, 6).toUpperCase();
-        let pcs = {}; 
+        let localStream;    // Camera stream
+        let mixerStream;    // Canvas stream (what goes out)
+        let guestStream;    // Incoming guest stream
+        let pcs = {};       // Peer Connections
         let pendingGuestId = null;
+        
+        // Canvas Mixer
+        const canvas = document.getElementById('mixer-canvas');
+        const ctx = canvas.getContext('2d');
+        let mixerInterval;
 
-        // --- 1. HOME FEED (SCROLLABLE) ---
-        onSnapshot(query(collection(db, "rooms"), where("status", "==", "live")), (snap) => {
-            const container = document.getElementById('feed-items');
-            container.innerHTML = '';
+        // --- 1. FEED ---
+        const feedQ = query(collection(db, "rooms"), where("status", "==", "live"));
+        onSnapshot(feedQ, (snap) => {
+            const list = document.getElementById('feed-list');
+            list.innerHTML = '';
+            if(snap.empty) list.innerHTML = `<div style="height:100vh; display:flex; align-items:center; justify-content:center; color:#666;">No active lives</div>`;
             
-            if(snap.empty) {
-                container.innerHTML = `<div class="empty-state"><i data-lucide="radio" size="48"></i><p style="margin-top:20px;">No one is live right now.</p></div>`;
-                lucide.createIcons();
-                return;
-            }
-
             snap.forEach(d => {
                 const data = d.data();
-                const item = document.createElement('div');
-                item.className = 'feed-item';
-                
-                // Deterministic Gradient BG based on ID
-                const hue = parseInt(d.id, 36) % 360;
-                
-                item.innerHTML = `
-                    <div class="feed-bg" style="background: linear-gradient(135deg, hsl(${hue}, 50%, 20%), #000);"></div>
-                    <div class="feed-overlay">
-                        <div class="f-user">@${data.hostName}</div>
-                        <div class="f-desc">${data.title}</div>
-                        <button class="f-btn">Watch Live</button>
+                const div = document.createElement('div');
+                div.className = 'feed-item';
+                div.innerHTML = `
+                    <div style="width:100%; height:100%; background:linear-gradient(45deg, #111, #333);"></div>
+                    <div class="feed-gradient"></div>
+                    <div class="feed-info">
+                        <div class="f-user">${data.hostName}</div>
+                        <div style="opacity:0.8; margin-bottom:10px;">${data.title}</div>
+                        <button class="f-btn">Join Live</button>
                     </div>
                 `;
-                
-                // Join on click
-                item.onclick = () => joinStream(d.id, data);
-                container.appendChild(item);
+                div.onclick = () => joinLive(d.id, data);
+                list.appendChild(div);
             });
         });
 
-        // --- 2. SETUP ---
+        // --- 2. HOST LOGIC (The Mixer) ---
         window.openSetup = async () => {
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
-                document.getElementById('previewVid').srcObject = localStream;
-                document.getElementById('feed-container').style.display = 'none';
-                document.getElementById('setup').style.display = 'flex';
-            } catch(e) { alert("Camera Access Denied"); }
-        }
+                localStream = await navigator.mediaDevices.getUserMedia({ video: {facingMode:'user', width: {ideal: 720}, height: {ideal: 1280}}, audio: true });
+                document.getElementById('preview-vid').srcObject = localStream;
+                document.getElementById('feed-view').style.display = 'none';
+                document.getElementById('setup-view').style.display = 'flex';
+            } catch(e) { alert("Need Camera"); }
+        };
 
-        window.closeSetup = () => {
-            if(localStream) localStream.getTracks().forEach(t=>t.stop());
-            document.getElementById('setup').style.display = 'none';
-            document.getElementById('feed-container').style.display = 'block';
-        }
+        window.startLive = async () => {
+            role = 'host'; roomId = myId;
+            const title = document.getElementById('room-title').value || "Chilling";
+            
+            document.getElementById('setup-view').style.display = 'none';
+            document.getElementById('live-view').style.display = 'block';
+            
+            // 1. Start Mixer
+            startMixer(); 
+            
+            // 2. Play Local Stream on Main Video (Host sees canvas output too, or direct local)
+            // Let's show canvas output so Host sees what Viewers see
+            document.getElementById('main-video').srcObject = mixerStream;
+            document.getElementById('main-video').muted = true; // Mute self
 
-        // --- 3. HOST LOGIC ---
-        window.startHosting = async () => {
-            const title = document.getElementById('streamTitle').value || "Chilling";
-            roomId = myId; role = 'host';
-
-            document.getElementById('setup').style.display = 'none';
-            document.getElementById('live-stage').style.display = 'block';
-            document.getElementById('mainVideo').srcObject = localStream;
-
+            // 3. Create Room
             await setDoc(doc(db, "rooms", roomId), {
-                hostId: myId, hostName: "Host " + myId, title, status: 'live', viewers: 0, guestId: null
+                hostId: myId, hostName: "Host "+myId, title, status: 'live', viewers: 0
             });
 
-            // Listeners
-            onSnapshot(collection(db, `rooms/${roomId}/offers`), (snap) => {
-                snap.docChanges().forEach(c => { if(c.type==='added') handlePeer(c.doc.data()); });
+            // 4. Signaling Listeners
+            onSnapshot(collection(db, `rooms/${roomId}/offers`), s => {
+                s.docChanges().forEach(c => { if(c.type==='added') handleOffer(c.doc.data()); });
             });
-
-            onSnapshot(collection(db, `rooms/${roomId}/requests`), (snap) => {
-                snap.docChanges().forEach(c => { 
+            
+            // 5. Guest Request Listener
+            onSnapshot(collection(db, `rooms/${roomId}/requests`), s => {
+                s.docChanges().forEach(c => { 
                     if(c.type==='added') {
                         pendingGuestId = c.doc.data().userId;
-                        document.getElementById('request-popup').style.display = 'block';
+                        document.getElementById('btn-accept').style.display = 'flex';
+                        alert("Guest Request Received!");
                     }
                 });
             });
 
-            listenCommon();
+            listenChat();
+        };
+
+        // --- THE CANVAS MIXER (Magic happens here) ---
+        function startMixer() {
+            // Capture Canvas at 30 FPS
+            mixerStream = canvas.captureStream(30);
+            
+            // Add Audio from Local Mic to Mixer Stream
+            // (Note: Canvas capture stream has no audio by default)
+            const audioTrack = localStream.getAudioTracks()[0];
+            mixerStream.addTrack(audioTrack);
+
+            mixerInterval = setInterval(() => {
+                // Clear
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // If Guest exists, Split Screen
+                if (guestStream) {
+                    // Host Top
+                    ctx.drawImage(document.getElementById('preview-vid'), 0, 0, canvas.width, canvas.height / 2); // Using preview-vid as source element for raw frames
+                    // Guest Bottom
+                    ctx.drawImage(document.getElementById('guest-source'), 0, canvas.height / 2, canvas.width, canvas.height / 2);
+                    
+                    // Separator
+                    ctx.fillStyle = '#fe2c55';
+                    ctx.fillRect(0, (canvas.height/2)-2, canvas.width, 4);
+                } else {
+                    // Host Full Screen
+                    ctx.drawImage(document.getElementById('preview-vid'), 0, 0, canvas.width, canvas.height);
+                }
+            }, 33); // ~30 FPS
         }
 
-        async function handlePeer(data) {
+        // --- HOST WEBRTC ---
+        async function handleOffer(data) {
             const pc = new RTCPeerConnection(iceServers);
             pcs[data.from] = pc;
-            localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
-            // Receive Guest Video
-            pc.ontrack = e => {
-                const vid = document.createElement('video');
-                vid.srcObject = e.streams[0]; vid.autoplay=true; vid.playsInline=true;
-                const layer = document.getElementById('video-layer');
-                layer.classList.add('split');
-                layer.appendChild(vid);
-            };
+            // Host sends MIXER STREAM, not raw camera
+            mixerStream.getTracks().forEach(t => pc.addTrack(t, mixerStream));
+
+            // If this is the GUEST, we expect to receive video
+            if (data.isGuest) {
+                pc.ontrack = e => {
+                    const el = document.getElementById('guest-source');
+                    el.srcObject = e.streams[0];
+                    guestStream = e.streams[0]; // Mixer will pick this up
+                    
+                    // Mix Guest Audio into Mixer Stream? 
+                    // Web Audio API needed for perfect mixing, but for now:
+                    // Viewers will only hear Host via WebRTC track.
+                    // FIX: We need to replace the audio track sent to viewers with a mixed one.
+                    // For this simple demo: Viewers hear Host. Guest audio is tricky without WebAudio.
+                    // Let's focus on Video Composition first.
+                };
+            }
 
             pc.onicecandidate = e => {
                 if(e.candidate) addDoc(collection(db, `rooms/${roomId}/candidates`), { candidate:e.candidate.toJSON(), to:data.from, from:myId });
@@ -295,100 +288,120 @@
             await addDoc(collection(db, `rooms/${roomId}/answers`), { answer, to:data.from, from:myId });
         }
 
-        window.acceptRequest = async () => {
-            document.getElementById('request-popup').style.display = 'none';
-            await updateDoc(doc(db, "rooms", roomId), { guestId: pendingGuestId });
-        }
-        window.hideRequest = () => document.getElementById('request-popup').style.display = 'none';
+        window.acceptGuest = async () => {
+            // Signal the specific user to upgrade
+            await addDoc(collection(db, `rooms/${roomId}/guest_approvals`), { userId: pendingGuestId });
+            document.getElementById('btn-accept').style.display = 'none';
+        };
 
-        // --- 4. VIEWER LOGIC ---
-        async function joinStream(id, data) {
+        // --- 3. VIEWER LOGIC ---
+        async function joinLive(id, data) {
             roomId = id; role = 'viewer';
-            document.getElementById('feed-container').style.display = 'none';
-            document.getElementById('live-stage').style.display = 'block';
-            document.getElementById('hostName').innerText = data.hostName;
-            document.getElementById('joinReqBtn').style.display = 'flex';
+            document.getElementById('feed-view').style.display = 'none';
+            document.getElementById('live-view').style.display = 'block';
+            document.getElementById('ui-name').innerText = data.hostName;
+            document.getElementById('btn-request').style.display = 'flex';
 
             await updateDoc(doc(db, "rooms", roomId), { viewers: increment(1) });
-            connectHost(data.hostId, false);
+            connectToHost(data.hostId);
+            listenChat();
 
-            onSnapshot(doc(db, "rooms", roomId), async (s) => {
-                if(!s.exists() || s.data().status === 'ended') { alert("Live Ended"); location.reload(); }
-                document.getElementById('viewCount').innerText = s.data().viewers;
-                
-                // Guest Upgrade
-                if(s.data().guestId === myId) {
-                    try {
-                        const stream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
-                        connectHost(data.hostId, true, stream);
-                    } catch(e){}
-                }
+            // Listen for Guest Approval
+            onSnapshot(collection(db, `rooms/${roomId}/guest_approvals`), snap => {
+                snap.docChanges().forEach(c => {
+                    if(c.type === 'added' && c.doc.data().userId === myId) {
+                        becomeGuest(data.hostId);
+                    }
+                });
             });
-            listenCommon();
         }
 
-        async function connectHost(hostId, sendVideo, stream) {
+        async function connectToHost(hostId) {
             const pc = new RTCPeerConnection(iceServers);
             pcs['host'] = pc;
             
-            if(sendVideo && stream) {
-                stream.getTracks().forEach(t => pc.addTrack(t, stream));
-                const v = document.createElement('video');
-                v.srcObject = stream; v.autoplay=true; v.muted=true;
-                const l = document.getElementById('video-layer');
-                l.classList.add('split'); l.appendChild(v);
-            } else {
-                pc.addTransceiver('video', {direction:'recvonly'});
-                pc.addTransceiver('audio', {direction:'recvonly'});
-            }
+            pc.addTransceiver('video', {direction:'recvonly'});
+            pc.addTransceiver('audio', {direction:'recvonly'});
 
-            pc.ontrack = e => document.getElementById('mainVideo').srcObject = e.streams[0];
-            
+            pc.ontrack = e => {
+                document.getElementById('main-video').srcObject = e.streams[0];
+            };
+
             pc.onicecandidate = e => {
                 if(e.candidate) addDoc(collection(db, `rooms/${roomId}/candidates`), { candidate:e.candidate.toJSON(), to:hostId, from:myId });
             };
 
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
-            await addDoc(collection(db, `rooms/${roomId}/offers`), { offer, to:hostId, from:myId });
+            await addDoc(collection(db, `rooms/${roomId}/offers`), { offer, to:hostId, from:myId, isGuest: false });
 
-            onSnapshot(collection(db, `rooms/${roomId}/answers`), snap => {
-                snap.docChanges().forEach(c => { if(c.type==='added' && c.doc.data().to===myId) pc.setRemoteDescription(new RTCSessionDescription(c.doc.data().answer)); });
+            // Answer Listener
+            onSnapshot(collection(db, `rooms/${roomId}/answers`), s => {
+                s.docChanges().forEach(c => { if(c.type==='added' && c.doc.data().to===myId) pc.setRemoteDescription(new RTCSessionDescription(c.doc.data().answer)); });
             });
-            
-            onSnapshot(collection(db, `rooms/${roomId}/candidates`), snap => {
-                snap.docChanges().forEach(c => { if(c.type==='added' && c.doc.data().to===myId) pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); });
+            // ICE Listener
+            onSnapshot(collection(db, `rooms/${roomId}/candidates`), s => {
+                s.docChanges().forEach(c => { if(c.type==='added' && c.doc.data().to===myId) pc.addIceCandidate(new RTCIceCandidate(c.doc.data().candidate)); });
             });
         }
 
-        window.requestToJoin = async () => {
+        // --- 4. BECOME GUEST ---
+        async function becomeGuest(hostId) {
+            // 1. Get Camera
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
+            } catch(e) { alert("Camera Fail"); return; }
+
+            // 2. Re-connect to Host sending Video
+            const pc = new RTCPeerConnection(iceServers);
+            pcs['host_guest'] = pc; // New connection
+            
+            localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
+            pc.onicecandidate = e => {
+                if(e.candidate) addDoc(collection(db, `rooms/${roomId}/candidates`), { candidate:e.candidate.toJSON(), to:hostId, from:myId });
+            };
+
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            // Flag isGuest: true tells Host to put us in the Mixer
+            await addDoc(collection(db, `rooms/${roomId}/offers`), { offer, to:hostId, from:myId, isGuest: true });
+            
+            // We reuse existing Answer/ICE listeners because they target 'myId'
+            alert("You are joining the stage!");
+        }
+
+        window.sendRequest = async () => {
             await addDoc(collection(db, `rooms/${roomId}/requests`), { userId: myId });
             alert("Request Sent!");
         };
 
-        // --- 5. COMMON ---
-        function listenCommon() {
-            const chatBox = document.getElementById('chat');
+        // --- 5. CHAT ---
+        function listenChat() {
             onSnapshot(query(collection(db, `rooms/${roomId}/chat`), orderBy('ts')), snap => {
                 snap.docChanges().forEach(c => {
                     if(c.type==='added') {
                         const d = c.doc.data();
-                        const div = document.createElement('div'); div.className='msg';
-                        div.innerHTML = `<span style="opacity:0.6;font-weight:700;margin-right:5px">${d.name}:</span>${d.text}`;
-                        chatBox.appendChild(div); chatBox.scrollTop = chatBox.scrollHeight;
+                        const div = document.createElement('div');
+                        div.className = 'msg';
+                        div.innerHTML = `<span style="opacity:0.6; font-weight:700;">${d.name}: </span>${d.text}`;
+                        const box = document.getElementById('chat-list');
+                        box.appendChild(div);
+                        box.scrollTop = box.scrollHeight;
                     }
                 });
             });
         }
 
-        document.getElementById('msgInput').onkeydown = async (e) => {
+        document.getElementById('chat-input').onkeydown = async (e) => {
             if(e.key==='Enter' && e.target.value.trim()){
                 await addDoc(collection(db, `rooms/${roomId}/chat`), { name: role==='host'?"Host":"User", text:e.target.value, ts:Date.now() });
-                e.target.value='';
+                e.target.value = '';
             }
         };
 
-        window.leaveRoom = async () => {
+        // Utils
+        window.leave = async () => {
             if(role==='host') {
                 if(confirm("End Live?")) {
                     await updateDoc(doc(db, "rooms", roomId), {status:'ended'});
@@ -399,6 +412,11 @@
                 await updateDoc(doc(db, "rooms", roomId), {viewers:increment(-1)});
                 location.reload();
             }
+        };
+        window.closeSetup = () => {
+            if(localStream) localStream.getTracks().forEach(t=>t.stop());
+            document.getElementById('setup-view').style.display='none';
+            document.getElementById('feed-view').style.display='block';
         };
 
     </script>

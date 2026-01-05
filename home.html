@@ -1125,7 +1125,7 @@ border: none;
     </div>
 </div>
 <!-- MOBILE NOTIFICATIONS HEADER -->
-<div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-50 pb-0">
+<div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0">
 <div class="h-14 flex items-center justify-between px-4 shrink-0 relative">
 <span class="font-bold text-lg text-[#1f1f1f]">Notifications</span>
 <div class="flex items-center gap-3">
@@ -1147,9 +1147,9 @@ border: none;
 </div>
 </div>
 <div class="tab-group mb-0 mx-0 w-full">
-<button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i> Following</button>
-<button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i> Others</button>
-<button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button>
+<button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i></button>
+<button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i></button>
+<button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i></button>
 </div>
 </div>
 <!-- THREAD OVERLAY (Redesigned) -->
@@ -1725,7 +1725,7 @@ Change
 
 <div id="explore-content-wrapper" class="pb-20 max-w-5xl mx-auto py-6">
     <!-- Results -->
-    <div id="explore-people-results" class="hidden flex-col gap-2 p-4"></div>
+    <div id="explore-people-results" class="hidden flex-col p-4 pt-0"></div>
     <div id="explore-results" class="space-y-0 pt-0"></div>
 </div>
 </div>
@@ -2786,8 +2786,8 @@ if(showPeopleList) {
     if(filteredUsers.length > 0) {
         filteredUsers.forEach(u => {
             const div = document.createElement('div');
-            // Better People Search Design
-            div.className = "flex items-center justify-between p-4 bg-white rounded-2xl mb-3 shadow-sm border border-gray-50";
+            // Simplified, Flat People List Item
+            div.className = "flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer last:border-b-0";
             div.onclick = () => showProfile(u.id);
             div.innerHTML = `
                 <div class="flex items-center gap-3">

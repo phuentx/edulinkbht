@@ -969,9 +969,11 @@ aspect-ratio: 4/5; /* Instagram Portrait Aspect Ratio */
 display: flex;
 transition: transform 0.3s ease-out;
 height: 100%;
+width: 100%;
 }
 .post-carousel-item {
 min-width: 100%;
+flex-shrink: 0;
 height: 100%;
 display: flex;
 justify-content: center;
@@ -2559,7 +2561,7 @@ if (post.media) {
 
         mediaHTML = `
         <div class="mt-3 rounded-xl overflow-hidden post-carousel" id="carousel-${post.id}">
-            <div class="post-carousel-inner" id="inner-${post.id}" style="width: ${mediaArray.length * 100}%">
+            <div class="post-carousel-inner" id="inner-${post.id}">
                 ${slides}
             </div>
             <button class="carousel-nav-btn prev" onclick="event.stopPropagation(); moveCarousel('${post.id}', -1)">
@@ -2652,30 +2654,31 @@ ${likeCountDisplay}
 `;
 return div;
 }
-window.moveCarousel = function(postId, direction) {
-    if(!window.carouselStates || !window.carouselStates[postId]) return;
-    const state = window.carouselStates[postId];
+window.moveCarousel = function(postId, direction, isOverlay = false) {
+    const key = isOverlay ? `overlay-${postId}` : postId;
+    if(!window.carouselStates || !window.carouselStates[key]) return;
+    const state = window.carouselStates[key];
     const newIndex = state.index + direction;
     
     if (newIndex >= 0 && newIndex < state.total) {
         state.index = newIndex;
-        const inner = document.getElementById(`inner-${postId}`);
+        const innerId = isOverlay ? `overlay-inner-${postId}` : `inner-${postId}`;
+        const wrapperId = isOverlay ? `overlay-carousel-${postId}` : `carousel-${postId}`;
+        
+        const inner = document.getElementById(innerId);
         if(inner) {
-            // Calculate translation based on number of items
-            // width is 100% * count. To move one slide, translate by -100% / count? No.
-            // transform: translateX(-index * (100 / total) %)
-            inner.style.transform = `translateX(-${(state.index * 100) / state.total}%)`;
+            inner.style.transform = `translateX(-${state.index * 100}%)`;
         }
         
         // Update Dots
-        const dots = document.querySelectorAll(`#carousel-${postId} .carousel-dot`);
+        const dots = document.querySelectorAll(`#${wrapperId} .carousel-dot`);
         dots.forEach((d, idx) => {
             if(idx === state.index) d.classList.add('active');
             else d.classList.remove('active');
         });
 
         // Update Counter
-        const counter = document.getElementById(`counter-${postId}`);
+        const counter = document.getElementById(isOverlay ? `overlay-counter-${postId}` : `counter-${postId}`);
         if(counter) counter.innerText = state.index + 1;
     }
 }
@@ -3775,7 +3778,7 @@ if (post.media) {
 
         mediaContainer.innerHTML = `
         <div class="rounded-lg overflow-hidden post-carousel shadow-2xl" id="overlay-carousel-${post.id}">
-            <div class="post-carousel-inner" id="overlay-inner-${post.id}" style="width: ${mediaArray.length * 100}%">
+            <div class="post-carousel-inner" id="overlay-inner-${post.id}">
                 ${slides}
             </div>
             <button class="carousel-nav-btn prev" onclick="event.stopPropagation(); moveCarousel('${post.id}', -1, true)">
@@ -4348,7 +4351,7 @@ window.moveCarousel = function(postId, direction, isOverlay = false) {
         
         const inner = document.getElementById(innerId);
         if(inner) {
-            inner.style.transform = `translateX(-${(state.index * 100) / state.total}%)`;
+            inner.style.transform = `translateX(-${state.index * 100}%)`;
         }
         
         // Update Dots

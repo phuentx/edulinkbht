@@ -1150,9 +1150,9 @@ border: none;
 </div>
 </div>
 <div class="tab-group mb-0 mx-0 w-full">
-<button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active"><i data-lucide="users" class="w-6 h-6"></i></button>
-<button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn"><i data-lucide="bell" class="w-6 h-6"></i></button>
-<button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="megaphone" class="w-6 h-6"></i></button>
+<button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active"><i data-lucide="users" class="w-5 h-5"></i></button>
+<button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn"><i data-lucide="bell" class="w-5 h-5"></i></button>
+<button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="megaphone" class="w-5 h-5"></i></button>
 </div>
 </div>
 <!-- THREAD OVERLAY (Redesigned) -->
@@ -1662,9 +1662,9 @@ Change
 <button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button>
 </div>
 <div class="tab-group mb-4 mx-0 md:mx-0 hidden md:flex">
-<button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active"><i data-lucide="users" class="w-6 h-6"></i></button>
-<button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn"><i data-lucide="bell" class="w-6 h-6"></i></button>
-<button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn"><i data-lucide="megaphone" class="w-6 h-6"></i></button>
+<button onclick="switchNotifTab('friends')" id="ntab-friends" class="tab-btn active"><i data-lucide="users" class="w-4 h-4"></i> Following</button>
+<button onclick="switchNotifTab('others')" id="ntab-others" class="tab-btn"><i data-lucide="bell" class="w-4 h-4"></i> Others</button>
+<button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button>
 </div>
 <div id="notification-list" class="flex flex-col w-full pb-24 md:pb-0"></div>
 </div>
@@ -1898,9 +1898,6 @@ function formatContent(text) {
     if(!text) return '';
     // Escape HTML first to prevent XSS
     let html = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    
-    // Hashtags
-    html = html.replace(/#(\w+)/g, '<span class="hashtag" onclick="event.stopPropagation(); openHashtag(\'$1\')">#$1</span>');
     
     // Mentions - Attempt to find user
     html = html.replace(/@(\w+)/g, function(match, username) {
@@ -4342,7 +4339,6 @@ window.showToast = function(message, isError = false) { const toast = document.g
 window.openLightbox = function(src, type = 'image') { const wrapper = document.getElementById('lightbox-wrapper'); const lightbox = document.getElementById('lightbox'); if (type === 'video' || src.includes('.mp4') || src.includes('data:video') || src.includes('.webm')) { wrapper.innerHTML = `<video src="${src}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`; } else { wrapper.innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; } lightbox.classList.add('active'); lightbox.classList.remove('pointer-events-none'); lightbox.classList.remove('opacity-0'); }
 window.closeLightbox = function() { const lightbox = document.getElementById('lightbox'); lightbox.classList.remove('active'); lightbox.classList.add('pointer-events-none'); lightbox.classList.add('opacity-0'); const video = lightbox.querySelector('video'); if(video) video.pause(); }
 window.copyText = function(text, btn) { navigator.clipboard.writeText(decodeURIComponent(text)).then(() => { showToast("Copied to clipboard"); }); };
-window.insertCodeBlock = function() { /* Removed functionality as requested */ };
 window.moveCarousel = function(postId, direction, isOverlay = false) {
     const key = isOverlay ? `overlay-${postId}` : postId;
     if(!window.carouselStates || !window.carouselStates[key]) return;

@@ -2830,33 +2830,19 @@ if(term) {
     filteredPosts = filteredPosts.sort(() => 0.5 - Math.random());
 }
 
-// Render Grid
-let html = '';
+// Render Feed (No Grid)
+view.innerHTML = '';
 if(filteredPosts.length === 0) {
-    html = `<div class="text-center py-20 text-gray-400"><p>No posts found.</p></div>`;
+    view.innerHTML = `<div class="text-center py-20 text-gray-400"><p>No posts found.</p></div>`;
 } else {
-    html = `<div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0.5 md:gap-4">`;
+    const listContainer = document.createElement('div');
+    listContainer.className = "flex flex-col gap-0.5 md:gap-4"; // Minimal gap on mobile, card gap on desktop
     filteredPosts.forEach(p => {
-        let content = '';
-        const mediaSrc = Array.isArray(p.media) ? p.media[0] : p.media;
-        if (mediaSrc) {
-            if (mediaSrc.includes('video') || mediaSrc.endsWith('.mp4') || mediaSrc.startsWith('data:video')) {
-                    content = `<video src="${mediaSrc}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`;
-            } else {
-                    content = `<img src="${mediaSrc}" class="w-full h-full object-cover">`;
-            }
-            if(Array.isArray(p.media) && p.media.length > 1) {
-                content += `<div class="absolute top-2 right-2"><i data-lucide="layers" class="w-4 h-4 text-white drop-shadow-md"></i></div>`;
-            }
-        } else {
-            content = `<div class="w-full h-full flex items-center justify-center p-2 text-[10px] text-center text-gray-500 bg-gray-50 overflow-hidden leading-tight">${p.content.substring(0,60)}...</div>`;
-        }
-        html += `<div class="relative aspect-square bg-gray-100 cursor-pointer overflow-hidden hover:opacity-95 transition-opacity rounded-none md:rounded-xl" onclick="openPostView('${p.id}')">${content}</div>`;
+        listContainer.appendChild(createPostElement(p));
     });
-    html += `</div>`;
+    view.appendChild(listContainer);
 }
 
-view.innerHTML = html;
 refreshIcons();
 }
 window.openCollabSelector = function() {

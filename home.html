@@ -1058,10 +1058,10 @@ border: none;
 <!-- ADD LINK MODAL -->
 <div id="add-link-modal" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
 <div class="bg-white w-[90%] max-w-[400px] rounded-2xl shadow-2xl p-6 relative">
-<h3 class="text-lg font-bold text-gray-900 mb-4">Add Website</h3>
+<h3 class="text-lg font-bold text-gray-900 mb-4">Add Link</h3>
 <div class="space-y-4 mb-6">
 <div>
-<label class="text-xs font-bold text-gray-500 uppercase">Title</label>
+<label class="text-xs font-bold text-gray-500 uppercase">Title (e.g. Portfolio, Website)</label>
 <input type="text" id="new-link-title" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 font-medium text-gray-900 placeholder-gray-300">
 </div>
 <div>
@@ -1071,7 +1071,7 @@ border: none;
 </div>
 <div class="flex justify-end gap-3">
 <button onclick="document.getElementById('add-link-modal').classList.add('hidden')" class="px-4 py-2 text-gray-600 font-bold text-sm hover:bg-gray-100 rounded-lg">Cancel</button>
-<button onclick="saveLink()" class="px-4 py-2 bg-[#0b57d0] text-white font-bold text-sm rounded-lg hover:bg-blue-700">Add</button>
+<button onclick="saveLink()" class="px-4 py-2 bg-[#0b57d0] text-white font-bold text-sm rounded-lg hover:bg-blue-700">Add Link</button>
 </div>
 </div>
 </div>
@@ -1174,18 +1174,6 @@ border: none;
                   <button onclick="submitThreadReply()" class="text-[#0b57d0] font-bold text-sm px-3 py-1 hover:bg-blue-50 rounded-full transition-colors">Post</button>
              </div>
         </div>
-    </div>
-</div>
-<!-- ABOUT ME OVERLAY (Mobile) -->
-<div id="about-me-overlay" class="fixed inset-0 z-[100] bg-white hidden flex-col overflow-hidden transition-transform duration-300 translate-y-full md:translate-y-0 md:static md:bg-transparent md:z-auto md:block md:hidden">
-    <!-- Header (Mobile Only) -->
-    <div class="h-14 flex items-center justify-between px-4 border-b border-gray-100 shrink-0 md:hidden bg-white">
-        <span class="font-bold text-lg text-[#1f1f1f]">About Me</span>
-        <button onclick="closeAboutModal()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
-    </div>
-    <!-- Content Scroll -->
-    <div id="about-me-content" class="flex-1 overflow-y-auto p-5 md:p-0 bg-white md:bg-transparent">
-        <!-- Injected Content -->
     </div>
 </div>
 <!-- NEW ORIGINAL POST OVERLAY -->
@@ -1798,20 +1786,6 @@ Change
 </div>
 </nav>
 <input type="file" id="media-input" class="hidden" accept="image/*,video/*" onchange="handleFileSelect(event)">
-<!-- ABOUT ME OVERLAY (Mobile) -->
-<div id="about-me-overlay" class="fixed inset-0 z-[100] bg-white hidden flex-col overflow-hidden transition-transform duration-300 translate-y-full md:translate-y-0 md:static md:bg-transparent md:z-auto md:block md:hidden">
-    <!-- Header (Mobile Only) -->
-    <div class="h-14 flex items-center justify-between px-4 border-b border-gray-100 shrink-0 md:hidden bg-white">
-        <span class="font-bold text-lg text-[#1f1f1f]">About Me</span>
-        <button onclick="closeAboutModal()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
-    </div>
-    <!-- Content Scroll -->
-    <div id="about-me-content" class="flex-1 overflow-y-auto p-0 bg-white md:bg-transparent">
-        <!-- Injected Content -->
-    </div>
-</div>
-<!-- Face Card Upload Input -->
-<input type="file" id="face-card-input" class="hidden" accept="image/*" onchange="handleFaceCardUpload(event)">
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -1862,7 +1836,6 @@ let currentEventCoverBlob = null;
 let currentAvatarBlob = null;
 let currentBannerBlob = null;
 window.currentPromoBlob = null;
-window.isAboutEditing = false;
 // NOTIFICATION STATE
 window.notifSelectionMode = false;
 window.selectedNotifs = new Set();
@@ -1966,11 +1939,6 @@ followers: [],
 friends: [],
 saved: [],
 links: [],
-interests: [],
-education: "",
-gender: "",
-dob: "",
-faceCard: "",
 isOfficial: isOfficial,
 settings: { privateNetwork: false },
 username: ""
@@ -1983,11 +1951,6 @@ currentUser.followers = currentUser.followers || [];
 currentUser.friends = currentUser.friends || [];
 currentUser.saved = currentUser.saved || [];
 currentUser.links = currentUser.links || [];
-currentUser.interests = currentUser.interests || [];
-currentUser.education = currentUser.education || "";
-currentUser.gender = currentUser.gender || "";
-currentUser.dob = currentUser.dob || "";
-currentUser.faceCard = currentUser.faceCard || "";
 currentUser.settings = currentUser.settings || { privateNetwork: false };
 window.currentUser = currentUser;
 savedPosts = currentUser.saved;
@@ -3381,8 +3344,6 @@ if(!userId) userId = currentUser.id;
 // Ensure we close any overlays when navigating to profile from modals
 closePostView();
 closeThread();
-// Close about overlay if open on mobile
-document.getElementById('about-me-overlay').classList.add('translate-y-full', 'hidden');
 
 const user = users.find(u => u.id === userId);
 if(!user) return;
@@ -3428,7 +3389,7 @@ let tabsHTML = `
 ${isMe ? `<button onclick="switchProfileTab('saved')" class="tab-btn ${tab==='saved'?'active':''}"><i data-lucide="bookmark" class="w-5 h-5"></i></button>` : ''}
 <button onclick="switchProfileTab('liked')" class="tab-btn ${tab==='liked'?'active':''}"><i data-lucide="heart" class="w-5 h-5"></i></button>
 <button onclick="switchProfileTab('tagged')" class="tab-btn ${tab==='tagged'?'active':''}"><i data-lucide="user-check" class="w-5 h-5"></i></button>
-<button onclick="switchProfileTab('about')" class="tab-btn ${tab==='about'?'active':''}"><i data-lucide="user" class="w-5 h-5"></i></button>
+<button onclick="switchProfileTab('links')" class="tab-btn ${tab==='links'?'active':''}"><i data-lucide="link" class="w-5 h-5"></i></button>
 </div>
 `;
 container.innerHTML = `
@@ -3439,7 +3400,7 @@ container.innerHTML = `
 <div class="text-sm font-medium text-gray-500">@${user.username || 'user'}</div>
 <p class="text-gray-600 mt-2">${user.bio}</p>${networkStatsHTML}</div>
 ${tabsHTML}
-<div id="profile-content-area" class="pt-1 md:pt-4 pb-32 md:pb-0"></div>
+<div id="profile-content-area" class="pt-1 md:pt-4 pb-20 md:pb-0"></div>
 </div>
 `;
 switchView('profile');
@@ -3455,41 +3416,44 @@ if(targetBtn) targetBtn.classList.add('active');
 window.currentProfileTab = tab;
 renderProfileContent(window.currentViewingProfileId, tab);
 }
-window.closeAboutModal = function() {
-document.getElementById('about-me-overlay').classList.add('translate-y-full', 'hidden');
-// Switch tab back to posts to reset state?
-switchProfileTab('posts');
-}
 window.renderProfileContent = function(userId, tab) {
 const contentArea = document.getElementById('profile-content-area');
+contentArea.innerHTML = "";
 const user = users.find(u => u.id === userId);
-
-// About Me Tab Logic
-if (tab === 'about') {
-    if (window.innerWidth < 768) {
-        // Mobile: Show Modal
-        const overlay = document.getElementById('about-me-overlay');
-        const overlayContent = document.getElementById('about-me-content');
-        overlay.classList.remove('hidden');
-        // Force reflow for animation
-        setTimeout(() => overlay.classList.remove('translate-y-full'), 10);
-        renderAboutSection(userId, overlayContent);
-        // Clear main area so user knows content changed if they look behind modal (rare)
-        contentArea.innerHTML = "";
-    } else {
-        // Desktop: Inline
-        document.getElementById('about-me-overlay').classList.add('hidden');
-        renderAboutSection(userId, contentArea);
+if (tab === 'links') {
+    const links = user.links || [];
+    const isOwner = userId === currentUser.id;
+    
+    let html = '<div class="max-w-4xl mx-auto py-6 space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 px-2">';
+    
+    if (isOwner) {
+        html += `<button onclick="document.getElementById('add-link-modal').classList.remove('hidden')" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center justify-center gap-2 h-full"><i data-lucide="plus" class="w-5 h-5"></i> Add New Link</button>`;
     }
+    
+    if (links.length === 0) {
+        if(!isOwner) html += `<div class="col-span-2 text-center text-gray-400 py-10">No links added yet.</div>`;
+    } else {
+        links.forEach((link, idx) => {
+            html += `
+            <a href="${link.url}" target="_blank" class="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200 group relative">
+                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-200 mr-4 shrink-0">
+                    <i data-lucide="link" class="w-5 h-5 text-blue-600"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-bold text-gray-900 truncate">${link.title}</div>
+                    <div class="text-xs text-gray-500 truncate">${link.url}</div>
+                </div>
+                <i data-lucide="external-link" class="w-4 h-4 text-gray-400 ml-2"></i>
+                ${isOwner ? `<button onclick="event.preventDefault(); deleteLink(${idx})" class="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50"><i data-lucide="trash-2" class="w-3 h-3"></i></button>` : ''}
+            </a>
+            `;
+        });
+    }
+    html += '</div>';
+    contentArea.innerHTML = html;
     refreshIcons();
     return;
-} else {
-    // Ensure mobile overlay is closed if switching to other tabs
-    document.getElementById('about-me-overlay').classList.add('translate-y-full');
-    setTimeout(() => document.getElementById('about-me-overlay').classList.add('hidden'), 300);
 }
-
-contentArea.innerHTML = "";
 
 // Privacy Check for Likes Tab
 if (tab === 'liked' && userId !== currentUser.id) {
@@ -3562,255 +3526,35 @@ if (targetPosts.length === 0) {
 }
 refreshIcons();
 }
-// NEW: Render About Section Logic
-window.renderAboutSection = function(userId, container) {
-    const user = users.find(u => u.id === userId);
-    const isOwner = userId === currentUser.id;
-    const isEditing = window.isAboutEditing && isOwner;
-
-    // Use default values
-    const faceCardUrl = user.faceCard || 'https://via.placeholder.com/400x600?text=No+Photo';
-    const education = user.education || (isOwner ? 'Add education' : 'Not specified');
-    const gender = user.gender || (isOwner ? 'Add gender' : 'Not specified');
-    const dob = user.dob || (isOwner ? 'Add birthday' : 'Not specified');
-    const interests = user.interests || [];
-    const links = user.links || [];
-
-    let html = `
-    <div class="p-6 max-w-4xl mx-auto space-y-8">
-        ${isOwner ? `
-        <div class="flex justify-end">
-            <button onclick="toggleAboutEdit()" class="flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-colors ${isEditing ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}">
-                <i data-lucide="${isEditing ? 'save' : 'edit-2'}" class="w-4 h-4"></i> ${isEditing ? 'Save Changes' : 'Edit Details'}
-            </button>
-        </div>` : ''}
-
-        <!-- Top Section: Face Card + Key Details -->
-        <div class="flex flex-col md:flex-row gap-8">
-            <!-- Face Card -->
-            <div class="w-full md:w-1/3 flex-shrink-0">
-                <div class="aspect-[3/4] rounded-2xl overflow-hidden shadow-lg relative group bg-gray-100">
-                    <img src="${faceCardUrl}" class="w-full h-full object-cover">
-                    ${isEditing ? `
-                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center cursor-pointer hover:bg-black/50 transition-colors" onclick="document.getElementById('face-card-input').click()">
-                        <div class="text-white flex flex-col items-center gap-2">
-                            <i data-lucide="camera" class="w-8 h-8"></i>
-                            <span class="font-bold text-sm">Change Photo</span>
-                        </div>
-                    </div>` : ''}
-                </div>
-                <div class="text-center text-xs text-gray-400 mt-2">Face Card (Real Photo)</div>
-            </div>
-
-            <!-- Details Grid -->
-            <div class="flex-1 space-y-6">
-                <!-- Education -->
-                <div class="flex items-start gap-4">
-                    <div class="p-3 bg-blue-50 text-blue-600 rounded-xl shrink-0"><i data-lucide="graduation-cap" class="w-6 h-6"></i></div>
-                    <div class="flex-1">
-                        <div class="text-xs font-bold text-gray-500 uppercase mb-1">Education</div>
-                        ${isEditing ? 
-                        `<input type="text" id="about-education" value="${user.education || ''}" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 text-sm" placeholder="University, School...">` : 
-                        `<div class="text-gray-900 font-medium">${education}</div>`}
-                    </div>
-                </div>
-
-                <!-- Gender -->
-                <div class="flex items-start gap-4">
-                    <div class="p-3 bg-pink-50 text-pink-600 rounded-xl shrink-0"><i data-lucide="user" class="w-6 h-6"></i></div>
-                    <div class="flex-1">
-                        <div class="text-xs font-bold text-gray-500 uppercase mb-1">Gender</div>
-                        ${isEditing ? 
-                        `<select id="about-gender" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 text-sm bg-white">
-                            <option value="">Select Gender</option>
-                            <option value="Male" ${user.gender === 'Male' ? 'selected' : ''}>Male</option>
-                            <option value="Female" ${user.gender === 'Female' ? 'selected' : ''}>Female</option>
-                            <option value="Non-binary" ${user.gender === 'Non-binary' ? 'selected' : ''}>Non-binary</option>
-                            <option value="Other" ${user.gender === 'Other' ? 'selected' : ''}>Other</option>
-                        </select>` : 
-                        `<div class="text-gray-900 font-medium">${gender}</div>`}
-                    </div>
-                </div>
-
-                <!-- DOB -->
-                <div class="flex items-start gap-4">
-                    <div class="p-3 bg-purple-50 text-purple-600 rounded-xl shrink-0"><i data-lucide="cake" class="w-6 h-6"></i></div>
-                    <div class="flex-1">
-                        <div class="text-xs font-bold text-gray-500 uppercase mb-1">Birthday</div>
-                        ${isEditing ? 
-                        `<input type="date" id="about-dob" value="${user.dob || ''}" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500 text-sm">` : 
-                        `<div class="text-gray-900 font-medium">${dob}</div>`}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Interests Section -->
-        <div>
-            <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <i data-lucide="zap" class="w-5 h-5 text-yellow-500 fill-yellow-500"></i> Interests
-            </h3>
-            <div class="flex flex-wrap gap-2">
-                ${interests.map((tag, idx) => `
-                    <span class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium flex items-center gap-2">
-                        ${tag}
-                        ${isEditing ? `<i onclick="removeInterest(${idx})" data-lucide="x" class="w-3 h-3 cursor-pointer hover:text-red-500"></i>` : ''}
-                    </span>
-                `).join('')}
-                ${isEditing ? `
-                <div class="flex items-center gap-2">
-                    <input type="text" id="new-interest-input" placeholder="Add interest..." class="bg-gray-50 border border-gray-200 rounded-full px-4 py-2 text-sm outline-none focus:border-blue-500 w-32" onkeydown="if(event.key === 'Enter') addInterest()">
-                    <button onclick="addInterest()" class="bg-black text-white p-2 rounded-full hover:bg-gray-800"><i data-lucide="plus" class="w-4 h-4"></i></button>
-                </div>` : (interests.length === 0 ? '<span class="text-gray-400 text-sm">No interests added yet.</span>' : '')}
-            </div>
-        </div>
-
-        <!-- Websites Section -->
-        <div>
-            <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <i data-lucide="globe" class="w-5 h-5 text-blue-500"></i> Websites
-            </h3>
-            <div class="space-y-3">
-                ${links.length === 0 ? '<div class="text-gray-400 text-sm">No links added.</div>' : ''}
-                ${links.map((link, idx) => `
-                <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:shadow-sm transition-shadow">
-                    <a href="${link.url}" target="_blank" class="flex items-center gap-3 flex-1 min-w-0">
-                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0"><i data-lucide="link" class="w-5 h-5"></i></div>
-                        <div class="truncate">
-                            <div class="font-bold text-gray-900 text-sm truncate">${link.title}</div>
-                            <div class="text-xs text-gray-500 truncate">${link.url}</div>
-                        </div>
-                    </a>
-                    ${isEditing ? `<button onclick="deleteLink(${idx})" class="text-red-500 hover:bg-red-50 p-2 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : `<i data-lucide="external-link" class="w-4 h-4 text-gray-400"></i>`}
-                </div>
-                `).join('')}
-                
-                ${isEditing ? `
-                <button onclick="document.getElementById('add-link-modal').classList.remove('hidden')" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center justify-center gap-2">
-                    <i data-lucide="plus" class="w-5 h-5"></i> Add Website
-                </button>` : ''}
-            </div>
-        </div>
-    </div>
-    `;
-    container.innerHTML = html;
-    refreshIcons();
-}
-window.toggleAboutEdit = async function() {
-    if (window.isAboutEditing) {
-        // Save
-        const btn = event.currentTarget; // Simplified access, usually works
-        btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Saving...`;
-        refreshIcons();
-        
-        const education = document.getElementById('about-education').value;
-        const gender = document.getElementById('about-gender').value;
-        const dob = document.getElementById('about-dob').value;
-        
-        const userRef = doc(db, "users", currentUser.id);
-        await updateDoc(userRef, { education, gender, dob });
-        
-        // Update Local State
-        currentUser.education = education;
-        currentUser.gender = gender;
-        currentUser.dob = dob;
-        
-        window.isAboutEditing = false;
-        showToast("Profile Updated");
-    } else {
-        window.isAboutEditing = true;
-    }
-    // Re-render to show input/text state
-    const container = window.innerWidth < 768 ? document.getElementById('about-me-content') : document.getElementById('profile-content-area');
-    renderAboutSection(currentUser.id, container);
-}
-window.handleFaceCardUpload = async function(event) {
-    const file = event.target.files[0];
-    if(!file) return;
-    showToast("Uploading face card...");
-    try {
-        const url = await uploadToImgHippo(file);
-        const userRef = doc(db, "users", currentUser.id);
-        await updateDoc(userRef, { faceCard: url });
-        currentUser.faceCard = url;
-        // Re-render
-        const container = window.innerWidth < 768 ? document.getElementById('about-me-content') : document.getElementById('profile-content-area');
-        renderAboutSection(currentUser.id, container);
-        showToast("Face Card Updated");
-    } catch(e) {
-        console.error(e);
-        showToast("Upload failed", true);
-    }
-}
-window.addInterest = async function() {
-    const input = document.getElementById('new-interest-input');
-    const val = input.value.trim();
-    if(!val) return;
-    
-    // Optimistic Update
-    currentUser.interests.push(val);
-    const userRef = doc(db, "users", currentUser.id);
-    await updateDoc(userRef, { interests: arrayUnion(val) });
-    
-    // Re-render
-    const container = window.innerWidth < 768 ? document.getElementById('about-me-content') : document.getElementById('profile-content-area');
-    renderAboutSection(currentUser.id, container);
-    // Keep focus if possible, though re-render kills it. Advanced: partial DOM update. Simple: re-render.
-}
-window.removeInterest = async function(idx) {
-    const val = currentUser.interests[idx];
-    currentUser.interests.splice(idx, 1);
-    const userRef = doc(db, "users", currentUser.id);
-    await updateDoc(userRef, { interests: arrayRemove(val) });
-    const container = window.innerWidth < 768 ? document.getElementById('about-me-content') : document.getElementById('profile-content-area');
-    renderAboutSection(currentUser.id, container);
-}
-// Reuse saveLink and deleteLink existing functions, they update currentUser.links which this view uses.
-// Just ensure saveLink calls renderAboutSection if we are in about tab
-const originalSaveLink = window.saveLink;
 window.saveLink = async function() {
-    // We need to override or modify standard saveLink to re-render the correct view
-    const title = document.getElementById('new-link-title').value.trim();
-    const url = document.getElementById('new-link-url').value.trim();
-    if(!title || !url) { showToast("Please fill all fields", true); return; }
+const title = document.getElementById('new-link-title').value.trim();
+const url = document.getElementById('new-link-url').value.trim();
+if(!title || !url) { showToast("Please fill all fields", true); return; }
 
-    const newLink = { title, url, type: 'web' };
-    const userRef = doc(db, "users", currentUser.id);
-    await updateDoc(userRef, { links: arrayUnion(newLink) });
+const newLink = { title, url, type: 'web' };
+const userRef = doc(db, "users", currentUser.id);
+await updateDoc(userRef, { links: arrayUnion(newLink) });
 
-    if(!currentUser.links) currentUser.links = [];
-    currentUser.links.push(newLink);
+// Update local state
+if(!currentUser.links) currentUser.links = [];
+currentUser.links.push(newLink);
 
-    document.getElementById('add-link-modal').classList.add('hidden');
-    document.getElementById('new-link-title').value = "";
-    document.getElementById('new-link-url').value = "";
+document.getElementById('add-link-modal').classList.add('hidden');
+document.getElementById('new-link-title').value = "";
+document.getElementById('new-link-url').value = "";
 
-    // Check if we are in 'about' tab or 'links' tab (links tab is gone for profile, but maybe used elsewhere?)
-    if (window.currentProfileTab === 'about') {
-        const container = window.innerWidth < 768 ? document.getElementById('about-me-content') : document.getElementById('profile-content-area');
-        renderAboutSection(currentUser.id, container);
-    } else if (window.currentProfileTab === 'links') {
-        // Fallback for logic if someone manually sets tab to links
-        renderProfileContent(currentUser.id, 'links');
-    }
-    showToast("Link added!");
+renderProfileContent(currentUser.id, 'links');
+showToast("Link added!");
 }
-const originalDeleteLink = window.deleteLink;
 window.deleteLink = async function(idx) {
-    showAlert("Remove this link?", async () => {
-        const linkToRemove = currentUser.links[idx];
-        const userRef = doc(db, "users", currentUser.id);
-        await updateDoc(userRef, { links: arrayRemove(linkToRemove) });
-        currentUser.links.splice(idx, 1);
-        
-        if (window.currentProfileTab === 'about') {
-            const container = window.innerWidth < 768 ? document.getElementById('about-me-content') : document.getElementById('profile-content-area');
-            renderAboutSection(currentUser.id, container);
-        } else {
-            renderProfileContent(currentUser.id, 'links');
-        }
-        showToast("Link removed");
-    });
+showAlert("Remove this link?", async () => {
+const linkToRemove = currentUser.links[idx];
+const userRef = doc(db, "users", currentUser.id);
+await updateDoc(userRef, { links: arrayRemove(linkToRemove) });
+currentUser.links.splice(idx, 1);
+    renderProfileContent(currentUser.id, 'links');
+    showToast("Link removed");
+});
 }
 window.openEditProfile = function() {
 const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';

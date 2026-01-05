@@ -8,7 +8,6 @@
 <!-- Dependencies -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Google+Sans:wght@400;500;700&display=swap');
 :root {
@@ -222,6 +221,7 @@ font-size: 12px; color: var(--text-secondary); margin-top: 3px; font-weight: 500
 .post-body {
 font-size: 15px; line-height: 1.6; color: var(--on-surface);
 margin-bottom: 16px;
+white-space: pre-wrap; /* Preserve formatting */
 }
 .post-actions {
 display: flex; align-items: center; justify-content: space-between;
@@ -973,7 +973,8 @@ width: 100%;
 }
 .post-carousel-item {
 min-width: 100%;
-flex-shrink: 0;
+flex: 0 0 100%; /* Force single slide width */
+width: 100%;
 height: 100%;
 display: flex;
 justify-content: center;
@@ -1525,9 +1526,7 @@ Change
 <div class="tool-group">
 <button onclick="openUploadOptions()" class="tool-btn" title="Upload Media"><i data-lucide="image" class="w-5 h-5"></i></button>
 <button onclick="promptForImageLink()" class="tool-btn" title="Image Link"><i data-lucide="link" class="w-5 h-5"></i></button>
-<button onclick="insertCodeBlock()" class="tool-btn" title="Add Code"><i data-lucide="code-2" class="w-5 h-5"></i></button>
 <button onclick="openCollabSelector()" class="tool-btn text-gray-600 bg-gray-50" title="Tag Collaborators"><i data-lucide="users" class="w-5 h-5"></i></button>
-<button class="tool-btn" title="More"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
 </div>
 <button id="btn-publish" onclick="publishPost()" class="bg-[#0b57d0] text-white px-6 py-2 rounded-full font-bold text-[15px] hover:bg-[#0b57d0]/90 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed">Post</button>
 </div>
@@ -1884,15 +1883,11 @@ if (hours < 24) return `${hours}h ago`;
 if (days < 7) return `${days}d ago`;
 return date.toLocaleDateString();
 }
-// Helper: Format Content with mentions
+// Helper: Format Content (Simple Line Breaks)
 function formatContent(text) {
     if(!text) return '';
-    let html = text;
-    // Hashtags
-    html = html.replace(/#(\w+)/g, '<span class="hashtag" onclick="event.stopPropagation(); openHashtag(\'$1\')">#$1</span>');
-    // Mentions - Simple regex for @username
-    html = html.replace(/@(\w+)/g, '<span class="text-blue-600 font-bold cursor-pointer hover:underline" onclick="event.stopPropagation(); showProfile(null, \'posts\'); /* Ideally find user ID by name but simplifying */">@$1</span>');
-    return html;
+    // Removed regex processing for tags/mentions as requested
+    return text.replace(/\n/g, '<br>');
 }
 
 // Auth Listener
@@ -2273,8 +2268,8 @@ const threadAv = document.getElementById('thread-input-avatar'); if(threadAv) th
 const bannerPos = currentUser.bannerPos || 50;
 const bannerUrl = currentUser.banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
 document.getElementById('edit-banner-preview').src = bannerUrl;
-document.getElementById('edit-banner-preview').style.objectPosition = `center ${bannerPos}%`;
-document.getElementById('banner-pos-hint').innerText = `${bannerPos}%`;
+document.getElementById('edit-banner-preview').style.objectPosition = `center ${currentBannerPos}%`;
+document.getElementById('banner-pos-hint').innerText = `${currentBannerPos}%`;
 const togglePrivacy = document.getElementById('toggle-privacy');
 if(togglePrivacy) {
 if(currentUser.settings?.privateNetwork) togglePrivacy.classList.add('active');
@@ -2583,8 +2578,8 @@ if (post.media) {
         window.carouselStates[post.id] = { index: 0, total: mediaArray.length };
     }
 }
-// Updated Hashtag Parsing with Click Handler
-let tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag" onclick="event.stopPropagation(); openHashtag(\'$1\')">#$1</span>'));
+// Simplified content formatting (Removed Tag Logic)
+let contentHTML = formatContent(post.content);
 let officialBadge = author.isOfficial ? `<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>` : '';
 let lockIcon = settings.privacy === 'private' || author?.settings?.privateNetwork ? `<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>` : '';
 const canViewLikeList = settings.allowLikeView === undefined || settings.allowLikeView === true || author.id === currentUser.id || currentUser.email === 'edulinkbht@gmail.com';
@@ -2633,7 +2628,7 @@ ${collabIcon}
 <button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event, '${post.id}', '${author.id}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
 </div>
 <div class="post-content">
-<div class="post-body" data-raw-text="${post.content.replace(/"/g, '&quot;')}">${tagsHTML}</div>
+<div class="post-body" data-raw-text="${post.content.replace(/"/g, '&quot;')}">${contentHTML}</div>
 ${mediaHTML}
 </div>
 ${likedByHTML}
@@ -2683,17 +2678,8 @@ window.moveCarousel = function(postId, direction, isOverlay = false) {
     }
 }
 window.openHashtag = function(tag) {
-if(!tag) return;
-const searchVal = `#${tag}`;
-switchView('explore');
-// Update inputs
-const headerInput = document.getElementById('global-search');
-const mobileInput = document.getElementById('mobile-explore-search');
-if(headerInput) headerInput.value = searchVal;
-if(mobileInput) mobileInput.value = searchVal;
-
-// Force Tags tab if needed, otherwise search all
-handleSearch(searchVal);
+// Removed hashtag logic as requested
+console.log("Hashtag clicked:", tag);
 }
 // EXPLORE FUNCTIONS
 window.switchExploreMainTab = function(tabName) {
@@ -3657,7 +3643,8 @@ overlay.classList.remove('mobile-reel-view');
 document.body.classList.remove('reel-mode'); // Reset body class
 const author = users.find(u => u.id === post.authorId) || { name: 'Unknown', avatar: '', id: post.authorId };
 const dateStr = formatDate(post.timestamp);
-const tagsHTML = marked.parse(post.content.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'));
+// Simplified Content (No Tags)
+const contentHTML = formatContent(post.content);
 // Desktop Only Elements
 const mediaContainer = document.getElementById('post-view-media-container');
 const captionArea = document.getElementById('post-view-caption-area');
@@ -3673,7 +3660,7 @@ document.getElementById('post-view-username').onclick = () => showProfile(author
 // MOBILE ELEMENTS POPULATION (Standard View - Default)
 document.getElementById('mobile-post-pfp').src = author.avatar;
 document.getElementById('mobile-post-username').innerText = author.name;
-document.getElementById('mobile-post-caption').innerHTML = tagsHTML;
+document.getElementById('mobile-post-caption').innerHTML = contentHTML;
 const mobileLikeCount = document.getElementById('mobile-like-count');
 if(showLikes) {
 mobileLikeCount.style.display = 'block';
@@ -3799,7 +3786,7 @@ if (post.media) {
 mediaContainer.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-white opacity-40"> <i data-lucide="image-off" class="w-16 h-16 mb-2"></i> <span class="text-sm font-medium">No Media</span> </div>`;
 }
 // Desktop Caption
-captionArea.innerHTML = `<div class="flex gap-3"> <img src="${author.avatar}" class="w-8 h-8 rounded-full border border-gray-100 object-cover shrink-0 cursor-pointer" onclick="showProfile('${author.id}')"> <div> <div class="flex items-center gap-1.5 mb-0.5"> <span class="font-bold text-sm cursor-pointer" onclick="showProfile('${author.id}')">${author.name}</span> ${author.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 text-blue-500 fill-blue-50"></i>' : ''} </div> <div class="text-sm text-gray-800 leading-snug">${tagsHTML}</div> </div> </div>`;
+captionArea.innerHTML = `<div class="flex gap-3"> <img src="${author.avatar}" class="w-8 h-8 rounded-full border border-gray-100 object-cover shrink-0 cursor-pointer" onclick="showProfile('${author.id}')"> <div> <div class="flex items-center gap-1.5 mb-0.5"> <span class="font-bold text-sm cursor-pointer" onclick="showProfile('${author.id}')">${author.name}</span> ${author.isOfficial ? '<i data-lucide="badge-check" class="w-3 h-3 text-blue-500 fill-blue-50"></i>' : ''} </div> <div class="text-sm text-gray-800 leading-snug">${contentHTML}</div> </div> </div>`;
 // Comments
 renderCommentsInModal(postId);
 // Like Button State (Desktop)
@@ -4337,7 +4324,7 @@ window.showToast = function(message, isError = false) { const toast = document.g
 window.openLightbox = function(src, type = 'image') { const wrapper = document.getElementById('lightbox-wrapper'); const lightbox = document.getElementById('lightbox'); if (type === 'video' || src.includes('.mp4') || src.includes('data:video') || src.includes('.webm')) { wrapper.innerHTML = `<video src="${src}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`; } else { wrapper.innerHTML = `<img src="${src}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; } lightbox.classList.add('active'); lightbox.classList.remove('pointer-events-none'); lightbox.classList.remove('opacity-0'); }
 window.closeLightbox = function() { const lightbox = document.getElementById('lightbox'); lightbox.classList.remove('active'); lightbox.classList.add('pointer-events-none'); lightbox.classList.add('opacity-0'); const video = lightbox.querySelector('video'); if(video) video.pause(); }
 window.copyText = function(text, btn) { navigator.clipboard.writeText(decodeURIComponent(text)).then(() => { showToast("Copied to clipboard"); }); };
-window.insertCodeBlock = function() { const ta = document.getElementById('compose-text'); ta.value += "\n```javascript\n// Code here\n```\n"; ta.focus(); };
+window.insertCodeBlock = function() { /* Removed functionality as requested */ };
 window.moveCarousel = function(postId, direction, isOverlay = false) {
     const key = isOverlay ? `overlay-${postId}` : postId;
     if(!window.carouselStates || !window.carouselStates[key]) return;

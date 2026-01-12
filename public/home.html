@@ -49,8 +49,8 @@ i[data-lucide],svg { flex-shrink:0; }
 /* Yellow save icon */
 .action-btn.bookmark.active svg { fill:#eab308; stroke:#eab308; } /* Yellow-500 */
 #compose-modal,#create-menu-modal,#edit-profile-modal,#user-list-modal,#settings-modal,#likes-overlay,#username-modal,#add-link-modal,#promo-modal,#upload-options-modal,#share-modal,#post-options-modal,#notif-options-modal,#qr-overlay,#scanner-overlay { box-shadow:0 20px 60px rgba(0,0,0,0.15); border:1px solid var(--outline); }
-.compose-header { display:flex; align-items:center; justify-content:space-between; padding-bottom:16px; margin-bottom:16px; border-bottom:1px solid var(--outline); }
-.compose-title { font-size:18px; font-weight:600; color:var(--on-surface); font-family:'Google Sans',sans-serif; }
+.compose-header { display:flex; align-items:center; justify-content:center; padding-bottom:16px; margin-bottom:16px; border-bottom:1px solid var(--outline); position:relative; }
+.compose-title { font-size:16px; font-weight:700; color:var(--on-surface); font-family:'Google Sans',sans-serif; }
 .compose-textarea { width:100%; min-height:120px; font-size:17px; line-height:1.6; color:var(--on-surface); border:none; outline:none; resize:none; background:transparent; }
 .compose-tools { display:flex; align-items:center; justify-content:space-between; margin-top:16px; padding-top:16px; border-top:1px solid var(--outline); }
 .tool-group { display:flex; gap:4px; }
@@ -225,7 +225,7 @@ body.modal-open #mobile-bottom-nav { display: none !important; }
 <div id="edit-profile-overlay" class="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeEditProfile()"><div id="edit-profile-modal" class="bg-white w-full h-[85vh] md:h-auto md:w-[95%] md:max-w-[500px] md:max-h-[90vh] md:rounded-[24px] rounded-t-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col" onclick="event.stopPropagation()"><div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mt-3 mb-1 shrink-0 md:hidden"></div><div class="flex justify-between items-center p-4 border-b border-gray-100 shrink-0"><h2 class="text-xl font-bold google-font">Edit Profile</h2><button onclick="closeEditProfile()" class="icon-btn"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="flex-1 overflow-y-auto p-6 pb-24 md:pb-6"><div class="flex flex-col gap-5"><div class="flex flex-col items-center mb-2"><div class="relative group cursor-pointer" onclick="document.getElementById('edit-avatar-input').click()"><img id="edit-avatar-preview" src="" class="w-24 h-24 rounded-full border-2 border-gray-100 object-cover"><div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="camera" class="text-white w-6 h-6"></i></div></div><input type="file" id="edit-avatar-input" class="hidden" accept="image/*" onchange="handleEditAvatarSelect(event)"><input type="file" id="edit-banner-input" class="hidden" accept="image/*" onchange="handleEditBannerSelect(event)"></div><div><label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Banner Image</label><div id="banner-edit-area" class="banner-edit-container group mb-2 h-36" onclick="document.getElementById('edit-banner-input').click()"><img id="edit-banner-preview" src="" class="banner-edit-img" style="object-position:center 50%"><div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="upload" class="text-white w-6 h-6"></i></div></div><div class="text-[10px] text-gray-400 mb-1 flex justify-between"><span>Click banner to change, drag to reposition</span> <span id="banner-pos-hint">50%</span></div></div><div><label class="text-xs font-bold text-gray-500 uppercase">Display Name</label><input type="text" id="edit-name" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 font-medium text-gray-900"></div><div><label class="text-xs font-bold text-gray-500 uppercase">Email</label><input type="text" id="edit-email" class="w-full border-b border-gray-200 py-2 outline-none text-gray-500 bg-transparent select-text" disabled></div><div><label class="text-xs font-bold text-gray-500 uppercase">Bio</label><textarea id="edit-bio" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 text-sm text-gray-700 resize-none" rows="3"></textarea></div><button id="save-profile-btn" onclick="saveProfileChanges()" class="w-full bg-[#0b57d0] text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-all mt-4 mb-8 md:mb-0">Save Changes</button></div></div></div></div>
 <input type="file" id="event-cover-input" class="hidden" accept="image/*" onchange="handleEventCoverSelect(event)">
 <div id="event-overlay" class="fixed inset-0 z-[55] flex items-center justify-center bg-[#000]/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200"><div id="event-modal-box" class="bg-white w-[95%] max-w-[550px] rounded-[16px] shadow-2xl relative transform scale-95 transition-transform duration-200 flex flex-col overflow-hidden p-0"><div id="event-cover-preview-container" class="w-full h-40 bg-gray-100 hidden relative group"><img id="event-cover-preview" class="w-full h-full object-cover"><button onclick="removeEventCover()" class="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70 z-20"><i data-lucide="x" class="w-4 h-4"></i></button><button onclick="document.getElementById('event-cover-input').click()" class="absolute top-1/2 -translate-y-1/2 right-2 bg-white/80 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white z-20 shadow-sm">Change</button></div><button onclick="closeEventComposer()" class="absolute top-4 right-4 icon-btn hover:bg-[#f0f4f9] z-10 bg-white/50 backdrop-blur-sm"><i data-lucide="x" class="w-5 h-5"></i></button><div class="p-8 pt-6"><div id="add-cover-btn" class="mb-6 opacity-60 hover:opacity-100 transition-opacity cursor-pointer flex items-center gap-2 text-sm text-[#667085]" onclick="document.getElementById('event-cover-input').click()"><i data-lucide="image" class="w-4 h-4"></i> Add cover</div><input type="text" id="event-title" placeholder="Untitled Event" class="text-3xl font-bold text-[#1f1f1f] placeholder-[#d1d5db] border-none outline-none bg-transparent w-full mb-6 google-font"><div class="flex flex-col gap-1 mb-6"><div class="notion-input-row"><div class="notion-label"><i data-lucide="clock" class="w-4 h-4"></i> Date</div><input type="date" id="event-date" class="notion-input"></div><div class="notion-input-row"><div class="notion-label"><i data-lucide="watch" class="w-4 h-4"></i> Time</div><input type="time" id="event-time" class="notion-input"></div><div class="notion-input-row"><div class="notion-label"><i data-lucide="map-pin" class="w-4 h-4"></i> Location</div><input type="text" id="event-location" placeholder="Add location..." class="notion-input"></div></div><textarea id="event-desc" placeholder="Add description..." class="w-full min-h-[100px] resize-none border-none outline-none text-[#374151] text-[15px] leading-relaxed bg-transparent"></textarea><div class="flex justify-end mt-6 pt-4 border-t border-gray-100"><button onclick="publishEvent()" class="bg-[#0b57d0] text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-[#0b57d0]/90 transition-all shadow-sm">Create Event</button></div></div></div></div>
-<div id="compose-overlay" class="fixed inset-0 z-[55] flex items-center justify-center bg-[#000]/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200" onclick="closeCompose()"><div id="compose-modal" class="bg-white w-full h-full md:w-[95%] md:max-w-[620px] md:h-auto md:rounded-[24px] shadow-2xl p-6 relative transform scale-100 md:scale-95 transition-transform duration-200 flex flex-col" onclick="event.stopPropagation()"><div class="compose-header"><div class="flex items-center gap-3"><button onclick="closeCompose()" class="icon-btn hover:bg-[#f0f4f9] w-8 h-8"><i data-lucide="x" class="w-5 h-5"></i></button><span class="compose-title" id="compose-title-text">Create Post</span></div><button onclick="publishPost()" class="md:hidden text-[#0b57d0] font-bold text-sm px-3 py-1 bg-blue-50 rounded-full">Post</button></div><div class="flex gap-3 mb-4 items-center"><img id="compose-avatar" src="" class="w-10 h-10 rounded-full border border-gray-100 bg-gray-50 object-cover"><div><div id="compose-name" class="text-[15px] font-bold text-[#1f1f1f]">User</div></div></div><textarea id="compose-text" placeholder="What do you want to share today?" class="compose-textarea"></textarea><div id="media-preview-container" class="hidden media-preview-wrapper group"><div id="preview-inner" class="flex overflow-x-auto gap-2 p-2"></div><button onclick="removeMedia()" class="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1.5 hover:bg-black/80 transition-colors shadow-sm z-10"><i data-lucide="x" class="w-4 h-4"></i></button></div><div id="collab-chips-container" class="flex flex-wrap mb-2"></div><div class="compose-tools"><div class="tool-group"><button onclick="openUploadOptions()" class="tool-btn" title="Upload Media"><i data-lucide="image" class="w-5 h-5"></i></button><button onclick="promptForImageLink()" class="tool-btn" title="Image Link"><i data-lucide="link" class="w-5 h-5"></i></button></div><button id="btn-publish" onclick="publishPost()" class="hidden md:block bg-[#0b57d0] text-white px-6 py-2 rounded-full font-bold text-[15px] hover:bg-[#0b57d0]/90 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed">Post</button></div><div class="border-t border-gray-100 pt-3 mt-2"><div class="flex items-center justify-between cursor-pointer p-1" onclick="toggleComposeSettings()"><span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Post Settings</span><i data-lucide="chevron-down" id="compose-settings-arrow" class="w-4 h-4 text-gray-400 transition-transform"></i></div><div id="compose-settings-area" class="hidden mt-3 space-y-3 px-1"><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="lock" class="w-4 h-4"></i> Private (Followers Only)</div><input type="checkbox" id="post-setting-privacy" class="accent-blue-600 w-4 h-4 cursor-pointer"></div><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="heart" class="w-4 h-4"></i> Show Like Count</div><input type="checkbox" id="post-setting-likes" class="accent-blue-600 w-4 h-4 cursor-pointer" checked></div><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="message-square" class="w-4 h-4"></i> Show Comment Count</div><input type="checkbox" id="post-setting-comments" class="accent-blue-600 w-4 h-4 cursor-pointer" checked></div><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="users" class="w-4 h-4"></i> Allow viewers to see who liked</div><input type="checkbox" id="post-setting-like-view" class="accent-blue-600 w-4 h-4 cursor-pointer" checked></div><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="message-circle" class="w-4 h-4"></i> Allow comments</div><input type="checkbox" id="post-setting-allow-comments" class="accent-blue-600 w-4 h-4 cursor-pointer" checked></div></div></div></div></div>
+<div id="compose-overlay" class="fixed inset-0 z-[55] flex items-end md:items-center justify-center bg-[#000]/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200" onclick="attemptCloseCompose()"><div id="compose-modal" class="bg-white w-full h-[95vh] md:h-auto md:w-[95%] md:max-w-[620px] rounded-t-[24px] md:rounded-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div id="compose-progress-overlay" class="absolute inset-0 bg-white/90 backdrop-blur-sm z-[60] hidden flex-col items-center justify-center"><div class="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mb-4"><div id="post-progress-bar" class="h-full bg-[#0b57d0] transition-all duration-300 w-0"></div></div><p class="font-bold text-gray-900 animate-pulse">Posting...</p></div><div class="md:hidden w-12 h-1.5 bg-gray-300 rounded-full mx-auto mt-3 mb-1 shrink-0"></div><div class="flex items-center justify-between p-4 border-b border-gray-100"><button onclick="attemptCloseCompose()" class="icon-btn hover:bg-gray-100 w-10 h-10"><i data-lucide="x" class="w-6 h-6 text-gray-900"></i></button><span class="text-lg font-bold text-gray-900" id="compose-header-title">Create Post</span><div class="w-10"></div></div><div id="compose-body" class="flex-1 overflow-y-auto relative"><div id="compose-step-1" class="p-4 h-full flex flex-col"><div class="grid grid-cols-2 gap-4" id="media-grid-container"><!-- Generated by JS --></div></div><div id="compose-step-2" class="p-4 hidden"><div class="flex gap-3 mb-4 items-center"><img id="compose-avatar" src="" class="w-10 h-10 rounded-full border border-gray-100 bg-gray-50 object-cover"><div><div id="compose-name" class="text-[15px] font-bold text-[#1f1f1f]">User</div></div></div><textarea id="compose-text" placeholder="What's on your mind?" class="w-full min-h-[150px] text-lg resize-none border-none outline-none bg-transparent placeholder-gray-400"></textarea><div id="collab-chips-container" class="flex flex-wrap mb-2"></div><div class="border-t border-gray-100 pt-3 mt-2"><div class="flex items-center justify-between cursor-pointer p-1" onclick="toggleComposeSettings()"><span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Post Settings</span><i data-lucide="chevron-down" id="compose-settings-arrow" class="w-4 h-4 text-gray-400 transition-transform"></i></div><div id="compose-settings-area" class="hidden mt-3 space-y-3 px-1"><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="lock" class="w-4 h-4"></i> Private (Followers Only)</div><input type="checkbox" id="post-setting-privacy" class="accent-blue-600 w-4 h-4 cursor-pointer"></div><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="heart" class="w-4 h-4"></i> Show Like Count</div><input type="checkbox" id="post-setting-likes" class="accent-blue-600 w-4 h-4 cursor-pointer" checked></div><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="message-square" class="w-4 h-4"></i> Show Comment Count</div><input type="checkbox" id="post-setting-comments" class="accent-blue-600 w-4 h-4 cursor-pointer" checked></div><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="users" class="w-4 h-4"></i> Allow viewers to see who liked</div><input type="checkbox" id="post-setting-like-view" class="accent-blue-600 w-4 h-4 cursor-pointer" checked></div><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="message-circle" class="w-4 h-4"></i> Allow comments</div><input type="checkbox" id="post-setting-allow-comments" class="accent-blue-600 w-4 h-4 cursor-pointer" checked></div></div></div></div></div><div class="p-4 border-t border-gray-100 bg-white"><button id="compose-action-btn" class="w-full py-3 bg-gray-100 text-gray-900 font-bold rounded-lg hover:bg-gray-200 transition-colors" onclick="handleComposeAction()">Skip</button></div></div></div>
 <aside id="main-sidebar" class="hidden md:flex app-panel"><div class="h-12 flex items-center gap-3 mb-6 px-2 cursor-pointer" onclick="switchView('feed')"><img src="https://i.imghippo.com/files/fRGt5603uII.png" class="w-8 h-8 object-contain"><h1 class="text-[20px] font-bold text-[#1f1f1f] hidden lg:block tracking-tight">EduLink</h1></div><button onclick="openCreateMenu()" class="create-btn hidden lg:flex"><i data-lucide="plus" class="w-5 h-5"></i><span>Create</span></button><nav class="flex-1 space-y-1" id="desktop-nav-items"><a href="#" onclick="switchView('feed');return false;" id="nav-feed" class="nav-item active"><i data-lucide="home" class="w-5 h-5"></i> <span class="hidden lg:block">Home</span></a><a href="#" onclick="switchView('explore');return false;" id="nav-explore" class="nav-item"><i data-lucide="compass" class="w-5 h-5"></i> <span class="hidden lg:block">Explore</span></a><a href="#" onclick="switchView('network');return false;" id="nav-network" class="nav-item"><i data-lucide="users" class="w-5 h-5"></i> <span class="hidden lg:block">Network</span></a><a href="#" onclick="switchView('notifications');return false;" id="nav-notifications" class="nav-item relative"><i data-lucide="bell" class="w-5 h-5"></i><span class="hidden lg:block">Notifications</span><span id="nav-notif-badge" class="nav-badge">0</span></a><a href="#" onclick="showProfile(auth.currentUser?auth.currentUser.uid:null);return false;" id="nav-profile" class="nav-item"><i data-lucide="user" class="w-5 h-5"></i> <span class="hidden lg:block">Profile</span></a></nav><div class="mt-auto pt-4 border-t border-gray-100 flex flex-col gap-2"><div class="sidebar-user group cursor-pointer" onclick="openSettings()"><div class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"><i data-lucide="settings" class="w-5 h-5"></i></div><div class="hidden lg:block"><div class="text-sm font-bold text-[#1f1f1f]">Settings</div></div></div><div class="sidebar-user group" onclick="showProfile(auth.currentUser?auth.currentUser.uid:null)"><img id="sidebar-avatar" src="" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 shrink-0 object-cover"><div class="hidden lg:block"><div id="sidebar-name" class="text-sm font-bold text-[#1f1f1f] group-hover:text-blue-700 transition-colors truncate w-[140px]">User</div><div class="text-xs text-[#667085]">View Profile</div></div></div></div></aside>
 <div id="workspace-layout" class="flex-1 flex min-w-0 gap-4 relative overflow-hidden transition-all duration-300"><main id="main-panel" class="flex-1 app-panel min-w-0 relative"><header id="main-header" class="h-16 md:h-20 flex items-center justify-between px-4 md:px-6 shrink-0 z-20 absolute top-0 w-full bg-white/95 md:bg-white/90 backdrop-blur-md border-b border-[#f0f0f0] transition-transform duration-300"><div class="md:hidden flex items-center gap-3 cursor-pointer" onclick="switchView('feed')"><img src="https://i.imghippo.com/files/fRGt5603uII.png" class="w-8 h-8 object-contain"><h1 class="text-lg font-bold text-[#1f1f1f] tracking-tight">EduLink</h1></div><div class="flex-1 max-w-[600px] relative group hidden md:block"><i data-lucide="search" class="absolute left-5 top-3.5 w-5 h-5 text-[#667085] group-focus-within:text-[#0b57d0] transition-colors"></i><input type="text" placeholder="Search EduLink" id="global-search" oninput="handleSearch(this.value)" class="w-full bg-[#f3f4f6] rounded-full py-3.5 pl-14 pr-6 outline-none focus:bg-[#ffffff] focus:shadow-sm focus:ring-1 focus:ring-gray-200 transition-all text-[#1f1f1f] text-[15px]"></div><div class="flex items-center gap-3 pl-4"><button onclick="openSettings()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="settings" class="w-6 h-6"></i></button><button class="icon-btn relative" onclick="toggleNotifications()"><i data-lucide="bell" class="w-6 h-6"></i></button><img id="header-avatar" src="" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 cursor-pointer hover:ring-2 ring-offset-1 ring-blue-500 transition-all hidden md:block" onclick="showProfile(auth.currentUser?auth.currentUser.uid:null)"></div></header>
 <div id="ptr-spinner"><i data-lucide="arrow-down" class="w-5 h-5"></i></div>
@@ -239,6 +239,7 @@ body.modal-open #mobile-bottom-nav { display: none !important; }
 <div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:pt-20 hidden bg-white"><div id="explore-header-container" class="sticky top-0 bg-white z-20 border-b border-gray-100 md:hidden"><div class="h-14 flex items-center px-4 shrink-0"><div class="relative bg-gray-100 rounded-xl flex items-center px-3 py-2 w-full"><i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i><input type="text" id="mobile-explore-search" class="bg-transparent border-none outline-none text-sm w-full" placeholder="Search..." oninput="handleSearch(this.value)"></div></div><div class="tab-group"><button id="tab-explore-main" onclick="switchExploreMainTab('explore')" class="tab-btn active"><i data-lucide="grid" class="w-5 h-5"></i></button><button id="tab-explore-video" onclick="switchExploreMainTab('video')" class="tab-btn"><i data-lucide="play-circle" class="w-5 h-5"></i></button><button id="tab-explore-people" onclick="switchExploreMainTab('people')" class="tab-btn"><i data-lucide="users" class="w-5 h-5"></i></button><button id="tab-explore-tags" onclick="switchExploreMainTab('tags')" class="tab-btn"><i data-lucide="hash" class="w-5 h-5"></i></button></div></div><div class="hidden md:block w-full bg-white z-10 border-b border-gray-100"><div class="max-w-5xl mx-auto tab-group border-b-0 px-0 justify-center"><button id="tab-explore-main-d" onclick="switchExploreMainTab('explore')" class="tab-btn active max-w-[120px]"><i data-lucide="grid" class="w-4 h-4"></i> Posts</button><button id="tab-explore-video-d" onclick="switchExploreMainTab('video')" class="tab-btn max-w-[120px]"><i data-lucide="play-circle" class="w-4 h-4"></i> Videos</button><button id="tab-explore-people-d" onclick="switchExploreMainTab('people')" class="tab-btn max-w-[120px]"><i data-lucide="users" class="w-4 h-4"></i> People</button><button id="tab-explore-tags-d" onclick="switchExploreMainTab('tags')" class="tab-btn max-w-[120px]"><i data-lucide="hash" class="w-4 h-4"></i> Tags</button></div></div><div id="explore-content-wrapper" class="pb-32 max-w-5xl mx-auto py-6"><div id="explore-people-results" class="hidden flex-col p-4 pt-0"></div><div id="explore-results" class="space-y-0 pt-0"></div></div></div></main><aside id="trending-panel" class="trending-panel hidden xl:flex app-panel mb-16 md:mb-0 flex-col bg-white"><div class="h-16 md:h-20 shrink-0 border-b border-[#f0f0f0] flex items-center justify-between px-6 bg-white/95 backdrop-blur z-20"><div class="flex items-center gap-3"><span class="text-[19px] font-bold text-[#1f1f1f] google-font">People</span></div></div><div class="flex-1 overflow-y-auto p-5"><div class="mb-8"><h3 class="text-lg font-bold text-[#1f1f1f] mb-4">Who to follow</h3><div id="who-to-follow-list" class="flex flex-col gap-4"></div></div><div id="promo-section" class="hidden"><div class="relative group rounded-xl overflow-hidden cursor-pointer"><a id="promo-link" href="#" target="_blank" class="block w-full h-full"><img id="promo-image" src="" class="w-full h-auto object-cover rounded-xl border border-gray-200 hover:opacity-95 transition-opacity"></a><button id="edit-promo-btn" onclick="openPromoModal(event)" class="absolute top-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 hidden z-20"><i data-lucide="edit-2" class="w-4 h-4"></i></button><div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-md font-medium uppercase tracking-wide backdrop-blur-sm pointer-events-none">Promoted</div></div></div></div></aside></div>
 <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-[#eaecf0] h-[64px] flex items-center justify-around z-50 pb-[env(safe-area-inset-bottom)] px-2 shadow-lg transition-transform duration-300"><div class="mobile-nav-item active" onclick="switchView('feed')"><i data-lucide="home"></i></div><div class="mobile-nav-item" onclick="switchView('explore')"><i data-lucide="compass"></i></div><div class="mobile-nav-item" onclick="openCreateMenu()"><i data-lucide="plus-square"></i></div><div class="mobile-nav-item" onclick="switchView('notifications')"><div class="relative"><i data-lucide="bell"></i><span id="mobile-footer-badge" class="mobile-footer-badge">0</span></div></div><div class="mobile-nav-item" onclick="showProfile(auth.currentUser?auth.currentUser.uid:null)"><img id="mobile-avatar" src="" class="w-6 h-6 rounded-full border border-gray-200"></div></nav>
 <input type="file" id="media-input" class="hidden" accept="image/*,video/*" onchange="handleFileSelect(event)">
+<input type="file" id="grid-upload-input" class="hidden" accept="image/*,video/*" onchange="onGridFileSelect(event)">
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -253,6 +254,11 @@ let stopGeneration=false, abortController=null; window.isPlusMenuOpen=false; win
 let currentEventCoverBlob=null, currentAvatarBlob=null, currentBannerBlob=null; window.currentPromoBlob=null;
 window.notifSelectionMode=false; window.selectedNotifs=new Set(); window.notifSearchTerm=''; window.selectedCollaborators=[];
 window.currentSharePid=null;
+// Post Creation Flow State
+window.composeStep = 1;
+window.composeImages = [null, null, null, null]; // 4 slots
+window.composeImageBlobs = [null, null, null, null];
+
 let lastScrollTop=0; const feedView=document.getElementById('view-feed');
 let html5QrCode;
 
@@ -859,39 +865,236 @@ window.showPostOptions=(e,pid,aid)=>{
     }, 20);
 };
 window.hidePostMenu=()=>{ const o=document.getElementById('post-options-overlay'), m=document.getElementById('post-options-modal'); o.classList.add('opacity-0'); m.classList.add('translate-y-full','md:scale-95'); m.classList.remove('translate-y-0','md:scale-100'); setTimeout(()=>o.classList.add('hidden'),200); };
-window.editPost=pid=>{ const p=posts.find(x=>x.id===pid); if(!p) return; document.getElementById('compose-text').value=p.content; window.editingPostId=pid; document.getElementById('compose-title-text').innerText="Edit Post"; document.getElementById('btn-publish').innerText="Update"; openCompose(); };
+window.editPost=pid=>{ const p=posts.find(x=>x.id===pid); if(!p) return; document.getElementById('compose-text').value=p.content; window.editingPostId=pid; document.getElementById('compose-header-title').innerText="Edit Post"; goToStep2(); openCompose(true); };
 window.deletePost=async(pid)=>{ showAlert("Delete post?",async()=>{ await deleteDoc(doc(db,"posts",pid)); showToast("Deleted"); }); };
-window.openCompose=()=>{ window.selectedCollaborators=[]; renderCollabChips(); closeCreateMenu(); document.getElementById('compose-overlay').classList.remove('opacity-0','pointer-events-none'); document.getElementById('compose-modal').classList.remove('scale-95'); };
-window.closeCompose=()=>{ document.getElementById('compose-overlay').classList.add('opacity-0','pointer-events-none'); document.getElementById('compose-modal').classList.add('scale-95'); setTimeout(() => { window.editingPostId=null; document.getElementById('compose-title-text').innerText="Create Post"; document.getElementById('btn-publish').innerText="Post"; document.getElementById('compose-text').value=""; removeMedia(); },200); };
+window.openCompose=(isEdit = false)=>{ 
+    closeCreateMenu(); 
+    document.getElementById('compose-overlay').classList.remove('opacity-0','pointer-events-none'); 
+    document.getElementById('compose-modal').classList.remove('scale-95'); 
+    
+    if(!isEdit){
+        // Reset Logic
+        window.composeStep = 1;
+        window.composeImages = [null, null, null, null];
+        window.composeImageBlobs = [null, null, null, null];
+        window.selectedCollaborators=[]; 
+        window.editingPostId=null;
+        document.getElementById('compose-text').value="";
+        document.getElementById('compose-header-title').innerText="Create Post";
+        document.getElementById('compose-step-1').classList.remove('hidden');
+        document.getElementById('compose-step-2').classList.add('hidden');
+        document.getElementById('compose-action-btn').innerText = "Skip";
+        renderMediaGrid();
+        renderCollabChips();
+    }
+};
+window.attemptCloseCompose=()=>{
+    // If editing or content added, confirm discard
+    const hasContent = document.getElementById('compose-text').value.trim().length > 0 || window.composeImages.some(x=>x!==null);
+    if(hasContent && !window.editingPostId) {
+        showAlert("Discard post?", () => closeCompose());
+    } else {
+        closeCompose();
+    }
+};
+window.closeCompose=()=>{ 
+    document.getElementById('compose-overlay').classList.add('opacity-0','pointer-events-none'); 
+    document.getElementById('compose-modal').classList.add('scale-95'); 
+    setTimeout(() => { 
+        window.editingPostId=null; 
+        document.getElementById('compose-text').value="";
+        window.composeImages = [null, null, null, null];
+        window.composeImageBlobs = [null, null, null, null];
+    },200); 
+};
 window.toggleComposeSettings=()=>{ const a=document.getElementById('compose-settings-area'), ar=document.getElementById('compose-settings-arrow'); a.classList.toggle('hidden'); ar.style.transform=a.classList.contains('hidden')?'rotate(0deg)':'rotate(180deg)'; };
 window.openUploadOptions=()=>document.getElementById('upload-options-modal').classList.remove('hidden');
 window.triggerUpload=m=>{ window.uploadMode=m; document.getElementById('upload-options-modal').classList.add('hidden'); const i=document.getElementById('media-input'); if(m==='multiple') i.setAttribute('multiple',''); else i.removeAttribute('multiple'); i.click(); };
 window.handleFileSelect=e=>{ const f=e.target.files; if(f.length>0){ window.currentMediaBlob=[]; window.currentMedia=[]; const c=document.getElementById('media-preview-container'), inr=document.getElementById('preview-inner'); c.classList.remove('hidden'); inr.innerHTML=''; const ps=Array.from(f).map(file=>{ window.currentMediaBlob.push(file); return new Promise(r=>{ const d=new FileReader(); d.onload=ev=>{ window.currentMedia.push(ev.target.result); const iv=file.type.startsWith('video'), el=document.createElement(iv?'video':'img'); el.src=ev.target.result; el.className="h-20 w-20 object-cover rounded-md border border-gray-200 shrink-0"; inr.appendChild(el); r(); }; d.readAsDataURL(file); }); }); Promise.all(ps).then(()=>showToast(`${f.length} file(s) ready`)); } };
 window.removeMedia=()=>{ window.currentMedia=[]; window.currentMediaBlob=[]; document.getElementById('media-preview-container').classList.add('hidden'); document.getElementById('media-input').value=""; };
+
+// New Compose Flow Logic
+window.renderMediaGrid = () => {
+    const grid = document.getElementById('media-grid-container');
+    grid.innerHTML = '';
+    const btn = document.getElementById('compose-action-btn');
+    let hasImage = false;
+
+    for(let i=0; i<4; i++) {
+        const url = window.composeImages[i];
+        const div = document.createElement('div');
+        div.className = "aspect-square border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center relative overflow-hidden bg-gray-50 transition-colors";
+        
+        if (url) {
+            hasImage = true;
+            div.className = "aspect-square rounded-xl overflow-hidden relative shadow-sm border border-gray-200";
+            if (url.includes('video') || url.endsWith('.mp4') || (window.composeImageBlobs[i] && window.composeImageBlobs[i].type.startsWith('video'))) {
+                 div.innerHTML = `<video src="${url}" class="w-full h-full object-cover pointer-events-none"></video><button onclick="removeGridImage(${i})" class="absolute top-2 right-2 bg-black/60 text-white p-1 rounded-full hover:bg-black/80"><i data-lucide="x" class="w-4 h-4"></i></button>`;
+            } else {
+                 div.innerHTML = `<img src="${url}" class="w-full h-full object-cover"><button onclick="removeGridImage(${i})" class="absolute top-2 right-2 bg-black/60 text-white p-1 rounded-full hover:bg-black/80"><i data-lucide="x" class="w-4 h-4"></i></button>`;
+            }
+        } else {
+            // Show + only if it's the first empty slot or after a filled slot
+            const isNext = (i === 0) || (window.composeImages[i-1] !== null);
+            if (isNext) {
+                div.innerHTML = `<i data-lucide="plus" class="w-8 h-8 text-gray-400"></i>`;
+                div.classList.add('cursor-pointer', 'hover:bg-gray-100');
+                div.onclick = () => window.handleGridUpload(i);
+            } else {
+                div.innerHTML = ''; // Empty placeholder styling
+                div.className = "aspect-square border-2 border-dashed border-gray-200 rounded-xl bg-transparent";
+            }
+        }
+        grid.appendChild(div);
+    }
+    
+    if(window.composeStep === 1) {
+        btn.innerText = hasImage ? "Done" : "Skip";
+        btn.onclick = window.handleComposeAction;
+    }
+    refreshIcons();
+};
+
+window.handleGridUpload = (index) => {
+    window.currentUploadIndex = index;
+    document.getElementById('grid-upload-input').click();
+};
+
+window.onGridFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        window.composeImages[window.currentUploadIndex] = ev.target.result;
+        window.composeImageBlobs[window.currentUploadIndex] = file;
+        renderMediaGrid();
+    };
+    reader.readAsDataURL(file);
+    document.getElementById('grid-upload-input').value = ""; // Reset
+};
+
+window.removeGridImage = (index) => {
+    window.composeImages[index] = null;
+    window.composeImageBlobs[index] = null;
+    // Shift remaining images left? No, user asked for fixed slots logic implying simple removal.
+    // However, to keep the "+ in next container" logic working, we should probably shift.
+    // Let's compact array to remove holes.
+    const valid = window.composeImages.filter(x => x !== null);
+    const validBlobs = window.composeImageBlobs.filter(x => x !== null);
+    window.composeImages = [null, null, null, null];
+    window.composeImageBlobs = [null, null, null, null];
+    valid.forEach((v, i) => window.composeImages[i] = v);
+    validBlobs.forEach((v, i) => window.composeImageBlobs[i] = v);
+    
+    renderMediaGrid();
+};
+
+window.handleComposeAction = () => {
+    if (window.composeStep === 1) {
+        goToStep2();
+    } else {
+        publishPost();
+    }
+};
+
+window.goToStep2 = () => {
+    window.composeStep = 2;
+    document.getElementById('compose-step-1').classList.add('hidden');
+    document.getElementById('compose-step-2').classList.remove('hidden');
+    document.getElementById('compose-action-btn').innerText = "Post";
+    document.getElementById('compose-action-btn').onclick = window.publishPost;
+};
+
 async function uploadToImgHippo(f){ const d=new FormData(); d.append('api_key','d28bf3c492ad07b53dc4e3f9ce99b072'); d.append('file',f); try{ const r=await fetch('https://api.imghippo.com/v1/upload',{method:'POST',body:d}), j=await r.json(); if(j.success) return j.data.url; else throw new Error('Upload failed'); }catch(e){throw e;} }
-window.publishPost=async()=>{ const tr=document.getElementById('compose-text').value, btn=document.getElementById('btn-publish'); if(!tr.trim()&&window.currentMedia.length===0) return showToast("Empty!",true); const priv=document.getElementById('post-setting-privacy').checked, sl=document.getElementById('post-setting-likes').checked, sc=document.getElementById('post-setting-comments').checked, alv=document.getElementById('post-setting-like-view').checked, ac=document.getElementById('post-setting-allow-comments').checked; const oh=btn.innerHTML; btn.innerHTML=`<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>`; btn.disabled=true; try{ let mu=[]; if(window.currentMediaBlob&&window.currentMediaBlob.length>0){ for(const b of window.currentMediaBlob){ try{ mu.push(await uploadToImgHippo(b)); }catch(e){ const mr=ref(storage,`posts/${currentUser.id}/${Date.now()}_${b.name}`); await uploadBytes(mr,b); mu.push(await getDownloadURL(mr)); } } } else if(window.currentMedia.length>0) mu=window.currentMedia; const mp=mu.length===1?mu[0]:(mu.length>0?mu:null); 
+window.publishPost=async()=>{ 
+    const tr=document.getElementById('compose-text').value;
+    const mediaBlobs = window.composeImageBlobs.filter(x => x !== null);
     
-    // Parse mentions
-    const mentionMatches = tr.match(/@(\w+)/g);
-    const mentionUids = [];
-    if(mentionMatches){
-        mentionMatches.forEach(m => {
-            const uname = m.substring(1).toLowerCase();
-            const found = users.find(u => (u.username||"").toLowerCase() === uname);
-            if(found) mentionUids.push(found.id);
-        });
-    }
-
-    const pd={authorId:currentUser.id,content:tr,media:mp,timestamp:serverTimestamp(),likes:[],comments:[],collaborators:window.selectedCollaborators||[],mentions:mentionUids,settings:{privacy:priv?'private':'public',showLikes:sl,showComments:sc,allowLikeView:alv,allowComments:ac}}; let pid=null; if(window.editingPostId){ await updateDoc(doc(db,"posts",window.editingPostId),{content:tr,settings:pd.settings}); pid=window.editingPostId; showToast("Updated!"); } else { const r=await addDoc(collection(db,"posts"),pd); pid=r.id; showToast("Posted!"); if(window.selectedCollaborators?.length) window.selectedCollaborators.forEach(c=>sendNotification(c.id,'collab_request','invited to collaborate',pid)); } 
+    if(!tr.trim() && mediaBlobs.length === 0) return showToast("Empty!",true);
     
-    // Send mention notifications
-    if(mentionUids.length > 0) {
-        mentionUids.forEach(uid => {
-            if(uid !== currentUser.id) sendNotification(uid, 'mention', 'mentioned you in a post', pid);
-        });
-    }
+    // Progress Bar Simulation
+    const progressOverlay = document.getElementById('compose-progress-overlay');
+    const progressBar = document.getElementById('post-progress-bar');
+    progressOverlay.classList.remove('hidden');
+    progressOverlay.classList.add('flex');
+    
+    let progress = 0;
+    const interval = setInterval(() => {
+        if(progress < 90) {
+            progress += Math.random() * 15;
+            progressBar.style.width = `${Math.min(progress, 90)}%`;
+        }
+    }, 300);
 
-    closeCompose(); document.getElementById('compose-text').value=""; removeMedia(); }catch(e){ console.error(e); showToast("Error",true); }finally{ btn.innerHTML=oh; btn.disabled=false; refreshIcons(); } };
+    const priv=document.getElementById('post-setting-privacy').checked, sl=document.getElementById('post-setting-likes').checked, sc=document.getElementById('post-setting-comments').checked, alv=document.getElementById('post-setting-like-view').checked, ac=document.getElementById('post-setting-allow-comments').checked; 
+    
+    try{ 
+        let mu=[]; 
+        if(mediaBlobs.length > 0){ 
+            for(const b of mediaBlobs){ 
+                try{ 
+                    mu.push(await uploadToImgHippo(b)); 
+                }catch(e){ 
+                    const mr=ref(storage,`posts/${currentUser.id}/${Date.now()}_${b.name}`); 
+                    await uploadBytes(mr,b); 
+                    mu.push(await getDownloadURL(mr)); 
+                } 
+            } 
+        } 
+        
+        const mp=mu.length===1?mu[0]:(mu.length>0?mu:null); 
+    
+        // Parse mentions
+        const mentionMatches = tr.match(/@(\w+)/g);
+        const mentionUids = [];
+        if(mentionMatches){
+            mentionMatches.forEach(m => {
+                const uname = m.substring(1).toLowerCase();
+                const found = users.find(u => (u.username||"").toLowerCase() === uname);
+                if(found) mentionUids.push(found.id);
+            });
+        }
+
+        const pd={authorId:currentUser.id,content:tr,media:mp,timestamp:serverTimestamp(),likes:[],comments:[],collaborators:window.selectedCollaborators||[],mentions:mentionUids,settings:{privacy:priv?'private':'public',showLikes:sl,showComments:sc,allowLikeView:alv,allowComments:ac}}; 
+        let pid=null; 
+        
+        if(window.editingPostId){ 
+            await updateDoc(doc(db,"posts",window.editingPostId),{content:tr,settings:pd.settings}); 
+            pid=window.editingPostId; 
+            showToast("Updated!"); 
+        } else { 
+            const r=await addDoc(collection(db,"posts"),pd); 
+            pid=r.id; 
+            showToast("Posted!"); 
+            if(window.selectedCollaborators?.length) window.selectedCollaborators.forEach(c=>sendNotification(c.id,'collab_request','invited to collaborate',pid)); 
+        } 
+    
+        // Send mention notifications
+        if(mentionUids.length > 0) {
+            mentionUids.forEach(uid => {
+                if(uid !== currentUser.id) sendNotification(uid, 'mention', 'mentioned you in a post', pid);
+            });
+        }
+
+        // Complete Progress
+        clearInterval(interval);
+        progressBar.style.width = '100%';
+        await new Promise(r => setTimeout(r, 500)); // wait for animation
+        
+        progressOverlay.classList.add('hidden');
+        progressOverlay.classList.remove('flex');
+        progressBar.style.width = '0%'; // Reset for next time
+
+        closeCompose(); 
+    }catch(e){ 
+        console.error(e); 
+        clearInterval(interval);
+        progressOverlay.classList.add('hidden');
+        progressOverlay.classList.remove('flex');
+        showToast("Error",true); 
+    }
+};
 window.showToast=(m,e=false)=>{ const t=document.getElementById('toast'), tm=document.getElementById('toast-msg'), i=document.getElementById('toast-icon'); tm.innerText=m; if(e){t.style.backgroundColor='#d93025';i.setAttribute('data-lucide','alert-circle');i.classList.remove('text-[#c4eed0]');i.classList.add('text-white');} else {t.style.backgroundColor='#303134';i.setAttribute('data-lucide','check-circle-2');i.classList.add('text-[#c4eed0]');} refreshIcons(); t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); };
 window.openLightbox=(s,t='image')=>{ const w=document.getElementById('lightbox-wrapper'), l=document.getElementById('lightbox'); if(t==='video'||s.includes('.mp4')||s.includes('data:video')) w.innerHTML=`<video src="${s}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`; else w.innerHTML=`<img src="${s}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; l.classList.add('active'); l.classList.remove('pointer-events-none','opacity-0'); };
 window.closeLightbox=()=>{ const l=document.getElementById('lightbox'); l.classList.remove('active'); l.classList.add('pointer-events-none','opacity-0'); const v=l.querySelector('video'); if(v) v.pause(); };

@@ -83,7 +83,7 @@ i[data-lucide],svg { flex-shrink:0; }
 .tab-btn.active { color:var(--on-surface); background:transparent; box-shadow:none; }
 .tab-btn.active i { stroke-width:3px; }
 .tab-btn.active::after { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:60px; height:4px; background-color:var(--on-surface); border-radius:4px 4px 0 0; }
-.grid-post-container { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+.grid-post-container { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; }
 @media (min-width:768px) { .grid-post-container { gap:16px; } }
 .grid-post-item { position:relative; aspect-ratio:4/5; overflow:hidden; cursor:pointer; background-color:#f3f4f6; border-radius: 12px; }
 .grid-post-item:hover .grid-post-overlay { opacity:1; }
@@ -607,7 +607,7 @@ window.sharePost=pid=>{
                         <img src="${a.avatar}" class="w-5 h-5 rounded-full object-cover">
                         <span class="text-xs font-bold text-gray-900 truncate">${a.name}</span>
                     </div>
-                    <div class="flex gap-3">
+                    <div class="flex gap-3 items-center">
                         <div class="flex-1 min-w-0">
                             <p class="text-xs text-gray-600 line-clamp-2 mb-2 leading-relaxed">${p.content || (hasMedia ? 'Shared a post' : '')}</p>
                             <div class="flex items-center gap-3 text-gray-400">

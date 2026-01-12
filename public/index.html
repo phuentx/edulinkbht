@@ -5,336 +5,1454 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EduLink</title>
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet" />
-
   <!-- Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#2383e2',
-            notion: '#edece9',
-            dark: '#1a1a1a',
-            gray: '#6b7280',
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            serif: ['Playfair Display', 'serif'],
-          },
-          backgroundImage: {
-            'bg-grad': 'linear-gradient(135deg, #fffb ed 0%, #e9f2ff 100%)',
-            'trust-grad': 'linear-gradient(180deg, #ffffff 0%, #d4e9ff 100%)',
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.8s ease-out forwards',
-            'flow': 'flow 25s linear infinite',
-            'float': 'float 6s ease-in-out infinite',
-            'pulse-glow': 'pulseGlow 8s ease-in-out infinite',
-            'marquee': 'marquee 30s linear infinite',
-          },
-          keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0', transform: 'translateY(20px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' },
-            },
-            flow: {
-              '0%': { strokeDashoffset: '1000' },
-              '100%': { strokeDashoffset: '0' },
-            },
-            float: {
-              '0%, 100%': { transform: 'translateY(0px)' },
-              '50%': { transform: 'translateY(-20px)' },
-            },
-            pulseGlow: {
-              '0%, 100%': { opacity: '0.6', transform: 'translate(-50%, -50%) scale(1)' },
-              '50%': { opacity: '0.9', transform: 'translate(-50%, -50%) scale(1.15)' },
-            },
-            marquee: {
-              '0%': { transform: 'translateX(0)' },
-              '100%': { transform: 'translateX(-50%)' },
-            },
-          }
-        }
-      }
-    }
-  </script>
+  <!-- Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500;1,600;1,700&display=swap"
+    rel="stylesheet"
+  />
 
   <style>
-    /* Custom Scrollbar & Utilities not easily mapped to arbitrary values */
-    html, body {
+    :root {
+      --primary: #2383e2;
+      --white: #ffffff;
+      --text-dark: #1a1a1a;
+      --text-gray: #6b7280;
+      --bg-grad: linear-gradient(135deg, #fffb ed 0%, #e9f2ff 100%);
+      --notion-border: #edece9;
+      --line-color: rgba(35, 131, 226, 0.35);
+      --hover-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+    }
+
+    /* --- ANIMATIONS --- */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes flow {
+      from {
+        stroke-dashoffset: 1000;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+    @keyframes float {
+      0% {
+        transform: translateY(0px) rotate(var(--r, 0deg));
+      }
+      50% {
+        transform: translateY(-20px) rotate(var(--r, 0deg));
+      }
+      100% {
+        transform: translateY(0px) rotate(var(--r, 0deg));
+      }
+    }
+    @keyframes pulseGlow {
+      0% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      50% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(1.15);
+      }
+      100% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+    @keyframes marquee {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
       scrollbar-width: none;
       -ms-overflow-style: none;
+      background: var(--white);
+      overflow-x: hidden;
     }
+
     body::-webkit-scrollbar {
       display: none;
     }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text-dark);
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: "Playfair Display", serif;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px;
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    /* --- NAVIGATION --- */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 30px 0;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      cursor: pointer;
+    }
+
+    nav {
+      display: none;
+      gap: 40px;
+    }
+
+    @media (min-width: 1024px) {
+      nav {
+        display: flex;
+      }
+    }
+
+    nav a {
+      text-decoration: none;
+      color: var(--text-gray);
+      font-weight: 500;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--primary);
+    }
+
+    .btn-black {
+      background: #000;
+      color: white;
+      padding: 12px 28px;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .btn-black:hover {
+      transform: scale(1.05);
+      background: #333;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* --- HERO SECTION --- */
+    .hero-jigsaw {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      position: relative;
+      margin-bottom: 60px;
+    }
+
+    @media (min-width: 1024px) {
+      .hero-jigsaw {
+        grid-template-columns: 1.1fr 0.9fr;
+        height: 600px;
+        gap: 20px;
+      }
+    }
+
+    .card {
+      background: var(--bg-grad);
+      border-radius: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-left {
+      padding: 60px 30px;
+    }
+
+    .card-right {
+      height: 400px; /* Mobile height */
+    }
+
+    @media (min-width: 1024px) {
+      .card-left {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 65px;
+        padding: 100px 70px;
+        height: auto;
+      }
+
+      .card-right {
+        border-top-left-radius: 0;
+        border-bottom-right-radius: 0;
+        height: auto;
+      }
+
+      .notch-bridge {
+        position: absolute;
+        top: 0;
+        left: 55%;
+        transform: translateX(-50%);
+        width: 260px;
+        height: 120px;
+        background: var(--white);
+        z-index: 10;
+        border-bottom-left-radius: 60px;
+        border-bottom-right-radius: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .arrow-notch {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 150px;
+        height: 150px;
+        background: var(--white);
+        z-index: 10;
+        border-top-left-radius: 75px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    .card-left h1 {
+      font-size: clamp(36px, 8vw, 80px);
+      line-height: 1.1;
+      margin-bottom: 25px;
+      letter-spacing: -2px;
+    }
+
+    .card-left p {
+      color: var(--text-gray);
+      font-size: 18px;
+      max-width: 480px;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 16px 32px;
+      border-radius: 100px;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .btn-p {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-p:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(35, 131, 226, 0.3);
+    }
+
+    .btn-w {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      color: #000;
+      border: 1px solid white;
+    }
+
+    .av-group {
+      display: flex;
+      align-items: center;
+    }
+
+    .av-img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 3px solid white;
+      margin-left: -15px;
+      transition: transform 0.3s;
+    }
+
+    .arr-circ {
+      width: 80px;
+      height: 80px;
+      background: #000;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.4s ease;
+      cursor: pointer;
+    }
+
+    .arr-circ:hover {
+      transform: rotate(45deg) scale(1.1);
+      background: var(--primary);
+    }
+
+    /* --- SHOWCASE SECTION --- */
+    .showcase {
+      text-align: center;
+      padding: 80px 0;
+      position: relative;
+    }
+
+    .showcase h2 {
+      font-size: clamp(32px, 6vw, 72px);
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 2;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+    }
+
+    .showcase p {
+      color: var(--text-gray);
+      font-size: 18px;
+      margin-bottom: 60px;
+      position: relative;
+      z-index: 2;
+      padding: 0 20px;
+    }
+
+    .visual-area {
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+      height: 800px;
+      background-image: radial-gradient(
+        rgba(0, 0, 0, 0.04) 1.5px,
+        transparent 1.5px
+      );
+      background-size: 40px 40px;
+    }
+
+    .bg-spot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 85%;
+      height: 650px;
+      background: radial-gradient(
+        circle,
+        #fff4cc 0%,
+        rgba(255, 255, 255, 0) 75%
+      );
+      filter: blur(80px);
+      z-index: 0;
+      border-radius: 50%;
+      animation: pulseGlow 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .connector-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .connector-path {
+      fill: none;
+      stroke: var(--line-color);
+      stroke-width: 2.5;
+      stroke-dasharray: 8, 8;
+      animation: flow 25s linear infinite;
+    }
+
+    /* --- PHONE POST UI --- */
+    .phone-frame {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 50px;
+      width: 300px;
+      height: 620px;
+      background: #000;
+      border-radius: 50px;
+      padding: 12px;
+      z-index: 5;
+      box-shadow: 0 50px 100px rgba(0, 0, 0, 0.15);
+      transition: 0.5s ease;
+    }
+
+    .phone-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 40px;
+      overflow: hidden;
+      background: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone-post-header {
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #eee;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .follow-btn {
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .phone-post-img {
+      width: 100%;
+      flex-grow: 1;
+      object-fit: cover;
+    }
+
+    .phone-post-footer {
+      padding: 15px;
+      text-align: left;
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+
+    .post-caption {
+      font-size: 12px;
+      line-height: 1.4;
+      color: #444;
+    }
+
+    .post-caption b {
+      color: #000;
+      margin-right: 5px;
+    }
+
+    /* --- FLOATING CARDS --- */
+    .ui-card {
+      position: absolute;
+      background: white;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
+      z-index: 10;
+      border: 1px solid rgba(0, 0, 0, 0.02);
+      animation: float 6s ease-in-out infinite;
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .ui-card:hover {
+      transform: translateY(-15px) scale(1.05) !important;
+      box-shadow: var(--hover-shadow);
+      z-index: 20;
+    }
+
+    .card-stat {
+      left: 4%;
+      top: 400px;
+      width: 220px;
+      background: #ffd338;
+      border: none;
+    }
+
+    .card-sale {
+      right: 4%;
+      top: 80px;
+      width: 240px;
+      background: #d1fadf;
+    }
+
+    .card-vid {
+      left: 6%;
+      top: 60px;
+      width: 160px;
+      height: 160px;
+      --r: -6deg;
+      border: 5px solid white;
+      overflow: hidden;
+    }
+
+    .card-ig {
+      right: 6%;
+      top: 480px;
+      width: 210px;
+      padding: 14px;
+      --r: 3deg;
+    }
+
+    .ig-img-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      height: 130px;
+      margin-bottom: 12px;
+    }
+
+    .ig-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .ig-actions {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      opacity: 0.7;
+    }
+
+    /* --- SECTION: ALL TO KNOW ABOUT US --- */
+    .section-best {
+      padding: 60px 0 140px 0;
+    }
+
+    .best-header {
+      display: flex;
+      align-items: baseline;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .best-title {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(32px, 6vw, 80px);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -2px;
+      color: var(--text-dark);
+    }
+
+    .best-title i {
+      font-style: italic;
+      font-weight: 700;
+    }
+
+    .see-all {
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-left: 20px;
+      transition: 0.3s;
+    }
+
+    .see-all:hover {
+      color: var(--primary);
+      gap: 10px;
+    }
+
+    .best-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 1024px) {
+      .best-grid {
+        grid-template-columns: 2fr 1fr;
+        height: 600px;
+      }
+    }
+
+    .b-card {
+      position: relative;
+      border-radius: 40px;
+      overflow: hidden;
+    }
+
+    .b-card-lg {
+      height: 500px;
+      background: #eee;
+    }
+
+    @media (min-width: 1024px) {
+      .b-card-lg {
+        height: 600px;
+      }
+    }
+
+    .b-img-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+
+    .b-card:hover .b-img-bg {
+      transform: scale(1.05);
+    }
+
     .grain-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.5;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
     }
-    /* Specific shapes */
-    .shape-notch {
-      border-bottom-left-radius: 60px;
-      border-bottom-right-radius: 60px;
+
+    .b-tags {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 2;
     }
-    .shape-arrow {
-      border-top-left-radius: 75px;
+
+    .tag-white {
+      background: white;
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      width: fit-content;
+      color: var(--text-dark);
+    }
+
+    .tag-blur {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      width: fit-content;
+    }
+
+    .travel-float-box {
+      position: absolute;
+      background: white;
+      padding: 25px 35px;
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+      z-index: 5;
+      transition: 0.4s ease;
+    }
+
+    @media (min-width: 1024px) {
+      .travel-float-box {
+        top: 60px;
+        right: 60px;
+        max-width: 340px;
+      }
+      .travel-float-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    @media (max-width: 1023px) {
+      .travel-float-box {
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        width: auto;
+        max-width: none;
+        padding: 20px;
+      }
+
+      .arrow-circle-white {
+        display: none;
+      }
+    }
+
+    .travel-float-box h3 {
+      font-family: "Playfair Display", serif;
+      font-size: 32px;
+      line-height: 1.1;
+      margin-top: 8px;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .travel-cat {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .arrow-circle-white {
+      position: absolute;
+      bottom: 30px;
+      right: 30px;
+      width: 56px;
+      height: 56px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: 0.3s;
+      z-index: 5;
+      color: #000;
+    }
+
+    .arrow-circle-white:hover {
+      transform: scale(1.1) rotate(45deg);
+    }
+
+    .col-right {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      height: 100%;
+    }
+
+    .b-card-ads {
+      background: #c4d5d1;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
+      min-height: 300px;
+      transition: 0.3s;
+    }
+
+    .b-card-ads:hover {
+      filter: brightness(0.98);
+    }
+
+    .ads-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .ads-badge {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot-black {
+      width: 6px;
+      height: 6px;
+      background: black;
+      border-radius: 50%;
+    }
+
+    .ads-plus {
+      width: 32px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      cursor: pointer;
+      color: #000;
+    }
+
+    .ads-content h3 {
+      font-size: 32px;
+      margin-top: 10px;
+      line-height: 1.1;
+      font-family: "Playfair Display", serif;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .ads-sub {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.6;
+      margin-bottom: 8px;
+      color: #000;
+    }
+
+    .ads-link {
+      align-self: flex-end;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      color: #000;
+      cursor: pointer;
+    }
+
+    .b-card-sm {
+      height: 276px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 25px;
+    }
+
+    .pick-badge {
+      position: absolute;
+      top: 25px;
+      right: 25px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 12px;
+      z-index: 2;
+    }
+
+    .btn-picks {
+      position: relative;
+      z-index: 2;
+      background: white;
+      color: black;
+      padding: 14px 28px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.3s;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-picks:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    /* --- TRUST CLOUD --- */
+    .trust-cloud {
+      border-top: none;
+      padding: 80px 0;
+      background: linear-gradient(180deg, #ffffff 0%, #d4e9ff 100%);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 80px;
+      width: max-content;
+      animation: marquee 30s linear infinite;
+    }
+
+    .marquee-track:hover {
+      animation-play-state: paused;
+    }
+
+    .trust-item {
+      font-style: italic;
+      font-size: clamp(20px, 4vw, 32px);
+      opacity: 0.4;
+      transition: 0.3s ease;
+      cursor: default;
+      white-space: nowrap;
+    }
+
+    .trust-item.serif {
+      font-family: "Playfair Display", serif;
+      font-weight: 500;
+    }
+
+    .trust-item.sans {
+      font-family: "Inter", sans-serif;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .trust-item:hover {
+      opacity: 1;
+      color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    /* --- MOBILE MEDIA QUERIES --- */
+    @media (max-width: 1024px) {
+      .connector-svg,
+      .bg-spot,
+      .notch-bridge,
+      .arrow-notch {
+        display: none;
+      }
+
+      .visual-area {
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        background: none;
+      }
+
+      .phone-frame,
+      .ui-card {
+        position: relative;
+        left: auto;
+        top: auto;
+        right: auto;
+        transform: none !important;
+        width: 100%;
+        max-width: 400px;
+        animation: none;
+      }
+
+      .card-stat,
+      .card-sale,
+      .card-vid,
+      .card-ig {
+        margin-bottom: 10px;
+      }
+
+      .hero-jigsaw {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+    }
+
+    /* --- LOGIN OVERLAY --- */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(12px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: 0.3s ease;
+    }
+
+    .login-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .login-card {
+      background: white;
+      width: 90%;
+      max-width: 440px;
+      padding: 48px 40px;
+      border-radius: 16px;
+      border: 1px solid var(--notion-border);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.15);
+      position: relative;
+      transform: scale(0.9);
+      transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .login-overlay.active .login-card {
+      transform: scale(1);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #acaba9;
+      transition: 0.2s;
+    }
+
+    .close-btn:hover {
+      color: var(--text-dark);
+    }
+
+    .auth-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: #37352f;
+      text-align: center;
+    }
+
+    .auth-avatar-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      display: block;
+      border: 1px solid #eee;
+      background: #f9f9f9;
+      object-fit: cover;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b6b6b;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .input-group input {
+      width: 100%;
+      height: 46px;
+      padding: 0 16px;
+      background: #f7f7f5;
+      border: 1px solid var(--notion-border);
+      border-radius: 8px;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--primary);
+      background: white;
+    }
+
+    .login-btn {
+      width: 100%;
+      height: 48px;
+      background: #37352f;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .login-btn:hover {
+      background: #000;
+      transform: translateY(-1px);
+    }
+
+    .auth-toggle-text {
+      font-size: 13px;
+      color: var(--text-gray);
+      text-align: center;
+      margin-top: 16px;
+      cursor: pointer;
+    }
+
+    .auth-toggle-text span {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .auth-toggle-text span:hover {
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
-<body class="bg-white text-dark font-sans overflow-x-hidden antialiased">
-
-  <!-- AUTH OVERLAY -->
-  <div id="loginOverlay" class="fixed inset-0 bg-white/75 backdrop-blur-md z-[2000] hidden items-center justify-center transition-opacity duration-300 opacity-0" aria-hidden="true">
-    <div class="bg-white w-[90%] max-w-[440px] p-10 md:p-12 rounded-2xl border border-notion shadow-2xl relative flex flex-col transform scale-90 transition-transform duration-300" role="dialog">
-      <button id="closeOverlayBtn" class="absolute top-5 right-5 text-[#acaba9] hover:text-dark transition-colors">
-        <i data-lucide="x" class="w-6 h-6"></i>
+<body>
+  <!-- LOGIN OVERLAY -->
+  <div class="login-overlay" id="loginOverlay" aria-hidden="true">
+    <div class="login-card" role="dialog" aria-modal="true">
+      <button class="close-btn" id="closeOverlayBtn" aria-label="Close">
+        <i data-lucide="x" size="24"></i>
       </button>
-
-      <h2 id="authTitle" class="text-3xl font-bold mb-6 text-[#37352f] text-center">Welcome back</h2>
-      
-      <img id="authAvatar" src="https://api.dicebear.com/9.x/lorelei/svg?seed=User&backgroundColor=transparent" 
-           class="w-20 h-20 rounded-full mx-auto mb-6 border border-gray-100 bg-gray-50 object-cover" 
-           alt="User avatar preview" />
-
-      <form id="authForm" onsubmit="event.preventDefault();" class="space-y-5">
-        <div id="groupName" class="hidden text-left">
-          <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Display Name</label>
-          <input type="text" id="inputName" placeholder="Your Name" 
-                 class="w-full h-[46px] px-4 bg-[#f7f7f5] border border-notion rounded-lg outline-none focus:border-primary focus:bg-white transition-all" />
+      <h2 class="auth-title" id="authTitle">Welcome back</h2>
+      <img
+        src="https://api.dicebear.com/9.x/lorelei/svg?seed=User&backgroundColor=transparent"
+        class="auth-avatar-preview"
+        id="authAvatar"
+        alt="User avatar preview"
+      />
+      <form id="authForm" onsubmit="event.preventDefault();">
+        <div class="input-group hidden" id="groupName">
+          <label for="inputName">Display Name</label>
+          <input type="text" id="inputName" placeholder="Your Name" />
         </div>
-        
-        <div class="text-left">
-          <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Work Email</label>
-          <input type="email" id="inputEmail" placeholder="name@company.com" required 
-                 class="w-full h-[46px] px-4 bg-[#f7f7f5] border border-notion rounded-lg outline-none focus:border-primary focus:bg-white transition-all" />
+        <div class="input-group">
+          <label for="inputEmail">Work Email</label>
+          <input
+            type="email"
+            id="inputEmail"
+            placeholder="name@company.com"
+            required
+          />
         </div>
-
-        <div class="text-left">
-          <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Password</label>
-          <input type="password" id="inputPass" placeholder="••••••••" required 
-                 class="w-full h-[46px] px-4 bg-[#f7f7f5] border border-notion rounded-lg outline-none focus:border-primary focus:bg-white transition-all" />
+        <div class="input-group">
+          <label for="inputPass">Password</label>
+          <input
+            type="password"
+            id="inputPass"
+            placeholder="••••••••"
+            required
+          />
         </div>
-
-        <button type="submit" id="btnSubmit" 
-                class="w-full h-12 bg-[#37352f] text-white rounded-lg font-semibold hover:bg-black hover:-translate-y-px transition-all">
+        <button type="submit" class="login-btn" id="btnSubmit">
           Log in
         </button>
       </form>
-
-      <div id="toggleAuth" class="text-[13px] text-gray-500 text-center mt-4 cursor-pointer">
-        Don't have an account? <span class="text-primary font-semibold hover:underline">Create one</span>
+      <div class="auth-toggle-text" id="toggleAuth">
+        Don't have an account? <span>Create one</span>
       </div>
     </div>
   </div>
 
-  <!-- LANDING VIEW -->
-  <div id="landingView" class="max-w-[1400px] mx-auto px-5 animate-fade-in pb-20">
-    <!-- Header -->
-    <header class="flex justify-between items-center py-8">
-      <div class="text-2xl tracking-tighter cursor-pointer">
-        EduLink<span class="text-[10px] opacity-50 font-bold ml-0.5">®</span>
+  <div class="container">
+    <header>
+      <div class="logo">
+        EduLink
+        <span style="font-size: 10px; opacity: 0.5; font-weight: 700">®</span>
       </div>
-      <nav class="hidden lg:flex gap-10">
-        <a href="#products" class="text-gray hover:text-primary text-sm font-medium transition-colors">Products</a>
-        <a href="#showcase" class="text-gray hover:text-primary text-sm font-medium transition-colors">Showcase</a>
-        <a href="#about" class="text-gray hover:text-primary text-sm font-medium transition-colors">About</a>
+      <nav>
+        <a href="#products">Products</a>
+        <a href="#showcase">Showcase</a>
+        <a href="#about">About</a>
       </nav>
-      <button id="getStartedBtn" class="bg-black text-white px-7 py-3 rounded-full font-medium hover:scale-105 hover:bg-neutral-800 hover:shadow-lg transition-all duration-300">
-        Get Started
-      </button>
+      <button id="getStartedBtn" class="btn-black">Get Started</button>
     </header>
 
-    <!-- HERO SECTION -->
-    <section id="products" class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-4 lg:gap-5 min-h-[600px] mb-16 relative">
-      
-      <!-- Notch Bridge (Desktop Only) -->
-      <div class="hidden lg:flex absolute top-0 left-[55%] -translate-x-1/2 w-[260px] h-[120px] bg-white z-10 shape-notch items-center justify-center">
-        <div class="flex items-center -space-x-4">
-          <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=A" class="w-[50px] h-[50px] rounded-full border-[3px] border-white z-0" alt="Avatar" />
-          <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=B" class="w-[50px] h-[50px] rounded-full border-[3px] border-white z-10" alt="Avatar" />
-          <div class="w-[50px] h-[50px] bg-primary text-white rounded-full flex items-center justify-center border-[3px] border-white z-20 font-bold text-xs">
+    <!-- HERO -->
+    <section class="hero-jigsaw" id="products">
+      <div class="notch-bridge">
+        <div class="av-group">
+          <img
+            src="https://api.dicebear.com/7.x/lorelei/svg?seed=A"
+            class="av-img"
+            alt="User avatar A"
+          />
+          <img
+            src="https://api.dicebear.com/7.x/lorelei/svg?seed=B"
+            class="av-img"
+            alt="User avatar B"
+          />
+          <div
+            style="
+              width: 50px;
+              height: 50px;
+              background: var(--primary);
+              color: white;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border: 3px solid white;
+              margin-left: 5px;
+              font-weight: 700;
+              font-size: 12px;
+            "
+          >
             10+
           </div>
         </div>
       </div>
 
-      <!-- Left Card -->
-      <div class="bg-bg-grad rounded-[40px] lg:rounded-tr-none lg:rounded-br-[65px] p-8 lg:p-[100px_70px] flex flex-col justify-center">
-        <h1 class="font-serif text-[clamp(36px,8vw,80px)] leading-[1.1] mb-6 tracking-tighter">
-          Make a change,<br /><i>Be</i> the change.
+      <div class="card card-left">
+        <h1>
+          Make a change,<br />
+          <i>Be</i> the change.
         </h1>
-        <p class="text-gray text-lg max-w-md mb-10 leading-relaxed">
-          Edulink is a social media platform where users are exposed to healthy contents (no brainrot) and meaningful connections.
+        <p>
+         Edulink is a scoail medai platform where users are exposed to
+          healthy conetents (no brainrots and others)
         </p>
-        <div class="flex flex-wrap gap-4">
-          <button id="heroGetStartedBtn" class="bg-primary text-white px-8 py-4 rounded-full font-semibold hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300">
+        <div class="btn-group">
+          <button id="heroGetStartedBtn" class="btn btn-p">
             Get Started Free
           </button>
-          <a href="#showcase" class="bg-white/70 backdrop-blur-md border border-white text-black px-8 py-4 rounded-full font-semibold flex items-center gap-2 hover:bg-white transition-all duration-300">
-            <i data-lucide="play-circle" class="w-[22px] h-[22px]"></i> Watch Demo
+          <a href="#showcase" class="btn btn-w">
+            <i data-lucide="play-circle" size="22"></i>
+            Watch Demo
           </a>
         </div>
       </div>
 
-      <!-- Right Card -->
-      <div class="bg-bg-grad rounded-[40px] lg:rounded-tl-none lg:rounded-br-none h-[400px] lg:h-auto overflow-hidden relative group">
-        <img src="https://i.imghippo.com/files/RKf5890obo.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Hero visual" />
-        
-        <!-- Arrow Notch (Desktop Only) -->
-        <div class="hidden lg:flex absolute bottom-0 right-0 w-[150px] h-[150px] bg-white z-10 shape-arrow items-center justify-center">
-          <div class="w-20 h-20 bg-black text-white rounded-full flex items-center justify-center hover:bg-primary hover:rotate-45 hover:scale-110 transition-all duration-300 cursor-pointer shadow-lg">
-            <i data-lucide="arrow-up-right" class="w-10 h-10"></i>
+      <div class="card card-right" aria-hidden="true">
+        <img
+          src="https://i.imghippo.com/files/RKf5890obo.png"
+          style="width: 100%; height: 100%; object-fit: cover"
+          alt="Hero visual"
+        />
+        <div class="arrow-notch">
+          <div class="arr-circ">
+            <i data-lucide="arrow-up-right" size="40"></i>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- SHOWCASE SECTION -->
-    <section id="showcase" class="py-20 text-center relative">
-      <!-- Background Glow -->
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[650px] bg-[radial-gradient(circle,#fff4cc_0%,transparent_75%)] blur-[80px] -z-10 rounded-full animate-pulse-glow hidden lg:block"></div>
+    <!-- SHOWCASE -->
+    <section class="showcase" id="showcase">
+      <div class="bg-spot"></div>
+      <h2>AI-Driven Learning<br />Growth Right Away</h2>
+      <p>From concept to teaching — manage everything in one platform</p>
 
-      <h2 class="font-serif text-[clamp(32px,6vw,72px)] mb-5 relative z-10 tracking-tight leading-[1.1]">
-        AI-Driven Learning<br />Growth Right Away
-      </h2>
-      <p class="text-gray text-lg mb-16 relative z-10 px-5">
-        From concept to teaching — manage everything in one platform
-      </p>
-
-      <!-- Visual Area -->
-      <div class="relative max-w-[1100px] mx-auto lg:h-[800px] lg:bg-[radial-gradient(rgba(0,0,0,0.04)_1.5px,transparent_1.5px)] lg:bg-[length:40px_40px] flex flex-col lg:block items-center gap-6">
-        
-        <!-- Connector Lines SVG -->
-        <svg class="absolute inset-0 w-full h-full pointer-events-none z-0 hidden lg:block" viewBox="0 0 1100 800">
-          <path class="fill-none stroke-[rgba(35,131,226,0.35)] stroke-[2.5] stroke-dasharray-[8,8] animate-flow" d="M400 350 Q 250 350, 180 160"></path>
-          <path class="fill-none stroke-[rgba(35,131,226,0.35)] stroke-[2.5] stroke-dasharray-[8,8] animate-flow" d="M400 450 Q 250 450, 180 500"></path>
-          <path class="fill-none stroke-[rgba(35,131,226,0.35)] stroke-[2.5] stroke-dasharray-[8,8] animate-flow" d="M700 300 Q 850 300, 920 180"></path>
-          <path class="fill-none stroke-[rgba(35,131,226,0.35)] stroke-[2.5] stroke-dasharray-[8,8] animate-flow" d="M700 500 Q 850 500, 900 580"></path>
+      <div class="visual-area">
+        <svg class="connector-svg" viewBox="0 0 1100 800">
+          <path
+            class="connector-path"
+            d="M400 350 Q 250 350, 180 160"
+          ></path>
+          <path
+            class="connector-path"
+            d="M400 450 Q 250 450, 180 500"
+          ></path>
+          <path
+            class="connector-path"
+            d="M700 300 Q 850 300, 920 180"
+          ></path>
+          <path
+            class="connector-path"
+            d="M700 500 Q 850 500, 900 580"
+          ></path>
         </svg>
 
-        <!-- Phone Frame -->
-        <div class="lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:top-[50px] w-full max-w-[300px] h-[620px] bg-black rounded-[50px] p-3 z-10 shadow-2xl transition-all duration-500">
-          <div class="w-full h-full rounded-[40px] overflow-hidden bg-white flex flex-col">
-            <div class="p-4 flex items-center justify-between border-b border-gray-100">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
-                   <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Creative" alt="User" />
-                </div>
-                <span class="text-[13px] font-bold">anith_dev</span>
+        <div class="phone-frame">
+          <div class="phone-inner">
+            <div class="phone-post-header">
+              <div class="user-info">
+                <img
+                  src="https://api.dicebear.com/7.x/lorelei/svg?seed=Creative"
+                  class="user-avatar"
+                  alt="User avatar creative"
+                />
+                <span class="user-name">anith_dev</span>
               </div>
-              <span class="text-primary text-xs font-bold cursor-pointer">Follow</span>
+              <span class="follow-btn">Follow</span>
             </div>
-            <img src="https://i.imghippo.com/files/PUV6696ko.png" class="w-full grow object-cover" alt="Post" />
-            <div class="p-4 text-left">
-              <div class="flex gap-4 mb-2">
-                <i data-lucide="heart" class="w-5 h-5 cursor-pointer hover:text-red-500 transition-colors"></i>
-                <i data-lucide="message-circle" class="w-5 h-5 cursor-pointer"></i>
-                <i data-lucide="send" class="w-5 h-5 cursor-pointer"></i>
+            <img
+              src="https://i.imghippo.com/files/PUV6696ko.png"
+              class="phone-post-img"
+              alt="Post content"
+            />
+            <div class="phone-post-footer">
+              <div class="post-actions">
+                <i data-lucide="heart" size="20"></i>
+                <i data-lucide="message-circle" size="20"></i>
+                <i data-lucide="send" size="20"></i>
               </div>
-              <div class="text-xs leading-relaxed text-[#444]">
-                <b class="text-black mr-1">alex_design</b>
-                Learn something from edulink and make an impact by teaching others #newton #impact
+              <div class="post-caption">
+                <b>alex_design</b>
+                Learn something from edulink and make a impact by teaching others #newton
+                #impact
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Floating Cards -->
-        <div class="bg-white rounded-3xl p-5 shadow-[0_20px_45px_rgba(0,0,0,0.08)] border border-black/5 lg:absolute z-20 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl transition-all duration-300 w-full max-w-[220px] lg:left-[4%] lg:top-[400px] lg:animate-float bg-[#ffd338]">
-          <i data-lucide="trending-up" class="w-6 h-6"></i>
-          <span class="block text-3xl font-bold mt-2">+40.2%</span>
-          <span class="text-[11px] font-bold opacity-60 uppercase">Engagement</span>
+        <div class="ui-card card-stat">
+          <i data-lucide="trending-up" size="24"></i>
+          <span
+            style="
+              font-size: 34px;
+              font-weight: 700;
+              display: block;
+              margin-top: 10px;
+            "
+            >+40.2%</span
+          >
+          <span
+            style="
+              font-size: 11px;
+              text-transform: uppercase;
+              font-weight: 700;
+              opacity: 0.6;
+            "
+            >Engagement</span
+          >
         </div>
 
-        <div class="bg-[#d1fadf] rounded-3xl p-5 shadow-[0_20px_45px_rgba(0,0,0,0.08)] border border-black/5 lg:absolute z-20 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl transition-all duration-300 w-full max-w-[240px] lg:right-[4%] lg:top-[80px] lg:animate-float">
-          <div class="flex justify-between items-center">
-            <span class="text-2xl font-bold">100 tokens</span>
-            <i data-lucide="book-open-text" class="w-6 h-6"></i>
+        <div class="ui-card card-sale">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span style="font-size: 26px; font-weight: 700">100 tokens</span>
+            <i data-lucide="book-open-text" size="24"></i>
           </div>
-          <p class="text-[13px] text-[#444] mt-1 font-medium">Weekly Learning</p>
+          <p style="font-size: 13px; color: #444; margin-top: 4px; font-weight: 500">
+            Weekly Learning
+          </p>
         </div>
 
-        <div class="rounded-3xl shadow-[0_20px_45px_rgba(0,0,0,0.08)] lg:absolute z-20 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl transition-all duration-300 w-[160px] h-[160px] lg:left-[6%] lg:top-[60px] lg:-rotate-6 border-[5px] border-white overflow-hidden">
-          <img src="https://i.imghippo.com/files/fRGt5603uII.png" class="w-full h-full object-cover" alt="Video" />
+        <div class="ui-card card-vid">
+          <img
+            src="https://i.imghippo.com/files/fRGt5603uII.png"
+            style="width: 100%; height: 100%; object-fit: cover"
+            alt="Video preview"
+          />
         </div>
 
-        <div class="bg-white rounded-3xl p-3.5 shadow-[0_20px_45px_rgba(0,0,0,0.08)] border border-black/5 lg:absolute z-20 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl transition-all duration-300 w-full max-w-[210px] lg:right-[6%] lg:top-[480px] lg:rotate-3">
-          <div class="rounded-xl overflow-hidden h-[130px] mb-3">
-            <img src="https://i.imghippo.com/files/dHY4195dOA.png" class="w-full h-full object-cover" alt="IG" />
+        <div class="ui-card card-ig">
+          <div class="ig-img-wrap">
+            <img
+              src="https://i.imghippo.com/files/dHY4195dOA.png"
+              alt="Instagram style post"
+            />
           </div>
-          <div class="flex gap-3.5 items-center opacity-70">
-            <i data-lucide="heart" class="w-5 h-5"></i>
-            <i data-lucide="message-circle" class="w-5 h-5"></i>
-            <i data-lucide="send" class="w-5 h-5"></i>
+          <div class="ig-actions">
+            <i data-lucide="heart" size="20"></i>
+            <i data-lucide="message-circle" size="20"></i>
+            <i data-lucide="send" size="20"></i>
           </div>
         </div>
-
       </div>
     </section>
 
-    <!-- ABOUT SECTION -->
-    <section id="about" class="pt-16 pb-36">
-      <div class="flex flex-wrap items-baseline gap-5 mb-10">
-        <h2 class="font-serif text-[clamp(32px,6vw,80px)] font-bold leading-none tracking-tighter">
+    <!-- ALL TO KNOW ABOUT US -->
+    <section class="section-best" id="about">
+      <div class="best-header">
+        <h2 class="best-title">
           <i>All</i> to know about us
         </h2>
-        <a href="#about" class="text-sm font-bold flex items-center gap-1.5 ml-5 hover:text-primary hover:gap-2.5 transition-all">
-          Be a part of us <i data-lucide="arrow-right" class="w-[18px]"></i>
+        <a href="#about" class="see-all">
+          Be a part of us <i data-lucide="arrow-right" size="18"></i>
         </a>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 lg:h-[600px]">
-        <!-- Blog Card -->
-        <div class="relative rounded-[40px] overflow-hidden bg-[#eee] h-[500px] lg:h-full group cursor-pointer">
-          <img src="https://i.imghippo.com/files/mIPL1722DKk.png" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Blog" />
-          <div class="absolute inset-0 pointer-events-none z-10 opacity-50 mix-blend-overlay grain-overlay"></div>
-          
-          <div class="absolute top-8 left-8 flex flex-col gap-3 z-20">
-            <div class="bg-white px-4 py-1.5 rounded-full text-[11px] font-bold w-fit text-dark">EduLink</div>
-            <div class="bg-white/25 backdrop-blur-md border border-white/40 text-white px-4 py-1.5 rounded-full text-[11px] font-bold w-fit">Blog</div>
+      <div class="best-grid">
+        <!-- Large Blog Card -->
+        <div class="b-card b-card-lg">
+          <img
+            src="https://i.imghippo.com/files/mIPL1722DKk.png"
+            class="b-img-bg"
+            alt="EduLink Blog"
+          />
+          <div class="grain-overlay"></div>
+          <div class="b-tags">
+            <div class="tag-white">EduLink</div>
+            <div class="tag-blur">Blog</div>
           </div>
-
-          <div class="absolute bottom-5 left-5 right-5 lg:top-[60px] lg:bottom-auto lg:right-[60px] lg:left-auto bg-white p-[25px_35px] rounded-2xl shadow-xl z-20 transition-all duration-300 lg:hover:-translate-y-1 lg:hover:shadow-2xl lg:max-w-[340px]">
-            <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Blog</div>
-            <h3 class="font-serif text-[32px] leading-[1.1] mt-2 font-bold">The Prototype Of EduLink</h3>
+          <div class="travel-float-box">
+            <div class="travel-cat">Blog</div>
+            <h3>The Prototype Of EduLink</h3>
           </div>
-
-          <div class="hidden lg:flex absolute bottom-8 right-8 w-14 h-14 bg-white rounded-full items-center justify-center shadow-lg cursor-pointer z-20 transition-all hover:scale-110 hover:rotate-45 text-black">
-            <i data-lucide="arrow-up-right" class="w-6 h-6"></i>
+          <div class="arrow-circle-white" aria-hidden="true">
+            <i data-lucide="arrow-up-right" size="24"></i>
           </div>
         </div>
 
-        <!-- Right Col -->
-        <div class="flex flex-col gap-6 h-full">
-          <!-- Events -->
-          <div class="bg-[#c4d5d1] p-10 rounded-[40px] flex flex-col justify-between flex-1 min-h-[300px] transition-all hover:brightness-[0.98] group cursor-pointer">
-            <div class="flex justify-between items-start">
-              <div class="border border-black/20 rounded-full px-3 py-1 text-[10px] font-bold flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 bg-black rounded-full"></span> EVENTS
+        <!-- Right Column -->
+        <div class="col-right">
+          <!-- Events Card -->
+          <div class="b-card b-card-ads">
+            <div class="ads-top">
+              <div class="ads-badge">
+                <span class="dot-black"></span>
+                EVENTS
               </div>
-              <div class="w-8 h-8 bg-white/50 rounded-full flex items-center justify-center font-bold text-lg group-hover:bg-white transition-colors">+</div>
+              <div class="ads-plus">+</div>
             </div>
-            <div>
-              <div class="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-2">Updates</div>
-              <h3 class="font-serif text-3xl font-bold leading-[1.1]">Get to know about the future of EduLink</h3>
+            <div class="ads-content">
+              <div class="ads-sub">Updates</div>
+              <h3>Get to know about the future of EduLink</h3>
             </div>
-            <span class="self-end text-sm font-bold underline decoration-1 underline-offset-4">Learn more</span>
+            <a href="#about" class="ads-link">Learn more</a>
           </div>
 
-          <!-- Policy -->
-          <div class="relative h-[276px] flex items-end justify-center pb-6 rounded-[40px] overflow-hidden group">
-            <img src="https://i.imghippo.com/files/okly8861Yd.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Policy" />
-            <div class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white font-bold text-xs z-10">24</div>
-            <button class="relative z-10 bg-white text-black px-7 py-3.5 rounded-full text-[13px] font-bold flex items-center gap-2 shadow-lg hover:-translate-y-1 hover:shadow-xl transition-all">
-              See our policy <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          <!-- Policy Card -->
+          <div class="b-card b-card-sm">
+            <img
+              src="https://i.imghippo.com/files/okly8861Yd.jpg"
+              class="b-img-bg"
+              alt="Policy"
+            />
+            <div class="pick-badge">24</div>
+            <button class="btn-picks">
+              See our policy <i data-lucide="arrow-right" size="16"></i>
             </button>
           </div>
         </div>
@@ -343,63 +1461,48 @@
   </div>
 
   <!-- TRUST CLOUD -->
-  <section class="border-none py-20 bg-trust-grad overflow-hidden relative">
-    <div class="text-center text-xs uppercase tracking-[2px] mb-6 opacity-70 font-semibold">Trusted by</div>
-    <div class="flex w-max animate-marquee gap-20 hover:[animation-play-state:paused]">
-      <span class="text-[clamp(20px,4vw,32px)] opacity-40 hover:opacity-100 hover:text-primary hover:scale-105 transition-all font-serif italic cursor-default">The Royal Academy</span>
-      <span class="text-[clamp(20px,4vw,32px)] opacity-40 hover:opacity-100 hover:text-primary hover:scale-105 transition-all font-sans font-semibold -tracking-tight cursor-default">DGI</span>
-      <span class="text-[clamp(20px,4vw,32px)] opacity-40 hover:opacity-100 hover:text-primary hover:scale-105 transition-all font-serif italic cursor-default">Gravitas</span>
-      <span class="text-[clamp(20px,4vw,32px)] opacity-40 hover:opacity-100 hover:text-primary hover:scale-105 transition-all font-sans font-semibold -tracking-tight cursor-default">Newton</span>
-      <!-- Duplicate for loop -->
-      <span class="text-[clamp(20px,4vw,32px)] opacity-40 hover:opacity-100 hover:text-primary hover:scale-105 transition-all font-serif italic cursor-default">The Royal Academy</span>
-      <span class="text-[clamp(20px,4vw,32px)] opacity-40 hover:opacity-100 hover:text-primary hover:scale-105 transition-all font-sans font-semibold -tracking-tight cursor-default">DGI</span>
-      <span class="text-[clamp(20px,4vw,32px)] opacity-40 hover:opacity-100 hover:text-primary hover:scale-105 transition-all font-serif italic cursor-default">Gravitas</span>
-      <span class="text-[clamp(20px,4vw,32px)] opacity-40 hover:opacity-100 hover:text-primary hover:scale-105 transition-all font-sans font-semibold -tracking-tight cursor-default">Newton</span>
+  <section class="trust-cloud">
+    <div
+      style="
+        text-align: center;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 24px;
+        opacity: 0.7;
+      "
+    >
+      Trusted by
+    </div>
+    <div class="marquee-track">
+      <span class="trust-item serif">The Royal Academy</span>
+      <span class="trust-item sans">DGI</span>
+      <span class="trust-item serif">Gravitas</span>
+      <span class="trust-item sans">Newton</span>
+
+      <span class="trust-item serif">The Royal Academy</span>
+      <span class="trust-item sans">DGI</span>
+      <span class="trust-item serif">Gravitas</span>
+      <span class="trust-item sans">Newton</span>
     </div>
   </section>
-
-  <!-- HOME VIEW (After Login) -->
-  <div id="homeView" class="hidden min-h-screen bg-[#f9f9f9]">
-    <nav class="bg-white border-b border-notion px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-        <div class="text-xl font-bold tracking-tight">EduLink <span class="text-primary">Home</span></div>
-        <div class="flex items-center gap-4">
-            <span id="welcomeName" class="text-sm font-semibold text-gray-600">User</span>
-            <img id="homeAvatar" src="" class="w-9 h-9 rounded-full bg-gray-200 border border-gray-300" />
-            <button onclick="window.location.reload()" class="text-xs font-bold text-red-500 hover:underline">Log out</button>
-        </div>
-    </nav>
-    <div class="max-w-4xl mx-auto p-8">
-        <div class="bg-white rounded-2xl p-8 shadow-sm border border-notion text-center py-20">
-            <div class="w-16 h-16 bg-blue-50 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                <i data-lucide="sparkles" class="w-8 h-8"></i>
-            </div>
-            <h1 class="font-serif text-3xl font-bold mb-3">You are logged in!</h1>
-            <p class="text-gray mb-8">This is where the main application content would live.</p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
-                <div class="p-4 rounded-xl border border-gray-100 hover:border-primary/50 transition-colors cursor-pointer group">
-                    <div class="font-bold mb-1 group-hover:text-primary">Courses</div>
-                    <div class="text-xs text-gray-400">Continue learning</div>
-                </div>
-                <div class="p-4 rounded-xl border border-gray-100 hover:border-primary/50 transition-colors cursor-pointer group">
-                    <div class="font-bold mb-1 group-hover:text-primary">Community</div>
-                    <div class="text-xs text-gray-400">Join the discussion</div>
-                </div>
-                <div class="p-4 rounded-xl border border-gray-100 hover:border-primary/50 transition-colors cursor-pointer group">
-                    <div class="font-bold mb-1 group-hover:text-primary">Profile</div>
-                    <div class="text-xs text-gray-400">Manage settings</div>
-                </div>
-            </div>
-        </div>
-    </div>
-  </div>
 
   <script type="module">
     lucide.createIcons();
 
-    // FIREBASE SETUP
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    // IMPORT FIREBASE
+    import {
+      initializeApp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      updateProfile,
+      onAuthStateChanged,
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+    // FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno",
       authDomain: "edulinki.firebaseapp.com",
@@ -410,154 +1513,132 @@
       measurementId: "G-MQBH12VL7N",
     };
 
-    // Initialize Firebase
-    let app, auth;
-    try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-    } catch(e) {
-        console.warn("Firebase failed to init (likely valid keys needed). UI will act as demo.");
-    }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    // STATE & DOM ELEMENTS
+    // UI ELEMENTS
     const overlay = document.getElementById("loginOverlay");
     const closeBtn = document.getElementById("closeOverlayBtn");
-    const getStartedBtns = [document.getElementById("getStartedBtn"), document.getElementById("heroGetStartedBtn")];
+    const getStartedBtn = document.getElementById("getStartedBtn");
+    const heroGetStartedBtn = document.getElementById("heroGetStartedBtn");
     const toggleAuthBtn = document.getElementById("toggleAuth");
+
+    // FORM ELEMENTS
+    const authTitle = document.getElementById("authTitle");
     const btnSubmit = document.getElementById("btnSubmit");
-    const authFormValues = {
-        name: document.getElementById("inputName"),
-        email: document.getElementById("inputEmail"),
-        pass: document.getElementById("inputPass")
-    };
-    const uiAuthElements = {
-        title: document.getElementById("authTitle"),
-        groupName: document.getElementById("groupName"),
-        avatar: document.getElementById("authAvatar")
-    };
+    const groupName = document.getElementById("groupName");
+    const inputName = document.getElementById("inputName");
+    const inputEmail = document.getElementById("inputEmail");
+    const inputPass = document.getElementById("inputPass");
+    const authAvatar = document.getElementById("authAvatar");
 
     let isSignup = false;
 
-    // FUNCTIONS
-    const toggleOverlay = (show) => {
-        if(show) {
-            overlay.classList.remove("hidden");
-            // small delay for transition
-            setTimeout(() => overlay.classList.remove("opacity-0"), 10);
-            document.body.style.overflow = "hidden";
-            overlay.querySelector('div[role="dialog"]').classList.remove("scale-90");
-            overlay.querySelector('div[role="dialog"]').classList.add("scale-100");
-        } else {
-            overlay.classList.add("opacity-0");
-            overlay.querySelector('div[role="dialog"]').classList.remove("scale-100");
-            overlay.querySelector('div[role="dialog"]').classList.add("scale-90");
-            setTimeout(() => {
-                overlay.classList.add("hidden");
-                document.body.style.overflow = "";
-            }, 300);
-        }
-    };
+    function openOverlay() {
+      overlay.classList.add("active");
+      document.body.style.overflow = "hidden";
+      isSignup = false;
+      updateUI();
+    }
 
-    const updateAuthUI = () => {
-        uiAuthElements.title.innerText = isSignup ? "Create Account" : "Welcome back";
-        btnSubmit.innerText = isSignup ? "Sign Up" : "Log in";
-        toggleAuthBtn.innerHTML = isSignup 
-            ? 'Already have an account? <span class="text-primary font-semibold hover:underline">Log in</span>'
-            : 'Don\'t have an account? <span class="text-primary font-semibold hover:underline">Create one</span>';
-        
-        if(isSignup) {
-            uiAuthElements.groupName.classList.remove("hidden");
-            uiAuthElements.avatar.src = "https://api.dicebear.com/9.x/lorelei/svg?seed=NewUser&backgroundColor=transparent";
-        } else {
-            uiAuthElements.groupName.classList.add("hidden");
-            uiAuthElements.avatar.src = "https://api.dicebear.com/9.x/lorelei/svg?seed=User&backgroundColor=transparent";
-        }
-    };
+    function closeOverlay() {
+      overlay.classList.remove("active");
+      document.body.style.overflow = "auto";
+    }
 
-    const switchToHomeView = (user) => {
-        toggleOverlay(false);
-        document.getElementById('landingView').classList.add('hidden');
-        document.querySelector('.trust-cloud').classList.add('hidden');
-        document.getElementById('homeView').classList.remove('hidden');
-        
-        document.getElementById('welcomeName').innerText = user.displayName || user.email.split('@')[0];
-        document.getElementById('homeAvatar').src = user.photoURL || `https://api.dicebear.com/9.x/lorelei/svg?seed=${user.email}&backgroundColor=transparent`;
-    };
+    getStartedBtn.onclick = openOverlay;
+    heroGetStartedBtn.onclick = openOverlay;
+    closeBtn.onclick = closeOverlay;
 
-    // EVENT LISTENERS
-    getStartedBtns.forEach(btn => btn.onclick = () => { isSignup = false; updateAuthUI(); toggleOverlay(true); });
-    closeBtn.onclick = () => toggleOverlay(false);
-    
+    // TOGGLE LOGIN / SIGNUP
     toggleAuthBtn.onclick = () => {
-        isSignup = !isSignup;
-        updateAuthUI();
+      isSignup = !isSignup;
+      updateUI();
     };
 
-    // Dynamic Avatar update
-    authFormValues.name.addEventListener("input", (e) => {
-        if (isSignup && e.target.value.length > 1) {
-            uiAuthElements.avatar.src = `https://api.dicebear.com/9.x/lorelei/svg?seed=${e.target.value}&backgroundColor=transparent`;
-        }
+    function updateUI() {
+      if (isSignup) {
+        authTitle.innerText = "Create Account";
+        btnSubmit.innerText = "Sign Up";
+        toggleAuthBtn.innerHTML =
+          'Already have an account? <span>Log in</span>';
+        groupName.classList.remove("hidden");
+        authAvatar.src =
+          "https://api.dicebear.com/9.x/lorelei/svg?seed=NewUser&backgroundColor=transparent";
+      } else {
+        authTitle.innerText = "Welcome back";
+        btnSubmit.innerText = "Log in";
+        toggleAuthBtn.innerHTML =
+          "Don't have an account? <span>Create one</span>";
+        groupName.classList.add("hidden");
+        authAvatar.src =
+          "https://api.dicebear.com/9.x/lorelei/svg?seed=User&backgroundColor=transparent";
+      }
+    }
+
+    // DYNAMIC AVATAR
+    inputName.addEventListener("input", (e) => {
+      if (isSignup && e.target.value.length > 1) {
+        authAvatar.src = `https://api.dicebear.com/9.x/lorelei/svg?seed=${
+          e.target.value
+        }&backgroundColor=transparent`;
+      }
     });
 
-    // Form Submit
+    // HANDLE SUBMIT
     btnSubmit.onclick = async () => {
-        const email = authFormValues.email.value.trim();
-        const pass = authFormValues.pass.value.trim();
-        const name = authFormValues.name.value.trim();
+      const email = inputEmail.value.trim();
+      const pass = inputPass.value.trim();
+      const name = inputName.value.trim();
 
-        if (!email || !pass) {
-            alert("Please fill in email and password");
-            return;
-        }
+      if (!email || !pass) {
+        alert("Please fill in email and password");
+        return;
+      }
 
-        btnSubmit.innerText = "Processing...";
-        btnSubmit.disabled = true;
-        btnSubmit.classList.add("opacity-70", "cursor-not-allowed");
+      btnSubmit.innerText = "Processing...";
+      btnSubmit.style.opacity = "0.7";
+      btnSubmit.disabled = true;
 
-        try {
-            let user;
-            if (auth) {
-                // Real Firebase Logic
-                if (isSignup) {
-                    if (!name) throw new Error("Please enter your name");
-                    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                    await updateProfile(cred.user, {
-                        displayName: name,
-                        photoURL: `https://api.dicebear.com/9.x/lorelei/svg?seed=${name}&backgroundColor=transparent`,
-                    });
-                    user = cred.user;
-                } else {
-                    const cred = await signInWithEmailAndPassword(auth, email, pass);
-                    user = cred.user;
-                }
-            } else {
-                // Demo Fallback if Firebase fails/not configured strictly
-                console.log("Demo Mode: Auth simulated");
-                await new Promise(r => setTimeout(r, 1000));
-                user = { 
-                    displayName: name || "Demo User", 
-                    email: email,
-                    photoURL: `https://api.dicebear.com/9.x/lorelei/svg?seed=${name || 'User'}&backgroundColor=transparent`
-                };
-            }
-            switchToHomeView(user);
-        } catch (err) {
-            console.error(err);
-            alert(err.message);
-        } finally {
-            btnSubmit.innerText = isSignup ? "Sign Up" : "Log in";
+      try {
+        if (isSignup) {
+          if (!name) {
+            alert("Please enter your name");
+            btnSubmit.innerText = "Sign Up";
             btnSubmit.disabled = false;
-            btnSubmit.classList.remove("opacity-70", "cursor-not-allowed");
+            btnSubmit.style.opacity = "1";
+            return;
+          }
+          const cred = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            pass
+          );
+          await updateProfile(cred.user, {
+            displayName: name,
+            photoURL: `https://api.dicebear.com/9.x/lorelei/svg?seed=${name}&backgroundColor=transparent`,
+          });
+        } else {
+          await signInWithEmailAndPassword(auth, email, pass);
         }
+
+        window.location.href = "home.html";
+      } catch (err) {
+        console.error(err);
+        alert("Error: " + err.message);
+      } finally {
+        btnSubmit.style.opacity = "1";
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = isSignup ? "Sign Up" : "Log in";
+      }
     };
 
-    // Monitor Auth State
-    if(auth) {
-        onAuthStateChanged(auth, (user) => {
-            if (user) switchToHomeView(user);
-        });
-    }
+    // AUTH LISTENER
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = "home.html";
+      }
+    });
   </script>
 </body>
 </html>

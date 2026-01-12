@@ -139,28 +139,37 @@ body.reel-mode #mobile-bottom-nav { display:none!important; }
   .caption-box { display:block!important; padding: 12px 16px; } 
   .discussion-header { display:none; }
 }
-.discussion-header { padding:12px 16px; border-bottom:1px solid var(--outline); display:flex; align-items:center; justify-content:space-between; background:#fff; z-index:10; }
-.discussion-scroll { flex:1; overflow-y:auto; padding:0; background:#fff; }
+.discussion-header { border-bottom:1px solid #f0f0f0; padding:16px; background:#fff; z-index:20; }
+.discussion-scroll { flex:1; overflow-y:auto; padding-bottom:20px; background:#fff; }
 .caption-box { padding:16px; border-bottom:1px solid var(--outline); background:#fff; }
 .comments-list { padding:0; display:flex; flex-direction:column; }
-.discussion-footer { padding:12px 16px; border-top:1px solid var(--outline); background:#fff; z-index:10; }
-/* YouTube Style Comments */
-.comment-row { display:flex; gap:16px; align-items:flex-start; padding:12px 16px; transition:background-color 0.1s; }
-.comment-row:hover { background-color: #f9f9f9; }
-.comment-row.me { flex-direction:row; } /* Reset special 'me' direction for YT style */
-.comment-avatar { width:40px; height:40px; border-radius:50%; object-fit:cover; background-color:var(--hover-bg); flex-shrink: 0; }
-.comment-content-box { display:flex; flex-direction:column; gap:4px; flex: 1; min-width: 0; }
-.comment-header { font-size:13px; font-weight:600; color:var(--on-surface); display:flex; align-items:center; gap:4px; line-height: 1.2; }
-.comment-time { font-size:12px; font-weight:400; color:var(--text-secondary); }
-.comment-text { font-size:14px; line-height:20px; color:var(--on-surface); white-space: pre-wrap; word-break: break-word; }
-.comment-actions-row { display:flex; align-items:center; gap:16px; margin-top:4px; }
-.comment-action-btn { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; color:var(--on-surface); cursor:pointer; background:none; border:none; padding:4px 8px; border-radius:16px; transition:background 0.2s; }
-.comment-action-btn:hover { background-color:var(--hover-bg); }
-.comment-reply-btn { display:flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; cursor:pointer; transition:background 0.2s; color:#0f0f0f; }
-.comment-reply-btn:hover { background-color:var(--hover-bg); }
-.chat-input-wrapper { display:flex; align-items:flex-end; background:transparent; padding:8px 0; gap: 12px; border-top: 1px solid transparent; }
-.chat-input-field { flex: 1; border-bottom: 1px solid #ccc; padding-bottom: 4px; outline: none; transition: border-bottom-color 0.2s; font-size: 14px; max-height: 80px; resize: none; overflow-y: hidden; }
-.chat-input-field:focus { border-bottom-color: var(--on-surface); }
+.discussion-footer { padding:12px 16px; border-top:1px solid #f0f0f0; background:#fff; z-index:20; }
+/* Refined Comment Section */
+.comment-row { padding:12px 16px; gap:12px; align-items:flex-start; transition:background 0.2s; position:relative; display:flex; }
+.comment-row:hover { background-color:#fafafa; }
+.comment-avatar { width:36px; height:36px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid #f0f0f0; transition:transform 0.2s; cursor:pointer; }
+.comment-avatar:hover { transform:scale(1.05); }
+.comment-content-box { flex:1; min-width:0; }
+.comment-header { display:flex; align-items:baseline; gap:6px; margin-bottom:2px; }
+.comment-author { font-size:13px; font-weight:600; color:#0f0f0f; cursor:pointer; text-decoration:none; }
+.comment-author:hover { text-decoration:underline; }
+.comment-time { font-size:11px; color:#606060; font-weight:400; }
+.comment-text { font-size:14px; line-height:1.5; color:#0f0f0f; white-space:pre-wrap; word-break:break-word; }
+.comment-actions-row { display:flex; align-items:center; gap:16px; margin-top:8px; }
+.comment-action-item { display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:#606060; cursor:pointer; transition:color 0.2s; background:none; border:none; padding:0; }
+.comment-action-item:hover { color:#0f0f0f; }
+.comment-action-item.liked { color:#ff3040; }
+.comment-action-item.liked i { fill:#ff3040; stroke:#ff3040; }
+.reply-badge { font-size:11px; font-weight:600; color:#065fd4; cursor:pointer; margin-top:8px; display:inline-flex; align-items:center; gap:4px; padding:4px 8px; background:#f0f8ff; border-radius:12px; transition:background 0.2s; }
+.reply-badge:hover { background:#e0f0ff; }
+.chat-input-wrapper { background:#f0f2f5; border-radius:24px; padding:4px 12px 4px 6px; align-items:center; border:1px solid transparent; transition:border-color 0.2s, background 0.2s; display:flex; gap: 8px; }
+.chat-input-wrapper:focus-within { background:#fff; border-color:#e5e7eb; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
+.chat-input-field { background:transparent; border:none; padding:8px; font-size:14px; max-height:100px; line-height:1.4; flex:1; outline:none; resize:none; }
+.chat-input-field:focus { border:none; }
+.chat-avatar-small { width:32px; height:32px; border-radius:50%; object-fit:cover; margin-right:4px; }
+.send-comment-btn { color:#065fd4; font-weight:600; font-size:14px; padding:6px 12px; border-radius:18px; transition:background 0.2s; cursor:pointer; background:transparent; border:none; }
+.send-comment-btn:hover { background:#eff6ff; }
+.send-comment-btn:disabled { color:#b0c2e3; cursor:default; }
 .play-pause-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; opacity:0; transition:opacity 0.2s; }
 .play-pause-overlay.show { opacity:1; }
 .play-pause-icon { width:80px; height:80px; background:rgba(0,0,0,0.4); border-radius:50%; padding:20px; color:white; backdrop-filter:blur(4px); }
@@ -189,6 +198,8 @@ body.reel-mode #mobile-bottom-nav { display:none!important; }
 .carousel-nav-btn.prev { left:8px; } .carousel-nav-btn.next { right:8px; }
 /* Overlay Consistency Mobile */
 #thread-overlay { border-radius: 20px 20px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); }
+#thread-overlay .discussion-panel { background: #fff; }
+#thread-content { background: #fff; }
 #ptr-spinner { position:absolute; top:70px; left:50%; transform:translateX(-50%) translateY(-20px); width:40px; height:40px; background:white; border-radius:50%; box-shadow:0 3px 10px rgba(0,0,0,0.1); display:flex; justify-content:center; align-items:center; z-index:15; opacity:0; pointer-events:none; transition:transform 0.2s,opacity 0.2s; color:#0b57d0; }
 @media(max-width: 768px) {
   #thread-overlay .discussion-panel { height: 75vh; width: 100%; position: absolute; bottom: 0; transform: translateY(0); }
@@ -212,7 +223,7 @@ body.reel-mode #mobile-bottom-nav { display:none!important; }
 <div id="post-options-overlay" class="fixed inset-0 z-[75] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="hidePostMenu()"><div id="post-options-modal" class="bg-white w-full md:w-[400px] md:rounded-[24px] rounded-t-[24px] shadow-2xl p-4 transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200" onclick="event.stopPropagation()"><div class="flex justify-center mb-4 md:hidden"><div class="w-12 h-1.5 bg-gray-300 rounded-full"></div></div><div id="post-options-content" class="flex flex-col gap-2"></div><button onclick="hidePostMenu()" class="w-full py-3 mt-2 font-bold text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">Cancel</button></div></div>
 <div id="upload-options-modal" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden" onclick="document.getElementById('upload-options-modal').classList.add('hidden')"><div class="bg-white w-[90%] max-w-[300px] rounded-2xl shadow-xl p-4 transform scale-100 transition-transform" onclick="event.stopPropagation()"><h3 class="text-center font-bold text-gray-900 mb-4 text-lg">Select Upload Type</h3><div class="flex flex-col gap-3"><button onclick="triggerUpload('single')" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"><div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><i data-lucide="image" class="w-5 h-5"></i></div><span class="font-bold text-gray-700">Single</span></button><button onclick="triggerUpload('multiple')" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"><div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600"><i data-lucide="layers" class="w-5 h-5"></i></div><span class="font-bold text-gray-700">Multiple (Carousel)</span></button></div></div></div>
 <div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0"><div class="h-14 flex items-center justify-between px-4 shrink-0 relative"><span class="font-bold text-lg text-[#1f1f1f]">Notifications</span><div class="flex items-center gap-3"><button onclick="toggleNotifSearchMobile()" class="icon-btn"><i data-lucide="search" class="w-5 h-5 text-[#1f1f1f]"></i></button><div class="relative"><button onclick="toggleNotifMenu()" class="icon-btn"><i data-lucide="more-vertical" class="w-5 h-5 text-[#1f1f1f]"></i></button><div id="notif-menu-dropdown" class="absolute right-0 top-10 bg-white border border-gray-100 shadow-xl rounded-xl z-50 w-48 hidden flex-col overflow-hidden"><button onclick="toggleNotifSelection()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium border-b border-gray-50 text-gray-700">Select</button><button onclick="deleteSelectedNotifs()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete Selected</button><button onclick="clearAllNotifications()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete All</button></div></div></div></div><div id="mobile-notif-search-container" class="px-4 pb-2 hidden"><div class="relative"><i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i><input type="text" id="notif-search" placeholder="Search..." oninput="handleNotifSearch(this.value)" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all"></div></div><div class="tab-group mb-0 mx-0 w-full"><button onclick="switchNotifTab('all')" id="ntab-all-mobile" class="tab-btn active"><i data-lucide="bell" class="w-5 h-5"></i> All</button><button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="megaphone" class="w-5 h-5"></i> Official</button></div></div>
-<div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center"><div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div><div class="bg-white w-full md:w-[450px] h-[75vh] md:h-[85vh] md:rounded-[24px] rounded-t-[20px] shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in thread-mobile-container"><div class="discussion-header"><div class="flex items-center gap-3"><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="chevron-down" class="w-6 h-6 text-gray-600"></i></button><span class="font-bold text-lg text-[#1f1f1f]">Thread</span></div><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div><div id="thread-content" class="discussion-scroll bg-white"></div><div class="discussion-footer"><div class="chat-input-wrapper"><img id="thread-input-avatar" src="" class="w-7 h-7 rounded-full bg-gray-200 object-cover mr-2 shrink-0"><textarea id="thread-input" placeholder="Add a reply..." class="chat-input-field" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitThreadReply();}"></textarea><button onclick="submitThreadReply()" class="text-white bg-[#065fd4] font-medium text-sm px-4 py-2 rounded-full hover:bg-blue-700 transition-colors">Reply</button></div></div></div></div>
+<div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center"><div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div><div class="bg-white w-full md:w-[450px] h-[75vh] md:h-[85vh] md:rounded-[24px] rounded-t-[20px] shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in thread-mobile-container"><div class="discussion-header"><div class="flex items-center gap-3"><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="chevron-down" class="w-6 h-6 text-gray-600"></i></button><span class="font-bold text-lg text-[#1f1f1f]">Thread</span></div><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div><div id="thread-content" class="discussion-scroll bg-white"></div><div class="discussion-footer"><div class="chat-input-wrapper"><img id="thread-input-avatar" src="" class="chat-avatar-small"><textarea id="thread-input" placeholder="Add a reply..." class="chat-input-field" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitThreadReply();}"></textarea><button onclick="submitThreadReply()" class="send-comment-btn">Reply</button></div></div></div></div>
 <div id="post-view-overlay" class="fixed inset-0 z-[60] hidden flex justify-center items-center"><div class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onclick="closePostView()"></div>
   <!-- Desktop Layout -->
   <div class="post-modal-layout scale-in relative z-10 hidden md:flex">
@@ -227,7 +238,7 @@ body.reel-mode #mobile-bottom-nav { display:none!important; }
         <div id="post-view-comments" class="comments-list"></div>
       </div>
       <div class="discussion-footer">
-        <div class="flex justify-between items-center mb-3 px-1 hidden md:flex"><div class="flex gap-4"><i id="post-view-like-btn" data-lucide="heart" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i><i data-lucide="message-circle" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="document.getElementById('comment-input-desktop').focus()"></i><i data-lucide="send" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="if(window.currentViewingPostId)sharePost(window.currentViewingPostId)"></i></div><div class="flex gap-4 items-center"><span class="font-bold text-sm text-gray-900 cursor-pointer hover:underline" id="post-view-likes-count" onclick="openLikes(window.currentViewingPostId)">0 likes</span><i id="post-view-save-btn" data-lucide="bookmark" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i></div></div><div class="chat-input-wrapper"><img id="comment-input-avatar" src="" class="w-8 h-8 rounded-full bg-gray-200 object-cover"><textarea id="comment-input-desktop" placeholder="Add a comment..." class="chat-input-field" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitCommentDesktop();}"></textarea><button onclick="submitCommentDesktop()" class="text-white bg-[#065fd4] font-medium text-sm px-4 py-2 rounded-full hover:bg-blue-700 transition-colors">Comment</button></div>
+        <div class="flex justify-between items-center mb-3 px-1 hidden md:flex"><div class="flex gap-4"><i id="post-view-like-btn" data-lucide="heart" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i><i data-lucide="message-circle" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="document.getElementById('comment-input-desktop').focus()"></i><i data-lucide="send" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="if(window.currentViewingPostId)sharePost(window.currentViewingPostId)"></i></div><div class="flex gap-4 items-center"><span class="font-bold text-sm text-gray-900 cursor-pointer hover:underline" id="post-view-likes-count" onclick="openLikes(window.currentViewingPostId)">0 likes</span><i id="post-view-save-btn" data-lucide="bookmark" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i></div></div><div class="chat-input-wrapper"><img id="comment-input-avatar" src="" class="chat-avatar-small"><textarea id="comment-input-desktop" placeholder="Add a comment..." class="chat-input-field" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitCommentDesktop();}"></textarea><button onclick="submitCommentDesktop()" class="send-comment-btn">Post</button></div>
       </div>
     </div>
   </div>
@@ -276,9 +287,9 @@ body.reel-mode #mobile-bottom-nav { display:none!important; }
        <!-- Mobile Comment Input (Fixed Bottom) -->
        <div class="p-3 border-t border-gray-200 bg-white absolute bottom-0 left-0 w-full z-20">
           <div class="chat-input-wrapper">
-              <img id="mobile-comment-avatar" src="" class="w-8 h-8 rounded-full bg-gray-200 object-cover">
+              <img id="mobile-comment-avatar" src="" class="chat-avatar-small">
               <textarea id="mobile-comment-input" placeholder="Add a comment..." class="chat-input-field" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitCommentMobile();}"></textarea>
-              <button onclick="submitCommentMobile()" class="text-white bg-[#065fd4] font-medium text-sm px-4 py-2 rounded-full hover:bg-blue-700 transition-colors">Post</button>
+              <button onclick="submitCommentMobile()" class="send-comment-btn">Post</button>
           </div>
        </div>
   </div>
@@ -771,11 +782,44 @@ function createCommentHTML(c,ac,pid,sr=true){
     const lc=c.likes?c.likes.length:0;
     const me=c.authorId===currentUser.id;
     const rep=ac.filter(r=>r.parentId===c.id);
-    return `<div class="comment-row"><img src="${a.avatar}" class="comment-avatar" onclick="showProfile('${c.authorId}')"><div class="comment-content-box"><div class="comment-header"><span onclick="showProfile('${c.authorId}')" class="cursor-pointer hover:underline">${a.name}</span><span class="comment-time">${formatDate(c.timestamp)}</span></div><div class="comment-text">${formatContent(c.content)}</div><div class="comment-actions-row"><button class="comment-action-btn" onclick="toggleCommentLike('${pid}','${c.id}')"><i data-lucide="heart" class="w-4 h-4 ${c.likes?.includes(currentUser.id)?'fill-red-500 text-red-500':''}"></i> <span>${lc>0?lc:''}</span></button><div class="comment-reply-btn" onclick="replyToComment('${c.id}','${a.name}')"><i data-lucide="message-square" class="w-4 h-4"></i></div>${me?`<button onclick="deleteComment('${pid}','${c.id}')" class="comment-action-btn text-red-600">Delete</button>`:''}</div>${(sr&&rep.length>0)?`<div class="mt-2"><button onclick="openThread('${pid}','${c.id}')" class="text-xs font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-full flex items-center gap-1"><i data-lucide="chevron-down" class="w-3 h-3"></i> ${rep.length} replies</button></div>`:''}</div></div>`;
+    const isOp = posts.find(p=>p.id===pid)?.authorId === c.authorId;
+    return `
+    <div class="comment-row">
+        <img src="${a.avatar}" class="comment-avatar" onclick="showProfile('${c.authorId}')">
+        <div class="comment-content-box">
+            <div class="comment-header">
+                <span onclick="showProfile('${c.authorId}')" class="comment-author">${a.name}</span>
+                ${isOp ? '<span class="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold">Author</span>' : ''}
+                <span class="comment-time">${formatDate(c.timestamp)}</span>
+            </div>
+            <div class="comment-text">${formatContent(c.content)}</div>
+            <div class="comment-actions-row">
+                <button class="comment-action-item ${c.likes?.includes(currentUser.id)?'liked':''}" onclick="toggleCommentLike('${pid}','${c.id}')">
+                   ${lc>0?lc:''} <i data-lucide="heart" class="w-3.5 h-3.5"></i> ${lc>0?'':'Like'}
+                </button>
+                <button class="comment-action-item" onclick="replyToComment('${c.id}','${a.name}')">Reply</button>
+                ${me?`<button onclick="deleteComment('${pid}','${c.id}')" class="comment-action-item text-red-500 hover:text-red-600">Delete</button>`:''}
+            </div>
+            ${(sr&&rep.length>0)?`<div class="reply-badge" onclick="openThread('${pid}','${c.id}')"><i data-lucide="corner-down-right" class="w-3 h-3"></i> ${rep.length} replies</div>`:''}
+        </div>
+    </div>`;
 }
 window.openThread=(pid,cid)=>{ window.threadPostId=pid; window.threadParentCommentId=cid; renderThreadContent(pid,cid); document.getElementById('thread-overlay').classList.remove('hidden'); document.getElementById('thread-input').focus(); document.getElementById('thread-input-avatar').src=currentUser.avatar; };
 window.closeThread=()=>{ document.getElementById('thread-overlay').classList.add('hidden'); window.threadPostId=null; window.threadParentCommentId=null; window.replyingToCommentId=null; };
-window.renderThreadContent=(pid,cid)=>{ const p=posts.find(x=>x.id===pid); if(!p) return; const pc=p.comments.find(x=>x.id===cid); if(!pc) return; const r=p.comments.filter(x=>x.parentId===cid), c=document.getElementById('thread-content'); let h=`<div class="pb-4 border-b border-gray-100">${createCommentHTML(pc,p.comments,pid,false)}</div><div class="pl-0 pt-0 space-y-0">`; if(r.length) r.forEach(x=>h+=createCommentHTML(x,p.comments,pid,false)); else h+='<div class="text-center text-gray-400 text-sm py-4">No replies yet.</div>'; h+='</div>'; c.innerHTML=h; refreshIcons(); };
+window.renderThreadContent=(pid,cid)=>{ 
+    const p=posts.find(x=>x.id===pid); 
+    if(!p) return; 
+    const pc=p.comments.find(x=>x.id===cid); 
+    if(!pc) return; 
+    const r=p.comments.filter(x=>x.parentId===cid);
+    const c=document.getElementById('thread-content'); 
+    let h=`<div class="pb-2 border-b border-gray-100">${createCommentHTML(pc,p.comments,pid,false)}</div><div class="pl-4 pt-2 space-y-2">`; 
+    if(r.length) r.forEach(x=>h+=createCommentHTML(x,p.comments,pid,false)); 
+    else h+='<div class="text-center text-gray-400 text-sm py-4">No replies yet.</div>'; 
+    h+='</div>'; 
+    c.innerHTML=h; 
+    refreshIcons(); 
+};
 window.submitThreadReply=async()=>{ const t=document.getElementById('thread-input').value.trim(); if(!t||!window.threadPostId||!window.threadParentCommentId) return; const r=doc(db,"posts",window.threadPostId), nc={id:"c-"+Date.now()+"-"+Math.floor(Math.random()*1000),authorId:currentUser.id,content:t,timestamp:Date.now(),likes:[],parentId:window.threadParentCommentId}; await updateDoc(r,{comments:arrayUnion(nc)}); const p=posts.find(x=>x.id===window.threadPostId), pc=p.comments.find(x=>x.id===window.threadParentCommentId); if(pc&&pc.authorId!==currentUser.id) sendNotification(pc.authorId,'reply','replied to your comment',window.threadPostId); document.getElementById('thread-input').value=""; };
 window.deleteComment=async(pid,cid)=>{ showAlert("Delete comment?",async()=>{ const r=doc(db,"posts",pid), p=posts.find(x=>x.id===pid), nc=p.comments.filter(x=>x.id!==cid&&x.parentId!==cid); await updateDoc(r,{comments:nc}); showToast("Deleted"); }); };
 window.toggleCommentLike=async(pid,cid)=>{ const p=posts.find(x=>x.id===pid); if(!p) return; const c=p.comments||[], i=c.findIndex(x=>x.id===cid); if(i===-1) return; const cm=c[i]; if(!cm.likes) cm.likes=[]; if(cm.likes.includes(currentUser.id)) cm.likes=cm.likes.filter(x=>x!==currentUser.id); else { cm.likes.push(currentUser.id); if(cm.authorId!==currentUser.id) sendNotification(cm.authorId,'like','liked your comment',pid); } c[i]=cm; await updateDoc(doc(db,"posts",pid),{comments:c}); };

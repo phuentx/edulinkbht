@@ -870,7 +870,9 @@ window.deletePost=async(pid)=>{ showAlert("Delete post?",async()=>{ await delete
 window.openCompose=(isEdit = false)=>{ 
     closeCreateMenu(); 
     document.getElementById('compose-overlay').classList.remove('opacity-0','pointer-events-none'); 
-    document.getElementById('compose-modal').classList.remove('scale-95'); 
+    const modal = document.getElementById('compose-modal');
+    modal.classList.remove('scale-95'); 
+    modal.classList.remove('translate-y-full');
     
     if(!isEdit){
         // Reset Logic
@@ -899,7 +901,9 @@ window.attemptCloseCompose=()=>{
 };
 window.closeCompose=()=>{ 
     document.getElementById('compose-overlay').classList.add('opacity-0','pointer-events-none'); 
-    document.getElementById('compose-modal').classList.add('scale-95'); 
+    const modal = document.getElementById('compose-modal');
+    modal.classList.add('scale-95'); 
+    modal.classList.add('translate-y-full');
     setTimeout(() => { 
         window.editingPostId=null; 
         document.getElementById('compose-text').value="";

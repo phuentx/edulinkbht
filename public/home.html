@@ -285,10 +285,7 @@ function setupSwipeClose(modalId, overlayId, closeFunc) {
     }, {passive: true});
 }
 
-// Setup Swipes
-setupSwipeClose('share-modal', 'share-overlay', closeShareMenu);
-setupSwipeClose('edit-profile-modal', 'edit-profile-overlay', closeEditProfile);
-setupSwipeClose('likes-modal', 'likes-overlay', closeLikes);
+// NOTE: Moved setupSwipeClose calls to end of script to ensure close functions are defined.
 
 /* PTR Logic */
 const ptrSpinner = document.getElementById('ptr-spinner');
@@ -719,6 +716,14 @@ window.publishPost=async()=>{ const tr=document.getElementById('compose-text').v
 window.showToast=(m,e=false)=>{ const t=document.getElementById('toast'), tm=document.getElementById('toast-msg'), i=document.getElementById('toast-icon'); tm.innerText=m; if(e){t.style.backgroundColor='#d93025';i.setAttribute('data-lucide','alert-circle');i.classList.remove('text-[#c4eed0]');i.classList.add('text-white');} else {t.style.backgroundColor='#303134';i.setAttribute('data-lucide','check-circle-2');i.classList.add('text-[#c4eed0]');} refreshIcons(); t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); };
 window.openLightbox=(s,t='image')=>{ const w=document.getElementById('lightbox-wrapper'), l=document.getElementById('lightbox'); if(t==='video'||s.includes('.mp4')||s.includes('data:video')) w.innerHTML=`<video src="${s}" controls autoplay class="max-w-full max-h-[90vh] rounded-lg shadow-2xl"></video>`; else w.innerHTML=`<img src="${s}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">`; l.classList.add('active'); l.classList.remove('pointer-events-none','opacity-0'); };
 window.closeLightbox=()=>{ const l=document.getElementById('lightbox'); l.classList.remove('active'); l.classList.add('pointer-events-none','opacity-0'); const v=l.querySelector('video'); if(v) v.pause(); };
+
+// Setup Swipes (Moved to end to ensure close functions are defined)
+if(typeof setupSwipeClose === 'function'){
+    setupSwipeClose('share-modal', 'share-overlay', window.closeShareMenu);
+    setupSwipeClose('edit-profile-modal', 'edit-profile-overlay', window.closeEditProfile);
+    setupSwipeClose('likes-modal', 'likes-overlay', window.closeLikes);
+}
+
 refreshIcons();
 </script>
 </body>

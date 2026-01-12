@@ -253,7 +253,6 @@ function setupSwipeClose(modalId, overlayId, closeFunc) {
     
     modal.addEventListener('touchstart', e => {
         if(document.getElementById(overlayId).classList.contains('hidden')) return;
-        // Check if we are at the top of scroll content
         const content = modal.querySelector('.overflow-y-auto');
         if(content && content.scrollTop > 0) return;
         
@@ -267,7 +266,7 @@ function setupSwipeClose(modalId, overlayId, closeFunc) {
 
         const diff = e.touches[0].clientY - startY;
         if (diff > 0) {
-            e.preventDefault(); // Prevent scrolling the body/background
+            e.preventDefault(); 
             modal.style.transform = `translateY(${diff}px)`;
         }
     }, {passive: false});
@@ -522,12 +521,23 @@ window.openLikes=pid=>{
     }); 
     const overlay = document.getElementById('likes-overlay');
     const modal = document.getElementById('likes-modal');
+    
+    // RESET TRANSFORM & ENSURE INITIAL STATE
+    modal.style.transform = '';
+    modal.style.transition = 'none';
+    overlay.classList.add('opacity-0');
+    modal.classList.add('translate-y-full', 'md:scale-95');
+    modal.classList.remove('translate-y-0', 'md:scale-100');
+    
     overlay.classList.remove('hidden');
-    requestAnimationFrame(()=>{
+    void modal.offsetWidth; // Force Reflow
+    
+    modal.style.transition = '';
+    setTimeout(()=>{
        overlay.classList.remove('opacity-0');
        modal.classList.remove('translate-y-full', 'md:scale-95');
        modal.classList.add('translate-y-0', 'md:scale-100');
-    });
+    }, 20);
 };
 window.closeLikes = () => {
    const overlay = document.getElementById('likes-overlay');
@@ -545,12 +555,22 @@ window.sharePost=pid=>{
     const url = `${window.location.origin}${window.location.pathname}?postId=${pid}`;
     document.getElementById('share-link-input').value = url;
     
+    // RESET TRANSFORM & ENSURE INITIAL STATE
+    modal.style.transform = '';
+    modal.style.transition = 'none';
+    overlay.classList.add('opacity-0');
+    modal.classList.add('translate-y-full', 'md:scale-95');
+    modal.classList.remove('translate-y-0', 'md:scale-100');
+    
     overlay.classList.remove('hidden');
-    requestAnimationFrame(() => {
+    void modal.offsetWidth; // Force Reflow
+    
+    modal.style.transition = '';
+    setTimeout(() => {
         overlay.classList.remove('opacity-0');
         modal.classList.remove('translate-y-full', 'md:scale-95');
         modal.classList.add('translate-y-0', 'md:scale-100');
-    });
+    }, 20);
 };
 window.closeShareMenu = () => {
     const overlay = document.getElementById('share-overlay');
@@ -595,11 +615,21 @@ window.toggleNotifMenu=()=>{
     // Mobile: Show Bottom Sheet Overlay
     const overlay = document.getElementById('notif-options-overlay');
     const modal = document.getElementById('notif-options-modal');
+    
+    // RESET TRANSFORM & ENSURE INITIAL STATE
+    modal.style.transform = '';
+    modal.style.transition = 'none';
+    overlay.classList.add('opacity-0');
+    modal.classList.add('translate-y-full');
+    
     overlay.classList.remove('hidden');
-    requestAnimationFrame(()=>{
+    void modal.offsetWidth; // Force Reflow
+    
+    modal.style.transition = '';
+    setTimeout(()=>{
        overlay.classList.remove('opacity-0');
        modal.classList.remove('translate-y-full');
-    });
+    }, 20);
 };
 window.closeNotifOptions = () => {
     const overlay = document.getElementById('notif-options-overlay');
@@ -636,12 +666,23 @@ window.openEditProfile=()=>{
     
     const overlay = document.getElementById('edit-profile-overlay');
     const modal = document.getElementById('edit-profile-modal');
+    
+    // RESET TRANSFORM & ENSURE INITIAL STATE
+    modal.style.transform = '';
+    modal.style.transition = 'none';
+    overlay.classList.add('opacity-0');
+    modal.classList.add('translate-y-full', 'md:scale-95');
+    modal.classList.remove('translate-y-0', 'md:scale-100');
+    
     overlay.classList.remove('hidden');
-    requestAnimationFrame(()=>{
+    void modal.offsetWidth; // Force Reflow
+    
+    modal.style.transition = '';
+    setTimeout(()=>{
        overlay.classList.remove('opacity-0');
        modal.classList.remove('translate-y-full', 'md:scale-95');
        modal.classList.add('translate-y-0', 'md:scale-100');
-    });
+    }, 20);
 };
 window.closeEditProfile=()=>{
     const overlay = document.getElementById('edit-profile-overlay');
@@ -697,7 +738,34 @@ window.closeEventComposer=()=>{ document.getElementById('event-overlay').classLi
 window.handleEventCoverSelect=e=>{ const f=e.target.files[0]; if(f){ currentEventCoverBlob=f; const r=new FileReader(); r.onload=x=>{window.currentEventCover=x.target.result; document.getElementById('event-cover-preview').src=window.currentEventCover; document.getElementById('event-cover-preview-container').classList.remove('hidden'); document.getElementById('add-cover-btn').classList.add('hidden');}; r.readAsDataURL(f); } };
 window.removeEventCover=()=>{ window.currentEventCover=null; currentEventCoverBlob=null; document.getElementById('event-cover-preview').src=""; document.getElementById('event-cover-preview-container').classList.add('hidden'); document.getElementById('add-cover-btn').classList.remove('hidden'); document.getElementById('event-cover-input').value=""; };
 window.publishEvent=()=>{ showToast("Coming soon!",false); closeEventComposer(); };
-window.showPostOptions=(e,pid,aid)=>{ e.stopPropagation(); const o=document.getElementById('post-options-overlay'), m=document.getElementById('post-options-modal'), c=document.getElementById('post-options-content'), me=aid===currentUser.id, adm=currentUser.email==='edulinkbht@gmail.com', ce=me, cd=me||adm; let h=''; if(ce) h+=`<button onclick="editPost('${pid}'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors font-bold text-gray-800 text-left"><i data-lucide="edit-2" class="w-5 h-5"></i> Edit Post</button>`; if(cd) h+=`<button onclick="deletePost('${pid}'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="trash-2" class="w-5 h-5"></i> Delete Post</button>`; if(!me){ const s=savedPosts.includes(pid); h+=`<button onclick="toggleSave('${pid}'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors font-bold text-gray-800 text-left"><i data-lucide="bookmark" class="w-5 h-5 ${s?'fill-yellow-500 text-yellow-500':''}"></i> ${s?'Unsave':'Save'} Post</button>`; h+=`<button onclick="showToast('Reported'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="flag" class="w-5 h-5"></i> Report Post</button>`; } h+=`<button onclick="sharePost('${pid}'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors font-bold text-gray-800 text-left"><i data-lucide="link" class="w-5 h-5"></i> Copy Link</button>`; c.innerHTML=h; refreshIcons(); o.classList.remove('hidden'); requestAnimationFrame(()=>{o.classList.remove('opacity-0'); m.classList.remove('translate-y-full','md:scale-95'); m.classList.add('translate-y-0','md:scale-100');}); };
+window.showPostOptions=(e,pid,aid)=>{ 
+    e.stopPropagation(); 
+    const o=document.getElementById('post-options-overlay'), m=document.getElementById('post-options-modal'), c=document.getElementById('post-options-content'), me=aid===currentUser.id, adm=currentUser.email==='edulinkbht@gmail.com', ce=me, cd=me||adm; 
+    let h=''; 
+    if(ce) h+=`<button onclick="editPost('${pid}'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors font-bold text-gray-800 text-left"><i data-lucide="edit-2" class="w-5 h-5"></i> Edit Post</button>`; 
+    if(cd) h+=`<button onclick="deletePost('${pid}'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="trash-2" class="w-5 h-5"></i> Delete Post</button>`; 
+    if(!me){ const s=savedPosts.includes(pid); h+=`<button onclick="toggleSave('${pid}'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors font-bold text-gray-800 text-left"><i data-lucide="bookmark" class="w-5 h-5 ${s?'fill-yellow-500 text-yellow-500':''}"></i> ${s?'Unsave':'Save'} Post</button>`; h+=`<button onclick="showToast('Reported'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="flag" class="w-5 h-5"></i> Report Post</button>`; } 
+    h+=`<button onclick="sharePost('${pid}'); hidePostMenu()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors font-bold text-gray-800 text-left"><i data-lucide="link" class="w-5 h-5"></i> Copy Link</button>`; 
+    c.innerHTML=h; 
+    refreshIcons(); 
+    
+    // RESET TRANSFORM & ENSURE INITIAL STATE
+    m.style.transform = '';
+    m.style.transition = 'none';
+    o.classList.add('opacity-0');
+    m.classList.add('translate-y-full', 'md:scale-95');
+    m.classList.remove('translate-y-0', 'md:scale-100');
+    
+    o.classList.remove('hidden');
+    void m.offsetWidth; // Force Reflow
+    
+    m.style.transition = '';
+    setTimeout(() => {
+        o.classList.remove('opacity-0');
+        m.classList.remove('translate-y-full', 'md:scale-95');
+        m.classList.add('translate-y-0', 'md:scale-100');
+    }, 20);
+};
 window.hidePostMenu=()=>{ const o=document.getElementById('post-options-overlay'), m=document.getElementById('post-options-modal'); o.classList.add('opacity-0'); m.classList.add('translate-y-full','md:scale-95'); m.classList.remove('translate-y-0','md:scale-100'); setTimeout(()=>o.classList.add('hidden'),200); };
 window.editPost=pid=>{ const p=posts.find(x=>x.id===pid); if(!p) return; document.getElementById('compose-text').value=p.content; window.editingPostId=pid; document.getElementById('compose-title-text').innerText="Edit Post"; document.getElementById('btn-publish').innerText="Update"; openCompose(); };
 window.deletePost=async(pid)=>{ showAlert("Delete post?",async()=>{ await deleteDoc(doc(db,"posts",pid)); showToast("Deleted"); }); };

@@ -111,15 +111,10 @@ i[data-lucide],svg { flex-shrink:0; }
 #main-header { transition:transform 0.3s cubic-bezier(0.2,0,0,1); }
 #explore-header-container { transition:transform 0.3s cubic-bezier(0.2,0,0,1); }
 .collab-chip { display:inline-flex; align-items:center; background-color:#f3f4f6; padding:4px 10px; border-radius:20px; font-size:13px; margin-right:6px; margin-bottom:6px; color:#1f1f1f; border:1px solid #e5e7eb; }
-
-/* POST MODAL LAYOUT - DESKTOP & MOBILE */
-.post-modal-layout { display:flex; flex-direction:column; width:100%; height:100%; overflow:hidden; gap:0; background: #fff; }
-
+.post-modal-layout { display:flex; flex-direction:column; width:100%; height:100%; overflow:hidden; gap:0; background:white; }
 body.reel-mode #mobile-bottom-nav { display:none!important; }
-.mobile-reel-view .mobile-header,.mobile-reel-view .mobile-footer { display:none!important; }
+.mobile-reel-view .mobile-header,.mobile-reel-view .mobile-footer,.mobile-reel-view #mobile-top-caption { display:none!important; }
 .mobile-reel-view .reel-ui-layer { display:flex!important; }
-
-/* REEL UI (Specific Mode) */
 .reel-ui-layer { display:none; flex-direction:column; justify-content:space-between; position:absolute; inset:0; z-index:40; padding:16px 12px 30px; background:linear-gradient(to top,rgba(0,0,0,0.9) 0%,rgba(0,0,0,0.5) 30%,rgba(0,0,0,0) 80%,rgba(0,0,0,0.4) 100%); pointer-events:none; }
 .reel-interact-btn { pointer-events:auto; display:flex; flex-direction:column; align-items:center; gap:4px; text-shadow:0 1px 2px rgba(0,0,0,0.5); }
 .reel-interact-icon { width:32px; height:32px; color:white; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
@@ -128,179 +123,32 @@ body.reel-mode #mobile-bottom-nav { display:none!important; }
 .mobile-reel-header { display:none; height:60px; background-color:#000000; align-items:center; padding:0 16px; z-index:50; flex-shrink:0; }
 .mobile-reel-view .mobile-reel-header { display:flex; }
 .reel-back-btn { width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; color:white; }
-
-/* DESKTOP SIDE BY SIDE LAYOUT */
-@media (min-width:768px) { 
-  .post-modal-layout { 
-    flex-direction:row; 
-    width: 85vw; /* Wider for standard layout */
-    max-width:1200px; 
-    height:90vh; 
-    border-radius: 4px; 
-    overflow: hidden; 
-  } 
-  /* Left Side: Media */
-  .stage-panel { 
-    flex:1; 
-    height:100%; 
-    background:#000; /* Black background for media */
-    position:relative; 
-    display:flex; 
-    align-items:center; 
-    justify-content:center; 
-    overflow:hidden; 
-    min-width:0; 
-  } 
-  .stage-content { 
-    max-width:100%; 
-    max-height:100%; 
-    object-fit:contain; 
-  } 
-  /* Right Side: Details */
-  .discussion-panel { 
-    width:400px; /* Fixed width sidebar */
-    min-width:350px;
-    height:100%; 
-    background:#ffffff; 
-    display:flex; 
-    flex-direction:column; 
-    overflow:hidden; 
-    flex-shrink:0; 
-    border-left: 1px solid var(--outline);
-  }
-  .discussion-header {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--outline);
-  }
-  .discussion-scroll {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0;
-  }
-  .discussion-footer {
-      padding: 12px 16px;
-      border-top: 1px solid var(--outline);
-      background: white;
-  }
-  .caption-in-scroll {
-      padding: 16px;
-      border-bottom: 1px solid var(--outline);
-      display: flex;
-      gap: 12px;
-  }
-  .caption-avatar {
-      width: 32px; height: 32px; rounded-full; object-fit: cover; flex-shrink: 0;
-  }
-}
-
-/* MOBILE LAYOUT (Standard Instagram Style: Header -> Image -> Actions -> Caption) */
-@media (max-width:767px) { 
-  .post-modal-layout { 
-    display:flex; 
-    flex-direction:column; 
-    background:#fff; 
-    width:100vw; 
-    height:100%; 
-    overflow-y:auto; 
-  }
-  /* Header acts as User Info on Mobile */
-  .mobile-header { 
-    display:flex; 
-    flex-shrink:0; 
-    height:60px; 
-    align-items:center; 
-    justify-content:space-between; 
-    padding:0 16px; 
-    border-bottom:1px solid #f0f0f0; 
-    background:#fff; 
-    z-index:20; 
-    position: sticky; top: 0;
-  } 
-  .stage-panel { 
-    width:100%; 
-    background:#f0f0f0; 
-    position:relative; 
-    display:flex; 
-    align-items:center; 
-    justify-content:center; 
-    overflow:hidden; 
-    aspect-ratio: 1/1; /* Default square on mobile, can adjust */
-    min-height: 300px;
-  } 
-  .stage-content { 
-    width:100%; 
-    height:100%; 
-    object-fit:cover; 
-  } 
-  .mobile-footer { 
-    display:block; 
-    flex-shrink:0; 
-    background:#fff; 
-    padding:12px 16px; 
-    padding-bottom:calc(60px + env(safe-area-inset-bottom,20px)); /* Space for bottom nav */
-    z-index:10; 
-  } 
-  .mobile-actions-bar { 
-    display:flex; 
-    align-items:center; 
-    justify-content:space-between; 
-    margin-bottom:8px; 
-  } 
-  .mobile-action-group { 
-    display:flex; 
-    align-items:center; 
-    gap:16px; 
-  } 
-  .mobile-caption-text { 
-    font-size:14px; 
-    line-height:1.5; 
-    color:#0f0f0f; 
-    margin-top: 8px;
-  } 
-  /* Mobile Comments Drawer (Slide up) */
-  .discussion-panel { 
-    position:fixed; 
-    bottom:0; 
-    left:0; 
-    right:0; 
-    height:75vh; 
-    background:#fff; 
-    z-index:100; 
-    border-radius:20px 20px 0 0; 
-    box-shadow:0 -4px 20px rgba(0,0,0,0.15); 
-    transform:translateY(100%); 
-    transition:transform 0.3s cubic-bezier(0.2,0,0,1); 
-    display:flex; 
-    flex-direction:column; 
-  } 
-  .discussion-panel.open { 
-    transform:translateY(0); 
-  }
-}
-
-/* Common Comment Styles */
-.comments-list { padding:0; display:flex; flex-direction:column; }
+@media (min-width:768px) { .post-modal-layout { flex-direction:row; width:90vw; max-width:1200px; height:85vh; gap:0; align-items:stretch; background:white; border-radius: 24px; overflow: hidden; } .stage-panel { flex:1; height:100%; background:black; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; min-width:0; } .stage-content { max-width:100%; max-height:100%; object-fit:contain; } .discussion-panel { width:400px; height:100%; background:#ffffff; display:flex; flex-direction:column; overflow:hidden; flex-shrink:0; border-left: 1px solid var(--outline); } }
+@media (max-width:767px) { .post-modal-layout { display:flex; flex-direction:column; background:#fff; width:100vw; height:100%; overflow-y:auto; overflow-x:hidden; } .mobile-header { display:flex; flex-shrink:0; height:60px; align-items:center; justify-content:space-between; padding:0 16px; border-bottom:1px solid #f0f0f0; background:#fff; position:sticky; top:0; z-index:50; } .stage-panel { width:100%; background:black; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; min-height: 300px; } .stage-content { width:100%; height:auto; max-height:80vh; object-fit:contain; } .mobile-footer { display:block; flex-shrink:0; background:#fff; border-top:1px solid #f0f0f0; padding:12px 16px; padding-bottom:calc(12px + env(safe-area-inset-bottom,20px)); } .mobile-actions-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; } .mobile-action-group { display:flex; align-items:center; gap:20px; } .discussion-panel { display: block; width: 100%; } .discussion-header, .discussion-scroll, .discussion-footer { display: block; } .discussion-header { display:none; } .discussion-scroll { max-height: none; overflow: visible; } .discussion-footer { display:none; } }
+.discussion-header { padding:14px 16px; border-bottom:1px solid var(--outline); display:flex; align-items:center; gap: 12px; background:#fff; z-index:10; flex-shrink:0; }
+.discussion-scroll { flex:1; overflow-y:auto; padding:0; background:#fff; display:flex; flex-direction:column; }
+.caption-box { padding:16px; border-bottom:1px solid var(--outline); background:#fff; font-size: 14px; display: flex; gap: 12px; }
+.comments-list { padding:0; display:flex; flex-direction:column; flex:1; }
+.discussion-footer { padding:12px 16px; border-top:1px solid var(--outline); background:#fff; z-index:10; flex-shrink:0; }
+/* YouTube Style Comments */
 .comment-row { display:flex; gap:16px; align-items:flex-start; padding:12px 16px; transition:background-color 0.1s; }
 .comment-row:hover { background-color: #f9f9f9; }
-.comment-row.me { flex-direction:row; } 
+.comment-row.me { flex-direction:row; } /* Reset special 'me' direction for YT style */
 .comment-avatar { width:32px; height:32px; border-radius:50%; object-fit:cover; background-color:var(--hover-bg); flex-shrink: 0; }
 .comment-content-box { display:flex; flex-direction:column; gap:2px; flex: 1; min-width: 0; }
 .comment-header { font-size:13px; font-weight:600; color:var(--on-surface); display:flex; align-items:center; gap:4px; line-height: 1.2; }
-.comment-time { font-size:12px; font-weight:400; color:var(--text-secondary); margin-left: 4px; }
-.comment-text { font-size:14px; line-height:18px; color:var(--on-surface); white-space: pre-wrap; word-break: break-word; }
-.comment-actions-row { display:flex; align-items:center; gap:16px; margin-top:6px; }
-.comment-action-btn { display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:#666; cursor:pointer; background:none; border:none; padding:0; transition:color 0.2s; }
-.comment-action-btn:hover { color:#000; }
-.comment-reply-btn { font-size: 12px; font-weight: 600; color: #666; cursor: pointer; }
-
-.chat-input-wrapper { display:flex; align-items:center; background:transparent; padding:0; gap: 8px; }
-.chat-input-field { flex: 1; border: none; padding: 8px 0; outline: none; font-size: 14px; max-height: 80px; resize: none; overflow-y: hidden; }
-.play-pause-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; opacity:0; transition:opacity 0.2s; z-index: 10; }
+.comment-time { font-size:12px; font-weight:400; color:var(--text-secondary); }
+.comment-text { font-size:14px; line-height:1.4; color:var(--on-surface); white-space: pre-wrap; word-break: break-word; }
+.comment-actions-row { display:flex; align-items:center; gap:12px; margin-top:4px; }
+.comment-action-btn { display:flex; align-items:center; gap:4px; font-size:12px; font-weight:500; color:var(--text-secondary); cursor:pointer; background:none; border:none; padding:0; transition:color 0.2s; }
+.comment-action-btn:hover { color:var(--on-surface); }
+.chat-input-wrapper { display:flex; align-items:flex-end; background:transparent; padding:4px 0; gap: 12px; }
+.chat-input-field { flex: 1; border: none; padding: 8px 0; outline: none; font-size: 14px; max-height: 80px; resize: none; overflow-y: hidden; background: transparent; }
+.play-pause-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; opacity:0; transition:opacity 0.2s; }
 .play-pause-overlay.show { opacity:1; }
 .play-pause-icon { width:80px; height:80px; background:rgba(0,0,0,0.4); border-radius:50%; padding:20px; color:white; backdrop-filter:blur(4px); }
 .read-more-btn { color: var(--text-secondary); font-weight: 600; font-size: 14px; cursor: pointer; margin-left: 4px; }
 .read-more-btn:hover { text-decoration: underline; }
-
 .explore-tab-btn { font-size:16px; font-weight:700; color:#9ca3af; padding-bottom:4px; border-bottom:2px solid transparent; transition:all 0.2s; }
 .explore-tab-btn.active { color:#1f1f1f; border-color:#1f1f1f; }
 .category-chip { padding:6px 16px; border-radius:9999px; font-size:13px; font-weight:600; white-space:nowrap; border:1px solid #e5e7eb; color:#4b5563; background:white; cursor:pointer; transition:all 0.2s; }
@@ -312,18 +160,16 @@ body.reel-mode #mobile-bottom-nav { display:none!important; }
 .trend-rank { font-size:11px; color:var(--text-secondary); margin-bottom:2px; }
 .trend-tag { font-weight:700; color:var(--on-surface); margin-bottom:2px; font-size:15px; }
 .trend-count { font-size:11px; color:var(--text-secondary); }
-.post-carousel { position:relative; width:100%; height: 100%; overflow:hidden; background-color:#000; }
+.post-carousel { position:relative; width:100%; overflow:hidden; background-color:#000; aspect-ratio:4/5; }
 .post-carousel-inner { display:flex; transition:transform 0.3s ease-out; height:100%; width:100%; }
 .post-carousel-item { min-width:100%; flex:0 0 100%; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:#000; }
-.post-carousel-item img,.post-carousel-item video { width:100%; height:100%; object-fit:contain; }
+.post-carousel-item img,.post-carousel-item video { width:100%; height:100%; object-fit:cover; }
 /* Updated Carousel Dots: Outside */
-.carousel-dots-outside { display:flex; justify-content:center; gap:6px; margin-top:10px; position: absolute; bottom: 15px; width: 100%; z-index: 20; pointer-events: none; }
-.carousel-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.5); transition:background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-.carousel-dot.active { background:#fff; transform: scale(1.2); } 
-.carousel-nav-btn { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.8); color:black; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:10; border:none; transition: opacity 0.2s; opacity: 0; }
-.carousel-wrapper:hover .carousel-nav-btn { opacity: 1; }
-.carousel-nav-btn.prev { left:10px; } .carousel-nav-btn.next { right:10px; }
-
+.carousel-dots-outside { display:flex; justify-content:center; gap:6px; margin-top:10px; }
+.carousel-dot { width:6px; height:6px; border-radius:50%; background:#d1d5db; transition:background 0.2s; }
+.carousel-dot.active { background:#3b82f6; } /* Blue active dot */
+.carousel-nav-btn { position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:10; border:none; }
+.carousel-nav-btn.prev { left:8px; } .carousel-nav-btn.next { right:8px; }
 /* Overlay Consistency Mobile */
 #thread-overlay { border-radius: 20px 20px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); }
 @media(max-width: 768px) {
@@ -343,144 +189,7 @@ body.reel-mode #mobile-bottom-nav { display:none!important; }
 <div id="upload-options-modal" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden" onclick="document.getElementById('upload-options-modal').classList.add('hidden')"><div class="bg-white w-[90%] max-w-[300px] rounded-2xl shadow-xl p-4 transform scale-100 transition-transform" onclick="event.stopPropagation()"><h3 class="text-center font-bold text-gray-900 mb-4 text-lg">Select Upload Type</h3><div class="flex flex-col gap-3"><button onclick="triggerUpload('single')" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"><div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><i data-lucide="image" class="w-5 h-5"></i></div><span class="font-bold text-gray-700">Single</span></button><button onclick="triggerUpload('multiple')" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"><div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600"><i data-lucide="layers" class="w-5 h-5"></i></div><span class="font-bold text-gray-700">Multiple (Carousel)</span></button></div></div></div>
 <div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0"><div class="h-14 flex items-center justify-between px-4 shrink-0 relative"><span class="font-bold text-lg text-[#1f1f1f]">Notifications</span><div class="flex items-center gap-3"><button onclick="toggleNotifSearchMobile()" class="icon-btn"><i data-lucide="search" class="w-5 h-5 text-[#1f1f1f]"></i></button><div class="relative"><button onclick="toggleNotifMenu()" class="icon-btn"><i data-lucide="more-vertical" class="w-5 h-5 text-[#1f1f1f]"></i></button><div id="notif-menu-dropdown" class="absolute right-0 top-10 bg-white border border-gray-100 shadow-xl rounded-xl z-50 w-48 hidden flex-col overflow-hidden"><button onclick="toggleNotifSelection()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium border-b border-gray-50 text-gray-700">Select</button><button onclick="deleteSelectedNotifs()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete Selected</button><button onclick="clearAllNotifications()" class="px-4 py-3 text-left hover:bg-gray-50 text-sm font-medium text-red-500">Delete All</button></div></div></div></div><div id="mobile-notif-search-container" class="px-4 pb-2 hidden"><div class="relative"><i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i><input type="text" id="notif-search" placeholder="Search..." oninput="handleNotifSearch(this.value)" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all"></div></div><div class="tab-group mb-0 mx-0 w-full"><button onclick="switchNotifTab('friends')" id="ntab-friends-mobile" class="tab-btn active"><i data-lucide="users" class="w-5 h-5"></i></button><button onclick="switchNotifTab('others')" id="ntab-others-mobile" class="tab-btn"><i data-lucide="bell" class="w-5 h-5"></i></button><button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="megaphone" class="w-5 h-5"></i></button></div></div>
 <div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center"><div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div><div class="bg-white w-full md:w-[450px] h-[75vh] md:h-[85vh] md:rounded-[24px] rounded-t-[20px] shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in thread-mobile-container"><div class="discussion-header"><div class="flex items-center gap-3"><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="chevron-down" class="w-6 h-6 text-gray-600"></i></button><span class="font-bold text-lg text-[#1f1f1f]">Thread</span></div><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div><div id="thread-content" class="discussion-scroll bg-white"></div><div class="discussion-footer"><div class="chat-input-wrapper"><img id="thread-input-avatar" src="" class="w-7 h-7 rounded-full bg-gray-200 object-cover mr-2 shrink-0"><textarea id="thread-input" placeholder="Add a reply..." class="chat-input-field" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitThreadReply();}"></textarea><button onclick="submitThreadReply()" class="text-white bg-[#065fd4] font-medium text-sm px-4 py-2 rounded-full hover:bg-blue-700 transition-colors">Reply</button></div></div></div></div>
-
-<!-- MAIN POST OVERLAY (INSTAGRAM STYLE) -->
-<div id="post-view-overlay" class="fixed inset-0 z-[60] hidden flex justify-center items-center"><div class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onclick="closePostView()"></div>
-    <div class="post-modal-layout scale-in relative z-10">
-        
-        <!-- MOBILE HEADER (User Info) -->
-        <div class="mobile-header md:hidden">
-            <div class="flex items-center gap-3 cursor-pointer" onclick="closePostView();if(window.currentViewingProfileId)showProfile(window.currentViewingProfileId)">
-                <img id="mobile-post-pfp" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
-                <span id="mobile-post-username" class="font-bold text-sm text-[#1f1f1f]">User</span>
-            </div>
-            <button onclick="closePostView()" class="icon-btn hover:bg-gray-100 w-9 h-9 border border-gray-200"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
-        </div>
-
-        <!-- REEL HEADER (Specific for Reels) -->
-        <div id="mobile-reel-header" class="mobile-reel-header md:hidden">
-            <button onclick="closePostView()" class="reel-back-btn"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
-            <span class="ml-4 text-white font-bold text-lg">Frame</span>
-        </div>
-
-        <!-- LEFT/TOP: MEDIA STAGE -->
-        <div id="post-view-media-container" class="stage-panel group relative">
-            <div id="video-play-overlay" class="play-pause-overlay"><i data-lucide="play" class="play-pause-icon"></i></div>
-        </div>
-
-        <!-- REEL OVERLAY UI (Specific for Reels) -->
-        <div id="reel-ui-layer" class="reel-ui-layer md:hidden">
-            <div class="mt-14 pointer-events-none"></div>
-            <div class="flex items-end justify-between w-full">
-                <div class="flex flex-col gap-3 max-w-[80%] text-white drop-shadow-md pointer-events-auto pb-2">
-                    <div class="flex items-center gap-2 cursor-pointer" id="reel-user-info-area">
-                        <img id="reel-user-avatar" src="" class="w-8 h-8 rounded-full border border-white/50 object-cover">
-                        <span id="reel-username" class="font-bold text-sm">Username</span>
-                    </div>
-                    <div id="reel-caption" class="text-sm leading-snug opacity-90 break-words"></div>
-                </div>
-                <div class="flex flex-col gap-5 items-center pointer-events-auto pb-2 mr-1">
-                    <div class="reel-interact-btn cursor-pointer">
-                        <div onclick="if(window.currentViewingPostId)toggleLike(window.currentViewingPostId)"><i id="reel-like-icon" data-lucide="heart" class="reel-interact-icon"></i></div>
-                        <span id="reel-like-count" class="reel-interact-text mt-1 p-1" onclick="if(window.currentViewingPostId)openLikes(window.currentViewingPostId)">0</span>
-                    </div>
-                    <div class="reel-interact-btn cursor-pointer" onclick="toggleMobileCommentDrawer()">
-                        <i data-lucide="message-circle" class="reel-interact-icon"></i>
-                        <span id="reel-comment-count" class="reel-interact-text">0</span>
-                    </div>
-                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId)sharePost(window.currentViewingPostId)">
-                        <i data-lucide="send" class="reel-interact-icon transform -rotate-12"></i>
-                    </div>
-                    <div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId)toggleSave(window.currentViewingPostId)">
-                        <i id="reel-save-icon" data-lucide="bookmark" class="reel-interact-icon"></i>
-                    </div>
-                    <div class="reel-interact-btn mt-2">
-                        <div class="reel-audio-btn"><i data-lucide="disc" class="w-5 h-5 text-white"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- MOBILE FOOTER (Standard Post View) -->
-        <div class="mobile-footer md:hidden">
-            <div class="mobile-actions-bar">
-                <div class="mobile-action-group">
-                    <i id="mobile-action-like" data-lucide="heart" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId)toggleLike(window.currentViewingPostId)"></i>
-                    <i data-lucide="message-circle" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="toggleMobileCommentDrawer()"></i>
-                    <i data-lucide="send" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId)sharePost(window.currentViewingPostId)"></i>
-                </div>
-                <i id="mobile-action-save" data-lucide="bookmark" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId)toggleSave(window.currentViewingPostId)"></i>
-            </div>
-            <div id="mobile-like-count" class="text-sm font-bold text-[#1f1f1f] mb-1">0 likes</div>
-            <div id="mobile-post-caption" class="mobile-caption-text"></div>
-            <div class="text-gray-400 text-sm mt-2 cursor-pointer" onclick="toggleMobileCommentDrawer()">View all comments</div>
-        </div>
-
-        <!-- RIGHT SIDE: DISCUSSION PANEL (Desktop & Mobile Drawer) -->
-        <div class="discussion-panel">
-            <!-- Desktop Header -->
-            <div class="discussion-header hidden md:flex">
-                <div class="flex items-center gap-3 cursor-pointer" id="desktop-post-header-user">
-                    <img id="desktop-post-pfp" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
-                    <span id="desktop-post-username" class="font-bold text-sm text-[#1f1f1f]">User</span>
-                    <span class="text-blue-600 text-sm font-bold cursor-pointer hover:text-blue-800" id="desktop-follow-btn">Follow</span>
-                </div>
-                <button onclick="showPostOptions(event, window.currentViewingPostId, window.currentViewingAuthorId)" class="icon-btn hover:bg-gray-100 w-8 h-8"><i data-lucide="more-horizontal" class="w-5 h-5 text-gray-600"></i></button>
-            </div>
-            
-            <!-- Mobile Header for Drawer -->
-            <div class="discussion-header md:hidden">
-                 <span class="font-bold text-lg text-gray-900">Comments</span>
-                 <button onclick="toggleMobileCommentDrawer()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
-            </div>
-
-            <!-- Scrollable Content -->
-            <div id="post-view-scroll" class="discussion-scroll scroll-smooth">
-                <!-- Desktop Caption (Top of scroll) -->
-                <div id="desktop-caption-area" class="caption-in-scroll hidden md:flex">
-                    <img id="desktop-caption-avatar" class="comment-avatar">
-                    <div class="flex-1">
-                        <div class="font-bold text-sm text-gray-900 inline mr-1" id="desktop-caption-username">User</div>
-                        <span class="text-sm text-gray-900" id="desktop-caption-text">Caption text...</span>
-                        <div class="text-xs text-gray-500 mt-2" id="desktop-post-time">2h</div>
-                    </div>
-                </div>
-                
-                <!-- Comments List -->
-                <div id="post-view-comments" class="comments-list"></div>
-            </div>
-
-            <!-- Footer (Desktop Only - Mobile has its own) -->
-            <div class="discussion-footer hidden md:block">
-                <div class="flex justify-between items-center mb-3 px-1">
-                    <div class="flex gap-4">
-                        <i id="post-view-like-btn" data-lucide="heart" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
-                        <i data-lucide="message-circle" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="document.getElementById('comment-input-desktop').focus()"></i>
-                        <i data-lucide="send" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="if(window.currentViewingPostId)sharePost(window.currentViewingPostId)"></i>
-                    </div>
-                    <i id="post-view-save-btn" data-lucide="bookmark" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i>
-                </div>
-                <div class="font-bold text-sm text-gray-900 mb-2" id="post-view-likes-count" onclick="openLikes(window.currentViewingPostId)">0 likes</div>
-                <div class="text-[10px] text-gray-400 uppercase mb-3" id="post-view-date"></div>
-                <div class="chat-input-wrapper border-t border-gray-100 pt-3">
-                    <i data-lucide="smile" class="w-6 h-6 text-gray-400 cursor-pointer"></i>
-                    <textarea id="comment-input-desktop" placeholder="Add a comment..." class="chat-input-field" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitCommentDesktop();}"></textarea>
-                    <button onclick="submitCommentDesktop()" class="text-blue-500 font-bold text-sm disabled:opacity-50 hover:text-blue-700">Post</button>
-                </div>
-            </div>
-            
-            <!-- Mobile Drawer Input -->
-            <div class="discussion-footer md:hidden">
-                 <div class="chat-input-wrapper">
-                    <img id="comment-input-avatar" src="" class="w-8 h-8 rounded-full bg-gray-200 object-cover">
-                    <textarea id="comment-input-mobile" placeholder="Add a comment..." class="chat-input-field" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitCommentDesktop();}"></textarea>
-                    <button onclick="submitCommentDesktop()" class="text-blue-500 font-bold text-sm">Post</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+<div id="post-view-overlay" class="fixed inset-0 z-[60] hidden flex justify-center items-center"><div class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onclick="closePostView()"></div><div class="post-modal-layout scale-in relative z-10"><div class="mobile-header md:hidden"><div class="flex items-center gap-3 cursor-pointer" onclick="closePostView();if(window.currentViewingProfileId)showProfile(window.currentViewingProfileId)"><img id="mobile-post-pfp" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white"><span id="mobile-post-username" class="font-bold text-sm text-[#1f1f1f]">User</span></div><button onclick="closePostView()" class="icon-btn hover:bg-gray-100 w-9 h-9 border border-gray-200"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div><div id="mobile-reel-header" class="mobile-reel-header md:hidden"><button onclick="closePostView()" class="reel-back-btn"><i data-lucide="chevron-left" class="w-6 h-6"></i></button><span class="ml-4 text-white font-bold text-lg">Frame</span></div><div id="mobile-top-caption" class="p-3 bg-white md:hidden text-sm text-[#0f0f0f] border-b border-gray-50"></div><div id="post-view-media-container" class="stage-panel group relative"><div id="video-play-overlay" class="play-pause-overlay"><i data-lucide="play" class="play-pause-icon"></i></div></div><div id="reel-ui-layer" class="reel-ui-layer md:hidden"><div class="mt-14 pointer-events-none"></div><div class="flex items-end justify-between w-full"><div class="flex flex-col gap-3 max-w-[80%] text-white drop-shadow-md pointer-events-auto pb-2"><div class="flex items-center gap-2 cursor-pointer" id="reel-user-info-area"><img id="reel-user-avatar" src="" class="w-8 h-8 rounded-full border border-white/50 object-cover"><span id="reel-username" class="font-bold text-sm">Username</span><button id="reel-follow-btn" class="bg-white/20 backdrop-blur text-xs px-2.5 py-1 rounded-md font-medium border border-white/30 hidden">Follow</button></div><div id="reel-caption" class="text-sm leading-snug opacity-90 break-words"></div></div><div class="flex flex-col gap-5 items-center pointer-events-auto pb-2 mr-1"><div class="reel-interact-btn cursor-pointer"><div onclick="if(window.currentViewingPostId)toggleLike(window.currentViewingPostId)"><i id="reel-like-icon" data-lucide="heart" class="reel-interact-icon"></i></div><span id="reel-like-count" class="reel-interact-text mt-1 p-1" onclick="if(window.currentViewingPostId)openLikes(window.currentViewingPostId)">0</span></div><div class="reel-interact-btn cursor-pointer" onclick="toggleMobileCommentDrawer()"><i data-lucide="message-circle" class="reel-interact-icon"></i><span id="reel-comment-count" class="reel-interact-text">0</span></div><div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId)sharePost(window.currentViewingPostId)"><i data-lucide="send" class="reel-interact-icon transform -rotate-12"></i></div><div class="reel-interact-btn cursor-pointer" onclick="if(window.currentViewingPostId)toggleSave(window.currentViewingPostId)"><i id="reel-save-icon" data-lucide="bookmark" class="reel-interact-icon"></i></div><div class="reel-interact-btn mt-2"><div class="reel-audio-btn"><i data-lucide="disc" class="w-5 h-5 text-white"></i></div></div></div></div></div><div class="mobile-footer md:hidden"><div class="mobile-actions-bar"><div class="mobile-action-group"><i id="mobile-action-like" data-lucide="heart" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId)toggleLike(window.currentViewingPostId)"></i><i data-lucide="message-circle" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="document.querySelector('.discussion-panel').scrollIntoView({behavior:'smooth'})"></i><i data-lucide="send" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId)sharePost(window.currentViewingPostId)"></i></div><i id="mobile-action-save" data-lucide="bookmark" class="w-7 h-7 text-[#1f1f1f] cursor-pointer" onclick="if(window.currentViewingPostId)toggleSave(window.currentViewingPostId)"></i></div><div id="mobile-like-count" class="text-sm font-bold text-[#1f1f1f] mb-1">0 likes</div></div><div class="discussion-panel"><div class="discussion-header"><div class="flex items-center gap-3"><img id="desktop-header-avatar" src="" class="w-8 h-8 rounded-full border border-gray-200 object-cover cursor-pointer" onclick="if(window.currentViewingProfileId)showProfile(window.currentViewingProfileId)"><div class="flex flex-col"><span id="desktop-header-username" class="font-bold text-sm text-[#0f0f0f] cursor-pointer hover:underline" onclick="if(window.currentViewingProfileId)showProfile(window.currentViewingProfileId)">User</span><span id="desktop-header-time" class="text-xs text-gray-500"></span></div></div><button onclick="closePostView()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button></div><div id="post-view-scroll" class="discussion-scroll scroll-smooth"><div id="desktop-caption-area" class="caption-box hidden md:flex"></div><div id="post-view-comments" class="comments-list"></div></div><div class="discussion-footer"><div class="flex justify-between items-center mb-3 px-1 hidden md:flex"><div class="flex gap-4"><i id="post-view-like-btn" data-lucide="heart" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i><i data-lucide="message-circle" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="document.getElementById('comment-input-desktop').focus()"></i><i data-lucide="send" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform" onclick="if(window.currentViewingPostId)sharePost(window.currentViewingPostId)"></i></div><div class="flex gap-4 items-center"><span class="font-bold text-sm text-gray-900 cursor-pointer hover:underline" id="post-view-likes-count" onclick="openLikes(window.currentViewingPostId)">0 likes</span><i id="post-view-save-btn" data-lucide="bookmark" class="w-6 h-6 text-gray-700 cursor-pointer hover:scale-110 transition-transform"></i></div></div><div class="chat-input-wrapper"><img id="comment-input-avatar" src="" class="w-8 h-8 rounded-full bg-gray-200 object-cover"><textarea id="comment-input-desktop" placeholder="Add a comment..." class="chat-input-field" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitCommentDesktop();}"></textarea><button onclick="submitCommentDesktop()" class="text-[#065fd4] font-bold text-sm hover:text-blue-700 transition-colors">Post</button></div></div></div></div></div>
 <div id="lightbox" class="fixed inset-0 bg-black/95 z-[9999] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300" onclick="closeLightbox()"><button class="absolute top-8 right-8 text-white/70 hover:text-white bg-white/10 rounded-full p-3 hover:bg-white/20"><i data-lucide="x" class="w-8 h-8"></i></button><div id="lightbox-wrapper" class="w-full h-full flex justify-center items-center p-6"></div></div>
 <div id="toast" class="toast"><i id="toast-icon" data-lucide="check-circle-2" class="w-5 h-5 text-[#c4eed0]"></i><span id="toast-msg">Action Completed</span></div>
 <div id="likes-overlay" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm hidden" onclick="closeLikes()"><div class="bg-white w-[90%] max-w-[400px] rounded-[24px] shadow-2xl flex flex-col max-h-[80vh] overflow-hidden transform transition-all scale-100" onclick="event.stopPropagation()"><div class="flex justify-between items-center p-4 border-b border-gray-100"><h3 class="text-lg font-bold text-gray-900">Likes</h3><button onclick="closeLikes()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button></div><div id="likes-list-content" class="flex-1 overflow-y-auto p-2"></div></div></div>
@@ -511,7 +220,7 @@ import { getStorage, ref, uploadString, getDownloadURL, uploadBytes } from "http
 const firebaseConfig = { apiKey:"AIzaSyAJH79UQl0rc96Qug0DKLevO4ZI_sn8Kno", authDomain:"edulinki.firebaseapp.com", projectId:"edulinki", storageBucket:"edulinki.firebasestorage.app", messagingSenderId:"248886466474", appId:"1:248886466474:web:160043201a6b28bafbbdd3", measurementId:"G-MQBH12VL7N" };
 const app=initializeApp(firebaseConfig); const auth=getAuth(app); const db=getFirestore(app); const storage=getStorage(app); window.auth=auth; window.db=db;
 let currentUser=null, users=[], posts=[], notifications=[], savedPosts=[], activeNotifTab='friends', activeNetworkTab='people';
-window.replyingToCommentId=null; window.currentViewingProfileId=null; window.activeExploreTab='explore'; window.activeExploreCategory='For You'; window.currentProfileTab='posts'; window.currentViewingAuthorId=null;
+window.replyingToCommentId=null; window.currentViewingProfileId=null; window.activeExploreTab='explore'; window.activeExploreCategory='For You'; window.currentProfileTab='posts';
 window.currentMedia=[]; window.uploadMode='single'; window.currentMediaType=null; window.isWebSearchActive=false;
 let stopGeneration=false, abortController=null; window.isPlusMenuOpen=false; window.currentEventCover=null; window.editingPostId=null; window.threadParentCommentId=null; window.threadPostId=null;
 let currentEventCoverBlob=null, currentAvatarBlob=null, currentBannerBlob=null; window.currentPromoBlob=null;
@@ -602,8 +311,8 @@ function createPostElement(p){
                 sl+=`<div class="post-carousel-item">${iv?`<video src="${s}" controls></video>`:`<img src="${s}">`}</div>`;
                 dt+=`<div class="carousel-dot ${i===0?'active':''}" id="dot-${p.id}-${i}"></div>`;
             });
-            // Updated: Dots moved OUTSIDE, Swipe enabled
-            mh=`<div class="carousel-wrapper" style="aspect-ratio:4/5"><div class="mt-3 rounded-xl overflow-hidden post-carousel touch-pan-y" id="carousel-${p.id}" ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event,'${p.id}',false)"><div class="post-carousel-inner" id="inner-${p.id}">${sl}</div><button class="carousel-nav-btn prev" onclick="event.stopPropagation();moveCarousel('${p.id}',-1)"><i data-lucide="chevron-left" class="w-4 h-4"></i></button><button class="carousel-nav-btn next" onclick="event.stopPropagation();moveCarousel('${p.id}',1)"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><div class="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm pointer-events-none"><span id="counter-${p.id}">1</span>/${ma.length}</div><div class="carousel-dots-outside">${dt}</div></div></div>`;
+            // Update: Dots moved OUTSIDE, Swipe enabled
+            mh=`<div class="carousel-wrapper"><div class="mt-3 rounded-xl overflow-hidden post-carousel touch-pan-y" id="carousel-${p.id}" ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event,'${p.id}',false)"><div class="post-carousel-inner" id="inner-${p.id}">${sl}</div><button class="carousel-nav-btn prev" onclick="event.stopPropagation();moveCarousel('${p.id}',-1)"><i data-lucide="chevron-left" class="w-4 h-4"></i></button><button class="carousel-nav-btn next" onclick="event.stopPropagation();moveCarousel('${p.id}',1)"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><div class="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm pointer-events-none"><span id="counter-${p.id}">1</span>/${ma.length}</div></div><div class="carousel-dots-outside">${dt}</div></div>`;
             if(!window.carouselStates) window.carouselStates={};
             window.carouselStates[p.id]={index:0,total:ma.length};
         }
@@ -618,7 +327,9 @@ function createPostElement(p){
     }
     const MAX_CHARS = 180;
     let contentHtml = formatContent(p.content);
+    let hasTruncation = false;
     if(p.content.length > MAX_CHARS) {
+        hasTruncation = true;
         const truncated = formatContent(p.content.substring(0, MAX_CHARS)) + '...';
         contentHtml = `<span id="content-text-${p.id}">${truncated}</span><span id="read-more-${p.id}" class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${p.id}')">more</span>`;
     }
@@ -639,26 +350,7 @@ window.toggleReadMore = (pid) => {
         }
     }
 };
-window.moveCarousel=(pid,dir,ov=false)=>{ 
-    const k=ov?`overlay-${pid}`:pid; 
-    if(!window.carouselStates||!window.carouselStates[k]) return; 
-    const s=window.carouselStates[k], n=s.index+dir; 
-    if(n>=0&&n<s.total){ 
-        s.index=n; 
-        const ii=ov?`overlay-inner-${pid}`:`inner-${pid}`;
-        const dotsIdPrefix = ov ? `overlay-dot-${pid}-` : `dot-${pid}-`;
-        
-        document.getElementById(ii).style.transform=`translateX(-${s.index*100}%)`; 
-        
-        for(let i=0; i<s.total; i++){
-            const d = document.getElementById(`${dotsIdPrefix}${i}`);
-            if(d) d.classList.toggle('active', i===s.index);
-        }
-        
-        const cnt = document.getElementById(ov?`overlay-counter-${pid}`:`counter-${pid}`);
-        if(cnt) cnt.innerText=s.index+1; 
-    } 
-};
+window.moveCarousel=(pid,dir,ov=false)=>{ const k=ov?`overlay-${pid}`:pid; if(!window.carouselStates||!window.carouselStates[k]) return; const s=window.carouselStates[k], n=s.index+dir; if(n>=0&&n<s.total){ s.index=n; const ii=ov?`overlay-inner-${pid}`:`inner-${pid}`, wi=ov?`overlay-carousel-${pid}`:`carousel-${pid}`; document.getElementById(ii).style.transform=`translateX(-${s.index*100}%)`; const dotsContainer = ov ? document.getElementById(wi).nextElementSibling : document.getElementById(`carousel-${pid}`).nextElementSibling; const dots = dotsContainer.querySelectorAll('.carousel-dot'); dots.forEach((d,i)=>d.classList.toggle('active',i===s.index)); document.getElementById(ov?`overlay-counter-${pid}`:`counter-${pid}`).innerText=s.index+1; } };
 window.switchExploreMainTab=t=>{ window.activeExploreTab=t; ['main','video','people'].forEach(x=>document.getElementById(`tab-explore-${x}`)?.classList.remove('active')); ['main-d','video-d','people-d'].forEach(x=>document.getElementById(`tab-explore-${x}`)?.classList.remove('active')); document.getElementById(`tab-explore-${t==='explore'?'main':t}`)?.classList.add('active'); document.getElementById(`tab-explore-${t==='explore'?'main':t}-d`)?.classList.add('active'); window.activeExploreCategory=t==='video'?'All':'For You'; handleSearch(document.getElementById('mobile-explore-search').value); };
 window.toggleExploreSearch=()=>{ const b=document.getElementById('explore-search-bar'); if(b){ b.classList.toggle('hidden'); if(!b.classList.contains('hidden')) document.getElementById('mobile-explore-search').focus(); } };
 window.handleSearch=q=>{ if(document.getElementById('view-explore').classList.contains('hidden')) switchView('explore'); const t=q?q.toLowerCase().trim():'', pl=document.getElementById('explore-people-results'), v=document.getElementById('explore-results'); if(window.activeExploreTab==='people'){ pl.classList.remove('hidden','flex'); pl.classList.add('flex'); let fu=t.length?users.filter(u=>(u.name||"").toLowerCase().includes(t)||(u.username||"").toLowerCase().includes(t)):users.slice(0,10); pl.innerHTML=''; if(fu.length) fu.forEach(u=>{ const d=document.createElement('div'); d.className="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer last:border-b-0"; d.onclick=()=>showProfile(u.id); d.innerHTML=`<div class="flex items-center gap-3"><img src="${u.avatar}" class="w-12 h-12 rounded-full border border-gray-100 object-cover bg-gray-50"><div><div class="font-bold text-[#1f1f1f] text-[15px] flex items-center gap-1">${u.name}${u.isOfficial?'<i data-lucide="badge-check" class="w-4 h-4 text-blue-500 fill-blue-50"></i>':''}</div><div class="text-xs text-gray-500 font-medium">@${u.username||'user'} • ${u.followers?u.followers.length:0} followers</div></div></div><button onclick="event.stopPropagation(); toggleFollow('${u.id}')" class="bg-black text-white text-xs px-4 py-1.5 rounded-full font-bold hover:bg-gray-800 transition-colors shadow-sm">Follow</button>`; pl.appendChild(d); }); else pl.innerHTML='<div class="text-gray-400 text-xs italic text-center py-4">No people found</div>'; v.innerHTML=''; return; } else { pl.classList.add('hidden'); pl.classList.remove('flex'); } let fp=[...posts]; if(window.activeExploreTab==='video') fp=fp.filter(p=>p.media&&(Array.isArray(p.media)?p.media.some(m=>m.includes('video')||m.endsWith('.mp4')):p.media.includes('video')||p.media.endsWith('.mp4'))); if(t) fp=fp.filter(p=>p.content.toLowerCase().includes(t)); else fp=fp.sort(()=>0.5-Math.random()); v.innerHTML=''; if(!fp.length) v.innerHTML='<div class="text-center py-20 text-gray-400"><p>No posts found.</p></div>'; else { const l=document.createElement('div'); l.className="flex flex-col gap-0.5 md:gap-4"; fp.forEach(p=>l.appendChild(createPostElement(p))); v.appendChild(l); } refreshIcons(); };
@@ -685,18 +377,19 @@ window.toggleLike=async(pid)=>{
     else {
         await updateDoc(r,{likes:arrayUnion(currentUser.id)});
         if(p.authorId!==currentUser.id) {
-             const nid = `like_${currentUser.id}_${pid}_${p.authorId}`;
-             await setDoc(doc(db,"notifications",nid),{receiverId:p.authorId,senderId:currentUser.id,type:'like',content:'liked your post',timestamp:serverTimestamp(),read:false,postId:pid},{merge:true});
+             // Deduplicated notification: using custom ID
+             sendNotification(p.authorId,'like','liked your post',pid);
         }
     }
-    updatePostViewStats(pid);
 };
 window.openLikes=pid=>{ const p=posts.find(x=>x.id===pid), c=document.getElementById('likes-list-content'); c.innerHTML=''; if(!p.likes?.length) c.innerHTML='<div class="text-center text-gray-400 py-8">No likes yet.</div>'; else p.likes.forEach(uid=>{ const u=users.find(x=>x.id===uid); if(u){ const d=document.createElement('div'); d.className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer"; d.onclick=()=>{document.getElementById('likes-overlay').classList.add('hidden');showProfile(u.id);}; d.innerHTML=`<img src="${u.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${u.name}</div><div class="text-xs text-gray-500 truncate w-32">${u.bio}</div></div>`; c.appendChild(d); } }); document.getElementById('likes-overlay').classList.remove('hidden'); };
 window.closeLikes=()=>document.getElementById('likes-overlay').classList.add('hidden');
-window.toggleSave=async(pid)=>{ const b=document.getElementById(`save-btn-${pid}`); if(b){ const i=b.classList.contains('active'); if(i){b.classList.remove('active');showToast("Removed");} else {b.classList.add('active');showToast("Saved");} } const r=doc(db,"users",currentUser.id); if(savedPosts.includes(pid)){ await updateDoc(r,{saved:arrayRemove(pid)}); savedPosts=savedPosts.filter(x=>x!==pid); } else { await updateDoc(r,{saved:arrayUnion(pid)}); savedPosts.push(pid); } updatePostViewStats(pid); };
+window.toggleSave=async(pid)=>{ const b=document.getElementById(`save-btn-${pid}`); if(b){ const i=b.classList.contains('active'); if(i){b.classList.remove('active');showToast("Removed");} else {b.classList.add('active');showToast("Saved");} } const r=doc(db,"users",currentUser.id); if(savedPosts.includes(pid)){ await updateDoc(r,{saved:arrayRemove(pid)}); savedPosts=savedPosts.filter(x=>x!==pid); } else { await updateDoc(r,{saved:arrayUnion(pid)}); savedPosts.push(pid); } };
 window.sharePost=pid=>{ const u=`${window.location.origin}${window.location.pathname}?postId=${pid}`; navigator.clipboard.writeText(u).then(()=>showToast("Link copied!")); };
 window.renderSaved=()=>{ const c=document.getElementById('saved-container'); c.innerHTML=''; if(!savedPosts.length) c.innerHTML='<div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-60"><i data-lucide="bookmark" class="w-16 h-16 mb-2"></i><p>No saved posts</p></div>'; else posts.filter(p=>savedPosts.includes(p.id)).forEach(p=>c.appendChild(createPostElement(p))); refreshIcons(); };
 async function sendNotification(rid,t,c,pid=null){ 
+    // New Smart Deduplication Logic: setDoc with deterministic ID
+    // ID format: type_senderId_postId_receiverId
     const nid = `${t}_${currentUser.id}_${pid?pid:'general'}_${rid}`;
     await setDoc(doc(db,"notifications",nid),{receiverId:rid,senderId:currentUser.id,type:t,content:c,timestamp:serverTimestamp(),read:false,postId:pid},{merge:true}); 
 }
@@ -717,177 +410,30 @@ window.toggleNotifications=()=>switchView('notifications');
 window.showProfile=(uid,tab='posts')=>{ if(!uid) uid=currentUser.id; closePostView(); closeThread(); const u=users.find(x=>x.id===uid); if(!u) return; window.currentViewingProfileId=uid; window.currentProfileTab=tab; const c=document.getElementById('view-profile'), me=uid===currentUser.id, fol=currentUser.following?.includes(uid); let ab="", net=""; if(me) ab=`<button onclick="openEditProfile()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200">Edit Profile</button>`; else { const priv=u.settings?.privateNetwork; let txt=fol?'Following':(priv?'Request':'Follow'); if(document.getElementById('profile-follow-btn')?.innerText==='Requested'&&!fol) txt='Requested'; ab=`<div class="flex gap-2"><button id="profile-follow-btn" onclick="toggleFollow('${uid}')" class="${fol?'bg-gray-100 text-gray-700':'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">${txt}</button></div>`; } const bu=u.banner||'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', bp=u.bannerPos||50; if(me||!u.settings?.privateNetwork||fol) net=`<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="cursor-pointer hover:underline" onclick="openUserList('following','${uid}')"><strong class="text-gray-900">${u.following?u.following.length:0}</strong> Following</span><span class="cursor-pointer hover:underline" onclick="openUserList('followers','${uid}')"><strong class="text-gray-900">${u.followers?u.followers.length:0}</strong> Followers</span></div>`; else net=`<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="italic"><i data-lucide="lock" class="w-3 h-3 inline"></i> Private Account</span></div>`; const tabs=`<div class="tab-group mb-0"><button onclick="switchProfileTab('posts')" class="tab-btn ${tab==='posts'?'active':''}"><i data-lucide="grid" class="w-5 h-5"></i></button>${me?`<button onclick="switchProfileTab('saved')" class="tab-btn ${tab==='saved'?'active':''}"><i data-lucide="bookmark" class="w-5 h-5"></i></button>`:''}<button onclick="switchProfileTab('liked')" class="tab-btn ${tab==='liked'?'active':''}"><i data-lucide="heart" class="w-5 h-5"></i></button><button onclick="switchProfileTab('tagged')" class="tab-btn ${tab==='tagged'?'active':''}"><i data-lucide="user-check" class="w-5 h-5"></i></button><button onclick="switchProfileTab('links')" class="tab-btn ${tab==='links'?'active':''}"><i data-lucide="link" class="w-5 h-5"></i></button></div>`; c.innerHTML=`<div class="profile-banner-container"><img src="${bu}" class="profile-banner-img" style="object-position:center ${bp}%"></div><div class="px-4 md:px-6 relative"><div class="flex justify-between items-end -mt-10 mb-4"><img src="${u.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">${ab}</div><div class="mb-6"><h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${u.name} ${u.isOfficial?'<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1><div class="text-sm font-medium text-gray-500">@${u.username||'user'}</div><p class="text-gray-600 mt-2">${u.bio}</p>${net}</div>${tabs}<div id="profile-content-area" class="pt-1 md:pt-4 pb-20 md:pb-0"></div></div>`; switchView('profile'); renderProfileContent(uid,tab); refreshIcons(); };
 window.switchProfileTab=t=>{ document.querySelectorAll('#view-profile .tab-btn').forEach(b=>b.classList.remove('active')); const tb=Array.from(document.querySelectorAll('#view-profile .tab-btn')).find(b=>b.getAttribute('onclick').includes(t)); if(tb) tb.classList.add('active'); window.currentProfileTab=t; renderProfileContent(window.currentViewingProfileId,t); };
 window.renderProfileContent=(uid,t)=>{ const c=document.getElementById('profile-content-area'); c.innerHTML=""; const u=users.find(x=>x.id===uid); if(t==='links'){ const l=u.links||[], is=uid===currentUser.id; let h='<div class="max-w-4xl mx-auto py-6 space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 px-2">'; if(is) h+=`<button onclick="document.getElementById('add-link-modal').classList.remove('hidden')" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center justify-center gap-2 h-full"><i data-lucide="plus" class="w-5 h-5"></i> Add New Link</button>`; if(!l.length&&!is) h+=`<div class="col-span-2 text-center text-gray-400 py-10">No links added yet.</div>`; else l.forEach((k,i)=>{ h+=`<a href="${k.url}" target="_blank" class="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200 group relative"><div class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-200 mr-4 shrink-0"><i data-lucide="link" class="w-5 h-5 text-blue-600"></i></div><div class="flex-1 min-w-0"><div class="font-bold text-gray-900 truncate">${k.title}</div><div class="text-xs text-gray-500 truncate">${k.url}</div></div><i data-lucide="external-link" class="w-4 h-4 text-gray-400 ml-2"></i>${is?`<button onclick="event.preventDefault(); deleteLink(${i})" class="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50"><i data-lucide="trash-2" class="w-3 h-3"></i></button>`:''}</a>`; }); h+='</div>'; c.innerHTML=h; refreshIcons(); return; } if(t==='liked'&&uid!==currentUser.id){ c.innerHTML='<div class="flex flex-col items-center justify-center py-20 text-gray-400 opacity-60"><i data-lucide="lock" class="w-16 h-16 mb-2"></i><p>This user\'s likes are private.</p></div>'; refreshIcons(); return; } let tp=[]; if(t==='posts') tp=posts.filter(p=>p.authorId===uid); else if(t==='saved') tp=posts.filter(p=>savedPosts.includes(p.id)); else if(t==='liked') tp=posts.filter(p=>p.likes&&p.likes.includes(uid)); else if(t==='tagged') tp=posts.filter(p=>p.collaborators&&p.collaborators.some(x=>x.id===uid&&x.status==='accepted')); if(uid!==currentUser.id&&t==='posts'){ const fol=currentUser.following.includes(uid), priv=u?.settings?.privateNetwork; tp=tp.filter(p=>{ const pub=!p.settings||p.settings.privacy==='public'; return priv?!fol:pub||fol; }); } if(!tp.length) c.innerHTML='<div class="text-center py-20 text-gray-400">No posts yet</div>'; else { let gh='<div class="grid-post-container">'; tp.forEach(p=>{ let ct=''; const ms=Array.isArray(p.media)?p.media[0]:p.media; if(ms){ if(ms.includes('video')||ms.endsWith('.mp4')||ms.startsWith('data:video')) ct=`<video src="${ms}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`; else ct=`<img src="${ms}" class="w-full h-full object-cover">`; if(Array.isArray(p.media)&&p.media.length>1) ct+=`<div class="absolute top-2 right-2"><i data-lucide="layers" class="w-4 h-4 text-white drop-shadow-md"></i></div>`; } else ct=`<div class="grid-post-text-preview">${p.content.substring(0,60)}${p.content.length>60?'...':''}</div>`; gh+=`<div class="grid-post-item group" onclick="openPostView('${p.id}')">${ct}<div class="grid-post-overlay"><div class="flex items-center gap-1"><i data-lucide="heart" class="w-5 h-5 fill-white"></i> ${p.likes?p.likes.length:0}</div><div class="flex items-center gap-1"><i data-lucide="message-circle" class="w-5 h-5 fill-white"></i> ${p.comments?p.comments.length:0}</div></div></div>`; }); gh+='</div>'; c.innerHTML=gh; } refreshIcons(); };
-window.saveLink=async()=>{ const t=document.getElementById('new-link-title').value.trim(), u=document.getElementById('new-link-url').value.trim(); if(!t||!u) return showToast("Fill all fields",true); const l={title:t,url:u,type:'web'}; await updateDoc(doc(db,"users",currentUser.id),{links:arrayUnion(l)}); currentUser.links=currentUser.links||[]; currentUser.links.push(l); document.getElementById('add-link-modal').classList.add('hidden'); document.getElementById('new-link-title').value=""; document.getElementById('new-link-url').value=""; renderProfileContent(currentUser.id,'links'); showToast("Link added!"); };
-window.deleteLink=async(i)=>{ showAlert("Remove link?",async()=>{ const l=currentUser.links[i]; await updateDoc(doc(db,"users",currentUser.id),{links:arrayRemove(l)}); currentUser.links.splice(i,1); renderProfileContent(currentUser.id,'links'); showToast("Removed"); }); };
-window.openEditProfile=()=>{ const bu=currentUser.banner||'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'; currentBannerPos=currentUser.bannerPos||50; initialBannerPos=currentBannerPos; document.getElementById('edit-banner-preview').src=bu; document.getElementById('edit-banner-preview').style.objectPosition=`center ${currentBannerPos}%`; document.getElementById('banner-pos-hint').innerText=`${currentBannerPos}%`; document.getElementById('edit-email').value=currentUser.email||""; document.getElementById('edit-profile-overlay').classList.remove('pointer-events-none','opacity-0'); };
-window.closeEditProfile=()=>document.getElementById('edit-profile-overlay').classList.add('pointer-events-none','opacity-0');
-window.handleEditAvatarSelect=e=>{ const f=e.target.files[0]; if(f){ currentAvatarBlob=f; const r=new FileReader(); r.onload=x=>{document.getElementById('edit-avatar-preview').src=x.target.result;}; r.readAsDataURL(f); } };
-window.handleEditBannerSelect=e=>{ const f=e.target.files[0]; if(f){ currentBannerBlob=f; const r=new FileReader(); r.onload=x=>{document.getElementById('edit-banner-preview').src=x.target.result;}; r.readAsDataURL(f); } };
-window.saveProfileChanges=async()=>{ const b=document.getElementById('save-profile-btn'), ot=b.innerText; b.innerText="Saving..."; b.disabled=true; const n=document.getElementById('edit-name').value, bio=document.getElementById('edit-bio').value, bp=currentBannerPos; if(!n) return showToast("Name required"),b.innerText=ot,b.disabled=false; let av=currentUser.avatar, bu=currentUser.banner||'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'; try{ if(currentAvatarBlob) av=await uploadToImgHippo(currentAvatarBlob); if(currentBannerBlob) bu=await uploadToImgHippo(currentBannerBlob); }catch(e){ return console.error(e),showToast("Upload failed"),b.innerText=ot,b.disabled=false; } const r=doc(db,"users",currentUser.id); await updateDoc(r,{name:n,bio:bio,avatar:av,banner:bu,bannerPos:bp}); currentUser.name=n; currentUser.bio=bio; currentUser.avatar=av; currentUser.banner=bu; currentUser.bannerPos=bp; currentAvatarBlob=null; currentBannerBlob=null; updateUserInterface(); closeEditProfile(); showProfile(currentUser.id,window.currentProfileTab); showToast("Updated"); b.innerText=ot; b.disabled=false; };
-window.doLogout=async()=>{ await signOut(auth); window.location.href="index.html"; };
-window.toggleFollow=async(uid)=>{ const m=doc(db,"users",currentUser.id), t=doc(db,"users",uid), tu=users.find(u=>u.id===uid), pr=tu?.settings?.privateNetwork; if(currentUser.following.includes(uid)){ currentUser.following=currentUser.following.filter(id=>id!==uid); showToast("Unfollowed"); await updateDoc(m,{following:arrayRemove(uid)}); await updateDoc(t,{followers:arrayRemove(currentUser.id)}); if(document.getElementById('profile-follow-btn')) document.getElementById('profile-follow-btn').innerText=pr?'Request':'Follow'; } else { if(pr){ showToast("Request sent"); sendNotification(uid,'follow_request','wants to follow you'); if(document.getElementById('profile-follow-btn')) document.getElementById('profile-follow-btn').innerText="Requested"; } else { currentUser.following.push(uid); showToast("Following"); await updateDoc(m,{following:arrayUnion(uid)}); await updateDoc(t,{followers:arrayUnion(currentUser.id)}); sendNotification(uid,'follow','started following you'); if(document.getElementById('profile-follow-btn')) document.getElementById('profile-follow-btn').innerText="Following"; } } renderRightSidebar(); if(!document.getElementById('view-network').classList.contains('hidden')) renderNetwork(); refreshIcons(); };
+window.openPostView=pid=>{ const p=posts.find(x=>x.id===pid); if(!p) return; window.currentViewingPostId=pid; const o=document.getElementById('post-view-overlay'); o.classList.remove('mobile-reel-view'); document.body.classList.remove('reel-mode'); const a=users.find(u=>u.id===p.authorId)||{name:'Unknown',avatar:'',id:p.authorId}, ds=formatDate(p.timestamp), ch=formatContent(p.content), mc=document.getElementById('post-view-media-container'), ca=document.getElementById('post-view-caption-area'); 
+    document.getElementById('mobile-post-pfp').src=a.avatar; 
+    document.getElementById('mobile-post-username').innerText=a.name; 
+    
+    // Desktop Header
+    document.getElementById('desktop-header-avatar').src=a.avatar;
+    document.getElementById('desktop-header-username').innerText=a.name;
+    document.getElementById('desktop-header-time').innerText=ds;
 
-// ---- NEW OPEN POST VIEW LOGIC ----
-window.openPostView=pid=>{ 
-    const p=posts.find(x=>x.id===pid); 
-    if(!p) return; 
-    window.currentViewingPostId=pid; 
-    window.currentViewingAuthorId=p.authorId;
-    const o=document.getElementById('post-view-overlay'); 
-    o.classList.remove('mobile-reel-view'); 
-    document.body.classList.remove('reel-mode'); 
-    
-    const a=users.find(u=>u.id===p.authorId)||{name:'Unknown',avatar:'',id:p.authorId};
-    const ds=formatDate(p.timestamp);
-    const ch=formatContent(p.content);
-    const mc=document.getElementById('post-view-media-container');
-
-    // -- Populate Mobile Header --
-    document.getElementById('mobile-post-pfp').src=a.avatar;
-    document.getElementById('mobile-post-username').innerText=a.name;
-    
-    // -- Populate Desktop Header --
-    document.getElementById('desktop-post-pfp').src=a.avatar;
-    document.getElementById('desktop-post-username').innerText=a.name;
-    document.getElementById('desktop-post-header-user').onclick = () => { closePostView(); showProfile(a.id); };
-    
-    // Follow button logic on desktop
-    const fbtn = document.getElementById('desktop-follow-btn');
-    if(a.id === currentUser.id) {
-        fbtn.classList.add('hidden');
+    // Mobile Caption (Top)
+    const mtc = document.getElementById('mobile-top-caption');
+    if(ch) {
+      mtc.innerHTML = `<div><span class="font-bold mr-2">${a.name}</span><span>${ch}</span></div><div class="text-xs text-gray-500 mt-1">${ds}</div>`;
+      mtc.classList.remove('hidden');
     } else {
-        fbtn.classList.remove('hidden');
-        if(currentUser.following.includes(a.id)) {
-            fbtn.innerText = "Following";
-            fbtn.classList.remove('text-blue-600');
-            fbtn.classList.add('text-gray-500');
-        } else {
-            fbtn.innerText = "Follow";
-            fbtn.classList.add('text-blue-600');
-            fbtn.classList.remove('text-gray-500');
-        }
-        fbtn.onclick = (e) => { e.stopPropagation(); toggleFollow(a.id); };
+      mtc.classList.add('hidden');
     }
 
-    // -- Populate Desktop Caption Area (Top of scroll) --
-    const dca = document.getElementById('desktop-caption-area');
-    if(p.content.trim().length > 0) {
-        dca.classList.remove('hidden');
-        dca.classList.add('flex');
-        document.getElementById('desktop-caption-avatar').src=a.avatar;
-        document.getElementById('desktop-caption-username').innerText=a.name;
-        document.getElementById('desktop-caption-text').innerHTML=ch;
-        document.getElementById('desktop-post-time').innerText=ds;
-        document.getElementById('desktop-caption-avatar').onclick = () => { closePostView(); showProfile(a.id); };
-    } else {
-        dca.classList.add('hidden');
-        dca.classList.remove('flex');
-    }
-    document.getElementById('post-view-date').innerText = new Date(p.timestamp.toDate ? p.timestamp.toDate() : p.timestamp).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    // Desktop Caption (Inside Sidebar)
+    ca.innerHTML = `<img src="${a.avatar}" class="comment-avatar"><div class="comment-content-box"><div class="comment-header"><span class="cursor-pointer hover:underline">${a.name}</span></div><div class="comment-text">${ch}</div><div class="comment-time mt-1">${ds}</div></div>`;
 
-    // -- Populate Mobile Footer Details --
-    document.getElementById('mobile-post-caption').innerHTML=`<span class="font-bold mr-1">${a.name}</span> ${ch}`;
-    const ml=document.getElementById('mobile-like-count');
-    ml.innerText=`${p.likes?p.likes.length:0} likes`;
-    ml.style.display=(p.settings?.showLikes!==false)?'block':'none';
-    
-    // -- Populate Reel UI elements (hidden unless reel mode) --
-    document.getElementById('reel-user-avatar').src=a.avatar;
-    document.getElementById('reel-username').innerText=a.name;
-    const rc=document.getElementById('reel-caption');
-    rc.innerHTML=p.content;
-    
-    // -- MEDIA HANDLING --
-    mc.classList.remove('hidden'); 
-    mc.innerHTML=''; 
-    const po=document.createElement('div'); 
-    po.id='video-play-overlay'; 
-    po.className='play-pause-overlay'; 
-    po.innerHTML='<i data-lucide="play" class="play-pause-icon"></i>'; 
-    mc.appendChild(po); 
-    
-    if(p.media){ 
-        const ma=Array.isArray(p.media)?p.media:[p.media]; 
-        if(ma.length===1){ 
-            const s=ma[0], iv=s.includes('video')||s.endsWith('.mp4')||s.startsWith('data:video'); 
-            if(iv){ 
-                const v=document.createElement('video'); 
-                v.src=s; 
-                v.className="stage-content"; 
-                v.controls=false; v.playsInline=true; v.muted=false; v.loop=true; 
-                const tp=e=>{e.stopPropagation(); if(v.paused){v.play();po.classList.remove('show');} else {v.pause();po.classList.add('show');}}; 
-                v.onclick=tp; po.onclick=tp; po.classList.add('show'); 
-                
-                // If single video on mobile, trigger Reel Mode
-                if(window.innerWidth<768) v.onloadedmetadata=function(){
-                    o.classList.add('mobile-reel-view');
-                    document.body.classList.add('reel-mode');
-                    this.className="w-full h-full object-cover";
-                    this.muted=false;
-                }; 
-                mc.insertBefore(v,po); 
-            } else {
-                mc.innerHTML=`<img src="${s}" class="stage-content">`; 
-            }
-        } else { 
-            // Carousel in Overlay
-            let sl='', dt=''; 
-            ma.forEach((s,i)=>{ 
-                const iv=s.startsWith('data:video')||s.includes('.mp4'); 
-                sl+=`<div class="post-carousel-item">${iv?`<video src="${s}" controls></video>`:`<img src="${s}">`}</div>`; 
-                dt+=`<div class="carousel-dot ${i===0?'active':''}" id="overlay-dot-${p.id}-${i}"></div>`; 
-            }); 
-            
-            mc.innerHTML=`
-            <div class="carousel-wrapper" style="width:100%;height:100%;position:relative;">
-                <div class="post-carousel touch-pan-y" id="overlay-carousel-${p.id}" ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event,'${p.id}',true)">
-                    <div class="post-carousel-inner" id="overlay-inner-${p.id}">${sl}</div>
-                    <button class="carousel-nav-btn prev" onclick="event.stopPropagation();moveCarousel('${p.id}',-1,true)"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
-                    <button class="carousel-nav-btn next" onclick="event.stopPropagation();moveCarousel('${p.id}',1,true)"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
-                </div>
-                <div class="carousel-dots-outside" style="bottom: 20px;">${dt}</div>
-            </div>`; 
-            
-            if(!window.carouselStates) window.carouselStates={};
-            window.carouselStates[`overlay-${p.id}`]={index:0,total:ma.length}; 
-        } 
-    } else {
-        mc.innerHTML='<div class="flex flex-col items-center justify-center h-full text-white opacity-40"><i data-lucide="image-off" class="w-16 h-16 mb-2"></i><span class="text-sm font-medium">No Media</span></div>'; 
-    }
-
-    renderCommentsInModal(pid); 
-    updatePostViewStats(pid);
-
-    // Update Action Button States (Desktop & Mobile)
-    const il=p.likes&&p.likes.includes(currentUser.id);
-    const is=savedPosts.includes(pid);
-    
-    // Desktop Buttons
-    const lb=document.getElementById('post-view-like-btn');
-    lb.classList.remove('fill-red-500','text-red-500','text-gray-700'); 
-    if(il) lb.classList.add('fill-red-500','text-red-500'); else lb.classList.add('text-gray-700'); 
-    lb.onclick=()=>toggleLike(pid); 
-    
-    const sb=document.getElementById('post-view-save-btn');
-    sb.classList.remove('fill-yellow-500','text-yellow-500','text-gray-700'); 
-    if(is) sb.classList.add('fill-yellow-500','text-yellow-500'); else sb.classList.add('text-gray-700'); 
-    sb.onclick=()=>toggleSave(pid);
-    
-    // Mobile Buttons
-    const mlb=document.getElementById('mobile-action-like');
-    mlb.classList.remove('fill-red-500','text-red-500','text-[#1f1f1f]'); 
-    if(il) mlb.classList.add('fill-red-500','text-red-500'); else mlb.classList.add('text-[#1f1f1f]'); 
-    
-    const msb=document.getElementById('mobile-action-save');
-    msb.classList.remove('fill-yellow-500','text-yellow-500','text-[#1f1f1f]'); 
-    if(is) msb.classList.add('fill-yellow-500','text-yellow-500'); else msb.classList.add('text-[#1f1f1f]');
-
-    document.getElementById('comment-input-avatar').src=currentUser.avatar; 
-    o.classList.remove('hidden'); 
-    o.classList.add('flex'); 
-    refreshIcons(); 
-};
-
+    const ml=document.getElementById('mobile-like-count'); ml.innerText=p.likes?p.likes.length+' likes':'0 likes'; const sl=p.settings?.showLikes!==false; ml.style.display=sl?'block':'none'; document.getElementById('reel-user-avatar').src=a.avatar; document.getElementById('reel-username').innerText=a.name; const rc=document.getElementById('reel-caption'); rc.removeAttribute('data-expanded'); rc.style.maxHeight=''; rc.style.overflowY=''; if(p.content.length>80){ rc.innerHTML=`<span>${p.content.substring(0,80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); toggleReelCaption('${pid}')">more</span>`; rc.dataset.full=p.content; } else rc.innerHTML=p.content; updatePostViewStats(pid); if(document.getElementById('reel-user-info-area')) document.getElementById('reel-user-info-area').onclick=e=>{e.stopPropagation();closePostView();showProfile(a.id);}; mc.classList.remove('hidden'); mc.innerHTML=''; const po=document.createElement('div'); po.id='video-play-overlay'; po.className='play-pause-overlay'; po.innerHTML='<i data-lucide="play" class="play-pause-icon"></i>'; mc.appendChild(po); if(p.media){ const ma=Array.isArray(p.media)?p.media:[p.media]; if(ma.length===1){ const s=ma[0], iv=s.includes('video')||s.endsWith('.mp4')||s.startsWith('data:video'); if(iv){ const v=document.createElement('video'); v.src=s; v.className="stage-content rounded-lg shadow-2xl"; v.controls=false; v.playsInline=true; v.muted=false; v.loop=true; const tp=e=>{e.stopPropagation(); if(v.paused){v.play();po.classList.remove('show');} else {v.pause();po.classList.add('show');}}; v.onclick=tp; po.onclick=tp; po.classList.add('show'); if(window.innerWidth<768) v.onloadedmetadata=function(){o.classList.add('mobile-reel-view');document.body.classList.add('reel-mode');this.className="w-full h-full object-cover";this.muted=false;}; mc.insertBefore(v,po); } else mc.innerHTML=`<img src="${s}" class="stage-content rounded-lg shadow-2xl">`; } else { let sl='', dt=''; ma.forEach((s,i)=>{ const iv=s.startsWith('data:video')||s.includes('.mp4'); sl+=`<div class="post-carousel-item">${iv?`<video src="${s}" controls></video>`:`<img src="${s}">`}</div>`; dt+=`<div class="carousel-dot ${i===0?'active':''}" id="overlay-dot-${p.id}-${i}"></div>`; });
+            // UPDATED OVERLAY CAROUSEL
+            mc.innerHTML=`<div class="carousel-wrapper w-full h-full flex items-center justify-center relative"><div class="rounded-lg overflow-hidden post-carousel shadow-2xl touch-pan-y" id="overlay-carousel-${p.id}" ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event,'${p.id}',true)"><div class="post-carousel-inner" id="overlay-inner-${p.id}">${sl}</div><button class="carousel-nav-btn prev" onclick="event.stopPropagation();moveCarousel('${p.id}',-1,true)"><i data-lucide="chevron-left" class="w-4 h-4"></i></button><button class="carousel-nav-btn next" onclick="event.stopPropagation();moveCarousel('${p.id}',1,true)"><i data-lucide="chevron-right" class="w-4 h-4"></i></button></div><div class="carousel-dots-outside absolute bottom-4 left-0 right-0">${dt}</div></div>`; if(!window.carouselStates) window.carouselStates[`overlay-${p.id}`]={index:0,total:ma.length}; } } else mc.innerHTML='<div class="flex flex-col items-center justify-center h-full text-white opacity-40"><i data-lucide="image-off" class="w-16 h-16 mb-2"></i><span class="text-sm font-medium">No Media</span></div>'; renderCommentsInModal(pid); const lb=document.getElementById('post-view-like-btn'), il=p.likes&&p.likes.includes(currentUser.id); lb.classList.remove('fill-red-500','text-red-500','text-gray-700'); if(il) lb.classList.add('fill-red-500','text-red-500'); else lb.classList.add('text-gray-700'); lb.onclick=()=>toggleLike(pid); const mlb=document.getElementById('mobile-action-like'); mlb.classList.remove('fill-red-500','text-red-500','text-[#1f1f1f]'); if(il) mlb.classList.add('fill-red-500','text-red-500'); else mlb.classList.add('text-[#1f1f1f]'); const sb=document.getElementById('post-view-save-btn'), is=savedPosts.includes(pid); sb.classList.remove('fill-yellow-500','text-yellow-500','text-gray-700'); if(is) sb.classList.add('fill-yellow-500','text-yellow-500'); else sb.classList.add('text-gray-700'); sb.onclick=()=>toggleSave(pid); const msb=document.getElementById('mobile-action-save'); msb.classList.remove('fill-yellow-500','text-yellow-500','text-[#1f1f1f]'); if(is) msb.classList.add('fill-yellow-500','text-yellow-500'); else msb.classList.add('text-[#1f1f1f]'); const ic=document.querySelector('.chat-input-wrapper'); if(p.settings&&p.settings.allowComments===false){ if(ic) ic.classList.add('hidden'); let m=document.getElementById('comments-off-msg'); if(!m){m=document.createElement('div');m.id='comments-off-msg';m.className='text-center text-sm text-gray-500 italic py-2';m.innerText='Comments off';document.querySelector('.discussion-footer').appendChild(m);}else m.style.display='block'; } else { if(ic) ic.classList.remove('hidden'); const m=document.getElementById('comments-off-msg'); if(m) m.style.display='none'; } document.getElementById('comment-input-avatar').src=currentUser.avatar; o.classList.remove('hidden'); o.classList.add('flex'); refreshIcons(); };
 window.toggleReelCaption=pid=>{ const e=document.getElementById('reel-caption'); if(!e||!e.dataset.full) return; if(e.getAttribute('data-expanded')==='true'){ e.innerHTML=`<span>${e.dataset.full.substring(0,80)}... </span><span class="font-bold text-gray-300 cursor-pointer" onclick="event.stopPropagation(); toggleReelCaption('${pid}')">more</span>`; e.setAttribute('data-expanded','false'); e.style.overflowY='hidden'; e.style.maxHeight=''; } else { e.innerHTML=`<span>${e.dataset.full}</span> <span class="font-bold text-gray-300 cursor-pointer block mt-1" onclick="event.stopPropagation(); toggleReelCaption('${pid}')">less</span>`; e.setAttribute('data-expanded','true'); e.style.overflowY='auto'; e.style.maxHeight='200px'; } };
 window.toggleMobileCommentDrawer=()=>document.querySelector('.discussion-panel')?.classList.toggle('open');
 window.closePostView=()=>{ const o=document.getElementById('post-view-overlay'); o.classList.add('hidden'); o.classList.remove('flex'); document.body.classList.remove('reel-mode'); document.querySelector('.discussion-panel')?.classList.remove('open'); window.currentViewingPostId=null; window.replyingToCommentId=null; const v=document.querySelector('#post-view-media-container video'); if(v) v.pause(); };
@@ -907,7 +453,7 @@ function createCommentHTML(c,ac,pid,sr=true){
     const lc=c.likes?c.likes.length:0;
     const me=c.authorId===currentUser.id;
     const rep=ac.filter(r=>r.parentId===c.id);
-    return `<div class="comment-row"><img src="${a.avatar}" class="comment-avatar" onclick="showProfile('${c.authorId}')"><div class="comment-content-box"><div class="comment-header"><span onclick="showProfile('${c.authorId}')" class="cursor-pointer hover:underline">${a.name}</span><span class="comment-time">${formatDate(c.timestamp)}</span></div><div class="comment-text">${formatContent(c.content)}</div><div class="comment-actions-row"><button class="comment-action-btn" onclick="toggleCommentLike('${pid}','${c.id}')"><i data-lucide="heart" class="w-3 h-3 ${c.likes?.includes(currentUser.id)?'fill-red-500 text-red-500':''}"></i> <span>${lc>0?lc:''}</span></button><div class="comment-reply-btn" onclick="replyToComment('${c.id}','${a.name}')">Reply</div>${me?`<button onclick="deleteComment('${pid}','${c.id}')" class="comment-action-btn text-red-600">Delete</button>`:''}</div>${(sr&&rep.length>0)?`<div class="mt-2"><button onclick="openThread('${pid}','${c.id}')" class="text-xs font-bold text-gray-500 hover:text-gray-900 flex items-center gap-2"> —— View ${rep.length} replies</button></div>`:''}</div></div>`;
+    return `<div class="comment-row"><img src="${a.avatar}" class="comment-avatar" onclick="showProfile('${c.authorId}')"><div class="comment-content-box"><div class="comment-header"><span onclick="showProfile('${c.authorId}')" class="cursor-pointer hover:underline">${a.name}</span><span class="comment-time">${formatDate(c.timestamp)}</span></div><div class="comment-text">${formatContent(c.content)}</div><div class="comment-actions-row"><button class="comment-action-btn" onclick="toggleCommentLike('${pid}','${c.id}')"><i data-lucide="heart" class="w-4 h-4 ${c.likes?.includes(currentUser.id)?'fill-red-500 text-red-500':''}"></i> <span>${lc>0?lc:''}</span></button><div class="comment-reply-btn" onclick="replyToComment('${c.id}','${a.name}')"><i data-lucide="message-square" class="w-4 h-4"></i></div>${me?`<button onclick="deleteComment('${pid}','${c.id}')" class="comment-action-btn text-red-600">Delete</button>`:''}</div>${(sr&&rep.length>0)?`<div class="mt-2"><button onclick="openThread('${pid}','${c.id}')" class="text-xs font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-full flex items-center gap-1"><i data-lucide="chevron-down" class="w-3 h-3"></i> ${rep.length} replies</button></div>`:''}</div></div>`;
 }
 window.openThread=(pid,cid)=>{ window.threadPostId=pid; window.threadParentCommentId=cid; renderThreadContent(pid,cid); document.getElementById('thread-overlay').classList.remove('hidden'); document.getElementById('thread-input').focus(); document.getElementById('thread-input-avatar').src=currentUser.avatar; };
 window.closeThread=()=>{ document.getElementById('thread-overlay').classList.add('hidden'); window.threadPostId=null; window.threadParentCommentId=null; window.replyingToCommentId=null; };

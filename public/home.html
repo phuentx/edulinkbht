@@ -44,22 +44,11 @@ i[data-lucide],svg { flex-shrink:0; }
 .post-body { font-size:15px; line-height:1.6; color:var(--on-surface); margin-bottom:12px; white-space:pre-wrap; }
 .post-actions { display:flex; align-items:center; justify-content:space-between; padding-top:12px; border-top:1px solid transparent; }
 .action-btn { display:flex; align-items:center; gap:8px; padding:8px; border-radius:18px; color:var(--text-secondary); font-size:13px; font-weight:500; transition:all 0.2s; background:transparent; border:none; cursor:pointer; }
-.action-btn:hover { background-color:var(--hover-bg); }
-.action-btn.like:hover { background-color: rgba(249, 24, 128, 0.1); color: #f91880; }
-.action-btn.like:hover svg { stroke: #f91880; }
-.action-btn.like.active svg { fill:#f91880; stroke:none; }
-.action-btn.like.active { color: #f91880; }
-.action-btn.like.active:hover svg { fill: #f91880; stroke: none; }
-.action-btn.comment:hover { background-color: rgba(29, 155, 240, 0.1); color: #1d9bf0; }
-.action-btn.comment:hover svg { stroke: #1d9bf0; }
-.action-btn.share-btn:hover { background-color: rgba(0, 186, 124, 0.1); color: #00ba7c; }
-.action-btn.share-btn:hover svg { stroke: #00ba7c; }
-.action-btn.bookmark:hover { background-color: rgba(255, 212, 0, 0.1); color: #ca8a04; }
-.action-btn.bookmark:hover svg { stroke: #ca8a04; }
-.action-btn.bookmark.active svg { fill:#eab308; stroke:#eab308; } 
+.action-btn:hover { background-color:var(--hover-bg); color:var(--on-surface); }
+.action-btn.like.active { color: #ff0000; }
+.action-btn.like.active svg { fill: #ff0000; stroke: none; }
 .action-btn.bookmark.active { color: #eab308; }
-.action-btn.active svg { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-@keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+.action-btn.bookmark.active svg { fill: #eab308; stroke: #eab308; } 
 #compose-modal,#create-menu-modal,#edit-profile-modal,#user-list-modal,#settings-modal,#likes-overlay,#username-modal,#add-link-modal,#promo-modal,#upload-options-modal,#share-modal,#post-options-modal,#notif-options-modal,#qr-overlay,#scanner-overlay { box-shadow:0 20px 60px rgba(0,0,0,0.15); border:1px solid var(--outline); }
 .compose-header { display:flex; align-items:center; justify-content:center; padding-bottom:16px; margin-bottom:16px; border-bottom:1px solid var(--outline); position:relative; }
 .compose-title { font-size:16px; font-weight:700; color:var(--on-surface); font-family:'Google Sans',sans-serif; }

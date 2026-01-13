@@ -78,10 +78,11 @@ i[data-lucide],svg { flex-shrink:0; }
 .post-option-item.danger { color:#d92d20; }
 .post-option-item.danger:hover { background:#fef2f2; color:#b91c1c; }
 .tab-group { display:flex; width:100%; background:transparent; padding:0; border:none; border-bottom:1px solid var(--outline); border-radius:0; }
-.tab-btn { flex:1; padding:14px 0; font-size:14px; font-weight:600; color:var(--text-secondary); border-radius:0; transition:all 0.2s ease; cursor:pointer; background:transparent; text-align:center; position:relative; display:flex; align-items:center; justify-content:center; gap:8px; border-bottom: none; }
+.tab-btn { flex:1; padding:14px 0; font-size:14px; font-weight:600; color:var(--text-secondary); border-radius:0; transition:all 0.2s ease; cursor:pointer; background:transparent; text-align:center; position:relative; display:flex; align-items:center; justify-content:center; gap:8px; }
 .tab-btn:hover { color:var(--on-surface); background-color:var(--hover-bg); }
-.tab-btn.active { color:var(--on-surface); background:transparent; box-shadow:none; border-bottom: none; }
-.tab-btn.active::after { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:40px; height:3px; background-color:var(--on-surface); border-radius:3px 3px 0 0; }
+.tab-btn.active { color:var(--on-surface); background:transparent; box-shadow:none; }
+.tab-btn.active i { stroke-width:3px; }
+.tab-btn.active::after { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:60px; height:4px; background-color:var(--on-surface); border-radius:4px 4px 0 0; }
 .grid-post-container { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; }
 @media (min-width:768px) { .grid-post-container { gap:16px; } }
 .grid-post-item { position:relative; aspect-ratio:4/5; overflow:hidden; cursor:pointer; background-color:#f3f4f6; border-radius: 12px; }
@@ -436,23 +437,19 @@ function initRealtimeListeners(){
         if(!document.getElementById('view-network').classList.contains('hidden')&&activeNetworkTab==='posts') renderNetwork(); 
         
         // EXPLORE STABILITY FIX: Only re-render explore if absolutely necessary
+        // Instead of calling handleSearch() on every snapshot (which clears DOM), 
+        // we only call it if we are in explore view AND it's an initial load or search criteria changed context significantly.
+        // Actually, preventing re-render on 'modified' events preserves scroll.
         if(!document.getElementById('view-explore').classList.contains('hidden')){
-             // Check if explore content is empty (initial load)
-             const exploreEmpty = document.getElementById('explore-results').children.length === 0 && document.getElementById('explore-people-results').children.length === 0;
-             
-             if(exploreEmpty) {
-                 // First load, generate
+             // Check if we just have updates to existing items
+             if(full || hasNewPosts) {
                  handleSearch(document.getElementById('global-search').value||document.getElementById('mobile-explore-search').value);
              } else {
                  // Just update stats for explore items if they exist in DOM
                  posts.forEach(p => {
-                     // Update likes count on Explore items
-                     const l=document.getElementById(`like-count-explore-${p.id}`);
-                     if(l) l.innerText = p.likes?p.likes.length:0;
-                     
-                     // Update comment count
-                     // Note: createPostElement uses generic IDs for comments often, need to ensure context if we want perfect isolation
-                     // but broadly updating logic handles it via `comment-count-${id}` which is unique per post ID in DOM if properly rendered
+                     const l=document.querySelectorAll(`[id^='like-count-explore-'][id$='-${p.id}']`);
+                     l.forEach(el => el.innerText = p.likes?p.likes.length:0);
+                     // Update heart icon state if needed... (requires more complex DOM selection or id strategy)
                  });
              }
         }
@@ -668,7 +665,7 @@ window.moveCarousel=(fullId,dir,ov=false, isFullId = false)=>{
         if(counterEl) counterEl.innerText=s.index+1; 
     } 
 };
-window.switchExploreMainTab=t=>{ window.activeExploreTab=t; ['main','video','people','tags'].forEach(x=>document.getElementById(`tab-explore-${x}`)?.classList.remove('active')); ['main-d','video-d','people-d','tags-d'].forEach(x=>document.getElementById(`tab-explore-${x}-d`)?.classList.remove('active'); document.getElementById(`tab-explore-${t==='explore'?'main':t}`)?.classList.add('active'); document.getElementById(`tab-explore-${t==='explore'?'main':t}-d`)?.classList.add('active'); window.activeExploreCategory=t==='video'?'All':'For You'; handleSearch(document.getElementById('mobile-explore-search').value); };
+window.switchExploreMainTab=t=>{ window.activeExploreTab=t; ['main','video','people','tags'].forEach(x=>document.getElementById(`tab-explore-${x}`)?.classList.remove('active')); ['main-d','video-d','people-d','tags-d'].forEach(x=>document.getElementById(`tab-explore-${x}-d`)?.classList.remove('active')); document.getElementById(`tab-explore-${t==='explore'?'main':t}`)?.classList.add('active'); document.getElementById(`tab-explore-${t==='explore'?'main':t}-d`)?.classList.add('active'); window.activeExploreCategory=t==='video'?'All':'For You'; handleSearch(document.getElementById('mobile-explore-search').value); };
 window.toggleExploreSearch=()=>{ const b=document.getElementById('explore-search-bar'); if(b){ b.classList.toggle('hidden'); if(!b.classList.contains('hidden')) document.getElementById('mobile-explore-search').focus(); } };
 window.handleSearch=q=>{ 
     if(document.getElementById('view-explore').classList.contains('hidden')) switchView('explore'); 
@@ -1377,7 +1374,7 @@ window.publishPost=async()=>{
         progressOverlay.classList.add('hidden');
         progressOverlay.classList.remove('flex');
         progressBar.style.width = '0%'; // Reset for next time
-        
+
         closeCompose(); 
     }catch(e){ 
         console.error(e); 

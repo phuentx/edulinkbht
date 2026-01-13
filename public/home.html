@@ -164,31 +164,20 @@ body.reel-mode #mobile-bottom-nav { display:none!important; }
 .comment-action-btn { display:flex; align-items:center; gap:6px; font-size:11px; font-weight:600; color:#606060; cursor:pointer; background:none; border:none; padding:2px 0; }
 .comment-action-btn:hover { color:#0f0f0f; }
 
-/* Refined YouTube Style Thread Lines */
-.thread-visual-container { position: relative; }
-.connector-vertical {
+/* Single Line Thread Design */
+.thread-visual-container { position: relative; padding-left: 16px; }
+.replies-line {
     position: absolute;
-    left: 20px; /* Center of parent avatar (w-10 = 40px, /2 = 20px) */
-    top: 40px;
-    bottom: 24px;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
     width: 2px;
     background-color: #e5e7eb;
-    z-index: 0;
-}
-.connector-branch {
-    position: absolute;
-    left: 20px;
-    top: -12px; /* Connects from vertical line above */
-    width: 24px; /* Reach to child avatar center (20px + 24px = 44px approx indent) */
-    height: 36px;
-    border-left: 2px solid #e5e7eb;
-    border-bottom: 2px solid #e5e7eb;
-    border-bottom-left-radius: 12px;
-    z-index: 0;
+    border-radius: 2px;
 }
 .reply-block {
     position: relative;
-    padding-left: 48px; /* Indent child comments */
+    padding-left: 16px; 
     padding-top: 12px;
     padding-bottom: 12px;
 }
@@ -272,7 +261,7 @@ body.modal-open #mobile-bottom-nav { display: none !important; }
 <div id="upload-options-modal" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden" onclick="document.getElementById('upload-options-modal').classList.add('hidden')"><div class="bg-white w-[90%] max-w-[300px] rounded-2xl shadow-xl p-4 transform scale-100 transition-transform" onclick="event.stopPropagation()"><h3 class="text-center font-bold text-gray-900 mb-4 text-lg">Select Upload Type</h3><div class="flex flex-col gap-3"><button onclick="triggerUpload('single')" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"><div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><i data-lucide="image" class="w-5 h-5"></i></div><span class="font-bold text-gray-700">Single</span></button><button onclick="triggerUpload('multiple')" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"><div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600"><i data-lucide="layers" class="w-5 h-5"></i></div><span class="font-bold text-gray-700">Multiple (Carousel)</span></button></div></div></div>
 <div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0"><div class="h-14 flex items-center justify-between px-4 shrink-0 relative"><span class="font-bold text-lg text-[#1f1f1f]">Notifications</span><div class="flex items-center gap-3"><button onclick="toggleNotifSearchMobile()" class="icon-btn"><i data-lucide="search" class="w-5 h-5 text-[#1f1f1f]"></i></button><div class="relative"><button onclick="toggleNotifMenu()" class="icon-btn"><i data-lucide="more-vertical" class="w-5 h-5 text-[#1f1f1f]"></i></button></div></div></div><div id="mobile-notif-search-container" class="px-4 pb-2 hidden"><div class="relative"><i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i><input type="text" id="notif-search" placeholder="Search..." oninput="handleNotifSearch(this.value)" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all"></div></div><div class="tab-group mb-0 mx-0 w-full"><button onclick="switchNotifTab('all')" id="ntab-all-mobile" class="tab-btn active"><i data-lucide="bell" class="w-5 h-5"></i> All</button><button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="megaphone" class="w-5 h-5"></i> Official</button></div></div>
 <div id="notif-options-overlay" class="fixed inset-0 z-[80] flex items-end justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeNotifOptions()"><div id="notif-options-modal" class="bg-white w-full rounded-t-[24px] shadow-2xl relative transform translate-y-full transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeNotifOptions()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg">Options</span><div class="w-10"></div></div><div class="p-6 flex flex-col gap-2"><button onclick="toggleNotifSelection(); closeNotifOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors font-bold text-gray-800 text-left"><i data-lucide="check-square" class="w-5 h-5"></i> Select</button><button onclick="deleteSelectedNotifs(); closeNotifOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="trash-2" class="w-5 h-5"></i> Delete Selected</button><button onclick="clearAllNotifications(); closeNotifOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="trash" class="w-5 h-5"></i> Delete All</button></div></div></div>
-<div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center"><div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div><div class="bg-white w-full md:w-[450px] h-[75vh] md:h-[85vh] md:rounded-[24px] rounded-t-[20px] shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in thread-mobile-container"><div class="discussion-header"><div class="flex items-center gap-3"><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="chevron-down" class="w-6 h-6 text-gray-600"></i></button><span class="font-bold text-lg text-[#1f1f1f]">Thread</span></div><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div><div id="thread-content" class="discussion-scroll bg-white"></div><div class="discussion-footer"><div class="flex items-center gap-2"><img id="thread-input-avatar" src="" class="w-8 h-8 rounded-full bg-gray-200 object-cover shrink-0"><input type="text" id="thread-input" placeholder="Add a reply..." class="flex-1 bg-[#f2f2f2] rounded-[24px] px-4 py-2.5 text-sm outline-none text-gray-900 placeholder-gray-500" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitThreadReply();}"><button onclick="submitThreadReply()" class="w-10 h-10 bg-[#065fd4] rounded-full flex items-center justify-center text-white shrink-0 hover:bg-blue-700 transition-colors shadow-sm"><i data-lucide="arrow-up" class="w-5 h-5"></i></button></div></div></div></div>
+<div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center"><div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div><div class="bg-white w-full md:w-[450px] h-[75vh] md:h-[85vh] md:rounded-[24px] rounded-t-[20px] shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in thread-mobile-container"><div class="discussion-header"><div class="flex items-center gap-3"><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="chevron-down" class="w-6 h-6 text-gray-600"></i></button><span class="font-bold text-lg text-[#1f1f1f]">Thread</span></div><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div><div id="thread-content" class="discussion-scroll bg-white"></div><div class="discussion-footer"><div class="flex items-center gap-2"><img id="thread-input-avatar" src="" class="w-8 h-8 rounded-full bg-gray-200 object-cover shrink-0"><input type="text" id="thread-input" placeholder="Add a reply..." class="flex-1 bg-[#f2f2f2] rounded-[20px] px-4 py-2.5 text-sm outline-none text-gray-900 placeholder-gray-500" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitThreadReply();}"><button onclick="submitThreadReply()" class="w-10 h-10 bg-[#065fd4] rounded-full flex items-center justify-center text-white shrink-0 hover:bg-blue-700 transition-colors shadow-sm"><i data-lucide="arrow-up" class="w-5 h-5"></i></button></div></div></div></div>
 <div id="post-view-overlay" class="fixed inset-0 z-[60] hidden flex justify-center items-center"><div class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onclick="closePostView()"></div><div id="post-view-container" class="post-modal-layout scale-in relative z-10"></div></div>
 <div id="lightbox" class="fixed inset-0 bg-black/95 z-[9999] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300" onclick="closeLightbox()"><button class="absolute top-8 right-8 text-white/70 hover:text-white bg-white/10 rounded-full p-3 hover:bg-white/20"><i data-lucide="x" class="w-8 h-8"></i></button><div id="lightbox-wrapper" class="w-full h-full flex justify-center items-center p-6"></div></div>
 <div id="toast" class="toast"><i id="toast-icon" data-lucide="check-circle-2" class="w-5 h-5 text-[#c4eed0]"></i><span id="toast-msg">Action Completed</span></div>
@@ -282,22 +271,6 @@ body.modal-open #mobile-bottom-nav { display: none !important; }
 <div id="create-menu-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#000]/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200" onclick="closeCreateMenu()"><div id="create-menu-modal" class="bg-white w-[90%] max-w-[500px] rounded-[24px] shadow-2xl p-6 relative transform scale-95 transition-transform duration-200" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-6"><h2 class="text-xl font-bold text-[#1f1f1f] google-font">Create New</h2><button onclick="closeCreateMenu()" class="icon-btn hover:bg-[#f0f4f9]"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="grid grid-cols-1 gap-4"><div class="create-option-card" onclick="openCompose()"><div class="create-icon-bg"><i data-lucide="pen-tool" class="w-6 h-6"></i></div><span class="font-bold text-[#1f1f1f]">Post</span></div><div id="create-option-ad" class="create-option-card hidden" onclick="openPromoModal(event);closeCreateMenu()"><div class="create-icon-bg"><i data-lucide="megaphone" class="w-6 h-6"></i></div><span class="font-bold text-[#1f1f1f]">Ad</span></div></div></div></div>
 <div id="edit-profile-overlay" class="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeEditProfile()"><div id="edit-profile-modal" class="bg-white w-full h-full md:h-auto md:w-[95%] md:max-w-[500px] md:max-h-[90vh] md:rounded-[24px] rounded-none shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="flex justify-between items-center h-16 px-4 border-b border-gray-100 shrink-0 bg-white"><button onclick="closeEditProfile()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><h2 class="text-lg font-bold google-font">Edit Profile</h2><div class="w-10"></div></div><div class="flex-1 overflow-y-auto p-0 pb-20 md:pb-6 relative"><div class="relative"><div id="banner-edit-area" class="h-36 w-full bg-gray-200 relative overflow-hidden cursor-grab group" onclick="document.getElementById('edit-banner-input').click()"><img id="edit-banner-preview" src="" class="w-full h-full object-cover pointer-events-none select-none"><div class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="camera" class="text-white w-8 h-8 drop-shadow-md"></i></div></div><div class="absolute -bottom-10 left-4"><div class="relative group cursor-pointer" onclick="document.getElementById('edit-avatar-input').click()"><img id="edit-avatar-preview" src="" class="w-24 h-24 rounded-full border-4 border-white bg-gray-100 object-cover"><div class="absolute inset-0 rounded-full bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="camera" class="text-white w-6 h-6 drop-shadow-md"></i></div></div></div><div class="absolute top-2 right-2 bg-black/50 text-white text-[10px] px-2 py-1 rounded-md pointer-events-none backdrop-blur-sm">Drag to reposition: <span id="banner-pos-hint">50%</span></div></div><div class="mt-12 px-6 flex flex-col gap-6"><input type="file" id="edit-avatar-input" class="hidden" accept="image/*" onchange="handleEditAvatarSelect(event)"><input type="file" id="edit-banner-input" class="hidden" accept="image/*" onchange="handleEditBannerSelect(event)"><div><label class="text-xs font-bold text-gray-500 uppercase">Display Name</label><input type="text" id="edit-name" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 font-medium text-gray-900 text-lg"></div><div><label class="text-xs font-bold text-gray-500 uppercase">Username</label><div class="relative"><span class="absolute left-0 top-2 text-gray-400 font-medium">@</span><input type="text" id="edit-username" class="w-full border-b border-gray-200 py-2 pl-4 outline-none focus:border-blue-500 font-medium text-gray-900"></div></div><div><label class="text-xs font-bold text-gray-500 uppercase">Email</label><input type="text" id="edit-email" class="w-full border-b border-gray-200 py-2 outline-none text-gray-500 bg-transparent select-text" disabled></div><div><label class="text-xs font-bold text-gray-500 uppercase">Bio</label><textarea id="edit-bio" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 text-sm text-gray-700 resize-none" rows="3"></textarea></div></div></div><div class="p-4 border-t border-gray-100 bg-white absolute bottom-0 w-full md:relative"><button id="save-profile-btn" onclick="saveProfileChanges()" class="w-full bg-gray-100 text-gray-900 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all">Save Changes</button></div></div></div>
 <input type="file" id="event-cover-input" class="hidden" accept="image/*" onchange="handleEventCoverSelect(event)">
-<div id="event-overlay" class="fixed inset-0 z-[55] flex items-center justify-center bg-[#000]/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200"><div id="event-modal-box" class="bg-white w-[95%] max-w-[550px] rounded-[16px] shadow-2xl relative transform scale-95 transition-transform duration-200 flex flex-col overflow-hidden p-0"><div id="event-cover-preview-container" class="w-full h-40 bg-gray-100 hidden relative group"><img id="event-cover-preview" class="w-full h-full object-cover"><button onclick="removeEventCover()" class="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70 z-20"><i data-lucide="x" class="w-4 h-4"></i></button><button onclick="document.getElementById('event-cover-input').click()" class="absolute top-1/2 -translate-y-1/2 right-2 bg-white/80 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white z-20 shadow-sm">Change</button></div><button onclick="closeEventComposer()" class="absolute top-4 right-4 icon-btn hover:bg-[#f0f4f9] z-10 bg-white/50 backdrop-blur-sm"><i data-lucide="x" class="w-5 h-5"></i></button><div class="p-8 pt-6"><div id="add-cover-btn" class="mb-6 opacity-60 hover:opacity-100 transition-opacity cursor-pointer flex items-center gap-2 text-sm text-[#667085]" onclick="document.getElementById('event-cover-input').click()"><i data-lucide="image" class="w-4 h-4"></i> Add cover</div><input type="text" id="event-title" placeholder="Untitled Event" class="text-3xl font-bold text-[#1f1f1f] placeholder-[#d1d5db] border-none outline-none bg-transparent w-full mb-6 google-font"><div class="flex flex-col gap-1 mb-6"><div class="notion-input-row"><div class="notion-label"><i data-lucide="clock" class="w-4 h-4"></i> Date</div><input type="date" id="event-date" class="notion-input"></div><div class="notion-input-row"><div class="notion-label"><i data-lucide="watch" class="w-4 h-4"></i> Time</div><input type="time" id="event-time" class="notion-input"></div><div class="notion-input-row"><div class="notion-label"><i data-lucide="map-pin" class="w-4 h-4"></i> Location</div><input type="text" id="event-location" placeholder="Add location..." class="notion-input"></div></div><textarea id="event-desc" placeholder="Add description..." class="w-full min-h-[100px] resize-none border-none outline-none text-[#374151] text-[15px] leading-relaxed bg-transparent"></textarea><div class="flex justify-end mt-6 pt-4 border-t border-gray-100"><button onclick="publishEvent()" class="bg-[#0b57d0] text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-[#0b57d0]/90 transition-all shadow-sm">Create Event</button></div></div></div></div>
-<div id="compose-overlay" class="fixed inset-0 z-[55] flex items-end md:items-center justify-center bg-[#000]/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200" onclick="attemptCloseCompose()"><div id="compose-modal" class="bg-white w-full h-full md:h-auto md:w-[95%] md:max-w-[620px] rounded-none md:rounded-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div id="compose-progress-overlay" class="absolute inset-0 bg-white/90 backdrop-blur-sm z-[60] hidden flex-col items-center justify-center"><div class="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mb-4"><div id="post-progress-bar" class="h-full bg-[#0b57d0] transition-all duration-300 w-0"></div></div><p class="font-bold text-gray-900 animate-pulse">Posting...</p></div><div class="flex items-center justify-between h-16 px-4 border-b border-gray-100 md:h-16"><button onclick="handleComposeBack()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="text-lg font-bold text-gray-900" id="compose-header-title">Create Post</span><div class="w-10"></div></div><div id="compose-body" class="flex-1 overflow-y-auto relative"><div id="compose-step-1" class="p-4 h-full flex flex-col"><div class="grid grid-cols-2 gap-4" id="media-grid-container"></div></div><div id="compose-step-2" class="p-4 hidden"><div class="flex gap-3 mb-4 items-center"><img id="compose-avatar" src="" class="w-10 h-10 rounded-full border border-gray-100 bg-gray-50 object-cover"><div><div id="compose-name" class="text-[15px] font-bold text-[#1f1f1f]">User</div></div></div><textarea id="compose-text" placeholder="What's on your mind?" class="w-full min-h-[150px] text-lg resize-none border-none outline-none bg-transparent placeholder-gray-400"></textarea><div id="collab-chips-container" class="flex flex-wrap mb-2"></div></div></div><div class="bg-white border-t border-gray-100 z-10"><div id="compose-footer-settings" class="hidden border-b border-gray-100"><div class="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 transition-colors" onclick="toggleComposeSettings()"><span class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2"><i data-lucide="settings-2" class="w-4 h-4"></i> Post Settings</span><i data-lucide="chevron-up" id="compose-settings-arrow" class="w-4 h-4 text-gray-400 transition-transform"></i></div><div id="compose-settings-area" class="hidden px-4 pb-4 space-y-3 bg-gray-50/50"><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="lock" class="w-4 h-4"></i> Private (Followers Only)</div><input type="checkbox" id="post-setting-privacy" class="accent-blue-600 w-4 h-4 cursor-pointer"></div><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="heart" class="w-4 h-4"></i> Show Like Count</div><input type="checkbox" id="post-setting-likes" class="accent-blue-600 w-4 h-4 cursor-pointer" checked></div><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="message-square" class="w-4 h-4"></i> Show Comment Count</div><input type="checkbox" id="post-setting-comments" class="accent-blue-600 w-4 h-4 cursor-pointer" checked></div><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="users" class="w-4 h-4"></i> Allow viewers to see who liked</div><input type="checkbox" id="post-setting-like-view" class="accent-blue-600 w-4 h-4 cursor-pointer" checked></div><div class="flex items-center justify-between"><div class="flex items-center gap-2 text-sm text-gray-700"><i data-lucide="message-circle" class="w-4 h-4"></i> Allow comments</div><input type="checkbox" id="post-setting-allow-comments" class="accent-blue-600 w-4 h-4 cursor-pointer" checked></div></div></div><div class="p-4"><button id="compose-action-btn" class="w-full py-3 bg-gray-100 text-gray-900 font-bold rounded-xl hover:bg-gray-200 transition-colors" onclick="handleComposeAction()">Skip</button></div></div></div></div>
-<aside id="main-sidebar" class="hidden md:flex app-panel"><div class="h-12 flex items-center gap-3 mb-6 px-2 cursor-pointer" onclick="switchView('feed')"><img src="https://i.imghippo.com/files/fRGt5603uII.png" class="w-8 h-8 object-contain"><h1 class="text-[20px] font-bold text-[#1f1f1f] hidden lg:block tracking-tight">EduLink</h1></div><button onclick="openCreateMenu()" class="create-btn hidden lg:flex"><i data-lucide="plus" class="w-5 h-5"></i><span>Create</span></button><nav class="flex-1 space-y-1" id="desktop-nav-items"><a href="#" onclick="switchView('feed');return false;" id="nav-feed" class="nav-item active"><i data-lucide="home" class="w-5 h-5"></i> <span class="hidden lg:block">Home</span></a><a href="#" onclick="switchView('explore');return false;" id="nav-explore" class="nav-item"><i data-lucide="compass" class="w-5 h-5"></i> <span class="hidden lg:block">Explore</span></a><a href="#" onclick="switchView('network');return false;" id="nav-network" class="nav-item"><i data-lucide="users" class="w-5 h-5"></i> <span class="hidden lg:block">Network</span></a><a href="#" onclick="switchView('notifications');return false;" id="nav-notifications" class="nav-item relative"><i data-lucide="bell" class="w-5 h-5"></i><span class="hidden lg:block">Notifications</span><span id="nav-notif-badge" class="nav-badge">0</span></a><a href="#" onclick="showProfile(auth.currentUser?auth.currentUser.uid:null);return false;" id="nav-profile" class="nav-item"><i data-lucide="user" class="w-5 h-5"></i> <span class="hidden lg:block">Profile</span></a></nav><div class="mt-auto pt-4 border-t border-gray-100 flex flex-col gap-2"><div class="sidebar-user group cursor-pointer" onclick="openSettings()"><div class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"><i data-lucide="settings" class="w-5 h-5"></i></div><div class="hidden lg:block"><div class="text-sm font-bold text-[#1f1f1f]">Settings</div></div></div><div class="sidebar-user group" onclick="showProfile(auth.currentUser?auth.currentUser.uid:null)"><img id="sidebar-avatar" src="" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 shrink-0 object-cover"><div class="hidden lg:block"><div id="sidebar-name" class="text-sm font-bold text-[#1f1f1f] group-hover:text-blue-700 transition-colors truncate w-[140px]">User</div><div class="text-xs text-[#667085]">View Profile</div></div></div></div></aside>
-<div id="workspace-layout" class="flex-1 flex min-w-0 gap-4 relative overflow-hidden transition-all duration-300"><main id="main-panel" class="flex-1 app-panel min-w-0 relative"><header id="main-header" class="h-16 md:h-20 flex items-center justify-between px-4 md:px-6 shrink-0 z-20 absolute top-0 w-full bg-white/95 md:bg-white/90 backdrop-blur-md border-b border-[#f0f0f0] transition-transform duration-300"><div class="md:hidden flex items-center gap-3 cursor-pointer" onclick="switchView('feed')"><img src="https://i.imghippo.com/files/fRGt5603uII.png" class="w-8 h-8 object-contain"><h1 class="text-lg font-bold text-[#1f1f1f] tracking-tight">EduLink</h1></div><div class="flex-1 max-w-[600px] relative group hidden md:block"><i data-lucide="search" class="absolute left-5 top-3.5 w-5 h-5 text-[#667085] group-focus-within:text-[#0b57d0] transition-colors"></i><input type="text" placeholder="Search EduLink" id="global-search" oninput="handleSearch(this.value)" class="w-full bg-[#f3f4f6] rounded-full py-3.5 pl-14 pr-6 outline-none focus:bg-[#ffffff] focus:shadow-sm focus:ring-1 focus:ring-gray-200 transition-all text-[#1f1f1f] text-[15px]"></div><div class="flex items-center gap-3 pl-4"><button onclick="openSettings()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="settings" class="w-6 h-6"></i></button><button class="icon-btn relative" onclick="toggleNotifications()"><i data-lucide="bell" class="w-6 h-6"></i></button><img id="header-avatar" src="" class="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 cursor-pointer hover:ring-2 ring-offset-1 ring-blue-500 transition-all hidden md:block" onclick="showProfile(auth.currentUser?auth.currentUser.uid:null)"></div></header>
-<div id="ptr-spinner"><i data-lucide="arrow-down" class="w-5 h-5"></i></div>
-<div id="view-feed" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 bg-white pt-16 md:pt-20"><div id="feed-container"></div><div class="flex flex-col items-center justify-center py-10 opacity-60"><img src="https://api.dicebear.com/9.x/lorelei/svg?seed=Chase" class="w-24 h-24 mb-4 opacity-80 grayscale hover:grayscale-0 transition-all duration-500"><h3 class="text-lg font-bold text-gray-400 google-font">Grow and Share</h3><p class="text-sm text-gray-400 text-center max-w-xs mt-1">Your network starts here. Share your first idea!</p></div></div>
-<div id="view-saved" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-16 md:pt-6"><h2 class="text-2xl font-bold mb-6 px-4 md:px-0">Saved Posts</h2><div id="saved-container" class="space-y-4"></div></div>
-<div id="view-network" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-16 md:pt-6"><h2 class="text-2xl font-bold mb-6 px-4 md:px-0">My Network</h2><div class="tab-group mb-4 mx-0 md:mx-0"><button onclick="switchNetworkTab('people')" id="net-tab-people" class="tab-btn active">People</button><button onclick="switchNetworkTab('posts')" id="net-tab-posts" class="tab-btn">Posts</button></div><div id="network-content"></div></div>
-<div id="view-profile" class="flex-1 h-full overflow-y-auto no-scrollbar hidden bg-white"></div>
-<div id="view-notifications" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:p-6 hidden bg-white pt-[106px] md:pt-6"><div class="flex justify-between items-center mb-6 px-4 md:px-0 hidden md:flex"><h2 class="text-2xl font-bold">Notifications</h2><button onclick="clearAllNotifications()" class="text-xs text-red-500 font-bold hover:underline">Clear All</button></div><div class="tab-group mb-4 mx-0 md:mx-0 hidden md:flex"><button onclick="switchNotifTab('all')" id="ntab-all" class="tab-btn active"><i data-lucide="bell" class="w-4 h-4"></i> All</button><button onclick="switchNotifTab('official')" id="ntab-official" class="tab-btn"><i data-lucide="megaphone" class="w-4 h-4"></i> Official</button></div><div id="notification-list" class="flex flex-col w-full pb-24 md:pb-0"></div></div>
-<div id="view-announcements" class="flex-1 h-full overflow-y-auto p-0 md:p-6 hidden bg-white pt-16 md:pt-6"><h2 class="text-2xl font-bold mb-6 px-4 md:px-0">Broadcast Announcement</h2><div class="p-6 bg-white rounded-xl border border-gray-200 shadow-sm max-w-2xl mb-8"><label class="block text-sm font-bold text-gray-700 mb-2">Message to All Users</label><textarea id="announcement-text" class="w-full h-32 border border-gray-300 rounded-lg p-3 outline-none focus:border-blue-500 mb-4" placeholder="Type your official announcement here..."></textarea><div class="flex items-center justify-between"><button id="send-announcement-btn" onclick="sendAnnouncement()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors">Send Broadcast</button></div></div></div>
-<div id="view-events" class="flex-1 h-full overflow-y-auto p-0 md:p-6 hidden bg-[#f9fafb] md:bg-[#fff] pt-16 md:pt-6"><div class="flex items-center justify-between mb-6 px-4 md:px-0"><h2 class="text-2xl font-bold text-[#1f1f1f]">Upcoming Events</h2><button onclick="openEventComposer()" class="bg-[#0b57d0] text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i> New Event</button></div><div id="events-list" class="grid grid-cols-1 gap-4 px-4 md:px-0"></div></div>
-<div id="view-explore" class="flex-1 h-full overflow-y-auto no-scrollbar p-0 md:pt-20 hidden bg-white"><div id="explore-header-container" class="sticky top-0 bg-white z-20 border-b border-gray-100 md:hidden"><div class="h-14 flex items-center px-4 shrink-0"><div class="relative bg-gray-100 rounded-xl flex items-center px-3 py-2 w-full"><i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i><input type="text" id="mobile-explore-search" class="bg-transparent border-none outline-none text-sm w-full" placeholder="Search..." oninput="handleSearch(this.value)"></div></div><div class="tab-group"><button id="tab-explore-main" onclick="switchExploreMainTab('explore')" class="tab-btn active"><i data-lucide="grid" class="w-5 h-5"></i></button><button id="tab-explore-video" onclick="switchExploreMainTab('video')" class="tab-btn"><i data-lucide="play-circle" class="w-5 h-5"></i></button><button id="tab-explore-people" onclick="switchExploreMainTab('people')" class="tab-btn"><i data-lucide="users" class="w-5 h-5"></i></button><button id="tab-explore-tags" onclick="switchExploreMainTab('tags')" class="tab-btn"><i data-lucide="hash" class="w-5 h-5"></i></button></div></div><div class="hidden md:block w-full bg-white z-10 border-b border-gray-100"><div class="max-w-5xl mx-auto tab-group border-b-0 px-0 justify-center"><button id="tab-explore-main-d" onclick="switchExploreMainTab('explore')" class="tab-btn active max-w-[120px]"><i data-lucide="grid" class="w-4 h-4"></i> Posts</button><button id="tab-explore-video-d" onclick="switchExploreMainTab('video')" class="tab-btn max-w-[120px]"><i data-lucide="play-circle" class="w-4 h-4"></i> Videos</button><button id="tab-explore-people-d" onclick="switchExploreMainTab('people')" class="tab-btn max-w-[120px]"><i data-lucide="users" class="w-4 h-4"></i> People</button><button id="tab-explore-tags-d" onclick="switchExploreMainTab('tags')" class="tab-btn max-w-[120px]"><i data-lucide="hash" class="w-4 h-4"></i> Tags</button></div></div><div id="explore-content-wrapper" class="pb-32 max-w-5xl mx-auto py-6"><div id="explore-people-results" class="hidden flex-col p-4 pt-0"></div><div id="explore-results" class="space-y-0 pt-0"></div></div></div></main><aside id="trending-panel" class="trending-panel hidden xl:flex app-panel mb-16 md:mb-0 flex-col bg-white"><div class="h-16 md:h-20 shrink-0 border-b border-[#f0f0f0] flex items-center justify-between px-6 bg-white/95 backdrop-blur z-20"><div class="flex items-center gap-3"><span class="text-[19px] font-bold text-[#1f1f1f] google-font">People</span></div></div><div class="flex-1 overflow-y-auto p-5"><div class="mb-8"><h3 class="text-lg font-bold text-[#1f1f1f] mb-4">Who to follow</h3><div id="who-to-follow-list" class="flex flex-col gap-4"></div></div><div id="promo-section" class="hidden"><div class="relative group rounded-xl overflow-hidden cursor-pointer"><a id="promo-link" href="#" target="_blank" class="block w-full h-full"><img id="promo-image" src="" class="w-full h-auto object-cover rounded-xl border border-gray-200 hover:opacity-95 transition-opacity"></a><button id="edit-promo-btn" onclick="openPromoModal(event)" class="absolute top-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 hidden z-20"><i data-lucide="edit-2" class="w-4 h-4"></i></button><div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-md font-medium uppercase tracking-wide backdrop-blur-sm pointer-events-none">Promoted</div></div></div></div></aside></div>
-<nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-[#eaecf0] h-[64px] flex items-center justify-around z-50 pb-[env(safe-area-inset-bottom)] px-2 shadow-lg transition-transform duration-300"><div class="mobile-nav-item active" onclick="switchView('feed')"><i data-lucide="home"></i></div><div class="mobile-nav-item" onclick="switchView('explore')"><i data-lucide="compass"></i></div><div class="mobile-nav-item" onclick="openCreateMenu()"><i data-lucide="plus-square"></i></div><div class="mobile-nav-item" onclick="switchView('notifications')"><div class="relative"><i data-lucide="bell"></i><span id="mobile-footer-badge" class="mobile-footer-badge">0</span></div></div><div class="mobile-nav-item" onclick="showProfile(auth.currentUser?auth.currentUser.uid:null)"><img id="mobile-avatar" src="" class="w-6 h-6 rounded-full border border-gray-200"></div></nav>
-<input type="file" id="media-input" class="hidden" accept="image/*,video/*" onchange="handleFileSelect(event)">
-<input type="file" id="grid-upload-input" class="hidden" accept="image/*,video/*" onchange="onGridFileSelect(event)">
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -337,6 +310,13 @@ if(exploreView) exploreView.addEventListener('scroll',()=>{const c=exploreView.s
 const formatDate=t=>{if(!t)return''; const d=t.toDate?t.toDate():new Date(t), s=(new Date()-d)/1000; return s<60?'Just now':s<3600?~~(s/60)+'m ago':s<86400?~~(s/3600)+'h ago':s<604800?~~(s/86400)+'d ago':d.toLocaleDateString()};
 const formatContent=t=>{if(!t)return''; return t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])).replace(/@(\w+)/g,(m,u)=>{const f=users.find(x=>(x.username||'').toLowerCase()===u.toLowerCase()); return `<span class="text-blue-600 font-bold ${f?'cursor-pointer hover:underline" onclick="event.stopPropagation(); showProfile(\''+f.id+'\')':''}">@${u}</span>`}).replace(/#(\w+)/g,'<span class="text-blue-600 font-bold cursor-pointer hover:underline" onclick="event.stopPropagation(); searchTag(\'$1\')">#$1</span>').replace(/\n/g,'<br>')};
 window.searchTag=t=>{switchView('explore'); document.getElementById('mobile-explore-search').value=document.getElementById('global-search').value=`#${t}`; handleSearch(`#${t}`)};
+window.toggleText=(id)=>{ document.getElementById(`short-${id}`).classList.toggle('hidden'); document.getElementById(`full-${id}`).classList.toggle('hidden'); };
+function renderTextWithReadMore(text, limit=180, idSuffix){
+    const formatted = formatContent(text);
+    if(text.length <= limit) return formatted;
+    return `<span id="short-${idSuffix}">${formatContent(text.substring(0, limit))}... <span class="read-more-btn" onclick="toggleText('${idSuffix}')">more</span></span><span id="full-${idSuffix}" class="hidden">${formatted} <span class="read-more-btn" onclick="toggleText('${idSuffix}')">less</span></span>`;
+}
+
 onAuthStateChanged(auth,async u=>{
     const l=document.getElementById('app-loader'); if(!u) return window.location.href='index.html';
     const r=doc(db,"users",u.uid), s=await getDoc(r), off=u.email==='edulinkbht@gmail.com';
@@ -399,14 +379,12 @@ function initRealtimeListeners(){
                 if(isSaved) btn.classList.add('active'); else btn.classList.remove('active');
              });
 
-             // Update text content with read more check if needed
-             document.querySelectorAll(`.js-post-body-${p.id}`).forEach(el => {
-                 if(el.dataset.full !== p.content) {
-                    el.dataset.full = p.content.replace(/"/g,'&quot;');
-                    const trunc = p.content.length > 180;
-                    el.innerHTML = trunc ? `${formatContent(p.content.substring(0,180))}...<span class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${p.id}')">more</span>` : formatContent(p.content);
-                 }
-             });
+             // Apply read more logic for post cards in feed
+             const bodyEl = document.querySelector(`.js-post-body-${p.id}`);
+             if(bodyEl && bodyEl.dataset.content !== p.content) {
+                 bodyEl.dataset.content = p.content;
+                 bodyEl.innerHTML = renderTextWithReadMore(p.content, 180, p.id);
+             }
         });
         
         if(!document.getElementById('view-saved').classList.contains('hidden')) renderSaved();
@@ -533,11 +511,9 @@ function createPostElement(p,ctx='feed'){
             const s=ma[0], iv=s.includes('video')||s.includes('.mp4');
             mh=`<div class="mt-3 rounded-xl overflow-hidden aspect-[4/5] ${iv?'bg-black flex items-center justify-center':'bg-gray-100 cursor-pointer'}" onclick="event.stopPropagation();${iv?'':`openLightbox('${s}','image')`}">${iv?`<video src="${s}" class="w-full h-full object-cover" controls onclick="event.stopPropagation()"></video>`:`<img src="${s}" class="w-full h-full object-cover">`}</div>`;
         } else {
-            // Updated IDs for feed carousels
             const cid=`carousel-${ctx}-${p.id}`, iid=`inner-${ctx}-${p.id}`, cntId=`counter-${ctx}-${p.id}`;
             let sl='', dt=''; ma.forEach((s,i)=>{ sl+=`<div class="post-carousel-item">${(s.includes('video')||s.includes('.mp4'))?`<video src="${s}" controls></video>`:`<img src="${s}">`}</div>`; dt+=`<div class="carousel-dot ${i===0?'active':''}" id="dot-${ctx}-${p.id}-${i}"></div>`});
-            // Update onclick to pass full ID
-            mh=`<div class="carousel-wrapper"><div class="mt-3 rounded-xl overflow-hidden post-carousel touch-pan-y" id="${cid}" ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event,'${p.id}',false)"><div class="post-carousel-inner" id="${iid}">${sl}</div><button class="carousel-nav-btn prev" onclick="event.stopPropagation();moveCarousel('${cid}',-1)"><i data-lucide="chevron-left" class="w-4 h-4"></i></button><button class="carousel-nav-btn next" onclick="event.stopPropagation();moveCarousel('${cid}',1)"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><div class="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm pointer-events-none"><span id="${cntId}">1</span>/${ma.length}</div></div><div class="carousel-dots-outside">${dt}</div></div>`;
+            mh=`<div class="carousel-wrapper"><div class="mt-3 rounded-xl overflow-hidden post-carousel touch-pan-y" id="${cid}" ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event,'${cid}',false)"><div class="post-carousel-inner" id="${iid}">${sl}</div><button class="carousel-nav-btn prev" onclick="event.stopPropagation();moveCarousel('${cid}',-1)"><i data-lucide="chevron-left" class="w-4 h-4"></i></button><button class="carousel-nav-btn next" onclick="event.stopPropagation();moveCarousel('${cid}',1)"><i data-lucide="chevron-right" class="w-4 h-4"></i></button><div class="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm pointer-events-none"><span id="${cntId}">1</span>/${ma.length}</div></div><div class="carousel-dots-outside">${dt}</div></div>`;
             (window.carouselStates=window.carouselStates||{})[cid]={index:0,total:ma.length};
         }
     }
@@ -545,25 +521,13 @@ function createPostElement(p,ctx='feed'){
         const f=p.likes.filter(id=>currentUser.following.includes(id) && id !== currentUser.id), ff=f.length&&users.find(u=>u.id===f[0]);
         if(ff) lh=`<div class="flex items-center mt-3 ml-1"><img src="${ff.avatar}" class="w-5 h-5 rounded-full border border-white -mr-1 z-10"><span class="text-[11px] text-gray-500 ml-2">Liked by <span class="font-bold text-gray-900">${ff.name}</span>${f.length>1?` and ${f.length-1} others`:''}</span></div>`;
     }
-    const txt=formatContent(p.content), trunc=p.content.length>180;
+    const txt=renderTextWithReadMore(p.content, 180, p.id);
     const isLiked = p.likes?.includes(currentUser.id);
     const isSaved = savedPosts.includes(p.id);
 
-    d.innerHTML=`<div class="p-4 md:p-5"><div class="post-header"><div class="flex gap-3"><div class="post-avatar-container"><img src="${a.avatar}" class="post-avatar"></div><div><div class="flex items-center"><span class="post-author-name" onclick="event.stopPropagation(); showProfile('${a.id}')">${a.name}</span>${a.isOfficial?'<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>':''}${st.privacy==='private'?'<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>':''}</div><div class="post-meta flex items-center">${formatDate(p.timestamp)}</div></div></div><button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event,'${p.id}','${p.authorId}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button></div><div class="post-content"><div class="post-body js-post-body-${p.id}" data-full="${txt.replace(/"/g,'&quot;')}">${trunc?`${formatContent(p.content.substring(0,180))}...<span class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${p.id}')">more</span>`:txt}</div>${mh}</div>${lh}<div class="post-actions"><div class="flex items-center gap-1"><button class="action-btn like js-like-btn-${p.id} ${isLiked?'active':''}" onclick="event.stopPropagation(); toggleLike('${p.id}')"><i data-lucide="heart" class="w-6 h-6"></i></button>${st.showLikes?`<span class="js-like-count-${p.id} text-xs font-medium px-1 hover:underline cursor-pointer" onclick="event.stopPropagation();openLikes('${p.id}')">${(p.likes?.length>0)?p.likes.length:''}</span>`:''}<button class="action-btn comment ml-2" onclick="event.stopPropagation(); openPostView('${p.id}')"><i data-lucide="${st.allowComments===false?'message-circle-off':'message-circle'}" class="w-6 h-6"></i> ${st.showComments?`<span class="js-comment-count-${p.id} text-xs font-medium">${(p.comments?.length>0)?p.comments.length:''}</span>`:''}</button><button class="action-btn share-btn ml-2" onclick="event.stopPropagation(); sharePost('${p.id}')"><i data-lucide="send" class="w-6 h-6"></i></button></div><button class="action-btn bookmark js-save-btn-${p.id} ${isSaved?'active':''}" onclick="event.stopPropagation(); toggleSave('${p.id}')"><i data-lucide="bookmark" class="w-6 h-6"></i></button></div></div>`;
+    d.innerHTML=`<div class="p-4 md:p-5"><div class="post-header"><div class="flex gap-3"><div class="post-avatar-container"><img src="${a.avatar}" class="post-avatar"></div><div><div class="flex items-center"><span class="post-author-name" onclick="event.stopPropagation(); showProfile('${a.id}')">${a.name}</span>${a.isOfficial?'<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>':''}${st.privacy==='private'?'<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>':''}</div><div class="post-meta flex items-center">${formatDate(p.timestamp)}</div></div></div><button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event,'${p.id}','${p.authorId}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button></div><div class="post-content"><div class="post-body js-post-body-${p.id}" data-content="${p.content.replace(/"/g,'&quot;')}">${txt}</div>${mh}</div>${lh}<div class="post-actions"><div class="flex items-center gap-1"><button class="action-btn like js-like-btn-${p.id} ${isLiked?'active':''}" onclick="event.stopPropagation(); toggleLike('${p.id}')"><i data-lucide="heart" class="w-6 h-6"></i></button>${st.showLikes?`<span class="js-like-count-${p.id} text-xs font-medium px-1 hover:underline cursor-pointer" onclick="event.stopPropagation();openLikes('${p.id}')">${(p.likes?.length>0)?p.likes.length:''}</span>`:''}<button class="action-btn comment ml-2" onclick="event.stopPropagation(); openPostView('${p.id}')"><i data-lucide="${st.allowComments===false?'message-circle-off':'message-circle'}" class="w-6 h-6"></i> ${st.showComments?`<span class="js-comment-count-${p.id} text-xs font-medium">${(p.comments?.length>0)?p.comments.length:''}</span>`:''}</button><button class="action-btn share-btn ml-2" onclick="event.stopPropagation(); sharePost('${p.id}')"><i data-lucide="send" class="w-6 h-6"></i></button></div><button class="action-btn bookmark js-save-btn-${p.id} ${isSaved?'active':''}" onclick="event.stopPropagation(); toggleSave('${p.id}')"><i data-lucide="bookmark" class="w-6 h-6"></i></button></div></div>`;
     return d;
 }
-
-window.toggleReadMore=pid=>{
-    const els = document.querySelectorAll(`.js-post-body-${pid}`);
-    els.forEach(el => {
-        const full = el.getAttribute('data-full');
-        if (el.innerText.endsWith('more')) {
-             el.innerHTML = full + `<span class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${pid}')">less</span>`;
-        } else {
-             el.innerHTML = `${formatContent(full.substring(0,180))}...<span class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${pid}')">more</span>`;
-        }
-    });
-};
 
 window.moveCarousel=(containerId,dir)=>{
     const state = window.carouselStates[containerId];
@@ -592,282 +556,6 @@ window.moveCarousel=(containerId,dir)=>{
     if(cnt) cnt.innerText = n + 1;
 };
 
-window.switchExploreMainTab=t=>{
-    window.activeExploreTab=t; const m=t==='explore'?'main':t;
-    ['main','video','people','tags'].forEach(x=>{ const el=document.getElementById(`tab-explore-${x}`), ed=document.getElementById(`tab-explore-${x}-d`); if(el)el.classList.remove('active'); if(ed)ed.classList.remove('active'); });
-    document.getElementById(`tab-explore-${m}`)?.classList.add('active'); document.getElementById(`tab-explore-${m}-d`)?.classList.add('active');
-    window.activeExploreCategory=t==='video'?'All':'For You'; handleSearch(document.getElementById('mobile-explore-search').value);
-};
-
-window.toggleExploreSearch=()=>{ const b=document.getElementById('explore-search-bar'); if(b){ b.classList.toggle('hidden'); if(!b.classList.contains('hidden')) document.getElementById('mobile-explore-search').focus() } };
-
-window.handleSearch=q=>{
-    if(document.getElementById('view-explore').classList.contains('hidden')) switchView('explore');
-    const t=q?q.toLowerCase().trim():'', pl=document.getElementById('explore-people-results'), v=document.getElementById('explore-results');
-    if(window.activeExploreTab==='people'){
-        pl.classList.remove('hidden'); pl.classList.add('flex'); v.innerHTML=''; pl.innerHTML='';
-        const fu=t?users.filter(u=>(u.name||"").toLowerCase().includes(t)||(u.username||"").toLowerCase().includes(t)):users.slice(0,10);
-        if(fu.length) fu.forEach(u=>{ const d=document.createElement('div'); d.className="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer last:border-b-0"; d.onclick=()=>showProfile(u.id); d.innerHTML=`<div class="flex items-center gap-3"><img src="${u.avatar}" class="w-12 h-12 rounded-full border border-gray-100 object-cover bg-gray-50"><div><div class="font-bold text-[#1f1f1f] text-[15px] flex items-center gap-1">${u.name}${u.isOfficial?'<i data-lucide="badge-check" class="w-4 h-4 text-blue-500 fill-blue-50"></i>':''}</div><div class="text-xs text-gray-500 font-medium">@${u.username||'user'} • ${u.followers?.length||0} followers</div></div></div><button onclick="event.stopPropagation(); toggleFollow('${u.id}')" class="bg-black text-white text-xs px-4 py-1.5 rounded-full font-bold hover:bg-gray-800 transition-colors shadow-sm">Follow</button>`; pl.appendChild(d) });
-        else pl.innerHTML='<div class="text-gray-400 text-xs italic text-center py-4">No people found</div>';
-    } else {
-        pl.classList.add('hidden'); pl.classList.remove('flex'); v.innerHTML='';
-        let fp=posts.filter(p=>{
-            if(window.activeExploreTab==='video') return p.media&&(Array.isArray(p.media)?p.media.some(m=>m.includes('video')||m.endsWith('.mp4')):(p.media.includes('video')||p.media.endsWith('.mp4')));
-            if(window.activeExploreTab==='tags') return p.content.includes('#'); return true;
-        });
-        if(t) fp=fp.filter(p=>p.content.toLowerCase().includes(t)); else if(window.activeExploreTab!=='tags') fp.sort(()=>0.5-Math.random());
-        if(!fp.length) v.innerHTML='<div class="text-center py-20 text-gray-400"><p>No posts found.</p></div>';
-        else{ const l=document.createElement('div'); l.className="flex flex-col gap-0.5 md:gap-4"; fp.forEach(p=>l.appendChild(createPostElement(p,'explore'))); v.appendChild(l); }
-    } refreshIcons();
-};
-window.openCollabSelector=()=>{ const o=document.getElementById('user-list-overlay'), c=document.getElementById('user-list-content'); document.getElementById('user-list-title').innerText="Tag Collaborators"; c.innerHTML=''; const r=users.filter(u=>u.id!==currentUser.id&&(currentUser.following.includes(u.id)||currentUser.followers.includes(u.id))); if(!r.length) c.innerHTML='<div class="text-center text-gray-400 py-8">No contacts.</div>'; else r.forEach(u=>{ const sel=window.selectedCollaborators.find(x=>x.id===u.id), d=document.createElement('div'); d.className=`flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer ${sel?'bg-gray-100':''}`; d.onclick=()=>toggleCollaborator(u); d.innerHTML=`<div class="flex items-center gap-3"><img src="${u.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${u.name}</div><div class="text-xs text-gray-500">@${u.username||'user'}</div></div></div>${sel?'<i data-lucide="check" class="text-gray-600 w-5 h-5"></i>':''}`; c.appendChild(d); }); o.classList.remove('hidden'); refreshIcons(); };
-window.toggleCollaborator=u=>{ const i=window.selectedCollaborators.findIndex(x=>x.id===u.id); if(i>-1) window.selectedCollaborators.splice(i,1); else window.selectedCollaborators.push({id:u.id,name:u.name,avatar:u.avatar,username:u.username,status:'pending'}); closeUserList(); openCollabSelector(); renderCollabChips(); };
-window.renderCollabChips=()=>{ const c=document.getElementById('collab-chips-container'); c.innerHTML=''; window.selectedCollaborators.forEach(u=>{ const ch=document.createElement('div'); ch.className='collab-chip'; ch.innerHTML=`<img src="${u.avatar}" class="w-4 h-4 rounded-full mr-2"> <span>${u.name}</span> <i onclick="event.stopPropagation(); removeCollaborator('${u.id}')" data-lucide="x" class="w-3 h-3 ml-2 text-gray-500 hover:text-red-500 cursor-pointer"></i>`; c.appendChild(ch); }); refreshIcons(); };
-window.removeCollaborator=id=>{ window.selectedCollaborators=window.selectedCollaborators.filter(u=>u.id!==id); renderCollabChips(); };
-window.openCollabList=pid=>{ const p=posts.find(x=>x.id===pid); if(!p||!p.collaborators) return; const c=document.getElementById('user-list-content'); document.getElementById('user-list-title').innerText="Collaborators"; c.innerHTML=''; p.collaborators.filter(x=>x.status==='accepted').forEach(u=>{ const d=document.createElement('div'); d.className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer"; d.onclick=()=>{closeUserList();showProfile(u.id);}; d.innerHTML=`<div class="flex items-center gap-3"><img src="${u.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${u.name}</div><div class="text-xs text-gray-500">@${u.username||'user'}</div></div></div>`; c.appendChild(d); }); document.getElementById('user-list-overlay').classList.remove('hidden'); };
-window.toggleLike=async(pid)=>{
-    const isLiking = !document.querySelector(`.js-like-btn-${pid}`)?.classList.contains('active');
-    
-    document.querySelectorAll(`.js-like-btn-${pid}`).forEach(btn => btn.classList.toggle('active', isLiking));
-    document.querySelectorAll(`.js-like-count-${pid}`).forEach(el => {
-        let count = parseInt(el.innerText) || 0;
-        let newCount = Math.max(0, count + (isLiking ? 1 : -1));
-        el.innerText = newCount > 0 ? newCount : '';
-    });
-
-    const r=doc(db,"posts",pid), p=posts.find(x=>x.id===pid);
-    if(p.likes&&p.likes.includes(currentUser.id)) await updateDoc(r,{likes:arrayRemove(currentUser.id)});
-    else {
-        await updateDoc(r,{likes:arrayUnion(currentUser.id)});
-        if(p.authorId!==currentUser.id) {
-             sendNotification(p.authorId,'like','liked your post',pid);
-        }
-    }
-};
-const toggleModalAnim=(oid,mid,show)=>{
-    const o=document.getElementById(oid), m=document.getElementById(mid);
-    if(show){
-        o.classList.remove('hidden'); m.style.transition='none';
-        o.classList.add('opacity-0'); m.classList.add('translate-y-full','md:scale-95'); m.classList.remove('translate-y-0','md:scale-100');
-        void m.offsetWidth; m.style.transition='';
-        setTimeout(()=>{o.classList.remove('opacity-0'); m.classList.remove('translate-y-full','md:scale-95'); m.classList.add('translate-y-0','md:scale-100')},20);
-    } else {
-        o.classList.add('opacity-0'); m.classList.add('translate-y-full','md:scale-95'); m.classList.remove('translate-y-0','md:scale-100');
-        setTimeout(()=>o.classList.add('hidden'),200);
-    }
-};
-
-window.openLikes=pid=>{
-    const p=posts.find(x=>x.id===pid), c=document.getElementById('likes-list-content');
-    c.innerHTML = !p.likes?.length ? '<div class="text-center text-gray-400 py-8">No likes yet.</div>' : 
-    p.likes.map(uid=>{
-        const u=users.find(x=>x.id===uid);
-        return u ? `<div class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer" onclick="closeLikes();showProfile('${u.id}')"><img src="${u.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${u.name}</div><div class="text-xs text-gray-500 truncate w-32">${u.bio}</div></div></div>` : '';
-    }).join('');
-    toggleModalAnim('likes-overlay','likes-modal',true);
-};
-
-window.closeLikes=()=>toggleModalAnim('likes-overlay','likes-modal',false);
-
-window.toggleSave=async(pid)=>{
-    const isSaving = !document.querySelector(`.js-save-btn-${pid}`)?.classList.contains('active');
-    document.querySelectorAll(`.js-save-btn-${pid}`).forEach(btn => btn.classList.toggle('active', isSaving));
-    
-    showToast(isSaving?"Saved":"Removed");
-    if(isSaving) savedPosts.push(pid); else savedPosts=savedPosts.filter(x=>x!==pid);
-    await updateDoc(doc(db,"users",currentUser.id),{saved:isSaving?arrayUnion(pid):arrayRemove(pid)});
-};
-
-window.sharePost=pid=>{
-    window.currentSharePid=pid;
-    const url=`${window.location.origin}${window.location.pathname}?postId=${pid}`, p=posts.find(x=>x.id===pid), pc=document.getElementById('share-post-preview');
-    document.getElementById('share-link-input').value=url; document.getElementById('share-link-text').innerText=url;
-    
-    if(p){
-        const a=users.find(u=>u.id===p.authorId)||{name:'Unknown',avatar:''};
-        document.getElementById('share-owner-avatar').src=a.avatar;
-        const m=p.media?(Array.isArray(p.media)?p.media[0]:p.media):null, isV=m&&(m.includes('video')||m.endsWith('.mp4'));
-        const mh=m?(isV?`<div class="w-16 h-16 bg-black rounded-lg flex items-center justify-center shrink-0"><i data-lucide="play" class="w-6 h-6 text-white"></i></div>`:`<img src="${m}" class="w-16 h-16 rounded-lg object-cover shrink-0 bg-gray-200">`):'';
-        
-        pc.innerHTML=`<div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm mb-6"><div class="flex items-center gap-2 mb-2"><img src="${a.avatar}" class="w-5 h-5 rounded-full object-cover"><span class="text-xs font-bold text-gray-900 truncate">${a.name}</span></div><div class="flex gap-3 items-center"><div class="flex-1 min-w-0"><p class="text-xs text-gray-600 line-clamp-2 mb-2 leading-relaxed">${p.content||(m?'Shared a post':'')}</p><div class="flex items-center gap-3 text-gray-400"><div class="flex items-center gap-1 text-[10px] font-medium"><i data-lucide="heart" class="w-3 h-3"></i> ${p.likes?.length||0}</div><div class="flex items-center gap-1 text-[10px] font-medium"><i data-lucide="message-circle" class="w-3 h-3"></i> ${p.comments?.length||0}</div></div></div>${mh}</div></div>`;
-        pc.classList.remove('hidden'); refreshIcons();
-    } else pc.classList.add('hidden');
-    toggleModalAnim('share-overlay','share-modal',true);
-};
-window.closeShareMenu=()=>{
-    const o=document.getElementById('share-overlay'), m=document.getElementById('share-modal');
-    o.classList.add('opacity-0'); m.classList.add('translate-y-full','md:scale-95'); m.classList.remove('translate-y-0','md:scale-100');
-    setTimeout(()=>{o.classList.add('hidden'); window.currentSharePid=null},200);
-};
-
-window.triggerShare=pf=>{
-    if(!window.currentSharePid) return;
-    const u=`${window.location.origin}${window.location.pathname}?postId=${window.currentSharePid}`, txt="Check out this post on EduLink!";
-    const acts={
-        copy:()=>navigator.clipboard.writeText(u).then(()=>showToast("Link copied!")),
-        twitter:()=>window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(txt)}&url=${encodeURIComponent(u)}`,'_blank'),
-        whatsapp:()=>window.open(`https://wa.me/?text=${encodeURIComponent(txt+" "+u)}`,'_blank'),
-        email:()=>window.open(`mailto:?subject=${encodeURIComponent(txt)}&body=${encodeURIComponent(txt+"\n\n"+u)}`)
-    };
-    acts[pf]?.();
-    if(pf!=='copy') closeShareMenu();
-};
-
-window.renderSaved=()=>{
-    const c=document.getElementById('saved-container'); c.innerHTML='';
-    if(!savedPosts.length) c.innerHTML='<div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-60"><i data-lucide="bookmark" class="w-16 h-16 mb-2"></i><p>No saved posts</p></div>';
-    else posts.filter(p=>savedPosts.includes(p.id)).forEach(p=>c.appendChild(createPostElement(p,'saved')));
-    refreshIcons();
-};
-
-async function sendNotification(rid,t,c,pid=null){
-    await setDoc(doc(db,"notifications",`${t}_${currentUser.id}_${pid||'general'}_${rid}`),{receiverId:rid,senderId:currentUser.id,type:t,content:c,timestamp:serverTimestamp(),read:false,postId:pid},{merge:true});
-}
-
-window.switchNotifTab=t=>{
-    activeNotifTab=t; document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    [`ntab-${t}`,`ntab-${t}-mobile`].forEach(id=>document.getElementById(id)?.classList.add('active'));
-    renderNotifications();
-};
-
-window.toggleNotifMenu=()=>{
-    const o=document.getElementById('notif-options-overlay'), m=document.getElementById('notif-options-modal');
-    o.classList.remove('hidden'); m.style.transition='none'; o.classList.add('opacity-0'); m.classList.add('translate-y-full');
-    void m.offsetWidth; m.style.transition='';
-    setTimeout(()=>{o.classList.remove('opacity-0'); m.classList.remove('translate-y-full')},20);
-};
-
-window.closeNotifOptions=()=>{
-    const o=document.getElementById('notif-options-overlay'), m=document.getElementById('notif-options-modal');
-    o.classList.add('opacity-0'); m.classList.add('translate-y-full');
-    setTimeout(()=>o.classList.add('hidden'),200);
-};
-window.toggleNotifSelection=()=>{window.notifSelectionMode=!window.notifSelectionMode; if(!window.notifSelectionMode) window.selectedNotifs.clear(); renderNotifications()};
-window.toggleNotifSearchMobile=()=>{const c=document.getElementById('mobile-notif-search-container'); c.classList.toggle('hidden'); if(!c.classList.contains('hidden')) document.getElementById('notif-search').focus()};
-window.handleNotifSearch=v=>{window.notifSearchTerm=v.toLowerCase(); renderNotifications()};
-window.toggleNotifSelect=id=>{window.selectedNotifs.has(id)?window.selectedNotifs.delete(id):window.selectedNotifs.add(id); renderNotifications()};
-
-window.deleteSelectedNotifs=async()=>{
-    if(!window.selectedNotifs.size) return showToast("None selected");
-    showAlert(`Delete ${window.selectedNotifs.size} items?`,async()=>{
-        const b=writeBatch(db); window.selectedNotifs.forEach(id=>b.delete(doc(db,"notifications",id)));
-        await b.commit(); window.notifSelectionMode=false; window.selectedNotifs.clear(); toggleNotifMenu(); showToast("Deleted");
-    });
-};
-
-window.renderNotifications=()=>{
-    const c=document.getElementById('notification-list'), term=window.notifSearchTerm; c.innerHTML='';
-    const fl=notifications.filter(n=>{
-        const s=users.find(u=>u.id===n.senderId)||{name:'Admin',isOfficial:false}, isOff=n.type==='official'||s.isOfficial;
-        return (activeNotifTab==='official'?isOff:!isOff) && (!term||n.content.toLowerCase().includes(term)||s.name.toLowerCase().includes(term));
-    });
-    if(!fl.length) return c.innerHTML='<div class="text-center text-xs text-gray-400 py-4">No notifications</div>';
-    
-    const map={like:{i:'heart',c:'bg-red-500'},comment:{i:'message-circle',c:'bg-blue-500'},reply:{i:'corner-down-right',c:'bg-teal-500'},follow:{i:'user-plus',c:'bg-indigo-500'},official:{i:'megaphone',c:'bg-purple-600'},follow_request:{i:'lock',c:'bg-orange-500'},collab_request:{i:'users',c:'bg-pink-500'},mention:{i:'at-sign',c:'bg-green-500'},default:{i:'bell',c:'bg-gray-500'}};
-
-    c.innerHTML = fl.map(n=>{
-        const s=users.find(u=>u.id===n.senderId)||{name:'Admin',avatar:''}, cfg=map[n.type]||map.default;
-        const click=window.notifSelectionMode?'':(['like','comment','reply','mention'].includes(n.type)&&n.postId?`openPostView('${n.postId}')`:`showProfile('${s.id}')`);
-        let act='';
-        if(n.type==='follow_request') act=`<div class="flex gap-2 mt-2"><button onclick="acceptFollow('${n.id}','${s.id}')" class="btn-xs-blue">Accept</button><button onclick="deleteNotification('${n.id}')" class="btn-xs-gray">Delete</button></div>`;
-        if(n.type==='collab_request') act=`<div class="flex gap-2 mt-2"><button onclick="acceptCollab('${n.id}','${n.postId}')" class="btn-xs-blue">Accept</button><button onclick="declineCollab('${n.id}','${n.postId}')" class="btn-xs-gray">Decline</button></div>`;
-        const chk=window.notifSelectionMode?`<div class="pt-1"><input type="checkbox" ${window.selectedNotifs.has(n.id)?'checked':''} onchange="toggleNotifSelect('${n.id}')" class="w-4 h-4 accent-blue-600 cursor-pointer rounded"></div>`:'';
-        return `<div class="w-full flex items-start gap-3 p-4 border-b border-gray-100 bg-white hover:bg-gray-50 transition-colors">${chk}<div class="relative cursor-pointer shrink-0" onclick="${window.notifSelectionMode?'':`showProfile('${s.id}')`}"><img src="${s.avatar}" class="w-10 h-10 rounded-full bg-gray-200 object-cover border border-gray-100"><div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${cfg.c} flex items-center justify-center border border-white shadow-sm"><i data-lucide="${cfg.i}" class="w-3.5 h-3.5 text-white"></i></div></div><div class="flex-1 min-w-0 pt-0.5"><div class="text-[14px] leading-snug cursor-pointer" onclick="${click}"><span class="font-bold text-gray-900 hover:underline">${s.name}</span> <span class="text-gray-600 ml-1">${n.content}</span></div><div class="text-[11px] text-gray-400 mt-1">${formatDate(n.timestamp)}</div>${act}</div>${!window.notifSelectionMode?`<button onclick="deleteNotification('${n.id}')" class="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all self-start -mt-1 -mr-2"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>`:''}</div>`;
-    }).join('');
-    refreshIcons();
-};
-
-window.deleteNotification=async id=>showAlert("Delete?",async()=>await deleteDoc(doc(db,"notifications",id)));
-window.clearAllNotifications=async()=>showAlert("Clear all?",async()=>{const b=writeBatch(db),s=await getDocs(query(collection(db,"notifications"),where("receiverId","==",currentUser.id))); s.forEach(d=>b.delete(d.ref)); await b.commit(); showToast("Cleared")});
-window.toggleNotifications=()=>switchView('notifications');
-
-window.acceptCollab=async(nid,pid)=>{const r=doc(db,"posts",pid),s=await getDoc(r); if(s.exists()){const c=s.data().collaborators||[],i=c.findIndex(x=>x.id===currentUser.id); if(i>-1){c[i].status='accepted'; await updateDoc(r,{collaborators:c}); showToast("Accepted!")}} await deleteDoc(doc(db,"notifications",nid))};
-window.declineCollab=async(nid,pid)=>{const r=doc(db,"posts",pid),s=await getDoc(r); if(s.exists()) await updateDoc(r,{collaborators:(s.data().collaborators||[]).filter(x=>x.id!==currentUser.id)}); showToast("Declined"); await deleteDoc(doc(db,"notifications",nid))};
-window.acceptFollow=async(nid,sid)=>{await Promise.all([updateDoc(doc(db,"users",currentUser.id),{followers:arrayUnion(sid)}), updateDoc(doc(db,"users",sid),{following:arrayUnion(currentUser.id)}), deleteDoc(doc(db,"notifications",nid)), sendNotification(sid,'follow','accepted follow')]); showToast("Accepted")};
-
-window.toggleFollow=async(uid)=>{
-    const m=doc(db,"users",currentUser.id), t=doc(db,"users",uid), u=users.find(x=>x.id===uid), isF=currentUser.following.includes(uid), priv=u?.settings?.privateNetwork;
-    if(isF){
-        currentUser.following=currentUser.following.filter(id=>id!==uid); showToast("Unfollowed");
-        await Promise.all([updateDoc(m,{following:arrayRemove(uid)}), updateDoc(t,{followers:arrayRemove(currentUser.id)})]);
-    } else {
-        if(priv){ showToast("Request sent"); sendNotification(uid,'follow_request','wants to follow you'); }
-        else{ currentUser.following.push(uid); showToast("Following"); await Promise.all([updateDoc(m,{following:arrayUnion(uid)}), updateDoc(t,{followers:arrayUnion(currentUser.id)}), sendNotification(uid,'follow','started following you')]); }
-    }
-    const btn=document.getElementById('profile-follow-btn'); if(btn) btn.innerText=isF?(priv?'Request':'Follow'):(priv?'Requested':'Following');
-    const ul=document.getElementById(`ul-btn-${uid}`); if(ul){ ul.innerText=!isF?'Following':'Follow'; ul.className=!isF?"bg-gray-100 text-gray-900 text-xs px-3 py-1 rounded-full font-bold hover:bg-gray-200":"bg-black text-white text-xs px-3 py-1 rounded-full font-bold hover:bg-gray-800"; }
-    renderRightSidebar(); if(!document.getElementById('view-network').classList.contains('hidden')) renderNetwork(); refreshIcons();
-};
-
-window.showProfile=(uid,tab='posts')=>{
-    if(!uid) uid=currentUser.id; closePostView(); closeThread(); window.currentViewingProfileId=uid; window.currentProfileTab=tab;
-    const u=users.find(x=>x.id===uid); if(!u) return;
-    const c=document.getElementById('view-profile'), me=uid===currentUser.id, fol=currentUser.following?.includes(uid);
-    
-    let ab=me ? `<div class="flex gap-2"><button onclick="openEditProfile()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200">Edit Profile</button><button onclick="openQR()" class="bg-gray-100 text-gray-700 px-2 py-2 rounded-lg hover:bg-gray-200"><i data-lucide="qr-code" class="w-5 h-5"></i></button></div>` 
-              : `<div class="flex gap-2"><button id="profile-follow-btn" onclick="toggleFollow('${uid}')" class="${fol?'bg-gray-100 text-gray-700':'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">${fol?'Following':(u.settings?.privateNetwork?'Request':'Follow')}</button><button onclick="openQR('${uid}')" class="bg-gray-100 text-gray-700 px-2 py-2 rounded-lg hover:bg-gray-200"><i data-lucide="qr-code" class="w-5 h-5"></i></button></div>`;
-
-    const stats=(me||!u.settings?.privateNetwork||fol) ? `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="cursor-pointer hover:underline" onclick="openUserList('following','${uid}')"><strong class="text-gray-900">${u.following?.length||0}</strong> Following</span><span class="cursor-pointer hover:underline" onclick="openUserList('followers','${uid}')"><strong class="text-gray-900">${u.followers?.length||0}</strong> Followers</span></div>` : `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="italic"><i data-lucide="lock" class="w-3 h-3 inline"></i> Private Account</span></div>`;
-    
-    const tabs=['posts','saved','liked','tagged','links'].map(t=>(!me&&t==='saved')?'':`<button onclick="switchProfileTab('${t}')" class="tab-btn ${tab===t?'active':''}"><i data-lucide="${{posts:'grid',saved:'bookmark',liked:'heart',tagged:'user-check',links:'link'}[t]}" class="w-5 h-5"></i></button>`).join('');
-
-    c.innerHTML=`<div class="profile-banner-container"><img src="${u.banner||'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'}" class="profile-banner-img" style="object-position:center ${u.bannerPos||50}%"></div><div class="px-4 md:px-6 relative"><div class="flex justify-between items-end -mt-10 mb-4"><img src="${u.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">${ab}</div><div class="mb-6"><h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${u.name} ${u.isOfficial?'<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1><div class="text-sm font-medium text-gray-500">@${u.username||'user'}</div><p class="text-gray-600 mt-2">${u.bio}</p>${stats}</div><div class="tab-group mb-0">${tabs}</div><div id="profile-content-area" class="pt-1 md:pt-4 pb-20 md:pb-0"></div></div>`;
-    switchView('profile'); renderProfileContent(uid,tab); refreshIcons();
-};
-
-window.switchProfileTab=t=>{document.querySelectorAll('#view-profile .tab-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('onclick').includes(t))); window.currentProfileTab=t; renderProfileContent(window.currentViewingProfileId,t)};
-
-window.renderProfileContent=(uid,t)=>{
-    const c=document.getElementById('profile-content-area'), u=users.find(x=>x.id===uid); c.innerHTML="";
-    if(t==='links'){
-        const is=uid===currentUser.id, l=u.links||[];
-        c.innerHTML=`<div class="max-w-4xl mx-auto py-6 space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 px-2">${is?`<button onclick="document.getElementById('add-link-modal').classList.remove('hidden')" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold hover:bg-gray-50 flex items-center justify-center gap-2 h-full"><i data-lucide="plus" class="w-5 h-5"></i> Add New Link</button>`:''}${!l.length&&!is?'<div class="col-span-2 text-center text-gray-400 py-10">No links added yet.</div>':l.map((k,i)=>`<a href="${k.url}" target="_blank" class="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 border border-gray-200 group relative"><div class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-200 mr-4 shrink-0"><i data-lucide="link" class="w-5 h-5 text-blue-600"></i></div><div class="flex-1 min-w-0"><div class="font-bold text-gray-900 truncate">${k.title}</div><div class="text-xs text-gray-500 truncate">${k.url}</div></div><i data-lucide="external-link" class="w-4 h-4 text-gray-400 ml-2"></i>${is?`<button onclick="event.preventDefault(); deleteLink(${i})" class="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-50"><i data-lucide="trash-2" class="w-3 h-3"></i></button>`:''}</a>`).join('')}</div>`; refreshIcons(); return;
-    }
-    if(t==='liked'&&uid!==currentUser.id) return c.innerHTML='<div class="flex flex-col items-center justify-center py-20 text-gray-400 opacity-60"><i data-lucide="lock" class="w-16 h-16 mb-2"></i><p>This user\'s likes are private.</p></div>', refreshIcons();
-
-    let tp = posts.filter(p => t==='posts'?p.authorId===uid : t==='saved'?savedPosts.includes(p.id) : t==='liked'?p.likes?.includes(uid) : (p.collaborators?.some(x=>x.id===uid&&x.status==='accepted')||p.mentions?.includes(uid)));
-    if(uid!==currentUser.id && t==='posts') tp=tp.filter(p=> (u.settings?.privateNetwork ? !currentUser.following.includes(uid) : (p.settings?.privacy==='public'||currentUser.following.includes(uid))));
-
-    c.innerHTML=tp.length ? `<div class="grid-post-container">${tp.map(p=>{
-        const m=Array.isArray(p.media)?p.media[0]:p.media, isV=m&&(m.includes('video')||m.endsWith('.mp4')||m.startsWith('data:video'));
-        return `<div class="grid-post-item group" onclick="openPostView('${p.id}')">${m?(isV?`<video src="${m}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`:`<img src="${m}" class="w-full h-full object-cover">`+(Array.isArray(p.media)&&p.media.length>1?`<div class="absolute top-2 right-2"><i data-lucide="layers" class="w-4 h-4 text-white drop-shadow-md"></i></div>`: '')):`<div class="grid-post-text-preview">${p.content.substring(0,60)}${p.content.length>60?'...':''}</div>`}<div class="grid-post-overlay"><div class="flex items-center gap-1"><i data-lucide="heart" class="w-5 h-5 fill-white"></i> ${p.likes?.length>0?p.likes.length:''}</div><div class="flex items-center gap-1"><i data-lucide="message-circle" class="w-5 h-5 fill-white"></i> ${p.comments?.length>0?p.comments.length:''}</div></div></div>`;
-    }).join('')}</div>` : '<div class="text-center py-20 text-gray-400">No posts yet</div>'; refreshIcons();
-};
-
-const animModal=(oid,mid,s)=>{const o=document.getElementById(oid),m=document.getElementById(mid); if(s){o.classList.remove('hidden');m.style.transition='none';o.classList.add('opacity-0');m.classList.add('translate-y-full','md:scale-95');void m.offsetWidth;m.style.transition='';setTimeout(()=>{o.classList.remove('opacity-0');m.classList.remove('translate-y-full','md:scale-95');m.classList.add('translate-y-0','md:scale-100')},20)}else{o.classList.add('opacity-0');m.classList.add('translate-y-full','md:scale-95');m.classList.remove('translate-y-0','md:scale-100');setTimeout(()=>o.classList.add('hidden'),200)}};
-window.openEditProfile=()=>{
-    document.getElementById('edit-banner-preview').src=currentUser.banner||'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
-    document.getElementById('edit-banner-preview').style.objectPosition=`center ${currentBannerPos=initialBannerPos=currentUser.bannerPos||50}%`;
-    document.getElementById('banner-pos-hint').innerText=`${currentBannerPos}%`; document.getElementById('edit-email').value=currentUser.email||"";
-    document.body.classList.add('modal-open'); animModal('edit-profile-overlay','edit-profile-modal',true);
-};
-window.closeEditProfile=()=>{document.body.classList.remove('modal-open'); animModal('edit-profile-overlay','edit-profile-modal',false)};
-window.handleEditAvatarSelect=e=>{const f=e.target.files[0]; if(f){currentAvatarBlob=f; const r=new FileReader(); r.onload=x=>document.getElementById('edit-avatar-preview').src=x.target.result; r.readAsDataURL(f)}};
-window.handleEditBannerSelect=e=>{const f=e.target.files[0]; if(f){currentBannerBlob=f; const r=new FileReader(); r.onload=x=>document.getElementById('edit-banner-preview').src=x.target.result; r.readAsDataURL(f)}};
-
-window.saveProfileChanges=async()=>{
-    const b=document.getElementById('save-profile-btn'), ot=b.innerText, n=document.getElementById('edit-name').value, bio=document.getElementById('edit-bio').value, un=document.getElementById('edit-username').value.trim().toLowerCase();
-    b.innerText="Saving..."; b.disabled=true;
-    if(!n) return showToast("Name required"),b.innerText=ot,b.disabled=false;
-    if(un!==currentUser.username && (un.length<3||!/^[a-z0-9_.]+$/.test(un)||!(await getDocs(query(collection(db,"users"),where("username","==",un)))).empty)) return showToast("Invalid/Taken username",true),b.innerText=ot,b.disabled=false;
-
-    let av=currentUser.avatar, bu=currentUser.banner;
-    try{ if(currentAvatarBlob) av=await uploadToImgHippo(currentAvatarBlob); if(currentBannerBlob) bu=await uploadToImgHippo(currentBannerBlob); } catch(e){return showToast("Upload failed"),b.innerText=ot,b.disabled=false}
-    
-    await updateDoc(doc(db,"users",currentUser.id),{name:n,bio:bio,avatar:av,banner:bu,bannerPos:currentBannerPos,username:un});
-    Object.assign(currentUser,{name:n,bio:bio,avatar:av,banner:bu,bannerPos:currentBannerPos,username:un});
-    currentAvatarBlob=currentBannerBlob=null; updateUserInterface(); closeEditProfile(); showProfile(currentUser.id,window.currentProfileTab); showToast("Updated"); b.innerText=ot; b.disabled=false;
-};
-
-window.saveLink=async()=>{
-    const t=document.getElementById('new-link-title').value.trim(), u=document.getElementById('new-link-url').value.trim();
-    if(!t||!u) return showToast("Fill all fields",true);
-    const l={title:t,url:u,type:'web'}; await updateDoc(doc(db,"users",currentUser.id),{links:arrayUnion(l)});
-    (currentUser.links=currentUser.links||[]).push(l); document.getElementById('add-link-modal').classList.add('hidden');
-    document.getElementById('new-link-title').value=document.getElementById('new-link-url').value=""; renderProfileContent(currentUser.id,'links'); showToast("Link added!");
-};
-window.deleteLink=async i=>showAlert("Remove link?",async()=>{await updateDoc(doc(db,"users",currentUser.id),{links:arrayRemove(currentUser.links[i])}); currentUser.links.splice(i,1); renderProfileContent(currentUser.id,'links'); showToast("Removed")});
-
 // --- Post View Redesigned ---
 window.openPostView=pid=>{
     const p=posts.find(x=>x.id===pid), o=document.getElementById('post-view-overlay'), c=document.getElementById('post-view-container'); if(!p) return;
@@ -883,13 +571,16 @@ window.openPostView=pid=>{
             mh = iv ? `<video src="${s}" class="stage-content rounded-lg mt-3" controls playsinline></video>` : `<img src="${s}" class="stage-content rounded-lg mt-3">`;
         } else {
              let sl='', dt=''; ma.forEach((s,i)=>{sl+=`<div class="post-carousel-item">${(s.startsWith('data:video')||s.includes('.mp4'))?`<video src="${s}" controls></video>`:`<img src="${s}">`}</div>`; dt+=`<div class="carousel-dot ${i===0?'active':''}" id="overlay-dot-${p.id}-${i}"></div>`});
-             mh=`<div class="carousel-wrapper mt-3"><div class="rounded-lg overflow-hidden post-carousel shadow-sm" id="overlay-carousel-${p.id}"><div class="post-carousel-inner" id="overlay-inner-${p.id}">${sl}</div><button class="carousel-nav-btn prev" onclick="event.stopPropagation();moveCarousel('overlay-carousel-${p.id}',-1)"><i data-lucide="chevron-left" class="w-4 h-4"></i></button><button class="carousel-nav-btn next" onclick="event.stopPropagation();moveCarousel('overlay-carousel-${p.id}',1)"><i data-lucide="chevron-right" class="w-4 h-4"></i></button></div><div class="carousel-dots-outside">${dt}</div></div>`;
-             window.carouselStates[`overlay-carousel-${p.id}`]={index:0,total:ma.length};
+             // Correct ID for overlay carousel logic
+             const overlayCid = `overlay-carousel-${p.id}`;
+             mh=`<div class="carousel-wrapper mt-3"><div class="rounded-lg overflow-hidden post-carousel shadow-sm" id="${overlayCid}"><div class="post-carousel-inner" id="overlay-inner-${p.id}">${sl}</div><button class="carousel-nav-btn prev" onclick="event.stopPropagation();moveCarousel('${overlayCid}',-1)"><i data-lucide="chevron-left" class="w-4 h-4"></i></button><button class="carousel-nav-btn next" onclick="event.stopPropagation();moveCarousel('${overlayCid}',1)"><i data-lucide="chevron-right" class="w-4 h-4"></i></button></div><div class="carousel-dots-outside">${dt}</div></div>`;
+             window.carouselStates[overlayCid]={index:0,total:ma.length};
         }
     }
 
     const isLiked = p.likes?.includes(currentUser.id);
     const isSaved = savedPosts.includes(p.id);
+    const contentHtml = renderTextWithReadMore(p.content, 300, `overlay-${p.id}`);
 
     // Desktop Layout HTML - Split View
     const desktopHTML = `
@@ -903,7 +594,7 @@ window.openPostView=pid=>{
                <button onclick="closePostView()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-4">
-               <div class="text-[15px] leading-relaxed text-gray-900 whitespace-pre-wrap mb-4">${formatContent(p.content)}</div>
+               <div class="text-[15px] leading-relaxed text-gray-900 whitespace-pre-wrap mb-4">${contentHtml}</div>
                ${mh}
             </div>
             <div class="h-auto p-4 border-t border-gray-100 bg-white z-10">
@@ -945,7 +636,7 @@ window.openPostView=pid=>{
                  <img src="${a.avatar}" class="w-10 h-10 rounded-full border border-gray-100 object-cover" onclick="closePostView();showProfile('${a.id}')">
                  <div onclick="closePostView();showProfile('${a.id}')"><div class="font-bold text-gray-900 text-sm">${a.name}</div><div class="text-xs text-gray-500">@${a.username||'user'}</div></div>
              </div>
-             <div class="px-4 py-2 text-[15px] leading-relaxed text-gray-900 whitespace-pre-wrap">${formatContent(p.content)}</div>
+             <div class="px-4 py-2 text-[15px] leading-relaxed text-gray-900 whitespace-pre-wrap">${contentHtml}</div>
              <div class="px-4 pb-4">${mh}</div>
              <div class="px-4 py-2 font-bold text-sm text-gray-900 border-b border-gray-50 mb-2">${(p.likes?.length>0)?p.likes.length+' likes':''}</div>
              <div id="mobile-post-comments" class="flex-1 p-0 pb-4"></div>
@@ -973,10 +664,6 @@ window.openPostView=pid=>{
     refreshIcons();
 };
 
-window.toggleMobileCommentDrawer=()=>document.querySelector('.discussion-panel')?.classList.toggle('open');
-window.closePostView=()=>{const o=document.getElementById('post-view-overlay'); o.classList.add('hidden'); o.classList.remove('flex'); document.body.classList.remove('reel-mode'); document.querySelector('.discussion-panel')?.classList.remove('open'); window.currentViewingPostId=window.replyingToCommentId=null; document.querySelector('#post-view-media-container video')?.pause()};
-window.doLogout=async()=>{ await signOut(auth); window.location.href="index.html" };
-
 function renderCommentsInModal(pid){
     const p=posts.find(x=>x.id===pid); if(!p) return;
     const desktopC = document.getElementById('post-view-comments');
@@ -998,8 +685,8 @@ function renderCommentsInModal(pid){
 
 function createCommentHTML(c, pid, replyCount) {
     const a = users.find(u=>u.id===c.authorId)||{name:'Unknown',avatar:''};
+    const commentText = renderTextWithReadMore(c.content, 200, c.id);
     
-    // Logic: If there are replies, show "View X replies" button instead of the replies themselves.
     const repliesBtn = replyCount > 0 
         ? `<div class="view-replies-btn" onclick="openThread('${pid}','${c.id}')">View ${replyCount} ${replyCount===1?'reply':'replies'}</div>` 
         : '';
@@ -1009,10 +696,10 @@ function createCommentHTML(c, pid, replyCount) {
         <img src="${a.avatar}" class="comment-avatar cursor-pointer" onclick="closePostView();showProfile('${c.authorId}')">
         <div class="comment-content-box">
             <div class="comment-header"><span onclick="closePostView();showProfile('${c.authorId}')" class="cursor-pointer hover:underline">${a.name}</span><span class="comment-time">${formatDate(c.timestamp)}</span></div>
-            <div class="comment-text">${formatContent(c.content)}</div>
+            <div class="comment-text">${commentText}</div>
             <div class="comment-actions-row mb-1">
                 <button class="comment-action-btn" onclick="toggleCommentLike('${pid}','${c.id}')"><i data-lucide="heart" class="w-4 h-4 ${c.likes?.includes(currentUser.id)?'fill-red-500 text-red-500':''}"></i> <span>${(c.likes?.length>0)?c.likes.length:''}</span></button>
-                <div class="comment-reply-btn w-auto h-auto px-2 py-0.5 rounded-full hover:bg-gray-100 text-xs font-bold cursor-pointer flex items-center gap-1 text-gray-600" onclick="replyToComment('${c.id}','${a.name}')">Reply</div>
+                <div class="comment-reply-btn w-auto h-auto px-2 py-0.5 rounded-full hover:bg-gray-100 text-xs font-bold cursor-pointer flex items-center gap-1 text-gray-600" onclick="replyToComment('${c.id}','${a.username || a.name}')">Reply</div>
                 ${c.authorId===currentUser.id?`<button onclick="deleteComment('${pid}','${c.id}')" class="comment-action-btn text-red-600 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">Delete</button>`:''}
             </div>
             ${repliesBtn}
@@ -1021,33 +708,15 @@ function createCommentHTML(c, pid, replyCount) {
     `;
 }
 
-window.openThread=(pid,cid)=>{ 
-    window.threadPostId=pid; 
-    window.threadParentCommentId=cid; 
-    renderThreadContent(pid,cid); 
-    document.getElementById('thread-overlay').classList.remove('hidden'); 
-    // Focus input delayed
-    setTimeout(() => {
-       document.getElementById('thread-input').focus(); 
-       document.getElementById('thread-input-avatar').src=currentUser.avatar; 
-    }, 100);
-};
-
-window.closeThread=()=>{ 
-    document.getElementById('thread-overlay').classList.add('hidden'); 
-    window.threadPostId=null; 
-    window.threadParentCommentId=null; 
-    window.replyingToCommentId=null; 
-};
-
 window.renderThreadContent=(pid,cid)=>{ 
     const p=posts.find(x=>x.id===pid); if(!p) return; 
     const parent = p.comments.find(x=>x.id===cid); if(!parent) return; 
     const replies = p.comments.filter(x=>x.parentId===cid);
     
     const pa = users.find(u=>u.id===parent.authorId)||{name:'Unknown',avatar:''};
+    const parentText = renderTextWithReadMore(parent.content, 200, parent.id);
 
-    // YouTube Style Visuals - Refined
+    // Single Vertical Line Design
     let html = `
     <div class="px-4 pt-4 pb-0 relative">
         <!-- Parent Comment -->
@@ -1058,7 +727,7 @@ window.renderThreadContent=(pid,cid)=>{
                     <span class="font-bold text-sm text-gray-900">${pa.name}</span>
                     <span class="text-xs text-gray-500">${formatDate(parent.timestamp)}</span>
                  </div>
-                 <div class="text-sm text-gray-900 mb-2">${formatContent(parent.content)}</div>
+                 <div class="text-sm text-gray-900 mb-2">${parentText}</div>
                  <div class="flex items-center gap-4 text-xs font-bold text-gray-600">
                      <button onclick="toggleCommentLike('${pid}','${parent.id}')" class="flex items-center gap-1 hover:text-black"><i data-lucide="heart" class="w-4 h-4 ${parent.likes?.includes(currentUser.id)?'fill-red-500 text-red-500':''}"></i> ${(parent.likes?.length>0)?parent.likes.length:''}</button>
                      <button onclick="document.getElementById('thread-input').focus()" class="hover:text-black">Reply</button>
@@ -1066,15 +735,15 @@ window.renderThreadContent=(pid,cid)=>{
             </div>
         </div>
 
-        <!-- Replies Section with Lines -->
+        <!-- Replies Section with Vertical Line -->
         <div class="thread-visual-container mt-2">
-            ${replies.length > 0 ? '<div class="connector-vertical"></div>' : ''}
+            ${replies.length > 0 ? '<div class="replies-line"></div>' : ''}
             
             ${replies.map(r => {
                 const ra = users.find(u=>u.id===r.authorId)||{name:'Unknown',avatar:''};
+                const replyText = renderTextWithReadMore(r.content, 200, r.id);
                 return `
                 <div class="reply-block">
-                    <div class="connector-branch"></div>
                     <div class="flex gap-3 items-start relative z-10">
                         <img src="${ra.avatar}" class="w-8 h-8 rounded-full object-cover bg-gray-200">
                         <div class="flex-1 min-w-0">
@@ -1082,7 +751,7 @@ window.renderThreadContent=(pid,cid)=>{
                                 <span class="font-bold text-sm text-gray-900">${ra.name}</span>
                                 <span class="text-xs text-gray-500">${formatDate(r.timestamp)}</span>
                              </div>
-                             <div class="text-sm text-gray-900 mb-2">${formatContent(r.content)}</div>
+                             <div class="text-sm text-gray-900 mb-2">${replyText}</div>
                              <div class="flex items-center gap-4 text-xs font-bold text-gray-600">
                                  <button onclick="toggleCommentLike('${pid}','${r.id}')" class="flex items-center gap-1 hover:text-black"><i data-lucide="heart" class="w-3.5 h-3.5 ${r.likes?.includes(currentUser.id)?'fill-red-500 text-red-500':''}"></i> ${(r.likes?.length>0)?r.likes.length:''}</button>
                                  ${r.authorId===currentUser.id?`<button onclick="deleteComment('${pid}','${r.id}')" class="text-red-500">Delete</button>`:''}
@@ -1100,7 +769,6 @@ window.renderThreadContent=(pid,cid)=>{
     refreshIcons(); 
 };
 window.submitThreadReply=async()=>{ const t=document.getElementById('thread-input').value.trim(); if(!t||!window.threadPostId||!window.threadParentCommentId) return; const r=doc(db,"posts",window.threadPostId), nc={id:"c-"+Date.now()+"-"+Math.floor(Math.random()*1000),authorId:currentUser.id,content:t,timestamp:Date.now(),likes:[],parentId:window.threadParentCommentId}; await updateDoc(r,{comments:arrayUnion(nc)}); const p=posts.find(x=>x.id===window.threadPostId), pc=p.comments.find(x=>x.id===window.threadParentCommentId); if(pc&&pc.authorId!==currentUser.id) sendNotification(pc.authorId,'reply','replied to your comment',window.threadPostId); 
-    // Handle Mentions
     const mentionMatches = t.match(/@(\w+)/g);
     if(mentionMatches){
         mentionMatches.forEach(m => {
@@ -1146,7 +814,6 @@ async function postCommentCommon(t) {
         if(pc&&pc.authorId!==currentUser.id) sendNotification(pc.authorId,'reply','replied to your comment',window.currentViewingPostId);
     } else if(p&&p.authorId!==currentUser.id) sendNotification(p.authorId,'comment','commented on your post',window.currentViewingPostId); 
     
-    // Handle Mentions
     const mentionMatches = t.match(/@(\w+)/g);
     if(mentionMatches){
         mentionMatches.forEach(m => {

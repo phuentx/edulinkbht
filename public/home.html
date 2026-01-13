@@ -43,11 +43,11 @@ i[data-lucide],svg { flex-shrink:0; }
 .post-meta { font-size:12px; color:var(--text-secondary); margin-top:2px; font-weight:400; }
 .post-body { font-size:15px; line-height:1.6; color:var(--on-surface); margin-bottom:12px; white-space:pre-wrap; }
 .post-actions { display:flex; align-items:center; justify-content:space-between; padding-top:12px; border-top:1px solid transparent; }
-.action-btn { display:flex; align-items:center; gap:8px; padding:8px; border-radius:18px; color:var(--text-secondary); font-size:13px; font-weight:500; transition:all 0.2s; background:transparent; border:none; cursor:pointer; }
-.action-btn:hover { background-color:var(--hover-bg); color:var(--on-surface); }
-.action-btn.like.active { color: #ff0000; }
+.action-btn { display:flex; align-items:center; gap:8px; padding:8px; border-radius:18px; color:#0f0f0f; font-size:13px; font-weight:500; transition:all 0.2s; background:transparent; border:none; cursor:pointer; }
+.action-btn:hover { background-color:transparent; opacity: 0.7; }
+.action-btn.like.active { color: #ff0000; opacity: 1; }
 .action-btn.like.active svg { fill: #ff0000; stroke: none; }
-.action-btn.bookmark.active { color: #eab308; }
+.action-btn.bookmark.active { color: #eab308; opacity: 1; }
 .action-btn.bookmark.active svg { fill: #eab308; stroke: #eab308; } 
 #compose-modal,#create-menu-modal,#edit-profile-modal,#user-list-modal,#settings-modal,#likes-overlay,#username-modal,#add-link-modal,#promo-modal,#upload-options-modal,#share-modal,#post-options-modal,#notif-options-modal,#qr-overlay,#scanner-overlay { box-shadow:0 20px 60px rgba(0,0,0,0.15); border:1px solid var(--outline); }
 .compose-header { display:flex; align-items:center; justify-content:center; padding-bottom:16px; margin-bottom:16px; border-bottom:1px solid var(--outline); position:relative; }
@@ -133,10 +133,10 @@ body.reel-mode #mobile-bottom-nav { display:none!important; }
 .caption-box { padding:16px; border-bottom:1px solid var(--outline); background:#fff; }
 .comments-list { padding:0; display:flex; flex-direction:column; }
 .discussion-footer { padding:12px 16px; border-top:1px solid var(--outline); background:#fff; z-index:10; }
-.comment-row { display:flex; gap:16px; align-items:flex-start; padding:12px 16px; transition:background-color 0.1s; }
+.comment-row { display:flex; gap:16px; align-items:flex-start; padding:12px 16px; transition:background-color 0.1s; position: relative; }
 .comment-row:hover { background-color: #f9f9f9; }
 .comment-row.me { flex-direction:row; } 
-.comment-avatar { width:40px; height:40px; border-radius:50%; object-fit:cover; background-color:var(--hover-bg); flex-shrink: 0; }
+.comment-avatar { width:40px; height:40px; border-radius:50%; object-fit:cover; background-color:var(--hover-bg); flex-shrink: 0; position: relative; z-index: 2; }
 .comment-content-box { display:flex; flex-direction:column; gap:4px; flex: 1; min-width: 0; }
 .comment-header { font-size:13px; font-weight:600; color:var(--on-surface); display:flex; align-items:center; gap:4px; line-height: 1.2; }
 .comment-time { font-size:12px; font-weight:400; color:var(--text-secondary); }
@@ -186,6 +186,16 @@ body.reel-mode #mobile-bottom-nav { display:none!important; }
 .share-icon-circle { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; transition: transform 0.2s; }
 .share-icon-btn:hover .share-icon-circle { transform: scale(1.05); }
 body.modal-open #mobile-bottom-nav { display: none !important; }
+.thread-connector-line {
+    position: absolute;
+    left: 36px;
+    top: 52px;
+    bottom: -16px;
+    width: 2px;
+    background-color: #e5e7eb;
+    z-index: 1;
+}
+.thread-parent-row { position: relative; }
 </style>
 </head>
 <body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-white">
@@ -850,7 +860,18 @@ function createCommentHTML(c,ac,pid,sr=true){
 }
 window.openThread=(pid,cid)=>{ window.threadPostId=pid; window.threadParentCommentId=cid; renderThreadContent(pid,cid); document.getElementById('thread-overlay').classList.remove('hidden'); document.getElementById('thread-input').focus(); document.getElementById('thread-input-avatar').src=currentUser.avatar; };
 window.closeThread=()=>{ document.getElementById('thread-overlay').classList.add('hidden'); window.threadPostId=null; window.threadParentCommentId=null; window.replyingToCommentId=null; };
-window.renderThreadContent=(pid,cid)=>{ const p=posts.find(x=>x.id===pid); if(!p) return; const pc=p.comments.find(x=>x.id===cid); if(!pc) return; const r=p.comments.filter(x=>x.parentId===cid), c=document.getElementById('thread-content'); let h=`<div class="pb-4 border-b border-gray-100">${createCommentHTML(pc,p.comments,pid,false)}</div><div class="pl-0 pt-0 space-y-0">`; if(r.length) r.forEach(x=>h+=createCommentHTML(x,p.comments,pid,false)); else h+='<div class="text-center text-gray-400 text-sm py-4">No replies yet.</div>'; h+='</div>'; c.innerHTML=h; refreshIcons(); };
+window.renderThreadContent=(pid,cid)=>{ 
+    const p=posts.find(x=>x.id===pid); if(!p) return; 
+    const pc=p.comments.find(x=>x.id===cid); if(!pc) return; 
+    const r=p.comments.filter(x=>x.parentId===cid);
+    const c=document.getElementById('thread-content'); 
+    let h=`<div class="pb-4 border-b border-gray-100 thread-parent-row"><div class="thread-connector-line"></div>${createCommentHTML(pc,p.comments,pid,false)}</div><div class="pl-0 pt-0 space-y-0">`; 
+    if(r.length) r.forEach(x=>h+=createCommentHTML(x,p.comments,pid,false)); 
+    else h+='<div class="text-center text-gray-400 text-sm py-4">No replies yet.</div>'; 
+    h+='</div>'; 
+    c.innerHTML=h; 
+    refreshIcons(); 
+};
 window.submitThreadReply=async()=>{ const t=document.getElementById('thread-input').value.trim(); if(!t||!window.threadPostId||!window.threadParentCommentId) return; const r=doc(db,"posts",window.threadPostId), nc={id:"c-"+Date.now()+"-"+Math.floor(Math.random()*1000),authorId:currentUser.id,content:t,timestamp:Date.now(),likes:[],parentId:window.threadParentCommentId}; await updateDoc(r,{comments:arrayUnion(nc)}); const p=posts.find(x=>x.id===window.threadPostId), pc=p.comments.find(x=>x.id===window.threadParentCommentId); if(pc&&pc.authorId!==currentUser.id) sendNotification(pc.authorId,'reply','replied to your comment',window.threadPostId); document.getElementById('thread-input').value=""; };
 window.deleteComment=async(pid,cid)=>{ showAlert("Delete comment?",async()=>{ const r=doc(db,"posts",pid), p=posts.find(x=>x.id===pid), nc=p.comments.filter(x=>x.id!==cid&&x.parentId!==cid); await updateDoc(r,{comments:nc}); showToast("Deleted"); }); };
 window.toggleCommentLike=async(pid,cid)=>{ const p=posts.find(x=>x.id===pid); if(!p) return; const c=p.comments||[], i=c.findIndex(x=>x.id===cid); if(i===-1) return; const cm=c[i]; if(!cm.likes) cm.likes=[]; if(cm.likes.includes(currentUser.id)) cm.likes=cm.likes.filter(x=>x!==currentUser.id); else { cm.likes.push(currentUser.id); if(cm.authorId!==currentUser.id) sendNotification(cm.authorId,'like','liked your comment',pid); } c[i]=cm; await updateDoc(doc(db,"posts",pid),{comments:c}); };

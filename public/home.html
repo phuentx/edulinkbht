@@ -164,12 +164,12 @@ body.reel-mode #mobile-bottom-nav { display:none!important; }
 .comment-action-btn { display:flex; align-items:center; gap:6px; font-size:11px; font-weight:600; color:#606060; cursor:pointer; background:none; border:none; padding:2px 0; }
 .comment-action-btn:hover { color:#0f0f0f; }
 
-/* YouTube Style Thread Connector Lines - Refined */
+/* Refined YouTube Style Thread Lines */
 .thread-visual-container { position: relative; }
 .connector-vertical {
     position: absolute;
-    left: 36px;
-    top: -12px;
+    left: 20px; /* Center of parent avatar (w-10 = 40px, /2 = 20px) */
+    top: 40px;
     bottom: 24px;
     width: 2px;
     background-color: #e5e7eb;
@@ -177,18 +177,18 @@ body.reel-mode #mobile-bottom-nav { display:none!important; }
 }
 .connector-branch {
     position: absolute;
-    left: 36px;
-    top: -24px;
-    width: 24px;
-    height: 48px;
+    left: 20px;
+    top: -12px; /* Connects from vertical line above */
+    width: 24px; /* Reach to child avatar center (20px + 24px = 44px approx indent) */
+    height: 36px;
     border-left: 2px solid #e5e7eb;
     border-bottom: 2px solid #e5e7eb;
-    border-bottom-left-radius: 16px;
+    border-bottom-left-radius: 12px;
     z-index: 0;
 }
 .reply-block {
     position: relative;
-    padding-left: 64px;
+    padding-left: 48px; /* Indent child comments */
     padding-top: 12px;
     padding-bottom: 12px;
 }
@@ -272,7 +272,7 @@ body.modal-open #mobile-bottom-nav { display: none !important; }
 <div id="upload-options-modal" class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden" onclick="document.getElementById('upload-options-modal').classList.add('hidden')"><div class="bg-white w-[90%] max-w-[300px] rounded-2xl shadow-xl p-4 transform scale-100 transition-transform" onclick="event.stopPropagation()"><h3 class="text-center font-bold text-gray-900 mb-4 text-lg">Select Upload Type</h3><div class="flex flex-col gap-3"><button onclick="triggerUpload('single')" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"><div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><i data-lucide="image" class="w-5 h-5"></i></div><span class="font-bold text-gray-700">Single</span></button><button onclick="triggerUpload('multiple')" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"><div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600"><i data-lucide="layers" class="w-5 h-5"></i></div><span class="font-bold text-gray-700">Multiple (Carousel)</span></button></div></div></div>
 <div id="mobile-notifications-header" class="md:hidden fixed top-0 left-0 w-full bg-white z-30 flex-col hidden border-b border-gray-100 pb-0"><div class="h-14 flex items-center justify-between px-4 shrink-0 relative"><span class="font-bold text-lg text-[#1f1f1f]">Notifications</span><div class="flex items-center gap-3"><button onclick="toggleNotifSearchMobile()" class="icon-btn"><i data-lucide="search" class="w-5 h-5 text-[#1f1f1f]"></i></button><div class="relative"><button onclick="toggleNotifMenu()" class="icon-btn"><i data-lucide="more-vertical" class="w-5 h-5 text-[#1f1f1f]"></i></button></div></div></div><div id="mobile-notif-search-container" class="px-4 pb-2 hidden"><div class="relative"><i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i><input type="text" id="notif-search" placeholder="Search..." oninput="handleNotifSearch(this.value)" class="w-full bg-gray-100 rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all"></div></div><div class="tab-group mb-0 mx-0 w-full"><button onclick="switchNotifTab('all')" id="ntab-all-mobile" class="tab-btn active"><i data-lucide="bell" class="w-5 h-5"></i> All</button><button onclick="switchNotifTab('official')" id="ntab-official-mobile" class="tab-btn"><i data-lucide="megaphone" class="w-5 h-5"></i> Official</button></div></div>
 <div id="notif-options-overlay" class="fixed inset-0 z-[80] flex items-end justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeNotifOptions()"><div id="notif-options-modal" class="bg-white w-full rounded-t-[24px] shadow-2xl relative transform translate-y-full transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeNotifOptions()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg">Options</span><div class="w-10"></div></div><div class="p-6 flex flex-col gap-2"><button onclick="toggleNotifSelection(); closeNotifOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors font-bold text-gray-800 text-left"><i data-lucide="check-square" class="w-5 h-5"></i> Select</button><button onclick="deleteSelectedNotifs(); closeNotifOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="trash-2" class="w-5 h-5"></i> Delete Selected</button><button onclick="clearAllNotifications(); closeNotifOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="trash" class="w-5 h-5"></i> Delete All</button></div></div></div>
-<div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center"><div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div><div class="bg-white w-full md:w-[450px] h-[75vh] md:h-[85vh] md:rounded-[24px] rounded-t-[20px] shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in thread-mobile-container"><div class="discussion-header"><div class="flex items-center gap-3"><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="chevron-down" class="w-6 h-6 text-gray-600"></i></button><span class="font-bold text-lg text-[#1f1f1f]">Thread</span></div><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div><div id="thread-content" class="discussion-scroll bg-white"></div><div class="discussion-footer"><div class="chat-input-wrapper"><img id="thread-input-avatar" src="" class="w-7 h-7 rounded-full bg-gray-200 object-cover mr-2 shrink-0"><textarea id="thread-input" placeholder="Add a reply..." class="chat-input-field" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitThreadReply();}"></textarea><button onclick="submitThreadReply()" class="text-white bg-[#065fd4] font-medium text-sm px-4 py-2 rounded-full hover:bg-blue-700 transition-colors">Reply</button></div></div></div></div>
+<div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center"><div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div><div class="bg-white w-full md:w-[450px] h-[75vh] md:h-[85vh] md:rounded-[24px] rounded-t-[20px] shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in thread-mobile-container"><div class="discussion-header"><div class="flex items-center gap-3"><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="chevron-down" class="w-6 h-6 text-gray-600"></i></button><span class="font-bold text-lg text-[#1f1f1f]">Thread</span></div><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div><div id="thread-content" class="discussion-scroll bg-white"></div><div class="discussion-footer"><div class="flex items-center gap-2"><img id="thread-input-avatar" src="" class="w-8 h-8 rounded-full bg-gray-200 object-cover shrink-0"><input type="text" id="thread-input" placeholder="Add a reply..." class="flex-1 bg-[#f2f2f2] rounded-[24px] px-4 py-2.5 text-sm outline-none text-gray-900 placeholder-gray-500" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitThreadReply();}"><button onclick="submitThreadReply()" class="w-10 h-10 bg-[#065fd4] rounded-full flex items-center justify-center text-white shrink-0 hover:bg-blue-700 transition-colors shadow-sm"><i data-lucide="arrow-up" class="w-5 h-5"></i></button></div></div></div></div>
 <div id="post-view-overlay" class="fixed inset-0 z-[60] hidden flex justify-center items-center"><div class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onclick="closePostView()"></div><div id="post-view-container" class="post-modal-layout scale-in relative z-10"></div></div>
 <div id="lightbox" class="fixed inset-0 bg-black/95 z-[9999] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300" onclick="closeLightbox()"><button class="absolute top-8 right-8 text-white/70 hover:text-white bg-white/10 rounded-full p-3 hover:bg-white/20"><i data-lucide="x" class="w-8 h-8"></i></button><div id="lightbox-wrapper" class="w-full h-full flex justify-center items-center p-6"></div></div>
 <div id="toast" class="toast"><i id="toast-icon" data-lucide="check-circle-2" class="w-5 h-5 text-[#c4eed0]"></i><span id="toast-msg">Action Completed</span></div>
@@ -391,8 +391,8 @@ function initRealtimeListeners(){
                 if(isLiked) btn.classList.add('active'); else btn.classList.remove('active');
              });
              
-             document.querySelectorAll(`.js-like-count-${p.id}`).forEach(el => el.innerText = p.likes?.length || 0);
-             document.querySelectorAll(`.js-comment-count-${p.id}`).forEach(el => el.innerText = p.comments?.length || 0);
+             document.querySelectorAll(`.js-like-count-${p.id}`).forEach(el => el.innerText = (p.likes?.length > 0) ? p.likes.length : '');
+             document.querySelectorAll(`.js-comment-count-${p.id}`).forEach(el => el.innerText = (p.comments?.length > 0) ? p.comments.length : '');
              
              const isSaved = savedPosts.includes(p.id);
              document.querySelectorAll(`.js-save-btn-${p.id}`).forEach(btn => {
@@ -549,7 +549,7 @@ function createPostElement(p,ctx='feed'){
     const isLiked = p.likes?.includes(currentUser.id);
     const isSaved = savedPosts.includes(p.id);
 
-    d.innerHTML=`<div class="p-4 md:p-5"><div class="post-header"><div class="flex gap-3"><div class="post-avatar-container"><img src="${a.avatar}" class="post-avatar"></div><div><div class="flex items-center"><span class="post-author-name" onclick="event.stopPropagation(); showProfile('${a.id}')">${a.name}</span>${a.isOfficial?'<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>':''}${st.privacy==='private'?'<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>':''}</div><div class="post-meta flex items-center">${formatDate(p.timestamp)}</div></div></div><button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event,'${p.id}','${p.authorId}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button></div><div class="post-content"><div class="post-body js-post-body-${p.id}" data-full="${txt.replace(/"/g,'&quot;')}">${trunc?`${formatContent(p.content.substring(0,180))}...<span class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${p.id}')">more</span>`:txt}</div>${mh}</div>${lh}<div class="post-actions"><div class="flex items-center gap-1"><button class="action-btn like js-like-btn-${p.id} ${isLiked?'active':''}" onclick="event.stopPropagation(); toggleLike('${p.id}')"><i data-lucide="heart" class="w-6 h-6"></i></button>${st.showLikes?`<span class="js-like-count-${p.id} text-xs font-medium px-1 hover:underline cursor-pointer" onclick="event.stopPropagation();openLikes('${p.id}')">${p.likes?.length||0}</span>`:''}<button class="action-btn comment ml-2" onclick="event.stopPropagation(); openPostView('${p.id}')"><i data-lucide="${st.allowComments===false?'message-circle-off':'message-circle'}" class="w-6 h-6"></i> ${st.showComments?`<span class="js-comment-count-${p.id} text-xs font-medium">${p.comments?.length||0}</span>`:''}</button><button class="action-btn share-btn ml-2" onclick="event.stopPropagation(); sharePost('${p.id}')"><i data-lucide="send" class="w-6 h-6"></i></button></div><button class="action-btn bookmark js-save-btn-${p.id} ${isSaved?'active':''}" onclick="event.stopPropagation(); toggleSave('${p.id}')"><i data-lucide="bookmark" class="w-6 h-6"></i></button></div></div>`;
+    d.innerHTML=`<div class="p-4 md:p-5"><div class="post-header"><div class="flex gap-3"><div class="post-avatar-container"><img src="${a.avatar}" class="post-avatar"></div><div><div class="flex items-center"><span class="post-author-name" onclick="event.stopPropagation(); showProfile('${a.id}')">${a.name}</span>${a.isOfficial?'<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>':''}${st.privacy==='private'?'<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>':''}</div><div class="post-meta flex items-center">${formatDate(p.timestamp)}</div></div></div><button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event,'${p.id}','${p.authorId}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button></div><div class="post-content"><div class="post-body js-post-body-${p.id}" data-full="${txt.replace(/"/g,'&quot;')}">${trunc?`${formatContent(p.content.substring(0,180))}...<span class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${p.id}')">more</span>`:txt}</div>${mh}</div>${lh}<div class="post-actions"><div class="flex items-center gap-1"><button class="action-btn like js-like-btn-${p.id} ${isLiked?'active':''}" onclick="event.stopPropagation(); toggleLike('${p.id}')"><i data-lucide="heart" class="w-6 h-6"></i></button>${st.showLikes?`<span class="js-like-count-${p.id} text-xs font-medium px-1 hover:underline cursor-pointer" onclick="event.stopPropagation();openLikes('${p.id}')">${(p.likes?.length>0)?p.likes.length:''}</span>`:''}<button class="action-btn comment ml-2" onclick="event.stopPropagation(); openPostView('${p.id}')"><i data-lucide="${st.allowComments===false?'message-circle-off':'message-circle'}" class="w-6 h-6"></i> ${st.showComments?`<span class="js-comment-count-${p.id} text-xs font-medium">${(p.comments?.length>0)?p.comments.length:''}</span>`:''}</button><button class="action-btn share-btn ml-2" onclick="event.stopPropagation(); sharePost('${p.id}')"><i data-lucide="send" class="w-6 h-6"></i></button></div><button class="action-btn bookmark js-save-btn-${p.id} ${isSaved?'active':''}" onclick="event.stopPropagation(); toggleSave('${p.id}')"><i data-lucide="bookmark" class="w-6 h-6"></i></button></div></div>`;
     return d;
 }
 
@@ -631,7 +631,8 @@ window.toggleLike=async(pid)=>{
     document.querySelectorAll(`.js-like-btn-${pid}`).forEach(btn => btn.classList.toggle('active', isLiking));
     document.querySelectorAll(`.js-like-count-${pid}`).forEach(el => {
         let count = parseInt(el.innerText) || 0;
-        el.innerText = Math.max(0, count + (isLiking ? 1 : -1));
+        let newCount = Math.max(0, count + (isLiking ? 1 : -1));
+        el.innerText = newCount > 0 ? newCount : '';
     });
 
     const r=doc(db,"posts",pid), p=posts.find(x=>x.id===pid);
@@ -829,7 +830,7 @@ window.renderProfileContent=(uid,t)=>{
 
     c.innerHTML=tp.length ? `<div class="grid-post-container">${tp.map(p=>{
         const m=Array.isArray(p.media)?p.media[0]:p.media, isV=m&&(m.includes('video')||m.endsWith('.mp4')||m.startsWith('data:video'));
-        return `<div class="grid-post-item group" onclick="openPostView('${p.id}')">${m?(isV?`<video src="${m}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`:`<img src="${m}" class="w-full h-full object-cover">`+(Array.isArray(p.media)&&p.media.length>1?`<div class="absolute top-2 right-2"><i data-lucide="layers" class="w-4 h-4 text-white drop-shadow-md"></i></div>`: '')):`<div class="grid-post-text-preview">${p.content.substring(0,60)}${p.content.length>60?'...':''}</div>`}<div class="grid-post-overlay"><div class="flex items-center gap-1"><i data-lucide="heart" class="w-5 h-5 fill-white"></i> ${p.likes?.length||0}</div><div class="flex items-center gap-1"><i data-lucide="message-circle" class="w-5 h-5 fill-white"></i> ${p.comments?.length||0}</div></div></div>`;
+        return `<div class="grid-post-item group" onclick="openPostView('${p.id}')">${m?(isV?`<video src="${m}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`:`<img src="${m}" class="w-full h-full object-cover">`+(Array.isArray(p.media)&&p.media.length>1?`<div class="absolute top-2 right-2"><i data-lucide="layers" class="w-4 h-4 text-white drop-shadow-md"></i></div>`: '')):`<div class="grid-post-text-preview">${p.content.substring(0,60)}${p.content.length>60?'...':''}</div>`}<div class="grid-post-overlay"><div class="flex items-center gap-1"><i data-lucide="heart" class="w-5 h-5 fill-white"></i> ${p.likes?.length>0?p.likes.length:''}</div><div class="flex items-center gap-1"><i data-lucide="message-circle" class="w-5 h-5 fill-white"></i> ${p.comments?.length>0?p.comments.length:''}</div></div></div>`;
     }).join('')}</div>` : '<div class="text-center py-20 text-gray-400">No posts yet</div>'; refreshIcons();
 };
 
@@ -914,7 +915,7 @@ window.openPostView=pid=>{
                   </div>
                   <i id="post-view-save-btn" onclick="toggleSave('${p.id}')" data-lucide="bookmark" class="w-7 h-7 cursor-pointer transition-transform hover:scale-110 ${isSaved?'fill-yellow-500 text-yellow-500':'text-gray-700'}"></i>
                </div>
-               <div class="font-bold text-sm text-gray-900 cursor-pointer hover:underline" onclick="openLikes('${p.id}')" id="post-view-likes-count">${p.likes?.length||0} likes</div>
+               <div class="font-bold text-sm text-gray-900 cursor-pointer hover:underline" onclick="openLikes('${p.id}')" id="post-view-likes-count">${(p.likes?.length>0)?p.likes.length+' likes':''}</div>
                <div class="text-xs text-gray-500 mt-1">${formatDate(p.timestamp)}</div>
             </div>
          </div>
@@ -946,7 +947,7 @@ window.openPostView=pid=>{
              </div>
              <div class="px-4 py-2 text-[15px] leading-relaxed text-gray-900 whitespace-pre-wrap">${formatContent(p.content)}</div>
              <div class="px-4 pb-4">${mh}</div>
-             <div class="px-4 py-2 font-bold text-sm text-gray-900 border-b border-gray-50 mb-2">${p.likes?.length||0} likes</div>
+             <div class="px-4 py-2 font-bold text-sm text-gray-900 border-b border-gray-50 mb-2">${(p.likes?.length>0)?p.likes.length+' likes':''}</div>
              <div id="mobile-post-comments" class="flex-1 p-0 pb-4"></div>
          </div>
          <div class="mobile-fixed-footer">
@@ -1010,7 +1011,7 @@ function createCommentHTML(c, pid, replyCount) {
             <div class="comment-header"><span onclick="closePostView();showProfile('${c.authorId}')" class="cursor-pointer hover:underline">${a.name}</span><span class="comment-time">${formatDate(c.timestamp)}</span></div>
             <div class="comment-text">${formatContent(c.content)}</div>
             <div class="comment-actions-row mb-1">
-                <button class="comment-action-btn" onclick="toggleCommentLike('${pid}','${c.id}')"><i data-lucide="heart" class="w-4 h-4 ${c.likes?.includes(currentUser.id)?'fill-red-500 text-red-500':''}"></i> <span>${c.likes?.length||''}</span></button>
+                <button class="comment-action-btn" onclick="toggleCommentLike('${pid}','${c.id}')"><i data-lucide="heart" class="w-4 h-4 ${c.likes?.includes(currentUser.id)?'fill-red-500 text-red-500':''}"></i> <span>${(c.likes?.length>0)?c.likes.length:''}</span></button>
                 <div class="comment-reply-btn w-auto h-auto px-2 py-0.5 rounded-full hover:bg-gray-100 text-xs font-bold cursor-pointer flex items-center gap-1 text-gray-600" onclick="replyToComment('${c.id}','${a.name}')">Reply</div>
                 ${c.authorId===currentUser.id?`<button onclick="deleteComment('${pid}','${c.id}')" class="comment-action-btn text-red-600 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">Delete</button>`:''}
             </div>
@@ -1046,8 +1047,7 @@ window.renderThreadContent=(pid,cid)=>{
     
     const pa = users.find(u=>u.id===parent.authorId)||{name:'Unknown',avatar:''};
 
-    // YouTube Style Visuals
-    // Parent at top, Connector Lines, Children indented
+    // YouTube Style Visuals - Refined
     let html = `
     <div class="px-4 pt-4 pb-0 relative">
         <!-- Parent Comment -->
@@ -1060,7 +1060,7 @@ window.renderThreadContent=(pid,cid)=>{
                  </div>
                  <div class="text-sm text-gray-900 mb-2">${formatContent(parent.content)}</div>
                  <div class="flex items-center gap-4 text-xs font-bold text-gray-600">
-                     <button onclick="toggleCommentLike('${pid}','${parent.id}')" class="flex items-center gap-1 hover:text-black"><i data-lucide="heart" class="w-4 h-4 ${parent.likes?.includes(currentUser.id)?'fill-red-500 text-red-500':''}"></i> ${parent.likes?.length||0}</button>
+                     <button onclick="toggleCommentLike('${pid}','${parent.id}')" class="flex items-center gap-1 hover:text-black"><i data-lucide="heart" class="w-4 h-4 ${parent.likes?.includes(currentUser.id)?'fill-red-500 text-red-500':''}"></i> ${(parent.likes?.length>0)?parent.likes.length:''}</button>
                      <button onclick="document.getElementById('thread-input').focus()" class="hover:text-black">Reply</button>
                  </div>
             </div>
@@ -1084,7 +1084,7 @@ window.renderThreadContent=(pid,cid)=>{
                              </div>
                              <div class="text-sm text-gray-900 mb-2">${formatContent(r.content)}</div>
                              <div class="flex items-center gap-4 text-xs font-bold text-gray-600">
-                                 <button onclick="toggleCommentLike('${pid}','${r.id}')" class="flex items-center gap-1 hover:text-black"><i data-lucide="heart" class="w-3.5 h-3.5 ${r.likes?.includes(currentUser.id)?'fill-red-500 text-red-500':''}"></i> ${r.likes?.length||0}</button>
+                                 <button onclick="toggleCommentLike('${pid}','${r.id}')" class="flex items-center gap-1 hover:text-black"><i data-lucide="heart" class="w-3.5 h-3.5 ${r.likes?.includes(currentUser.id)?'fill-red-500 text-red-500':''}"></i> ${(r.likes?.length>0)?r.likes.length:''}</button>
                                  ${r.authorId===currentUser.id?`<button onclick="deleteComment('${pid}','${r.id}')" class="text-red-500">Delete</button>`:''}
                              </div>
                         </div>
@@ -1099,7 +1099,19 @@ window.renderThreadContent=(pid,cid)=>{
     c.innerHTML = html;
     refreshIcons(); 
 };
-window.submitThreadReply=async()=>{ const t=document.getElementById('thread-input').value.trim(); if(!t||!window.threadPostId||!window.threadParentCommentId) return; const r=doc(db,"posts",window.threadPostId), nc={id:"c-"+Date.now()+"-"+Math.floor(Math.random()*1000),authorId:currentUser.id,content:t,timestamp:Date.now(),likes:[],parentId:window.threadParentCommentId}; await updateDoc(r,{comments:arrayUnion(nc)}); const p=posts.find(x=>x.id===window.threadPostId), pc=p.comments.find(x=>x.id===window.threadParentCommentId); if(pc&&pc.authorId!==currentUser.id) sendNotification(pc.authorId,'reply','replied to your comment',window.threadPostId); document.getElementById('thread-input').value=""; };
+window.submitThreadReply=async()=>{ const t=document.getElementById('thread-input').value.trim(); if(!t||!window.threadPostId||!window.threadParentCommentId) return; const r=doc(db,"posts",window.threadPostId), nc={id:"c-"+Date.now()+"-"+Math.floor(Math.random()*1000),authorId:currentUser.id,content:t,timestamp:Date.now(),likes:[],parentId:window.threadParentCommentId}; await updateDoc(r,{comments:arrayUnion(nc)}); const p=posts.find(x=>x.id===window.threadPostId), pc=p.comments.find(x=>x.id===window.threadParentCommentId); if(pc&&pc.authorId!==currentUser.id) sendNotification(pc.authorId,'reply','replied to your comment',window.threadPostId); 
+    // Handle Mentions
+    const mentionMatches = t.match(/@(\w+)/g);
+    if(mentionMatches){
+        mentionMatches.forEach(m => {
+            const uname = m.substring(1).toLowerCase();
+            const found = users.find(u => (u.username||"").toLowerCase() === uname);
+            if(found && found.id !== currentUser.id) {
+                sendNotification(found.id, 'mention', 'mentioned you in a reply', window.threadPostId);
+            }
+        });
+    }
+    document.getElementById('thread-input').value=""; };
 window.deleteComment=async(pid,cid)=>{ showAlert("Delete comment?",async()=>{ const r=doc(db,"posts",pid), p=posts.find(x=>x.id===pid), nc=p.comments.filter(x=>x.id!==cid&&x.parentId!==cid); await updateDoc(r,{comments:nc}); showToast("Deleted"); }); };
 window.toggleCommentLike=async(pid,cid)=>{ const p=posts.find(x=>x.id===pid); if(!p) return; const c=p.comments||[], i=c.findIndex(x=>x.id===cid); if(i===-1) return; const cm=c[i]; if(!cm.likes) cm.likes=[]; if(cm.likes.includes(currentUser.id)) cm.likes=cm.likes.filter(x=>x!==currentUser.id); else { cm.likes.push(currentUser.id); if(cm.authorId!==currentUser.id) sendNotification(cm.authorId,'like','liked your comment',pid); } c[i]=cm; await updateDoc(doc(db,"posts",pid),{comments:c}); };
 window.replyToComment=(cid,u)=>{ 
@@ -1133,6 +1145,19 @@ async function postCommentCommon(t) {
         const pc=p.comments.find(x=>x.id===window.replyingToCommentId);
         if(pc&&pc.authorId!==currentUser.id) sendNotification(pc.authorId,'reply','replied to your comment',window.currentViewingPostId);
     } else if(p&&p.authorId!==currentUser.id) sendNotification(p.authorId,'comment','commented on your post',window.currentViewingPostId); 
+    
+    // Handle Mentions
+    const mentionMatches = t.match(/@(\w+)/g);
+    if(mentionMatches){
+        mentionMatches.forEach(m => {
+            const uname = m.substring(1).toLowerCase();
+            const found = users.find(u => (u.username||"").toLowerCase() === uname);
+            if(found && found.id !== currentUser.id) {
+                sendNotification(found.id, 'mention', 'mentioned you in a comment', window.currentViewingPostId);
+            }
+        });
+    }
+    
     window.replyingToCommentId=null;
 }
 

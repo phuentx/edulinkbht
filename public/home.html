@@ -43,10 +43,23 @@ i[data-lucide],svg { flex-shrink:0; }
 .post-meta { font-size:12px; color:var(--text-secondary); margin-top:2px; font-weight:400; }
 .post-body { font-size:15px; line-height:1.6; color:var(--on-surface); margin-bottom:12px; white-space:pre-wrap; }
 .post-actions { display:flex; align-items:center; justify-content:space-between; padding-top:12px; border-top:1px solid transparent; }
-.action-btn { display:flex; align-items:center; gap:8px; padding:8px; border-radius:18px; color:var(--on-surface); font-size:13px; font-weight:500; transition:all 0.2s; background:transparent; border:none; cursor:pointer; }
+.action-btn { display:flex; align-items:center; gap:8px; padding:8px; border-radius:18px; color:var(--text-secondary); font-size:13px; font-weight:500; transition:all 0.2s; background:transparent; border:none; cursor:pointer; }
 .action-btn:hover { background-color:var(--hover-bg); }
-.action-btn.like.active svg { fill:#ff0000; stroke:none; }
+.action-btn.like:hover { background-color: rgba(249, 24, 128, 0.1); color: #f91880; }
+.action-btn.like:hover svg { stroke: #f91880; }
+.action-btn.like.active svg { fill:#f91880; stroke:none; }
+.action-btn.like.active { color: #f91880; }
+.action-btn.like.active:hover svg { fill: #f91880; stroke: none; }
+.action-btn.comment:hover { background-color: rgba(29, 155, 240, 0.1); color: #1d9bf0; }
+.action-btn.comment:hover svg { stroke: #1d9bf0; }
+.action-btn.share-btn:hover { background-color: rgba(0, 186, 124, 0.1); color: #00ba7c; }
+.action-btn.share-btn:hover svg { stroke: #00ba7c; }
+.action-btn.bookmark:hover { background-color: rgba(255, 212, 0, 0.1); color: #ca8a04; }
+.action-btn.bookmark:hover svg { stroke: #ca8a04; }
 .action-btn.bookmark.active svg { fill:#eab308; stroke:#eab308; } 
+.action-btn.bookmark.active { color: #eab308; }
+.action-btn.active svg { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+@keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
 #compose-modal,#create-menu-modal,#edit-profile-modal,#user-list-modal,#settings-modal,#likes-overlay,#username-modal,#add-link-modal,#promo-modal,#upload-options-modal,#share-modal,#post-options-modal,#notif-options-modal,#qr-overlay,#scanner-overlay { box-shadow:0 20px 60px rgba(0,0,0,0.15); border:1px solid var(--outline); }
 .compose-header { display:flex; align-items:center; justify-content:center; padding-bottom:16px; margin-bottom:16px; border-bottom:1px solid var(--outline); position:relative; }
 .compose-title { font-size:16px; font-weight:700; color:var(--on-surface); font-family:'Google Sans',sans-serif; }
@@ -304,42 +317,46 @@ function initRealtimeListeners(){
         posts=s.docs.map(d=>({id:d.id,...d.data(),timestamp:d.data().timestamp}));
         const ch=s.docChanges();
         
-        // Handle removals
+        // Handle removals with scoped selectors
         ch.filter(c => c.type === 'removed').forEach(c => {
-           const el = document.getElementById(`post-card-${c.doc.id}`);
-           if(el) el.remove();
+           document.querySelectorAll(`[id*='post-card-'][id$='-${c.doc.id}']`).forEach(el => el.remove());
         });
 
-        // Handle updates to existing nodes to ensure realtime feel without full re-render
+        // Handle updates and adds
+        if(ch.some(c=>c.type==='added')) {
+             if(!document.getElementById('view-feed').classList.contains('hidden')) renderFeed();
+             if(!document.getElementById('view-explore').classList.contains('hidden')) handleSearch(document.getElementById('global-search').value||document.getElementById('mobile-explore-search').value);
+        }
+
         posts.forEach(p => {
-             const l = document.getElementById(`like-count-feed-${p.id}`);
-             const c = document.getElementById(`comment-count-${p.id}`);
-             const btn = document.getElementById(`like-btn-${p.id}`);
+             // Realtime Like/Save Buttons & Counts across all contexts
+             const isLiked = p.likes && p.likes.includes(currentUser.id);
+             document.querySelectorAll(`.js-like-btn-${p.id}`).forEach(btn => {
+                if(isLiked) btn.classList.add('active'); else btn.classList.remove('active');
+             });
              
-             if(l) l.innerText = p.likes?.length || 0;
-             if(c) c.innerText = p.comments?.length || 0;
-             if(btn) {
-                 const isLiked = p.likes && p.likes.includes(currentUser.id);
-                 if(isLiked) btn.classList.add('active'); else btn.classList.remove('active');
-             }
+             document.querySelectorAll(`.js-like-count-${p.id}`).forEach(el => el.innerText = p.likes?.length || 0);
+             document.querySelectorAll(`.js-comment-count-${p.id}`).forEach(el => el.innerText = p.comments?.length || 0);
              
-             // If content modified (edited)
-             const body = document.getElementById(`post-body-${p.id}`);
-             if(body && body.dataset.full !== p.content) {
-                 const txt = formatContent(p.content);
-                 body.dataset.full = txt.replace(/"/g,'&quot;');
-                 body.innerHTML = p.content.length>180 ? `${formatContent(p.content.substring(0,180))}...<span id="read-more-${p.id}" class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${p.id}')">more</span>` : txt;
-             }
-        });
+             const isSaved = savedPosts.includes(p.id);
+             document.querySelectorAll(`.js-save-btn-${p.id}`).forEach(btn => {
+                if(isSaved) btn.classList.add('active'); else btn.classList.remove('active');
+             });
 
-        if(!document.getElementById('view-feed').classList.contains('hidden') && ch.some(c=>c.type==='added')) renderFeed(); 
+             // Realtime Content Update (Edit)
+             const newHtml = p.content.length>180 ? `${formatContent(p.content.substring(0,180))}...<span id="read-more-${p.id}" class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${p.id}')">more</span>` : formatContent(p.content);
+             document.querySelectorAll(`.js-post-body-${p.id}`).forEach(el => {
+                 if(el.dataset.full !== p.content) {
+                     el.dataset.full = p.content.replace(/"/g,'&quot;');
+                     el.innerHTML = newHtml;
+                 }
+             });
+        });
+        
         if(!document.getElementById('view-saved').classList.contains('hidden')) renderSaved();
         if(!document.getElementById('view-network').classList.contains('hidden')&&activeNetworkTab==='posts') renderNetwork();
-        if(!document.getElementById('view-explore').classList.contains('hidden')){
-             if(ch.some(c=>c.type==='added')) handleSearch(document.getElementById('global-search').value||document.getElementById('mobile-explore-search').value);
-             else posts.forEach(p=>document.querySelectorAll(`[id^='like-count-explore-'][id$='-${p.id}']`).forEach(e=>e.innerText=p.likes?.length||0));
-        }
-        if(window.currentViewingPostId){ const cp=posts.find(p=>p.id===window.currentViewingPostId); if(cp){ renderCommentsInModal(window.currentViewingPostId); updatePostViewStats(window.currentViewingPostId); } else closePostView();} // Post deleted while viewing
+        
+        if(window.currentViewingPostId){ const cp=posts.find(p=>p.id===window.currentViewingPostId); if(cp){ renderCommentsInModal(window.currentViewingPostId); updatePostViewStats(window.currentViewingPostId); } else closePostView();}
         if(window.threadPostId) renderThreadContent(window.threadPostId,window.threadParentCommentId);
         
         renderRightSidebar(); setTimeout(refreshIcons,50);
@@ -449,7 +466,10 @@ window.handleTouchEnd=(e,pid,ov)=>{
 
 function createPostElement(p,ctx='feed'){
     const a=users.find(u=>u.id===p.authorId)||{name:'Unknown',avatar:'',isOfficial:false,id:p.authorId}, st=p.settings||{privacy:'public',showLikes:true,showComments:true};
-    const d=document.createElement('article'); d.id = `post-card-${p.id}`; d.className="post-card group overflow-hidden fade-in"; d.onclick=()=>openPostView(p.id);
+    const d=document.createElement('article'); 
+    d.id = `post-card-${ctx}-${p.id}`; 
+    d.className="post-card group overflow-hidden fade-in"; 
+    d.onclick=()=>openPostView(p.id);
     let mh="", lh="";
     if(p.media){
         const ma=Array.isArray(p.media)?p.media:[p.media];
@@ -468,14 +488,17 @@ function createPostElement(p,ctx='feed'){
         if(ff) lh=`<div class="flex items-center mt-3 ml-1"><img src="${ff.avatar}" class="w-5 h-5 rounded-full border border-white -mr-1 z-10"><span class="text-[11px] text-gray-500 ml-2">Liked by <span class="font-bold text-gray-900">${ff.name}</span>${f.length>1?` and ${f.length-1} others`:''}</span></div>`;
     }
     const txt=formatContent(p.content), trunc=p.content.length>180;
-    d.innerHTML=`<div class="p-4 md:p-5"><div class="post-header"><div class="flex gap-3"><div class="post-avatar-container"><img src="${a.avatar}" class="post-avatar"></div><div><div class="flex items-center"><span class="post-author-name" onclick="event.stopPropagation(); showProfile('${a.id}')">${a.name}</span>${a.isOfficial?'<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>':''}${st.privacy==='private'?'<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>':''}</div><div class="post-meta flex items-center">${formatDate(p.timestamp)}</div></div></div><button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event,'${p.id}','${p.authorId}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button></div><div class="post-content"><div class="post-body" id="post-body-${p.id}" data-full="${txt.replace(/"/g,'&quot;')}">${trunc?`${formatContent(p.content.substring(0,180))}...<span id="read-more-${p.id}" class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${p.id}')">more</span>`:txt}</div>${mh}</div>${lh}<div class="post-actions"><div class="flex items-center gap-1"><button id="like-btn-${p.id}" class="action-btn like ${p.likes?.includes(currentUser.id)?'active':''}" onclick="event.stopPropagation(); toggleLike('${p.id}')"><i data-lucide="heart" class="w-6 h-6"></i></button>${st.showLikes?`<span id="like-count-${ctx}-${p.id}" class="text-xs font-medium px-1 hover:underline cursor-pointer" onclick="event.stopPropagation();openLikes('${p.id}')">${p.likes?.length||0}</span>`:''}<button class="action-btn comment ml-2" onclick="event.stopPropagation(); openPostView('${p.id}')"><i data-lucide="${st.allowComments===false?'message-circle-off':'message-circle'}" class="w-6 h-6"></i> ${st.showComments?`<span id="comment-count-${p.id}" class="text-xs font-medium">${p.comments?.length||0}</span>`:''}</button><button class="action-btn share-btn ml-2" onclick="event.stopPropagation(); sharePost('${p.id}')"><i data-lucide="share-2" class="w-6 h-6"></i></button></div><button id="save-btn-${p.id}" class="action-btn bookmark ${savedPosts.includes(p.id)?'active':''}" onclick="event.stopPropagation(); toggleSave('${p.id}')"><i data-lucide="bookmark" class="w-6 h-6"></i></button></div></div>`;
+    const isLiked = p.likes?.includes(currentUser.id);
+    const isSaved = savedPosts.includes(p.id);
+
+    d.innerHTML=`<div class="p-4 md:p-5"><div class="post-header"><div class="flex gap-3"><div class="post-avatar-container"><img src="${a.avatar}" class="post-avatar"></div><div><div class="flex items-center"><span class="post-author-name" onclick="event.stopPropagation(); showProfile('${a.id}')">${a.name}</span>${a.isOfficial?'<i data-lucide="badge-check" class="w-4 h-4 official-badge text-blue-500 ml-1"></i>':''}${st.privacy==='private'?'<i data-lucide="lock" class="w-3 h-3 text-gray-400 ml-1"></i>':''}</div><div class="post-meta flex items-center">${formatDate(p.timestamp)}</div></div></div><button class="icon-btn w-8 h-8 -mr-2" onclick="showPostOptions(event,'${p.id}','${p.authorId}')"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button></div><div class="post-content"><div class="post-body js-post-body-${p.id}" data-full="${txt.replace(/"/g,'&quot;')}">${trunc?`${formatContent(p.content.substring(0,180))}...<span id="read-more-${p.id}" class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${p.id}')">more</span>`:txt}</div>${mh}</div>${lh}<div class="post-actions"><div class="flex items-center gap-1"><button class="action-btn like js-like-btn-${p.id} ${isLiked?'active':''}" onclick="event.stopPropagation(); toggleLike('${p.id}')"><i data-lucide="heart" class="w-6 h-6"></i></button>${st.showLikes?`<span class="js-like-count-${p.id} text-xs font-medium px-1 hover:underline cursor-pointer" onclick="event.stopPropagation();openLikes('${p.id}')">${p.likes?.length||0}</span>`:''}<button class="action-btn comment ml-2" onclick="event.stopPropagation(); openPostView('${p.id}')"><i data-lucide="${st.allowComments===false?'message-circle-off':'message-circle'}" class="w-6 h-6"></i> ${st.showComments?`<span class="js-comment-count-${p.id} text-xs font-medium">${p.comments?.length||0}</span>`:''}</button><button class="action-btn share-btn ml-2" onclick="event.stopPropagation(); sharePost('${p.id}')"><i data-lucide="share-2" class="w-6 h-6"></i></button></div><button class="action-btn bookmark js-save-btn-${p.id} ${isSaved?'active':''}" onclick="event.stopPropagation(); toggleSave('${p.id}')"><i data-lucide="bookmark" class="w-6 h-6"></i></button></div></div>`;
     return d;
 }
 
 window.toggleReadMore=pid=>{
-    const b=document.getElementById(`post-body-${pid}`), btn=document.getElementById(`read-more-${pid}`);
-    if(btn.innerText==='more') b.innerHTML=b.getAttribute('data-full')+`<span id="read-more-${pid}" class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${pid}')">less</span>`;
-    else{ const p=posts.find(x=>x.id===pid); if(p) b.innerHTML=`${formatContent(p.content.substring(0,180))}...<span id="read-more-${pid}" class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${pid}')">more</span>`; }
+    const b=document.querySelector(`.js-post-body-${pid}`), btn=document.getElementById(`read-more-${pid}`);
+    if(btn&&btn.innerText==='more') document.querySelectorAll(`.js-post-body-${pid}`).forEach(el => el.innerHTML=el.getAttribute('data-full')+`<span id="read-more-${pid}" class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${pid}')">less</span>`);
+    else{ const p=posts.find(x=>x.id===pid); if(p) document.querySelectorAll(`.js-post-body-${pid}`).forEach(el => el.innerHTML=`${formatContent(p.content.substring(0,180))}...<span id="read-more-${pid}" class="read-more-btn" onclick="event.stopPropagation(); toggleReadMore('${pid}')">more</span>`); }
 };
 
 window.moveCarousel=(fid,dir,ov=false,isFull=false)=>{
@@ -522,18 +545,15 @@ window.renderCollabChips=()=>{ const c=document.getElementById('collab-chips-con
 window.removeCollaborator=id=>{ window.selectedCollaborators=window.selectedCollaborators.filter(u=>u.id!==id); renderCollabChips(); };
 window.openCollabList=pid=>{ const p=posts.find(x=>x.id===pid); if(!p||!p.collaborators) return; const c=document.getElementById('user-list-content'); document.getElementById('user-list-title').innerText="Collaborators"; c.innerHTML=''; p.collaborators.filter(x=>x.status==='accepted').forEach(u=>{ const d=document.createElement('div'); d.className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer"; d.onclick=()=>{closeUserList();showProfile(u.id);}; d.innerHTML=`<div class="flex items-center gap-3"><img src="${u.avatar}" class="w-10 h-10 rounded-full border border-gray-200 object-cover"><div><div class="font-bold text-sm text-gray-900">${u.name}</div><div class="text-xs text-gray-500">@${u.username||'user'}</div></div></div>`; c.appendChild(d); }); document.getElementById('user-list-overlay').classList.remove('hidden'); };
 window.toggleLike=async(pid)=>{
-    const b=document.getElementById(`like-btn-${pid}`), cs=document.getElementById(`like-count-feed-${pid}`), es=document.getElementById(`like-count-explore-${pid}`);
-    let isLiking = false;
+    // Optimistic Update across all views
+    const isLiking = !document.querySelector(`.js-like-btn-${pid}`)?.classList.contains('active');
     
-    // Immediate UI Feedback (Optimistic Update)
-    if(b){
-        isLiking = !b.classList.contains('active');
-        b.classList.toggle('active', isLiking);
-        const updateCount = (el) => { if(el) el.innerText = Math.max(0, (parseInt(el.innerText)||0) + (isLiking ? 1 : -1)); };
-        updateCount(cs);
-        updateCount(es);
-    }
-    
+    document.querySelectorAll(`.js-like-btn-${pid}`).forEach(btn => btn.classList.toggle('active', isLiking));
+    document.querySelectorAll(`.js-like-count-${pid}`).forEach(el => {
+        let count = parseInt(el.innerText) || 0;
+        el.innerText = Math.max(0, count + (isLiking ? 1 : -1));
+    });
+
     const r=doc(db,"posts",pid), p=posts.find(x=>x.id===pid);
     if(p.likes&&p.likes.includes(currentUser.id)) await updateDoc(r,{likes:arrayRemove(currentUser.id)});
     else {
@@ -569,10 +589,13 @@ window.openLikes=pid=>{
 window.closeLikes=()=>toggleModalAnim('likes-overlay','likes-modal',false);
 
 window.toggleSave=async(pid)=>{
-    const b=document.getElementById(`save-btn-${pid}`), active=b?.classList.toggle('active');
-    showToast(active?"Saved":"Removed");
-    if(active) savedPosts.push(pid); else savedPosts=savedPosts.filter(x=>x!==pid);
-    await updateDoc(doc(db,"users",currentUser.id),{saved:active?arrayUnion(pid):arrayRemove(pid)});
+    // Optimistic Update
+    const isSaving = !document.querySelector(`.js-save-btn-${pid}`)?.classList.contains('active');
+    document.querySelectorAll(`.js-save-btn-${pid}`).forEach(btn => btn.classList.toggle('active', isSaving));
+    
+    showToast(isSaving?"Saved":"Removed");
+    if(isSaving) savedPosts.push(pid); else savedPosts=savedPosts.filter(x=>x!==pid);
+    await updateDoc(doc(db,"users",currentUser.id),{saved:isSaving?arrayUnion(pid):arrayRemove(pid)});
 };
 
 window.sharePost=pid=>{

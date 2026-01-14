@@ -49,7 +49,7 @@ i[data-lucide],svg { flex-shrink:0; }
 .action-btn.like.active svg { fill: #ff0000; stroke: none; }
 .action-btn.bookmark.active { color: #eab308; opacity: 1; }
 .action-btn.bookmark.active svg { fill: #eab308; stroke: #eab308; } 
-#compose-modal,#create-menu-modal,#edit-profile-modal,#user-list-modal,#settings-modal,#likes-overlay,#username-modal,#add-link-modal,#promo-modal,#upload-options-modal,#share-modal,#post-options-modal,#notif-options-modal,#qr-overlay,#scanner-overlay,#feed-filter-modal,#privacy-overlay { box-shadow:0 20px 60px rgba(0,0,0,0.15); border:1px solid var(--outline); }
+#compose-modal,#create-menu-modal,#edit-profile-modal,#user-list-modal,#settings-modal,#likes-overlay,#username-modal,#add-link-modal,#promo-modal,#upload-options-modal,#share-modal,#post-options-modal,#notif-options-modal,#qr-overlay,#scanner-overlay,#feed-filter-modal,#privacy-overlay,#profile-filter-modal { box-shadow:0 20px 60px rgba(0,0,0,0.15); border:1px solid var(--outline); }
 .compose-header { display:flex; align-items:center; justify-content:center; padding-bottom:16px; margin-bottom:16px; border-bottom:1px solid var(--outline); position:relative; }
 .compose-title { font-size:16px; font-weight:700; color:var(--on-surface); font-family:'Google Sans',sans-serif; }
 .compose-textarea { width:100%; min-height:120px; font-size:17px; line-height:1.6; color:var(--on-surface); border:none; outline:none; resize:none; background:transparent; }
@@ -241,9 +241,9 @@ body.modal-open #mobile-bottom-nav { display: none !important; }
     margin-right: 4px;
 }
 .comment-right-like { margin-left: auto; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-#settings-modal .post-option-item, #feed-filter-modal .group { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; transition: background 0.2s; cursor: pointer; }
+#settings-modal .post-option-item, #feed-filter-modal .group { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; transition: background 0.2s; cursor: pointer; text-align: left; }
 #settings-modal .post-option-item:hover, #feed-filter-modal .group:hover { background: var(--hover-bg); }
-#settings-modal .icon-circle, #feed-filter-modal .icon-circle { width: 40px; height: 40px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #1f1f1f; }
+#settings-modal .icon-circle, #feed-filter-modal .icon-circle { width: 40px; height: 40px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #1f1f1f; flex-shrink: 0; }
 .toggle-setting-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #f0f0f0; }
 .toggle-setting-row:last-child { border-bottom: none; }
 </style>
@@ -264,12 +264,13 @@ body.modal-open #mobile-bottom-nav { display: none !important; }
 <div id="notif-options-overlay" class="fixed inset-0 z-[80] flex items-end justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeNotifOptions()"><div id="notif-options-modal" class="bg-white w-full rounded-t-[24px] shadow-2xl relative transform translate-y-full transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeNotifOptions()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg">Options</span><div class="w-10"></div></div><div class="p-6 flex flex-col gap-2"><button onclick="toggleNotifSelection(); closeNotifOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors font-bold text-gray-800 text-left"><i data-lucide="check-square" class="w-5 h-5"></i> Select</button><button onclick="deleteSelectedNotifs(); closeNotifOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="trash-2" class="w-5 h-5"></i> Delete Selected</button><button onclick="clearAllNotifications(); closeNotifOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="trash" class="w-5 h-5"></i> Delete All</button></div></div></div>
 <div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center"><div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div><div class="bg-white w-full md:w-[450px] h-[75vh] md:h-[85vh] md:rounded-[24px] rounded-t-[20px] shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in thread-mobile-container"><div class="discussion-header"><div class="flex items-center gap-3"><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="chevron-down" class="w-6 h-6 text-gray-600"></i></button><span class="font-bold text-lg text-[#1f1f1f]">Thread</span></div><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div><div id="thread-content" class="discussion-scroll bg-white"></div><div class="discussion-footer"><div class="flex items-center gap-2"><img id="thread-input-avatar" src="" class="w-8 h-8 rounded-full bg-gray-200 object-cover shrink-0"><input type="text" id="thread-input" placeholder="Add a reply..." class="flex-1 bg-[#f2f2f2] rounded-[24px] px-4 py-2.5 text-sm outline-none text-gray-900 placeholder-gray-500" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitThreadReply();}"><button onclick="submitThreadReply()" class="w-10 h-10 bg-[#065fd4] rounded-full flex items-center justify-center text-white shrink-0 hover:bg-blue-700 transition-colors shadow-sm"><i data-lucide="arrow-up" class="w-5 h-5"></i></button></div></div></div></div>
 <div id="post-view-overlay" class="fixed inset-0 z-[60] hidden flex justify-center items-center"><div class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onclick="closePostView()"></div><div id="post-view-container" class="post-modal-layout scale-in relative z-10"></div></div>
-<div id="feed-filter-overlay" class="fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeFeedFilter()"><div id="feed-filter-modal" class="bg-white w-full h-auto md:w-[400px] md:max-h-[80vh] md:rounded-[24px] rounded-t-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeFeedFilter()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg">Feed Filter</span><div class="w-10"></div></div><div class="p-4 flex flex-col gap-2"><button onclick="switchFeedFilter('all')" class="group"><div class="icon-circle text-[#606060] bg-gray-100"><i data-lucide="globe" class="w-5 h-5"></i></div><div><div class="font-bold text-gray-900">All Posts</div><div class="text-xs text-gray-500">Show posts from everyone</div></div></button><button onclick="switchFeedFilter('following')" class="group"><div class="icon-circle text-[#606060] bg-gray-100"><i data-lucide="users" class="w-5 h-5"></i></div><div><div class="font-bold text-gray-900">Following</div><div class="text-xs text-gray-500">Posts from people you follow</div></div></button><button onclick="switchFeedFilter('friends')" class="group"><div class="icon-circle text-[#606060] bg-gray-100"><i data-lucide="heart-handshake" class="w-5 h-5"></i></div><div><div class="font-bold text-gray-900">Friends</div><div class="text-xs text-gray-500">Mutual follows only</div></div></button></div></div></div>
+<div id="feed-filter-overlay" class="fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeFeedFilter()"><div id="feed-filter-modal" class="bg-white w-full h-auto md:w-[400px] md:max-h-[80vh] md:rounded-[24px] rounded-t-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeFeedFilter()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg">Feed Filter</span><div class="w-10"></div></div><div class="p-4 flex flex-col gap-2"><button onclick="switchFeedFilter('all')" class="group"><div class="icon-circle text-[#606060] bg-gray-100"><i data-lucide="globe" class="w-5 h-5"></i></div><div class="flex-1"><div class="font-bold text-gray-900">All Posts</div><div class="text-xs text-gray-500">Show posts from everyone</div></div></button><button onclick="switchFeedFilter('following')" class="group"><div class="icon-circle text-[#606060] bg-gray-100"><i data-lucide="users" class="w-5 h-5"></i></div><div class="flex-1"><div class="font-bold text-gray-900">Following</div><div class="text-xs text-gray-500">Posts from people you follow</div></div></button><button onclick="switchFeedFilter('friends')" class="group"><div class="icon-circle text-[#606060] bg-gray-100"><i data-lucide="heart-handshake" class="w-5 h-5"></i></div><div class="flex-1"><div class="font-bold text-gray-900">Friends</div><div class="text-xs text-gray-500">Mutual follows only</div></div></button></div></div></div>
 <div id="lightbox" class="fixed inset-0 bg-black/95 z-[9999] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300" onclick="closeLightbox()"><button class="absolute top-8 right-8 text-white/70 hover:text-white bg-white/10 rounded-full p-3 hover:bg-white/20"><i data-lucide="x" class="w-8 h-8"></i></button><div id="lightbox-wrapper" class="w-full h-full flex justify-center items-center p-6"></div></div>
 <div id="toast" class="toast"><i id="toast-icon" data-lucide="check-circle-2" class="w-5 h-5 text-[#c4eed0]"></i><span id="toast-msg">Action Completed</span></div>
 <div id="likes-overlay" class="fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeLikes()"><div id="likes-modal" class="bg-white w-full h-[70vh] md:h-auto md:w-[400px] md:max-h-[80vh] md:rounded-[24px] rounded-t-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeLikes()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg">Likes</span><div class="w-10"></div></div><div id="likes-list-content" class="flex-1 overflow-y-auto p-2"></div></div></div>
 <div id="settings-overlay" class="fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeSettings()"><div id="settings-modal" class="bg-white w-full h-auto md:w-[400px] md:max-h-[80vh] md:rounded-[24px] rounded-t-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeSettings()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg">Settings</span><div class="w-10"></div></div><div class="p-4 flex flex-col gap-2" id="settings-content"></div></div></div>
 <div id="privacy-overlay" class="fixed inset-0 z-[80] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closePrivacySettings()"><div id="privacy-modal" class="bg-white w-full h-full md:h-auto md:w-[450px] md:max-h-[90vh] md:rounded-[24px] rounded-none shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="flex justify-between items-center h-16 px-4 border-b border-gray-100 shrink-0 bg-white"><div class="flex items-center gap-3"><img id="privacy-user-avatar" src="" class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 object-cover"><span id="privacy-user-name" class="font-bold text-gray-900 text-sm">User</span></div><button onclick="closePrivacySettings()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div><div class="flex-1 overflow-y-auto p-4 space-y-2"><div class="p-4 bg-gray-50 rounded-xl"><div class="toggle-setting-row"><div><div class="font-bold text-gray-900 text-[15px]">Private Account</div><div class="text-xs text-gray-500 mt-0.5">Only followers can see your posts</div></div><div id="toggle-privacy-main" class="toggle-switch" onclick="updatePrivacySetting('privateNetwork')"><div class="toggle-dot"></div></div></div><div class="toggle-setting-row"><div><div class="font-bold text-gray-900 text-[15px]">Hide Connections</div><div class="text-xs text-gray-500 mt-0.5">Hide your following and followers lists</div></div><div id="toggle-hide-connections" class="toggle-switch" onclick="updatePrivacySetting('hideConnections')"><div class="toggle-dot"></div></div></div></div><div class="p-4"><p class="text-xs text-gray-400 text-center leading-relaxed">Changes are saved automatically and applied immediately.</p></div></div></div></div>
+<div id="profile-filter-overlay" class="fixed inset-0 z-[80] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeProfileFilter()"><div id="profile-filter-modal" class="bg-white w-full h-auto md:w-[400px] md:rounded-[24px] rounded-t-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeProfileFilter()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg">Filter & View</span><div class="w-10"></div></div><div class="p-4"><div class="mb-4"><h3 class="text-xs font-bold text-gray-500 uppercase mb-3 px-1">Sort By</h3><div class="flex flex-col gap-2"><button onclick="setProfileSort('latest')" class="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors group"><span class="font-bold text-gray-900">Latest</span><i id="sort-check-latest" data-lucide="check" class="w-5 h-5 text-blue-600 hidden"></i></button><button onclick="setProfileSort('oldest')" class="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors group"><span class="font-bold text-gray-900">Oldest</span><i id="sort-check-oldest" data-lucide="check" class="w-5 h-5 text-blue-600 hidden"></i></button><button onclick="setProfileSort('popular')" class="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors group"><span class="font-bold text-gray-900">Popular</span><i id="sort-check-popular" data-lucide="check" class="w-5 h-5 text-blue-600 hidden"></i></button></div></div><div class="h-px bg-gray-100 my-2"></div><div class="mb-2"><h3 class="text-xs font-bold text-gray-500 uppercase mb-3 px-1">View As</h3><div class="flex gap-2 p-1 bg-gray-100 rounded-xl"><button onclick="setProfileView('grid')" id="view-btn-grid" class="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm bg-white text-gray-900">Grid</button><button onclick="setProfileView('feed')" id="view-btn-feed" class="flex-1 py-2.5 rounded-lg text-sm font-bold text-gray-500 hover:text-gray-900 transition-all">Feed</button></div></div></div></div></div>
 <div id="user-list-overlay" class="fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeUserList()"><div id="user-list-modal" class="bg-white w-full h-[70vh] md:h-auto md:w-[400px] md:max-h-[80vh] md:rounded-[24px] rounded-t-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeUserList()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg" id="user-list-title">Users</span><div class="w-10"></div></div><div id="user-list-content" class="flex-1 overflow-y-auto p-2"></div></div></div>
 <div id="create-menu-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#000]/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200" onclick="closeCreateMenu()"><div id="create-menu-modal" class="bg-white w-[90%] max-w-[500px] rounded-[24px] shadow-2xl p-6 relative transform scale-95 transition-transform duration-200" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-6"><h2 class="text-xl font-bold text-[#1f1f1f] google-font">Create New</h2><button onclick="closeCreateMenu()" class="icon-btn hover:bg-[#f0f4f9]"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="grid grid-cols-1 gap-4"><div class="create-option-card" onclick="openCompose()"><div class="create-icon-bg"><i data-lucide="pen-tool" class="w-6 h-6"></i></div><span class="font-bold text-[#1f1f1f]">Post</span></div><div id="create-option-ad" class="create-option-card hidden" onclick="openPromoModal(event);closeCreateMenu()"><div class="create-icon-bg"><i data-lucide="megaphone" class="w-6 h-6"></i></div><span class="font-bold text-[#1f1f1f]">Ad</span></div></div></div></div>
 <div id="edit-profile-overlay" class="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeEditProfile()"><div id="edit-profile-modal" class="bg-white w-full h-full md:h-auto md:w-[95%] md:max-w-[500px] md:max-h-[90vh] md:rounded-[24px] rounded-none shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="flex justify-between items-center h-16 px-4 border-b border-gray-100 shrink-0 bg-white"><button onclick="closeEditProfile()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><h2 class="text-lg font-bold google-font">Edit Profile</h2><div class="w-10"></div></div><div class="flex-1 overflow-y-auto p-0 pb-20 md:pb-6 relative"><div class="relative"><div id="banner-edit-area" class="h-36 w-full bg-gray-200 relative overflow-hidden cursor-grab group" onclick="document.getElementById('edit-banner-input').click()"><img id="edit-banner-preview" src="" class="w-full h-full object-cover pointer-events-none select-none"><div class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="camera" class="text-white w-8 h-8 drop-shadow-md"></i></div></div><div class="absolute -bottom-10 left-4"><div class="relative group cursor-pointer" onclick="document.getElementById('edit-avatar-input').click()"><img id="edit-avatar-preview" src="" class="w-24 h-24 rounded-full border-4 border-white bg-gray-100 object-cover"><div class="absolute inset-0 rounded-full bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="camera" class="text-white w-6 h-6 drop-shadow-md"></i></div></div></div><div class="absolute top-2 right-2 bg-black/50 text-white text-[10px] px-2 py-1 rounded-md pointer-events-none backdrop-blur-sm">Drag to reposition: <span id="banner-pos-hint">50%</span></div></div><div class="mt-12 px-6 flex flex-col gap-6"><input type="file" id="edit-avatar-input" class="hidden" accept="image/*" onchange="handleEditAvatarSelect(event)"><input type="file" id="edit-banner-input" class="hidden" accept="image/*" onchange="handleEditBannerSelect(event)"><div><label class="text-xs font-bold text-gray-500 uppercase">Display Name</label><input type="text" id="edit-name" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 font-medium text-gray-900 text-lg"></div><div><label class="text-xs font-bold text-gray-500 uppercase">Username</label><div class="relative"><span class="absolute left-0 top-2 text-gray-400 font-medium">@</span><input type="text" id="edit-username" class="w-full border-b border-gray-200 py-2 pl-4 outline-none focus:border-blue-500 font-medium text-gray-900"></div></div><div><label class="text-xs font-bold text-gray-500 uppercase">Email</label><input type="text" id="edit-email" class="w-full border-b border-gray-200 py-2 outline-none text-gray-500 bg-transparent select-text" disabled></div><div><label class="text-xs font-bold text-gray-500 uppercase">Bio</label><textarea id="edit-bio" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 text-sm text-gray-700 resize-none" rows="3"></textarea></div></div></div><div class="p-4 border-t border-gray-100 bg-white absolute bottom-0 w-full md:relative"><button id="save-profile-btn" onclick="saveProfileChanges()" class="w-full bg-gray-100 text-gray-900 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all">Save Changes</button></div></div></div>
@@ -309,6 +310,8 @@ window.composeStep=1; window.composeImages=[null,null,null,null]; window.compose
 window.expandedTexts = new Set();
 let lastScrollTop=0, lastExploreScrollTop=0, html5QrCode, ptrStartY=0, ptrDist=0, isPtr=false, isRefreshing=false;
 let exitAttempt=false;
+window.profileSort = 'latest'; window.profileView = 'grid'; // Default Profile Settings
+
 const feedView=document.getElementById('view-feed'), exploreView=document.getElementById('view-explore'), ptrSpinner=document.getElementById('ptr-spinner'),
 refreshIcons=()=>window.lucide?.createIcons();
 
@@ -404,6 +407,7 @@ window.onpopstate = (event) => {
         {id: 'notif-options-overlay', close: window.closeNotifOptions},
         {id: 'qr-overlay', close: window.closeQR},
         {id: 'privacy-overlay', close: window.closePrivacySettings},
+        {id: 'profile-filter-overlay', close: window.closeProfileFilter},
         {id: 'view-profile', close: () => window.switchView('feed')}
     ];
 
@@ -461,6 +465,8 @@ window.saveUsername=async()=>{
 function initRealtimeListeners(){
     onSnapshot(collection(db,"users"),s=>{
         users=s.docs.map(d=>({id:d.id,...d.data()}));
+        
+        // Handle pending deep links
         if(window.pendingProfileUid && users.some(u=>u.id===window.pendingProfileUid)){ showProfile(window.pendingProfileUid); window.pendingProfileUid=null; window.history.replaceState({},document.title,window.location.pathname); }
         if(!document.getElementById('view-network').classList.contains('hidden')) renderNetwork();
         
@@ -470,12 +476,25 @@ function initRealtimeListeners(){
              if(u && u.settings) {
                  const pToggle = document.getElementById('toggle-privacy-main');
                  const hToggle = document.getElementById('toggle-hide-connections');
+                 if(u.settings.privateNetwork) pToggle.classList.add('active'); else pToggle.classList.remove('active');
+                 if(u.settings.hideConnections) hToggle.classList.add('active'); else hToggle.classList.remove('active');
+             }
+        }
+        
+        // Realtime Profile Refresh (Privacy changes for viewed user)
+        if(window.currentViewingProfileId && !document.getElementById('view-profile').classList.contains('hidden')) {
+             renderProfileContent(window.currentViewingProfileId, window.currentProfileTab);
+             // Also update header stats if visible (re-call showProfile logic partially)
+             const u = users.find(x => x.id === window.currentViewingProfileId);
+             if(u) {
+                 // Check if stats visibility changed due to privacy
+                 const hideConnections = u.settings?.hideConnections && u.id !== currentUser.id;
+                 const canView = (u.id === currentUser.id) || !u.settings?.privateNetwork || (currentUser.following && currentUser.following.includes(u.id));
                  
-                 if(u.settings.privateNetwork) pToggle.classList.add('active'); 
-                 else pToggle.classList.remove('active');
-                 
-                 if(u.settings.hideConnections) hToggle.classList.add('active');
-                 else hToggle.classList.remove('active');
+                 // This is a simple re-render of profile header logic
+                 // For now, simpler to re-call showProfile if needed, but that resets scroll.
+                 // Ideally, we'd update specific DOM elements. 
+                 // Let's stick to content re-render for now which handles grid visibility.
              }
         }
         
@@ -501,12 +520,13 @@ function initRealtimeListeners(){
              if(!document.getElementById('view-explore').classList.contains('hidden')) handleSearch(document.getElementById('global-search').value||document.getElementById('mobile-explore-search').value);
         }
 
+        // Global Post Updates (Like Counts, Buttons, Text)
         posts.forEach(p => {
              const isLiked = p.likes && p.likes.includes(currentUser.id);
+             // Feed Buttons
              document.querySelectorAll(`.js-like-btn-${p.id}`).forEach(btn => {
                 if(isLiked) btn.classList.add('active'); else btn.classList.remove('active');
              });
-             
              document.querySelectorAll(`.js-like-count-${p.id}`).forEach(el => el.innerText = (p.likes?.length > 0) ? p.likes.length : '');
              document.querySelectorAll(`.js-comment-count-${p.id}`).forEach(el => el.innerText = (p.comments?.length > 0) ? p.comments.length : '');
              
@@ -515,7 +535,7 @@ function initRealtimeListeners(){
                 if(isSaved) btn.classList.add('active'); else btn.classList.remove('active');
              });
 
-             // Use new generic render
+             // Post Content
              document.querySelectorAll(`.js-post-body-${p.id}`).forEach(el => {
                  el.innerHTML = window.renderTextWithReadMore(p.content, `post-${p.id}`);
              });
@@ -523,8 +543,15 @@ function initRealtimeListeners(){
         
         if(!document.getElementById('view-saved').classList.contains('hidden')) renderSaved();
         if(!document.getElementById('view-network').classList.contains('hidden')&&activeNetworkTab==='posts') renderNetwork();
+        if(!document.getElementById('view-profile').classList.contains('hidden')&&window.currentViewingProfileId) renderProfileContent(window.currentViewingProfileId, window.currentProfileTab);
         
-        if(window.currentViewingPostId){ const cp=posts.find(p=>p.id===window.currentViewingPostId); if(cp){ renderCommentsInModal(window.currentViewingPostId); updatePostViewStats(window.currentViewingPostId); } else closePostView();}
+        if(window.currentViewingPostId){ 
+            const cp=posts.find(p=>p.id===window.currentViewingPostId); 
+            if(cp){ 
+                renderCommentsInModal(window.currentViewingPostId); 
+                updatePostViewStats(window.currentViewingPostId); 
+            } else closePostView();
+        }
         if(window.threadPostId) renderThreadContent(window.threadPostId,window.threadParentCommentId);
         
         renderRightSidebar(); setTimeout(refreshIcons,50);
@@ -553,7 +580,41 @@ window.renderRightSidebar=()=>{
 window.openPromoModal=e=>{ if(e){e.stopPropagation();e.preventDefault();} document.getElementById('promo-modal').classList.remove('hidden'); const i=document.getElementById('promo-image'), l=document.getElementById('promo-link'); if(i.src) document.getElementById('promo-img-url').value=i.src; if(l.href) document.getElementById('promo-target-url').value=l.href; };
 window.handlePromoFile=e=>{ const f=e.target.files[0]; if(f){ window.currentPromoBlob=f; showToast("Image selected"); } };
 window.savePromo=async()=>{ const b=event.target, ot=b.innerText; b.innerText="Saving..."; b.disabled=true; let i=document.getElementById('promo-img-url').value.trim(); const l=document.getElementById('promo-target-url').value.trim(); if(window.currentPromoBlob) try{ i=await uploadToImgHippo(window.currentPromoBlob); }catch(e){ return showToast("Upload failed"); } if(!i){ showToast("Image URL required"); b.innerText=ot; b.disabled=false; return; } await setDoc(doc(db,"global","promo"),{imageUrl:i,linkUrl:l}); showToast("Promo updated!"); document.getElementById('promo-modal').classList.add('hidden'); window.currentPromoBlob=null; b.innerText=ot; b.disabled=false; };
-window.updatePostViewStats=pid=>{ const p=posts.find(x=>x.id===pid); if(!p) return; const dl=document.getElementById('post-view-likes-count'), ml=document.getElementById('mobile-like-count'), rl=document.getElementById('reel-like-count'), rc=document.getElementById('reel-comment-count'), rli=document.getElementById('reel-like-icon'), rsi=document.getElementById('reel-save-icon'); if(dl) dl.innerText=`${p.likes?p.likes.length:0} likes`; if(ml){ ml.innerText=`${p.likes?p.likes.length:0} likes`; ml.style.display=(p.settings?.showLikes!==false)?'block':'none'; } if(rl) rl.innerText=p.likes?p.likes.length:0; if(rc) rc.innerText=p.comments?p.comments.length:0; if(rli){ if(p.likes&&p.likes.includes(currentUser.id)) rli.classList.add('fill-red-500','text-red-500'), rli.classList.remove('text-white'); else rsi.classList.remove('fill-red-500','text-red-500'), rli.classList.add('text-white'); } if(rsi){ if(savedPosts.includes(pid)) rsi.classList.add('fill-yellow-500','text-yellow-500','text-yellow-500'); else rsi.classList.remove('fill-yellow-500','text-yellow-500','text-yellow-500'), rsi.classList.add('text-white'); } };
+
+// Realtime Post Overlay Update Function
+window.updatePostViewStats=pid=>{ 
+    const p=posts.find(x=>x.id===pid); 
+    if(!p) return; 
+    
+    // Likes Count Text
+    const dl=document.getElementById('post-view-likes-count');
+    if(dl) dl.innerText=`${p.likes?p.likes.length:0} likes`; 
+    
+    // Like Icon State
+    const likeBtn = document.getElementById('post-view-like-btn');
+    if(likeBtn) {
+        if(p.likes && p.likes.includes(currentUser.id)) {
+            likeBtn.classList.add('fill-red-500', 'text-red-500');
+            likeBtn.classList.remove('text-gray-700');
+        } else {
+            likeBtn.classList.remove('fill-red-500', 'text-red-500');
+            likeBtn.classList.add('text-gray-700');
+        }
+    }
+
+    // Save Icon State
+    const saveBtn = document.getElementById('post-view-save-btn');
+    if(saveBtn) {
+        if(savedPosts.includes(pid)) {
+            saveBtn.classList.add('fill-yellow-500', 'text-yellow-500');
+            saveBtn.classList.remove('text-gray-700');
+        } else {
+            saveBtn.classList.remove('fill-yellow-500', 'text-yellow-500');
+            saveBtn.classList.add('text-gray-700');
+        }
+    }
+};
+
 function updateUserInterface(){ if(!currentUser) return; const u=currentUser; document.getElementById('sidebar-name').innerText=u.name; document.getElementById('sidebar-avatar').src=u.avatar; document.getElementById('mobile-avatar').src=u.avatar; document.getElementById('header-avatar').src=u.avatar; document.getElementById('compose-name').innerText=u.name; document.getElementById('compose-avatar').src=u.avatar; document.getElementById('edit-name').value=u.name; document.getElementById('edit-username').value=u.username || ""; document.getElementById('edit-bio').value=u.bio; document.getElementById('edit-avatar-preview').src=u.avatar; const bp=u.bannerPos||50, bu=u.banner||'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'; document.getElementById('edit-banner-preview').src=bu; document.getElementById('edit-banner-preview').style.objectPosition=`center ${currentBannerPos}%`; document.getElementById('banner-pos-hint').innerText=`${currentBannerPos}%`; const tp=document.getElementById('toggle-privacy'); if(tp) u.settings?.privateNetwork?tp.classList.add('active'):tp.classList.remove('active'); if(u.email==='edulinkbht@gmail.com'){ const nav=document.querySelector('#desktop-nav-items'); if(!document.getElementById('nav-announcements')){ const a=document.createElement('a'); a.href="#"; a.id="nav-announcements"; a.className="nav-item text-blue-600"; a.innerHTML=`<i data-lucide="megaphone" class="w-5 h-5"></i> <span class="hidden lg:block">Announcements</span>`; a.onclick=()=>{switchView('announcements');return false;}; nav.appendChild(a); } document.getElementById('edit-promo-btn').classList.remove('hidden'); document.getElementById('promo-section').classList.remove('hidden'); document.getElementById('create-option-ad').classList.remove('hidden'); } else document.getElementById('create-option-ad').classList.add('hidden'); refreshIcons(); }
 let alertCallback=null; window.showAlert=(m,cb)=>{ document.getElementById('alert-msg').innerText=m; const a=document.getElementById('custom-alert'); a.classList.remove('hidden'); setTimeout(()=>{a.classList.remove('opacity-0'); document.getElementById('custom-alert-box').classList.remove('scale-95');},10); alertCallback=cb; const b=document.getElementById('alert-confirm-btn'), nb=b.cloneNode(true); b.parentNode.replaceChild(nb,b); nb.onclick=()=>{if(alertCallback)alertCallback();closeAlert(true);}; };
 window.closeAlert=()=>{ const a=document.getElementById('custom-alert'); a.classList.add('opacity-0'); document.getElementById('custom-alert-box').classList.add('scale-95'); setTimeout(()=>a.classList.add('hidden'),200); };
@@ -571,21 +632,21 @@ window.openSettings=()=>{
     c.innerHTML = `
        <button onclick="openPrivacySettings()" class="post-option-item group w-full">
            <div class="icon-circle"><i data-lucide="lock" class="w-5 h-5"></i></div>
-           <div>
+           <div class="flex-1">
                <div class="font-bold text-gray-900 text-[15px]">Account Privacy</div>
                <div class="text-xs text-gray-500">Manage visibility and data</div>
            </div>
        </button>
        <button onclick="showToast('EduLink Version 1.0')" class="post-option-item group w-full">
            <div class="icon-circle"><i data-lucide="info" class="w-5 h-5"></i></div>
-           <div>
+           <div class="flex-1">
                <div class="font-bold text-gray-900 text-[15px]">About Us</div>
                <div class="text-xs text-gray-500">Learn more about EduLink</div>
            </div>
        </button>
        <button onclick="showToast('Standard terms apply')" class="post-option-item group w-full">
            <div class="icon-circle"><i data-lucide="file-text" class="w-5 h-5"></i></div>
-           <div>
+           <div class="flex-1">
                <div class="font-bold text-gray-900 text-[15px]">Terms of Use</div>
                <div class="text-xs text-gray-500">Policies and agreements</div>
            </div>
@@ -593,7 +654,7 @@ window.openSettings=()=>{
        <div class="h-px bg-gray-100 my-1"></div>
        <button onclick="doLogout()" class="post-option-item group w-full">
            <div class="icon-circle bg-red-50 text-red-600"><i data-lucide="log-out" class="w-5 h-5"></i></div>
-           <div class="font-bold text-red-600 text-[15px]">Log Out</div>
+           <div class="font-bold text-black text-[15px]">Log Out</div>
        </button>
     `;
     
@@ -644,6 +705,41 @@ window.updatePrivacySetting = async (key) => {
     } else {
         showToast("Settings saved");
     }
+};
+
+// Profile Filter Logic
+window.openProfileFilter=()=>{
+    manageHistory('profile-filter-overlay');
+    toggleModalAnim('profile-filter-overlay','profile-filter-modal',true);
+    
+    // Set Active States
+    ['latest','oldest','popular'].forEach(s => {
+        const el = document.getElementById(`sort-check-${s}`);
+        if(window.profileSort === s) el.classList.remove('hidden');
+        else el.classList.add('hidden');
+    });
+    
+    document.getElementById('view-btn-grid').classList.toggle('bg-white', window.profileView==='grid');
+    document.getElementById('view-btn-grid').classList.toggle('text-gray-900', window.profileView==='grid');
+    document.getElementById('view-btn-grid').classList.toggle('text-gray-500', window.profileView!=='grid');
+    
+    document.getElementById('view-btn-feed').classList.toggle('bg-white', window.profileView==='feed');
+    document.getElementById('view-btn-feed').classList.toggle('text-gray-900', window.profileView==='feed');
+    document.getElementById('view-btn-feed').classList.toggle('text-gray-500', window.profileView!=='feed');
+};
+
+window.closeProfileFilter=()=>toggleModalAnim('profile-filter-overlay','profile-filter-modal',false);
+
+window.setProfileSort=(s)=>{
+    window.profileSort = s;
+    renderProfileContent(window.currentViewingProfileId, window.currentProfileTab);
+    closeProfileFilter();
+};
+
+window.setProfileView=(v)=>{
+    window.profileView = v;
+    renderProfileContent(window.currentViewingProfileId, window.currentProfileTab);
+    closeProfileFilter();
 };
 
 window.togglePrivacy=async()=>{ const t=document.getElementById('toggle-privacy'), p=!t.classList.contains('active'); t.classList.toggle('active'); const s=currentUser.settings||{}; s.privateNetwork=p; await updateDoc(doc(db,"users",currentUser.id),{settings:s}); currentUser.settings=s; showToast(`Account is ${p?'Private':'Public'}`); };
@@ -1043,13 +1139,24 @@ window.showProfile=(uid,tab='posts')=>{
         }
     }
     
+    // Sort/Filter Button HTML
+    const filterBtn = (tab === 'posts') ? 
+        `<button onclick="openProfileFilter()" class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-xs font-bold text-gray-700 hover:bg-gray-200 transition-colors ml-auto"><i data-lucide="sliders-horizontal" class="w-3 h-3"></i> Filter</button>` : '';
+
     const tabs=['posts','saved','liked','tagged','links'].map(t=>(!me&&t==='saved')?'':`<button onclick="switchProfileTab('${t}')" class="tab-btn ${tab===t?'active':''}"><i data-lucide="${{posts:'grid',saved:'bookmark',liked:'heart',tagged:'user-check',links:'link'}[t]}" class="w-5 h-5"></i></button>`).join('');
 
-    c.innerHTML=`<div class="profile-banner-container"><img src="${u.banner||'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'}" class="profile-banner-img" style="object-position:center ${u.bannerPos||50}%"></div><div class="px-4 md:px-6 relative"><div class="flex justify-between items-end -mt-10 mb-4"><img src="${u.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">${ab}</div><div class="mb-6"><h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${u.name} ${u.isOfficial?'<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1><div class="text-sm font-medium text-gray-500">@${u.username||'user'}</div><p class="text-gray-600 mt-2">${u.bio}</p>${stats}</div><div class="tab-group mb-0">${tabs}</div><div id="profile-content-area" class="pt-1 md:pt-4 pb-20 md:pb-0"></div></div>`;
+    c.innerHTML=`<div class="profile-banner-container"><img src="${u.banner||'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'}" class="profile-banner-img" style="object-position:center ${u.bannerPos||50}%"></div><div class="px-4 md:px-6 relative"><div class="flex justify-between items-end -mt-10 mb-4"><img src="${u.avatar}" class="w-24 h-24 rounded-full border-4 border-white bg-white object-cover">${ab}</div><div class="mb-6"><h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">${u.name} ${u.isOfficial?'<i data-lucide="badge-check" class="text-blue-600 w-6 h-6"></i>':''}</h1><div class="text-sm font-medium text-gray-500">@${u.username||'user'}</div><p class="text-gray-600 mt-2">${u.bio}</p>${stats}</div><div class="flex items-center border-b border-gray-200"><div class="tab-group mb-0 border-b-0 flex-1">${tabs}</div>${filterBtn}</div><div id="profile-content-area" class="pt-1 md:pt-4 pb-20 md:pb-0"></div></div>`;
     switchView('profile'); renderProfileContent(uid,tab); refreshIcons();
 };
 
-window.switchProfileTab=t=>{document.querySelectorAll('#view-profile .tab-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('onclick').includes(t))); window.currentProfileTab=t; renderProfileContent(window.currentViewingProfileId,t)};
+window.switchProfileTab=t=>{
+    const filterBtn = document.querySelector('#view-profile .ml-auto');
+    if(filterBtn) filterBtn.style.display = (t === 'posts') ? 'flex' : 'none';
+    
+    document.querySelectorAll('#view-profile .tab-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('onclick').includes(t))); 
+    window.currentProfileTab=t; 
+    renderProfileContent(window.currentViewingProfileId,t);
+};
 
 window.renderProfileContent=(uid,t)=>{
     const c=document.getElementById('profile-content-area'), u=users.find(x=>x.id===uid); c.innerHTML="";
@@ -1073,10 +1180,32 @@ window.renderProfileContent=(uid,t)=>{
         tp=tp.filter(p=> (p.settings?.privacy==='public'||currentUser.following.includes(uid)));
     }
 
-    c.innerHTML=tp.length ? `<div class="grid-post-container">${tp.map(p=>{
-        const m=Array.isArray(p.media)?p.media[0]:p.media, isV=m&&(m.includes('video')||m.endsWith('.mp4')||m.startsWith('data:video'));
-        return `<div class="grid-post-item group" onclick="openPostView('${p.id}')">${m?(isV?`<video src="${m}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`:`<img src="${m}" class="w-full h-full object-cover">`+(Array.isArray(p.media)&&p.media.length>1?`<div class="absolute top-2 right-2"><i data-lucide="layers" class="w-4 h-4 text-white drop-shadow-md"></i></div>`: '')):`<div class="grid-post-text-preview">${p.content.substring(0,60)}${p.content.length>60?'...':''}</div>`}<div class="grid-post-overlay"><div class="flex items-center gap-1"><i data-lucide="heart" class="w-5 h-5 fill-white"></i> ${p.likes?.length>0?p.likes.length:''}</div><div class="flex items-center gap-1"><i data-lucide="message-circle" class="w-5 h-5 fill-white"></i> ${p.comments?.length>0?p.comments.length:''}</div></div></div>`;
-    }).join('')}</div>` : '<div class="text-center py-20 text-gray-400">No posts yet</div>'; refreshIcons();
+    // Apply Sorting
+    if (window.profileSort === 'latest') {
+        tp.sort((a,b) => b.timestamp - a.timestamp);
+    } else if (window.profileSort === 'oldest') {
+        tp.sort((a,b) => a.timestamp - b.timestamp);
+    } else if (window.profileSort === 'popular') {
+        tp.sort((a,b) => (b.likes?.length||0) - (a.likes?.length||0));
+    }
+
+    if (tp.length === 0) {
+        c.innerHTML = '<div class="text-center py-20 text-gray-400">No posts yet</div>';
+    } else {
+        if (window.profileView === 'grid') {
+            c.innerHTML=`<div class="grid-post-container">${tp.map(p=>{
+                const m=Array.isArray(p.media)?p.media[0]:p.media, isV=m&&(m.includes('video')||m.endsWith('.mp4')||m.startsWith('data:video'));
+                return `<div class="grid-post-item group" onclick="openPostView('${p.id}')">${m?(isV?`<video src="${m}" class="w-full h-full object-cover pointer-events-none"></video><div class="absolute inset-0 flex items-center justify-center"><i data-lucide="play" class="w-8 h-8 text-white drop-shadow-md"></i></div>`:`<img src="${m}" class="w-full h-full object-cover">`+(Array.isArray(p.media)&&p.media.length>1?`<div class="absolute top-2 right-2"><i data-lucide="layers" class="w-4 h-4 text-white drop-shadow-md"></i></div>`: '')):`<div class="grid-post-text-preview">${p.content.substring(0,60)}${p.content.length>60?'...':''}</div>`}<div class="grid-post-overlay"><div class="flex items-center gap-1"><i data-lucide="heart" class="w-5 h-5 fill-white"></i> ${p.likes?.length>0?p.likes.length:''}</div><div class="flex items-center gap-1"><i data-lucide="message-circle" class="w-5 h-5 fill-white"></i> ${p.comments?.length>0?p.comments.length:''}</div></div></div>`;
+            }).join('')}</div>`;
+        } else {
+            // Feed View
+            const l = document.createElement('div');
+            l.className = "flex flex-col gap-4 max-w-xl mx-auto";
+            tp.forEach(p => l.appendChild(createPostElement(p, 'profile-feed')));
+            c.appendChild(l);
+        }
+    }
+    refreshIcons();
 };
 
 const animModal=(oid,mid,s)=>{const o=document.getElementById(oid),m=document.getElementById(mid); if(s){o.classList.remove('hidden');m.style.transition='none';o.classList.add('opacity-0');m.classList.add('translate-y-full','md:scale-95');void m.offsetWidth;m.style.transition='';setTimeout(()=>{o.classList.remove('opacity-0');m.classList.remove('translate-y-full','md:scale-95');m.classList.add('translate-y-0','md:scale-100')},20)}else{o.classList.add('opacity-0');m.classList.add('translate-y-full','md:scale-95');m.classList.remove('translate-y-0','md:scale-100');setTimeout(()=>o.classList.add('hidden'),200)}};
@@ -1953,8 +2082,6 @@ if(typeof setupSwipeClose === 'function'){
     setupSwipeClose('qr-modal', 'qr-overlay', window.closeQR);
     setupSwipeClose('user-list-modal', 'user-list-overlay', window.closeUserList);
     setupSwipeClose('feed-filter-modal', 'feed-filter-overlay', window.closeFeedFilter);
-    setupSwipeClose('settings-modal', 'settings-overlay', window.closeSettings);
-    setupSwipeClose('privacy-modal', 'privacy-overlay', window.closePrivacySettings);
 }
 
 const urlParams = new URLSearchParams(window.location.search);

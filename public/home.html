@@ -49,7 +49,7 @@ i[data-lucide],svg { flex-shrink:0; }
 .action-btn.like.active svg { fill: #ff0000; stroke: none; }
 .action-btn.bookmark.active { color: #eab308; opacity: 1; }
 .action-btn.bookmark.active svg { fill: #eab308; stroke: #eab308; } 
-#compose-modal,#create-menu-modal,#edit-profile-modal,#user-list-modal,#settings-modal,#likes-overlay,#username-modal,#add-link-modal,#promo-modal,#upload-options-modal,#share-modal,#post-options-modal,#notif-options-modal,#qr-overlay,#scanner-overlay,#feed-filter-modal { box-shadow:0 20px 60px rgba(0,0,0,0.15); border:1px solid var(--outline); }
+#compose-modal,#create-menu-modal,#edit-profile-modal,#user-list-modal,#settings-modal,#likes-overlay,#username-modal,#add-link-modal,#promo-modal,#upload-options-modal,#share-modal,#post-options-modal,#notif-options-modal,#qr-overlay,#scanner-overlay,#feed-filter-modal,#privacy-overlay { box-shadow:0 20px 60px rgba(0,0,0,0.15); border:1px solid var(--outline); }
 .compose-header { display:flex; align-items:center; justify-content:center; padding-bottom:16px; margin-bottom:16px; border-bottom:1px solid var(--outline); position:relative; }
 .compose-title { font-size:16px; font-weight:700; color:var(--on-surface); font-family:'Google Sans',sans-serif; }
 .compose-textarea { width:100%; min-height:120px; font-size:17px; line-height:1.6; color:var(--on-surface); border:none; outline:none; resize:none; background:transparent; }
@@ -241,6 +241,11 @@ body.modal-open #mobile-bottom-nav { display: none !important; }
     margin-right: 4px;
 }
 .comment-right-like { margin-left: auto; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+#settings-modal .post-option-item, #feed-filter-modal .group { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; transition: background 0.2s; cursor: pointer; }
+#settings-modal .post-option-item:hover, #feed-filter-modal .group:hover { background: var(--hover-bg); }
+#settings-modal .icon-circle, #feed-filter-modal .icon-circle { width: 40px; height: 40px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #1f1f1f; }
+.toggle-setting-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #f0f0f0; }
+.toggle-setting-row:last-child { border-bottom: none; }
 </style>
 </head>
 <body class="h-screen flex overflow-hidden p-0 md:p-3 gap-4 bg-white">
@@ -259,11 +264,12 @@ body.modal-open #mobile-bottom-nav { display: none !important; }
 <div id="notif-options-overlay" class="fixed inset-0 z-[80] flex items-end justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeNotifOptions()"><div id="notif-options-modal" class="bg-white w-full rounded-t-[24px] shadow-2xl relative transform translate-y-full transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeNotifOptions()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg">Options</span><div class="w-10"></div></div><div class="p-6 flex flex-col gap-2"><button onclick="toggleNotifSelection(); closeNotifOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors font-bold text-gray-800 text-left"><i data-lucide="check-square" class="w-5 h-5"></i> Select</button><button onclick="deleteSelectedNotifs(); closeNotifOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="trash-2" class="w-5 h-5"></i> Delete Selected</button><button onclick="clearAllNotifications(); closeNotifOptions()" class="flex items-center gap-3 w-full p-4 hover:bg-red-50 rounded-xl transition-colors font-bold text-red-600 text-left"><i data-lucide="trash" class="w-5 h-5"></i> Delete All</button></div></div></div>
 <div id="thread-overlay" class="fixed inset-0 z-[65] hidden flex justify-center items-end md:items-center"><div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeThread()"></div><div class="bg-white w-full md:w-[450px] h-[75vh] md:h-[85vh] md:rounded-[24px] rounded-t-[20px] shadow-2xl relative flex flex-col transform transition-transform duration-300 scale-100 opacity-100 overflow-hidden scale-in thread-mobile-container"><div class="discussion-header"><div class="flex items-center gap-3"><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 md:hidden"><i data-lucide="chevron-down" class="w-6 h-6 text-gray-600"></i></button><span class="font-bold text-lg text-[#1f1f1f]">Thread</span></div><button onclick="closeThread()" class="icon-btn hover:bg-gray-100 hidden md:flex"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div><div id="thread-content" class="discussion-scroll bg-white"></div><div class="discussion-footer"><div class="flex items-center gap-2"><img id="thread-input-avatar" src="" class="w-8 h-8 rounded-full bg-gray-200 object-cover shrink-0"><input type="text" id="thread-input" placeholder="Add a reply..." class="flex-1 bg-[#f2f2f2] rounded-[24px] px-4 py-2.5 text-sm outline-none text-gray-900 placeholder-gray-500" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitThreadReply();}"><button onclick="submitThreadReply()" class="w-10 h-10 bg-[#065fd4] rounded-full flex items-center justify-center text-white shrink-0 hover:bg-blue-700 transition-colors shadow-sm"><i data-lucide="arrow-up" class="w-5 h-5"></i></button></div></div></div></div>
 <div id="post-view-overlay" class="fixed inset-0 z-[60] hidden flex justify-center items-center"><div class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity" onclick="closePostView()"></div><div id="post-view-container" class="post-modal-layout scale-in relative z-10"></div></div>
-<div id="feed-filter-overlay" class="fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeFeedFilter()"><div id="feed-filter-modal" class="bg-white w-full h-auto md:w-[400px] md:max-h-[80vh] md:rounded-[24px] rounded-t-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeFeedFilter()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg">Feed Filter</span><div class="w-10"></div></div><div class="p-4 flex flex-col gap-2"><button onclick="switchFeedFilter('all')" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors text-left group"><div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 group-hover:bg-gray-200"><i data-lucide="globe" class="w-5 h-5"></i></div><div><div class="font-bold text-gray-900">All Posts</div><div class="text-xs text-gray-500">Show posts from everyone</div></div></button><button onclick="switchFeedFilter('following')" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors text-left group"><div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 group-hover:bg-gray-200"><i data-lucide="users" class="w-5 h-5"></i></div><div><div class="font-bold text-gray-900">Following</div><div class="text-xs text-gray-500">Posts from people you follow</div></div></button><button onclick="switchFeedFilter('friends')" class="flex items-center gap-3 w-full p-4 hover:bg-gray-50 rounded-xl transition-colors text-left group"><div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 group-hover:bg-gray-200"><i data-lucide="heart-handshake" class="w-5 h-5"></i></div><div><div class="font-bold text-gray-900">Friends</div><div class="text-xs text-gray-500">Mutual follows only</div></div></button></div></div></div>
+<div id="feed-filter-overlay" class="fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeFeedFilter()"><div id="feed-filter-modal" class="bg-white w-full h-auto md:w-[400px] md:max-h-[80vh] md:rounded-[24px] rounded-t-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeFeedFilter()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg">Feed Filter</span><div class="w-10"></div></div><div class="p-4 flex flex-col gap-2"><button onclick="switchFeedFilter('all')" class="group"><div class="icon-circle text-[#606060] bg-gray-100"><i data-lucide="globe" class="w-5 h-5"></i></div><div><div class="font-bold text-gray-900">All Posts</div><div class="text-xs text-gray-500">Show posts from everyone</div></div></button><button onclick="switchFeedFilter('following')" class="group"><div class="icon-circle text-[#606060] bg-gray-100"><i data-lucide="users" class="w-5 h-5"></i></div><div><div class="font-bold text-gray-900">Following</div><div class="text-xs text-gray-500">Posts from people you follow</div></div></button><button onclick="switchFeedFilter('friends')" class="group"><div class="icon-circle text-[#606060] bg-gray-100"><i data-lucide="heart-handshake" class="w-5 h-5"></i></div><div><div class="font-bold text-gray-900">Friends</div><div class="text-xs text-gray-500">Mutual follows only</div></div></button></div></div></div>
 <div id="lightbox" class="fixed inset-0 bg-black/95 z-[9999] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300" onclick="closeLightbox()"><button class="absolute top-8 right-8 text-white/70 hover:text-white bg-white/10 rounded-full p-3 hover:bg-white/20"><i data-lucide="x" class="w-8 h-8"></i></button><div id="lightbox-wrapper" class="w-full h-full flex justify-center items-center p-6"></div></div>
 <div id="toast" class="toast"><i id="toast-icon" data-lucide="check-circle-2" class="w-5 h-5 text-[#c4eed0]"></i><span id="toast-msg">Action Completed</span></div>
 <div id="likes-overlay" class="fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeLikes()"><div id="likes-modal" class="bg-white w-full h-[70vh] md:h-auto md:w-[400px] md:max-h-[80vh] md:rounded-[24px] rounded-t-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeLikes()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg">Likes</span><div class="w-10"></div></div><div id="likes-list-content" class="flex-1 overflow-y-auto p-2"></div></div></div>
-<div id="settings-overlay" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm hidden" onclick="closeSettings()"><div class="bg-white w-[90%] max-w-[450px] rounded-[24px] shadow-2xl p-6 relative transform transition-all scale-100 overflow-hidden flex flex-col max-h-[85vh]" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-6"><h2 class="text-xl font-bold text-[#1f1f1f] google-font">Settings</h2><button onclick="closeSettings()" class="icon-btn hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="flex-1 overflow-y-auto space-y-6"><div><h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Privacy</h3><div class="flex items-center justify-between py-2"><div><div class="font-medium text-gray-900">Private Account</div><div class="text-xs text-gray-500">Only followers can see your posts</div></div><div id="toggle-privacy" class="toggle-switch" onclick="togglePrivacy()"><div class="toggle-dot"></div></div></div></div><div><h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">About</h3><a href="#" class="flex items-center justify-between py-3 hover:bg-gray-50 rounded-lg px-2 -mx-2 transition-colors group"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600"><i data-lucide="crown" class="w-4 h-4"></i></div><span class="font-medium text-gray-900">Premium</span></div><i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-gray-600"></i></a></div></div><div class="mt-6 pt-4 border-t border-gray-100"><button onclick="doLogout()" class="w-full py-3 text-red-500 font-bold hover:bg-red-50 rounded-xl transition-colors">Log Out</button></div></div></div>
+<div id="settings-overlay" class="fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeSettings()"><div id="settings-modal" class="bg-white w-full h-auto md:w-[400px] md:max-h-[80vh] md:rounded-[24px] rounded-t-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeSettings()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg">Settings</span><div class="w-10"></div></div><div class="p-4 flex flex-col gap-2" id="settings-content"></div></div></div>
+<div id="privacy-overlay" class="fixed inset-0 z-[80] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closePrivacySettings()"><div id="privacy-modal" class="bg-white w-full h-full md:h-auto md:w-[450px] md:max-h-[90vh] md:rounded-[24px] rounded-none shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="flex justify-between items-center h-16 px-4 border-b border-gray-100 shrink-0 bg-white"><div class="flex items-center gap-3"><img id="privacy-user-avatar" src="" class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 object-cover"><span id="privacy-user-name" class="font-bold text-gray-900 text-sm">User</span></div><button onclick="closePrivacySettings()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="x" class="w-5 h-5 text-gray-600"></i></button></div><div class="flex-1 overflow-y-auto p-4 space-y-2"><div class="p-4 bg-gray-50 rounded-xl"><div class="toggle-setting-row"><div><div class="font-bold text-gray-900 text-[15px]">Private Account</div><div class="text-xs text-gray-500 mt-0.5">Only followers can see your posts</div></div><div id="toggle-privacy-main" class="toggle-switch" onclick="updatePrivacySetting('privateNetwork')"><div class="toggle-dot"></div></div></div><div class="toggle-setting-row"><div><div class="font-bold text-gray-900 text-[15px]">Hide Connections</div><div class="text-xs text-gray-500 mt-0.5">Hide your following and followers lists</div></div><div id="toggle-hide-connections" class="toggle-switch" onclick="updatePrivacySetting('hideConnections')"><div class="toggle-dot"></div></div></div></div><div class="p-4"><p class="text-xs text-gray-400 text-center leading-relaxed">Changes are saved automatically and applied immediately.</p></div></div></div></div>
 <div id="user-list-overlay" class="fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeUserList()"><div id="user-list-modal" class="bg-white w-full h-[70vh] md:h-auto md:w-[400px] md:max-h-[80vh] md:rounded-[24px] rounded-t-[24px] shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="h-16 border-b border-gray-100 flex items-center justify-between px-4 shrink-0"><button onclick="closeUserList()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><span class="font-bold text-gray-900 text-lg" id="user-list-title">Users</span><div class="w-10"></div></div><div id="user-list-content" class="flex-1 overflow-y-auto p-2"></div></div></div>
 <div id="create-menu-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#000]/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200" onclick="closeCreateMenu()"><div id="create-menu-modal" class="bg-white w-[90%] max-w-[500px] rounded-[24px] shadow-2xl p-6 relative transform scale-95 transition-transform duration-200" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-6"><h2 class="text-xl font-bold text-[#1f1f1f] google-font">Create New</h2><button onclick="closeCreateMenu()" class="icon-btn hover:bg-[#f0f4f9]"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="grid grid-cols-1 gap-4"><div class="create-option-card" onclick="openCompose()"><div class="create-icon-bg"><i data-lucide="pen-tool" class="w-6 h-6"></i></div><span class="font-bold text-[#1f1f1f]">Post</span></div><div id="create-option-ad" class="create-option-card hidden" onclick="openPromoModal(event);closeCreateMenu()"><div class="create-icon-bg"><i data-lucide="megaphone" class="w-6 h-6"></i></div><span class="font-bold text-[#1f1f1f]">Ad</span></div></div></div></div>
 <div id="edit-profile-overlay" class="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" onclick="closeEditProfile()"><div id="edit-profile-modal" class="bg-white w-full h-full md:h-auto md:w-[95%] md:max-w-[500px] md:max-h-[90vh] md:rounded-[24px] rounded-none shadow-2xl relative transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-200 flex flex-col overflow-hidden" onclick="event.stopPropagation()"><div class="flex justify-between items-center h-16 px-4 border-b border-gray-100 shrink-0 bg-white"><button onclick="closeEditProfile()" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i></button><h2 class="text-lg font-bold google-font">Edit Profile</h2><div class="w-10"></div></div><div class="flex-1 overflow-y-auto p-0 pb-20 md:pb-6 relative"><div class="relative"><div id="banner-edit-area" class="h-36 w-full bg-gray-200 relative overflow-hidden cursor-grab group" onclick="document.getElementById('edit-banner-input').click()"><img id="edit-banner-preview" src="" class="w-full h-full object-cover pointer-events-none select-none"><div class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="camera" class="text-white w-8 h-8 drop-shadow-md"></i></div></div><div class="absolute -bottom-10 left-4"><div class="relative group cursor-pointer" onclick="document.getElementById('edit-avatar-input').click()"><img id="edit-avatar-preview" src="" class="w-24 h-24 rounded-full border-4 border-white bg-gray-100 object-cover"><div class="absolute inset-0 rounded-full bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="camera" class="text-white w-6 h-6 drop-shadow-md"></i></div></div></div><div class="absolute top-2 right-2 bg-black/50 text-white text-[10px] px-2 py-1 rounded-md pointer-events-none backdrop-blur-sm">Drag to reposition: <span id="banner-pos-hint">50%</span></div></div><div class="mt-12 px-6 flex flex-col gap-6"><input type="file" id="edit-avatar-input" class="hidden" accept="image/*" onchange="handleEditAvatarSelect(event)"><input type="file" id="edit-banner-input" class="hidden" accept="image/*" onchange="handleEditBannerSelect(event)"><div><label class="text-xs font-bold text-gray-500 uppercase">Display Name</label><input type="text" id="edit-name" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 font-medium text-gray-900 text-lg"></div><div><label class="text-xs font-bold text-gray-500 uppercase">Username</label><div class="relative"><span class="absolute left-0 top-2 text-gray-400 font-medium">@</span><input type="text" id="edit-username" class="w-full border-b border-gray-200 py-2 pl-4 outline-none focus:border-blue-500 font-medium text-gray-900"></div></div><div><label class="text-xs font-bold text-gray-500 uppercase">Email</label><input type="text" id="edit-email" class="w-full border-b border-gray-200 py-2 outline-none text-gray-500 bg-transparent select-text" disabled></div><div><label class="text-xs font-bold text-gray-500 uppercase">Bio</label><textarea id="edit-bio" class="w-full border-b border-gray-200 py-2 outline-none focus:border-blue-500 text-sm text-gray-700 resize-none" rows="3"></textarea></div></div></div><div class="p-4 border-t border-gray-100 bg-white absolute bottom-0 w-full md:relative"><button id="save-profile-btn" onclick="saveProfileChanges()" class="w-full bg-gray-100 text-gray-900 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all">Save Changes</button></div></div></div>
@@ -396,31 +402,36 @@ window.onpopstate = (event) => {
         {id: 'post-options-overlay', close: window.hidePostMenu},
         {id: 'settings-overlay', close: window.closeSettings},
         {id: 'notif-options-overlay', close: window.closeNotifOptions},
-        {id: 'qr-overlay', close: window.closeQR}
+        {id: 'qr-overlay', close: window.closeQR},
+        {id: 'privacy-overlay', close: window.closePrivacySettings},
+        {id: 'view-profile', close: () => window.switchView('feed')}
     ];
 
     let closedAny = false;
     // Check if we are popping a modal state
     if (event.state && event.state.modal) {
-        // This usually happens when going forward, but here we want backward.
-        // Actually, popstate happens after the state change.
-        // If we are back at root or a previous modal state...
+        // ...
     } else {
         // We went back. Check visible overlays.
         for(let m of modals) {
             const el = document.getElementById(m.id);
             if(el && !el.classList.contains('hidden') && !el.classList.contains('opacity-0')) {
-                // If it's compose overlay, we need special handling because closeCompose is async/has checks
-                if(m.id === 'compose-overlay'){
-                    // For history back, force close or handle gracefully?
-                    // attemptCloseCompose might show an alert. 
-                    // If alert shows, we are still "on page".
+                // Special case for profile view which isn't a modal class but a view container
+                if(m.id === 'view-profile') {
+                    if (window.currentViewingProfileId) {
+                       window.switchView('feed');
+                       window.currentViewingProfileId = null;
+                       closedAny = true;
+                    }
+                }
+                else if(m.id === 'compose-overlay'){
                     window.closeCompose(); 
+                    closedAny = true;
                 } else {
                     m.close();
+                    closedAny = true;
                 }
-                closedAny = true;
-                break; // Close top-most
+                if(closedAny) break; 
             }
         }
     }
@@ -428,7 +439,7 @@ window.onpopstate = (event) => {
     if(!closedAny) {
         // At root level
         if(exitAttempt) {
-            // Allow exit
+            // Allow exit (browser default behavior happens if we don't push state again)
         } else {
             // Push state back to prevent exit and show toast
             window.history.pushState({ root: true }, "");
@@ -452,6 +463,22 @@ function initRealtimeListeners(){
         users=s.docs.map(d=>({id:d.id,...d.data()}));
         if(window.pendingProfileUid && users.some(u=>u.id===window.pendingProfileUid)){ showProfile(window.pendingProfileUid); window.pendingProfileUid=null; window.history.replaceState({},document.title,window.location.pathname); }
         if(!document.getElementById('view-network').classList.contains('hidden')) renderNetwork();
+        
+        // Update Privacy Toggles if Settings Open
+        if(!document.getElementById('privacy-overlay').classList.contains('hidden')) {
+             const u = users.find(x => x.id === currentUser.id);
+             if(u && u.settings) {
+                 const pToggle = document.getElementById('toggle-privacy-main');
+                 const hToggle = document.getElementById('toggle-hide-connections');
+                 
+                 if(u.settings.privateNetwork) pToggle.classList.add('active'); 
+                 else pToggle.classList.remove('active');
+                 
+                 if(u.settings.hideConnections) hToggle.classList.add('active');
+                 else hToggle.classList.remove('active');
+             }
+        }
+        
         renderRightSidebar(); refreshIcons();
     });
 
@@ -535,7 +562,89 @@ function initBannerDrag(){ const c=document.getElementById('banner-edit-area'); 
 function sd(e){ if(e.target.closest('#banner-edit-area')){ isDraggingBanner=true; startY=e.type.includes('mouse')?e.clientY:e.touches[0].clientY; initialBannerPos=currentBannerPos; } }
 function dg(e){ if(!isDraggingBanner) return; if(e.cancelable) e.preventDefault(); const y=e.type.includes('mouse')?e.clientY:e.touches[0].clientY, d=startY-y, p=initialBannerPos+(d/2); currentBannerPos=Math.round(Math.max(0,Math.min(100,p))); document.getElementById('edit-banner-preview').style.objectPosition=`center ${currentBannerPos}%`; document.getElementById('banner-pos-hint').innerText=`${currentBannerPos}%`; }
 function ed(){ isDraggingBanner=false; }
-window.openSettings=()=>{ manageHistory('settings-overlay'); document.getElementById('settings-overlay').classList.remove('hidden'); }; window.closeSettings=()=>document.getElementById('settings-overlay').classList.add('hidden');
+
+window.openSettings=()=>{ 
+    manageHistory('settings-overlay'); 
+    document.getElementById('settings-overlay').classList.remove('hidden'); 
+    
+    // Render dynamic settings content
+    const c = document.getElementById('settings-content');
+    c.innerHTML = `
+       <button onclick="openPrivacySettings()" class="post-option-item group w-full">
+           <div class="icon-circle"><i data-lucide="lock" class="w-5 h-5"></i></div>
+           <div>
+               <div class="font-bold text-gray-900 text-[15px]">Account Privacy</div>
+               <div class="text-xs text-gray-500">Manage visibility and data</div>
+           </div>
+       </button>
+       <button onclick="showToast('EduLink Version 1.0')" class="post-option-item group w-full">
+           <div class="icon-circle"><i data-lucide="info" class="w-5 h-5"></i></div>
+           <div>
+               <div class="font-bold text-gray-900 text-[15px]">About Us</div>
+               <div class="text-xs text-gray-500">Learn more about EduLink</div>
+           </div>
+       </button>
+       <button onclick="showToast('Standard terms apply')" class="post-option-item group w-full">
+           <div class="icon-circle"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+           <div>
+               <div class="font-bold text-gray-900 text-[15px]">Terms of Use</div>
+               <div class="text-xs text-gray-500">Policies and agreements</div>
+           </div>
+       </button>
+       <div class="h-px bg-gray-100 my-1"></div>
+       <button onclick="doLogout()" class="post-option-item group w-full">
+           <div class="icon-circle bg-red-50 text-red-600"><i data-lucide="log-out" class="w-5 h-5"></i></div>
+           <div class="font-bold text-red-600 text-[15px]">Log Out</div>
+       </button>
+    `;
+    refreshIcons();
+}; 
+window.closeSettings=()=>document.getElementById('settings-overlay').classList.add('hidden');
+
+// Privacy Settings
+window.openPrivacySettings=()=>{
+    manageHistory('privacy-overlay');
+    closeSettings(); // Transition
+    document.getElementById('privacy-overlay').classList.remove('hidden');
+    animModal('privacy-overlay','privacy-modal',true);
+    
+    // Set Header
+    document.getElementById('privacy-user-avatar').src = currentUser.avatar;
+    document.getElementById('privacy-user-name').innerText = currentUser.name;
+    
+    // Set Toggles
+    const settings = currentUser.settings || {};
+    const pToggle = document.getElementById('toggle-privacy-main');
+    const hToggle = document.getElementById('toggle-hide-connections');
+    
+    if(settings.privateNetwork) pToggle.classList.add('active'); else pToggle.classList.remove('active');
+    if(settings.hideConnections) hToggle.classList.add('active'); else hToggle.classList.remove('active');
+};
+
+window.closePrivacySettings=()=>animModal('privacy-overlay','privacy-modal',false);
+
+window.updatePrivacySetting = async (key) => {
+    const el = key === 'privateNetwork' ? document.getElementById('toggle-privacy-main') : document.getElementById('toggle-hide-connections');
+    const isActive = el.classList.contains('active');
+    const newValue = !isActive;
+    
+    el.classList.toggle('active');
+    
+    const settings = currentUser.settings || {};
+    settings[key] = newValue;
+    
+    await updateDoc(doc(db,"users",currentUser.id), { settings: settings });
+    currentUser.settings = settings; // Local update
+    
+    // If updating private network, refresh UI if needed (though onSnapshot usually handles it)
+    if(key === 'privateNetwork') {
+        const t = newValue ? 'Private' : 'Public';
+        showToast(`Account is now ${t}`);
+    } else {
+        showToast("Settings saved");
+    }
+};
+
 window.togglePrivacy=async()=>{ const t=document.getElementById('toggle-privacy'), p=!t.classList.contains('active'); t.classList.toggle('active'); const s=currentUser.settings||{}; s.privateNetwork=p; await updateDoc(doc(db,"users",currentUser.id),{settings:s}); currentUser.settings=s; showToast(`Account is ${p?'Private':'Public'}`); };
 window.switchView=async v=>{
     ['feed','events','saved','network','profile','explore','notifications','announcements'].forEach(n=>{const e=document.getElementById(`view-${n}`);if(e)e.classList.add('hidden');});
@@ -915,10 +1024,23 @@ window.showProfile=(uid,tab='posts')=>{
     const u=users.find(x=>x.id===uid); if(!u) return;
     const c=document.getElementById('view-profile'), me=uid===currentUser.id, fol=currentUser.following?.includes(uid);
     
+    // Visibility checks
+    const hideConnections = u.settings?.hideConnections && !me;
+    
     let ab=me ? `<div class="flex gap-2"><button onclick="openEditProfile()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200">Edit Profile</button><button onclick="openQR()" class="bg-gray-100 text-gray-700 px-2 py-2 rounded-lg hover:bg-gray-200"><i data-lucide="qr-code" class="w-5 h-5"></i></button></div>` 
               : `<div class="flex gap-2"><button id="profile-follow-btn" onclick="toggleFollow('${uid}')" class="${fol?'bg-gray-100 text-gray-700':'bg-[#0b57d0] text-white'} px-4 py-2 rounded-lg font-bold text-sm transition-colors">${fol?'Following':(u.settings?.privateNetwork?'Request':'Follow')}</button><button onclick="openQR('${uid}')" class="bg-gray-100 text-gray-700 px-2 py-2 rounded-lg hover:bg-gray-200"><i data-lucide="qr-code" class="w-5 h-5"></i></button></div>`;
 
-    const stats=(me||!u.settings?.privateNetwork||fol) ? `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="cursor-pointer hover:underline" onclick="openUserList('following','${uid}')"><strong class="text-gray-900">${u.following?.length||0}</strong> Following</span><span class="cursor-pointer hover:underline" onclick="openUserList('followers','${uid}')"><strong class="text-gray-900">${u.followers?.length||0}</strong> Followers</span></div>` : `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="italic"><i data-lucide="lock" class="w-3 h-3 inline"></i> Private Account</span></div>`;
+    let stats = '';
+    if (hideConnections) {
+        stats = `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="italic"><i data-lucide="eye-off" class="w-3 h-3 inline"></i> Connections hidden</span></div>`;
+    } else {
+        const canView = me || !u.settings?.privateNetwork || fol;
+        if(canView) {
+            stats = `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="cursor-pointer hover:underline" onclick="openUserList('following','${uid}')"><strong class="text-gray-900">${u.following?.length||0}</strong> Following</span><span class="cursor-pointer hover:underline" onclick="openUserList('followers','${uid}')"><strong class="text-gray-900">${u.followers?.length||0}</strong> Followers</span></div>`;
+        } else {
+            stats = `<div class="flex gap-4 mt-3 text-sm text-gray-500"><span class="italic"><i data-lucide="lock" class="w-3 h-3 inline"></i> Private Account</span></div>`;
+        }
+    }
     
     const tabs=['posts','saved','liked','tagged','links'].map(t=>(!me&&t==='saved')?'':`<button onclick="switchProfileTab('${t}')" class="tab-btn ${tab===t?'active':''}"><i data-lucide="${{posts:'grid',saved:'bookmark',liked:'heart',tagged:'user-check',links:'link'}[t]}" class="w-5 h-5"></i></button>`).join('');
 
@@ -937,7 +1059,18 @@ window.renderProfileContent=(uid,t)=>{
     if(t==='liked'&&uid!==currentUser.id) return c.innerHTML='<div class="flex flex-col items-center justify-center py-20 text-gray-400 opacity-60"><i data-lucide="lock" class="w-16 h-16 mb-2"></i><p>This user\'s likes are private.</p></div>', refreshIcons();
 
     let tp = posts.filter(p => t==='posts'?p.authorId===uid : t==='saved'?savedPosts.includes(p.id) : t==='liked'?p.likes?.includes(uid) : (p.collaborators?.some(x=>x.id===uid&&x.status==='accepted')||p.mentions?.includes(uid)));
-    if(uid!==currentUser.id && t==='posts') tp=tp.filter(p=> (u.settings?.privateNetwork ? !currentUser.following.includes(uid) : (p.settings?.privacy==='public'||currentUser.following.includes(uid))));
+    
+    // Privacy Check for Profile Posts
+    if(uid!==currentUser.id && t==='posts') {
+        const isFollowing = currentUser.following.includes(uid);
+        if(u.settings?.privateNetwork && !isFollowing) {
+             c.innerHTML='<div class="flex flex-col items-center justify-center py-20 text-gray-400 opacity-60"><i data-lucide="lock" class="w-16 h-16 mb-2"></i><p>This account is private.</p></div>';
+             refreshIcons();
+             return;
+        }
+        // Additional per-post privacy check
+        tp=tp.filter(p=> (p.settings?.privacy==='public'||currentUser.following.includes(uid)));
+    }
 
     c.innerHTML=tp.length ? `<div class="grid-post-container">${tp.map(p=>{
         const m=Array.isArray(p.media)?p.media[0]:p.media, isV=m&&(m.includes('video')||m.endsWith('.mp4')||m.startsWith('data:video'));
@@ -982,11 +1115,23 @@ window.deleteLink=async i=>showAlert("Remove link?",async()=>{await updateDoc(do
 
 // --- Post View Redesigned ---
 window.openPostView=pid=>{
+    const p=posts.find(x=>x.id===pid); 
+    if(!p) return;
+    
+    const a=users.find(u=>u.id===p.authorId)||{name:'Unknown',avatar:''};
+    const isMe = p.authorId === currentUser.id;
+    const isFollowing = currentUser.following.includes(p.authorId);
+    
+    // Privacy Check for Post View
+    if(!isMe && a.settings?.privateNetwork && !isFollowing) {
+        showToast("This account is private");
+        return;
+    }
+
     manageHistory('post-view-overlay');
-    const p=posts.find(x=>x.id===pid), o=document.getElementById('post-view-overlay'), c=document.getElementById('post-view-container'); if(!p) return;
+    const o=document.getElementById('post-view-overlay'), c=document.getElementById('post-view-container');
     window.currentViewingPostId=pid; 
     o.classList.remove('hidden'); o.classList.add('flex');
-    const a=users.find(u=>u.id===p.authorId)||{name:'Unknown',avatar:''};
     
     let mh = '';
     if(p.media){
@@ -1213,8 +1358,8 @@ window.renderThreadContent=(pid,cid)=>{
                     <div class="flex-1 min-w-0 flex items-start justify-between">
                          <div class="mr-4">
                              <div class="flex items-center gap-2 mb-0.5">
-                                <span class="font-bold text-sm text-gray-900">${ra.name}</span>
-                                <span class="text-xs text-gray-500">${formatDate(r.timestamp)}</span>
+                                 <span class="font-bold text-sm text-gray-900">${ra.name}</span>
+                                 <span class="text-xs text-gray-500">${formatDate(r.timestamp)}</span>
                              </div>
                              <div class="text-sm text-gray-900 mb-2 js-comment-body-${r.id}">${window.renderTextWithReadMore(r.content, `comment-${r.id}`)}</div>
                              ${r.authorId===currentUser.id?`<button onclick="deleteComment('${pid}','${r.id}')" class="text-xs font-bold text-red-500 mt-1">Delete</button>`:''}
@@ -1807,6 +1952,8 @@ if(typeof setupSwipeClose === 'function'){
     setupSwipeClose('qr-modal', 'qr-overlay', window.closeQR);
     setupSwipeClose('user-list-modal', 'user-list-overlay', window.closeUserList);
     setupSwipeClose('feed-filter-modal', 'feed-filter-overlay', window.closeFeedFilter);
+    setupSwipeClose('settings-modal', 'settings-overlay', window.closeSettings);
+    setupSwipeClose('privacy-modal', 'privacy-overlay', window.closePrivacySettings);
 }
 
 const urlParams = new URLSearchParams(window.location.search);

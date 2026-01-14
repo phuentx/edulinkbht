@@ -565,7 +565,6 @@ function ed(){ isDraggingBanner=false; }
 
 window.openSettings=()=>{ 
     manageHistory('settings-overlay'); 
-    document.getElementById('settings-overlay').classList.remove('hidden'); 
     
     // Render dynamic settings content
     const c = document.getElementById('settings-content');
@@ -597,9 +596,11 @@ window.openSettings=()=>{
            <div class="font-bold text-red-600 text-[15px]">Log Out</div>
        </button>
     `;
+    
+    toggleModalAnim('settings-overlay', 'settings-modal', true);
     refreshIcons();
 }; 
-window.closeSettings=()=>document.getElementById('settings-overlay').classList.add('hidden');
+window.closeSettings=()=>toggleModalAnim('settings-overlay', 'settings-modal', false);
 
 // Privacy Settings
 window.openPrivacySettings=()=>{
